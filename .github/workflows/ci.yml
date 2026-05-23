@@ -1,0 +1,61 @@
+name: CI
+
+# The gate chain documented in README.md and run locally via `npm run verify`:
+# typecheck -> unit + integrity (Vitest) -> production build -> e2e render + a11y
+# (Playwright, desktop Chrome + mobile Pixel 5 against the production build).
+# Steps are split so failure attribution is precise; the artifact upload only
+# fires on failure to keep storage bounded.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Cancel an in-flight run when a new commit lands on the same ref — saves
+# runner minutes during iteration without dropping the latest-commit gate.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      - name: Typecheck (strict TS on .ts/.tsx)
+        run: npm run typecheck
+
+      - name: Unit + integrity (Vitest, no browser)
+        run: npm run test
+
+      - name: Production build (regenerates tokens.css)
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E render + a11y (desktop + mobile)
+        run: npm run test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: ignore
