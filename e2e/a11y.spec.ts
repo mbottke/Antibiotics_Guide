@@ -72,4 +72,27 @@ test.describe("accessibility (axe-core, WCAG 2.1 AA)", () => {
     const r = await scan(page);
     expect(r.violations, JSON.stringify(r.violations, null, 2)).toEqual([]);
   });
+
+  /* Phase B — the Reassessment panel with all three triggers fired must
+     clear AA. This is the highest-density bedside surface and the most
+     likely place for a contrast or focus regression. */
+  test("bedside Reassessment panel (all triggers active) has no violations", async ({ page }) => {
+    await page.goto("/?bedside=1");
+    await page.waitForLoadState("networkidle");
+    await page.locator('input[type="text"]').first().fill("HAP prior MRSA");
+    await page.getByRole("button", { name: /apply case/i }).click();
+    await expect(page.getByText(/start now/i).first()).toBeVisible();
+    // Fire every reassessment trigger, scoped to the panel so we never click
+    // a same-named control elsewhere on the page (e.g. the Covers section's
+    // MRSA chip).
+    const panel = page.getByTestId("reassessment-panel");
+    await panel.getByRole("button", { name: /^back$/i }).click();
+    await panel.getByRole("button", { name: /^MRSA$/i }).click();
+    await panel.getByRole("button", { name: /stable & improving/i }).click();
+    await panel.getByRole("button", { name: /tolerating oral/i }).click();
+    await panel.getByRole("button", { name: /source controlled/i }).click();
+    await expect(page.getByTestId("reassessment-output")).toBeVisible();
+    const r = await scan(page);
+    expect(r.violations, JSON.stringify(r.violations, null, 2)).toEqual([]);
+  });
 });

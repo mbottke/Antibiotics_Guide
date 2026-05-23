@@ -24,6 +24,7 @@ import { AGENT_RX } from "../data/drugs.js";
 import { ORG_BY_ID } from "../data/organisms.js";
 import { renderGloss, renderRich } from "./rich-text.jsx";
 import { Cite, DecisionTag, Ev } from "./primitives.jsx";
+import { ReassessmentPanel } from "./ReassessmentPanel.jsx";
 
 /* ---------- refinement → footnote mapping ----------
    For each refinement step in composeAnswer.refinement.steps, decide
@@ -520,6 +521,15 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           </div>
         )}
       </Section>
+
+      {/* DAY-3 REASSESSMENT (Phase B) — stateful workflow */}
+      <ReassessmentPanel
+        caseState={caseState}
+        setCaseState={setCaseState}
+        empiric={ans}
+        onDrug={onDrug}
+        onOrg={onOrg}
+      />
 
       {/* DURATION + EVIDENCE */}
       <Section kicker="Duration" icon={Clock}>

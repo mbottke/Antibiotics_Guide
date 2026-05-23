@@ -62,6 +62,11 @@ export default function InpatientAbxGuide() {
       if(day && !Number.isNaN(+day)) out.dayOfTx = +day;
       const sd = h.get("sd");
       if(sd && /^\d{4}-\d{2}-\d{2}$/.test(sd)) out.startDate = sd;
+      const cl = h.get("cl");   // clinical bitfield: 1=stable, 2=absorbing, 4=sourceControlled
+      if(cl && !Number.isNaN(+cl)){
+        const n = +cl;
+        out.clinical = { stable:!!(n&1), absorbing:!!(n&2), sourceControlled:!!(n&4) };
+      }
       return out;
     } catch(e){ return {}; }
   })();
@@ -93,10 +98,12 @@ export default function InpatientAbxGuide() {
   const [openOrg, setOpenOrg] = useState(null);
   /* ---- A2 · unified case state (Phase 0.1 · patient → caseState) ----
      The single source of truth for everything case-driven. Patient (the old
-     `ctx`) is nested under `caseState.patient`; the remaining fields are
-     stubs populated by Phases A–B (the Case Bar, the Reassessment workflow):
+     `ctx`) is nested under `caseState.patient`; the remaining fields drive
+     Phase A (Case Bar) and Phase B (Reassessment workflow):
        · syndrome     — id of the actively selected presentation, or null
        · cultures     — { status: "pending"|"back", organism: orgId|null }
+       · clinical     — { stable, absorbing, sourceControlled } booleans
+                        feeding the 48–72 h reassessment workflow
        · dayOfTx      — integer day of therapy, or null
        · startDate    — ISO yyyy-mm-dd string, or null
      The `ctx` / `setCtxField` / `setCpField` shims below preserve the exact
@@ -112,6 +119,7 @@ export default function InpatientAbxGuide() {
     },
     syndrome:  _hashState.openSyn || null,
     cultures:  _hashState.cultures || { status:"pending", organism:null },
+    clinical:  _hashState.clinical || { stable:false, absorbing:false, sourceControlled:false },
     dayOfTx:   _hashState.dayOfTx ?? null,
     startDate: _hashState.startDate || null,
   });
@@ -213,11 +221,16 @@ export default function InpatientAbxGuide() {
       if(cul && cul.status === "back" && cul.organism) p.set("cul", cul.organism);
       if(caseState.dayOfTx != null) p.set("day", String(caseState.dayOfTx));
       if(caseState.startDate) p.set("sd", caseState.startDate);
+      const cli = caseState.clinical;
+      if(cli){
+        const bits = (cli.stable?1:0) | (cli.absorbing?2:0) | (cli.sourceControlled?4:0);
+        if(bits) p.set("cl", String(bits));
+      }
       const next = p.toString();
       const cur = (window.location.hash || "").replace(/^#/, "");
       if(next !== cur) window.history.replaceState(null, "", next ? "#"+next : window.location.pathname + window.location.search);
     } catch(e){ /* hash sync is best-effort */ }
-  }, [tab, openSyn, ctx, caseState.cultures, caseState.dayOfTx, caseState.startDate]);
+  }, [tab, openSyn, ctx, caseState.cultures, caseState.dayOfTx, caseState.startDate, caseState.clinical]);
 
   /* dose(name): renally-adjusted dose for THIS patient, or null when context is
      off / agent has no structured rule → caller renders the static string. */

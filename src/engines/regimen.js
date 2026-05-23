@@ -232,4 +232,108 @@ function composeAnswer(caseState){
   };
 }
 
-export { buildRegimen, regimenAgents, refineAgents, refineOptionGroups, refineRegimen, deescalationPlan, composeAnswer };
+/* ============================================================================
+   applyReassessment — Phase B's stateful 48–72 h move.
+   Takes the empiric composed-answer bundle plus the day-3 inputs from
+   caseState (cultures back? stable + absorbing? source controlled?) and
+   returns the structured "what changes" delta. Each section is null when
+   its trigger has not fired, so the UI can render only the parts that
+   apply. Pure; safe to call every render.
+
+   Output shape:
+     {
+       cultures: { status, organism, label } | null,
+       directed: { org, first, alt, cav } | null,   // matched DIRECTED row
+       drop:    [agent, ...],                       // empiric agents lacking activity
+       narrow:  { agents: [...], note },            // header for the dropped set
+       ivpo:    { criteria, candidates } | null,    // oral conversion plan
+       duration: { days, source: "syndrome" } | null,
+       stopDate: "yyyy-mm-dd" | null,               // requires startDate + days
+       activeTriggers: ["cultures"|"ivpo"|"duration"|...] // for UI
+     }
+   Returns null when no trigger has fired (so the Reassess panel can stay
+   collapsed). */
+function _extractDurationDays(durStr){
+  if(!durStr || typeof durStr !== "string") return null;
+  // Match the FIRST integer day-count: "7 days", "5-7 days", "~4 d after"
+  const m = durStr.match(/(\d+)\s*(?:d(?!eep)|day)/i);
+  return m ? +m[1] : null;
+}
+
+function _addDays(yyyymmdd, n){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(yyyymmdd)) return null;
+  const [y,mo,da] = yyyymmdd.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, mo - 1, da));
+  if(Number.isNaN(dt.getTime())) return null;
+  dt.setUTCDate(dt.getUTCDate() + n);
+  const z = (v) => String(v).padStart(2, "0");
+  return `${dt.getUTCFullYear()}-${z(dt.getUTCMonth()+1)}-${z(dt.getUTCDate())}`;
+}
+
+function applyReassessment(empiric, caseState){
+  if(!empiric || !caseState) return null;
+  const cult = caseState.cultures || {};
+  const clin = caseState.clinical || {};
+  const triggers = [];
+
+  const cultBack = cult.status === "back" && cult.organism;
+  const stableAbsorbing = !!(clin.stable && clin.absorbing);
+  const sourceOK = !!clin.sourceControlled;
+  if(!cultBack && !stableAbsorbing && !sourceOK) return null;
+
+  const out = {
+    cultures: null, directed: null, drop: [], narrow: null,
+    ivpo: null, duration: null, stopDate: null, activeTriggers: triggers,
+  };
+
+  // ---- Trigger 1 · cultures back → directed therapy + stop set --------
+  if(cultBack){
+    triggers.push("cultures");
+    const lk = orgLookup(cult.organism);
+    out.cultures = {
+      status: cult.status,
+      organism: cult.organism,
+      label: lk ? lk.label : cult.organism,
+    };
+    if(lk && lk.directed && lk.directed.length){
+      // Prefer the first matched DIRECTED row (every variant is kept distinct
+      // in orgLookup's output, so subtype-narrowing comes for free).
+      out.directed = lk.directed[0];
+    }
+    out.drop = (empiric.empiricAgents || []).filter(n => !drugCoversOrg(n, cult.organism));
+    if(out.drop.length){
+      out.narrow = {
+        agents: out.drop,
+        note: `These empiric agents lack reliable activity against ${out.cultures.label} — discontinue.`,
+      };
+    }
+  }
+
+  // ---- Trigger 2 · stable + absorbing → IV→PO -------------------------
+  if(stableAbsorbing){
+    triggers.push("ivpo");
+    out.ivpo = {
+      criteria: ["Hemodynamically stable", "Tolerating enteral intake", "Adequate oral option for pathogen"],
+      // Curated high-F PO agents (the Course tab's IV→PO table). v1 returns
+      // the agent names; the UI can cross-reference PO_AGENTS for F values.
+      candidates: ["Levofloxacin", "Linezolid", "Metronidazole", "TMP-SMX", "Doxycycline", "Clindamycin"],
+    };
+  }
+
+  // ---- Trigger 3 · source controlled → duration clock + stop date -----
+  if(sourceOK){
+    triggers.push("duration");
+    const days = _extractDurationDays(empiric.duration);
+    if(days != null){
+      out.duration = { days, source: "syndrome" };
+      if(caseState.startDate){
+        // Day 1 is the start day; the last dose lands on startDate + (days-1).
+        out.stopDate = _addDays(caseState.startDate, days - 1);
+      }
+    }
+  }
+
+  return out;
+}
+
+export { buildRegimen, regimenAgents, refineAgents, refineOptionGroups, refineRegimen, deescalationPlan, composeAnswer, applyReassessment, _extractDurationDays };

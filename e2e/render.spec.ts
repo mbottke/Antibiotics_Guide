@@ -156,3 +156,53 @@ test.describe("bedside mode renders without runtime errors", () => {
     expect(overflow, `bedside answer canvas overflows by ${overflow}px`).toBeLessThanOrEqual(1);
   });
 });
+
+/* Day-3 reassessment workflow (Phase B). The panel mounts inside the
+   Answer Canvas and mutates the regimen view as the user toggles its
+   three structured inputs. */
+test.describe("bedside reassessment panel", () => {
+  async function openHapAnswer(page) {
+    await page.goto("/?bedside=1");
+    await page.waitForLoadState("networkidle");
+    await page.locator('input[type="text"]').first().fill("HAP prior MRSA");
+    await page.getByRole("button", { name: /apply case/i }).click();
+    await expect(page.getByText(/start now/i).first()).toBeVisible();
+  }
+
+  test("panel mounts with the three structured inputs", async ({ page }) => {
+    await openHapAnswer(page);
+    const panel = page.getByTestId("reassessment-panel");
+    await expect(panel).toBeVisible();
+    await expect(panel.getByRole("button", { name: /pending/i })).toBeVisible();
+    await expect(panel.getByRole("button", { name: /stable & improving/i })).toBeVisible();
+    await expect(panel.getByRole("button", { name: /tolerating oral/i })).toBeVisible();
+    await expect(panel.getByRole("button", { name: /source controlled/i })).toBeVisible();
+  });
+
+  test("marking cultures back + picking an organism reveals 'Narrow to'", async ({ page }) => {
+    await openHapAnswer(page);
+    const panel = page.getByTestId("reassessment-panel");
+    await panel.getByRole("button", { name: /^back$/i }).click();
+    await panel.getByRole("button", { name: /^MRSA$/i }).click();
+    await expect(page.getByTestId("reassessment-output")).toBeVisible();
+    await expect(panel.getByText(/narrow to/i).first()).toBeVisible();
+  });
+
+  test("toggling stable + absorbing surfaces IV→PO candidates", async ({ page }) => {
+    await openHapAnswer(page);
+    const panel = page.getByTestId("reassessment-panel");
+    await panel.getByRole("button", { name: /stable & improving/i }).click();
+    await panel.getByRole("button", { name: /tolerating oral/i }).click();
+    await expect(panel.getByText(/iv.po candidates/i).first()).toBeVisible();
+  });
+
+  test("toggling source controlled surfaces the duration clock", async ({ page }) => {
+    await openHapAnswer(page);
+    const panel = page.getByTestId("reassessment-panel");
+    await panel.getByRole("button", { name: /source controlled/i }).click();
+    await expect(panel.getByText(/duration clock/i).first()).toBeVisible();
+    // HAP duration is "7 days for most VAP/HAP" — the panel should surface
+    // the 7-day count even before a start date is set.
+    await expect(panel.getByText(/7 days/i).first()).toBeVisible();
+  });
+});

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildRegimen, regimenAgents, deescalationPlan, composeAnswer } from "../src/engines/regimen.js";
+import { buildRegimen, regimenAgents, deescalationPlan, composeAnswer, applyReassessment, _extractDurationDays } from "../src/engines/regimen.js";
 import { SYNDROMES } from "../src/data/syndromes.js";
 
 /* The empiric selector and the organism-directed de-escalation suggester — the
@@ -192,5 +192,147 @@ describe("composeAnswer — the Bedside answer-bundle entry point", () => {
     if (r.evidence) {
       expect(typeof r.evidence.ref).toBe("string");
     }
+  });
+});
+
+describe("_extractDurationDays — parsing day-counts out of syndrome durations", () => {
+  it("extracts a plain integer day count", () => {
+    expect(_extractDurationDays("7 days")).toBe(7);
+    expect(_extractDurationDays("14 days from clearance")).toBe(14);
+  });
+  it("for a range like '5-7 days', returns the integer immediately preceding the day unit (the upper bound) — the conservative stop date", () => {
+    expect(_extractDurationDays("5-7 days, stop when afebrile")).toBe(7);
+  });
+  it("handles the ~ prefix and trailing prose", () => {
+    expect(_extractDurationDays("~4 days after source control (STOP-IT)")).toBe(4);
+  });
+  it("returns null when the duration is not in day units", () => {
+    expect(_extractDurationDays("2-4 weeks")).toBeNull();
+    expect(_extractDurationDays("Pathogen-specific")).toBeNull();
+    expect(_extractDurationDays("Source- and pathogen-specific")).toBeNull();
+  });
+  it("returns null for empty / non-string input", () => {
+    expect(_extractDurationDays("")).toBeNull();
+    expect(_extractDurationDays(null)).toBeNull();
+    expect(_extractDurationDays(undefined)).toBeNull();
+  });
+});
+
+describe("applyReassessment — the 48–72 h stateful workflow", () => {
+  const emp = (synId, patientExtras = {}) => composeAnswer({
+    syndrome: synId,
+    patient: { on: true, ...patientExtras },
+  });
+
+  it("returns null when no day-3 trigger has fired", () => {
+    const e = emp("hap", { mrsaRisk: true });
+    expect(applyReassessment(e, { cultures: { status: "pending" }, clinical: {} })).toBeNull();
+  });
+
+  it("returns null for null inputs rather than throwing", () => {
+    expect(applyReassessment(null, {})).toBeNull();
+    expect(applyReassessment(undefined, {})).toBeNull();
+  });
+
+  it("cultures-back: produces a directed therapy row + a stop set", () => {
+    const e = emp("hap", { mrsaRisk: true });
+    // HAP empiric backbone includes vancomycin or linezolid + an
+    // antipseudomonal β-lactam. If MRSA culture comes back, the directed
+    // therapy targets S. aureus — MRSA, and the GNR-only agents become
+    // candidates to drop.
+    const r = applyReassessment(e, {
+      cultures: { status: "back", organism: "mrsa" },
+      clinical: {},
+    });
+    expect(r).toBeTruthy();
+    expect(r.cultures.status).toBe("back");
+    expect(r.cultures.organism).toBe("mrsa");
+    expect(r.cultures.label).toMatch(/MRSA/i);
+    // Directed therapy row resolved from DIRECTED via orgLookup.
+    expect(r.directed).toBeTruthy();
+    expect(r.directed.first).toBeTruthy();
+    // The "lets you stop" set is non-empty for HAP empiric with MRSA back —
+    // the antipseudomonal β-lactams alone do not cover MRSA, but vanc /
+    // linezolid DO cover MRSA, so the set lists the GNR-only agents.
+    expect(r.drop.length).toBeGreaterThan(0);
+    expect(r.activeTriggers).toContain("cultures");
+  });
+
+  it("cultures-back with a fully-covered organism: empty drop set", () => {
+    const e = emp("cap"); // ceftriaxone + azithromycin
+    const r = applyReassessment(e, {
+      cultures: { status: "back", organism: "strep" }, // S. pneumoniae
+      clinical: {},
+    });
+    expect(r).toBeTruthy();
+    // Every empiric agent covers strep here, so drop is empty (no narrowing
+    // available beyond what's already on-label).
+    expect(r.drop).toEqual([]);
+    expect(r.narrow).toBeNull();
+  });
+
+  it("stable + absorbing: surfaces an IV→PO plan", () => {
+    const e = emp("cap");
+    const r = applyReassessment(e, {
+      cultures: { status: "pending" },
+      clinical: { stable: true, absorbing: true, sourceControlled: false },
+    });
+    expect(r).toBeTruthy();
+    expect(r.ivpo).toBeTruthy();
+    expect(Array.isArray(r.ivpo.criteria)).toBe(true);
+    expect(r.ivpo.candidates.length).toBeGreaterThan(0);
+    expect(r.activeTriggers).toContain("ivpo");
+  });
+
+  it("source controlled: extracts duration days from the syndrome string", () => {
+    const e = emp("peritonitis"); // STOP-IT — "~4 days after adequate source control"
+    const r = applyReassessment(e, {
+      cultures: { status: "pending" },
+      clinical: { sourceControlled: true },
+    });
+    expect(r).toBeTruthy();
+    expect(r.duration).toBeTruthy();
+    expect(r.duration.days).toBe(4);
+    expect(r.activeTriggers).toContain("duration");
+  });
+
+  it("source controlled + startDate: computes the stop date", () => {
+    const e = emp("hap"); // "7 days for most VAP/HAP"
+    const r = applyReassessment(e, {
+      cultures: { status: "pending" },
+      clinical: { sourceControlled: true },
+      startDate: "2026-01-10",
+    });
+    expect(r.duration.days).toBe(7);
+    // Start day 1 = 2026-01-10; last day (day 7) = 2026-01-16.
+    expect(r.stopDate).toBe("2026-01-16");
+  });
+
+  it("source controlled but no extractable day-count: stopDate stays null", () => {
+    // pancreatic necrosis duration is "Guided by source control... and response" —
+    // no integer day-count, so duration and stopDate stay null even with
+    // sourceControlled set.
+    const e = emp("pancreatic");
+    const r = applyReassessment(e, {
+      cultures: { status: "pending" },
+      clinical: { sourceControlled: true },
+      startDate: "2026-01-10",
+    });
+    expect(r.duration).toBeNull();
+    expect(r.stopDate).toBeNull();
+  });
+
+  it("all three triggers compose into one reassessment", () => {
+    const e = emp("hap", { mrsaRisk: true });
+    const r = applyReassessment(e, {
+      cultures: { status: "back", organism: "mrsa" },
+      clinical: { stable: true, absorbing: true, sourceControlled: true },
+      startDate: "2026-01-10",
+    });
+    expect(r.cultures).toBeTruthy();
+    expect(r.directed).toBeTruthy();
+    expect(r.ivpo).toBeTruthy();
+    expect(r.duration).toBeTruthy();
+    expect(r.activeTriggers).toEqual(expect.arrayContaining(["cultures", "ivpo", "duration"]));
   });
 });
