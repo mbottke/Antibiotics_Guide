@@ -1559,14 +1559,15 @@ export default function InpatientAbxGuide() {
 
   const TABRENDER = { approach:renderApproach, empiric:renderEmpiric, directed:renderDirected, reference:renderReference, spectrum:renderSpectrum, penetration:renderPenetration, mechanisms:renderMechanisms, dose:renderDose, safety:renderSafety, course:renderCourse, adjuncts:renderAdjuncts };
 
-  /* ============ BEDSIDE MODE (Phase 0.2 · feature-flagged stub) ============
+  /* ============ BEDSIDE MODE (Phase A.1 · Case Bar) ============
      `?bedside=1` mounts the bedside shell. The classic UI is fully preserved
-     below — this is an additive surface, not a replacement. */
+     below — this is an additive surface, not a replacement. The shell now
+     receives setCaseState so the Case Bar can apply parsed updates. */
   if(mode === "bedside") {
     return (
       <>
         <style>{CSS + CSS2 + CSS3 + CSS4}</style>
-        <BedsideShell caseState={caseState} onExit={() => setMode("classic")} />
+        <BedsideShell caseState={caseState} setCaseState={setCaseState} onExit={() => setMode("classic")} />
       </>
     );
   }
