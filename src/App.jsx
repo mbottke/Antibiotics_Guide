@@ -16,6 +16,8 @@ import { PatientContextBar, DrugCard, OrgCard, RegimenCard, TrialCard, RapidDxTi
 import { ClassChip, TermChip, renderRx, renderGloss, renderRich } from "./components/rich-text";
 import { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer } from "./components/primitives";
 import { BedsideShell } from "./components/BedsideShell";
+import { SurfaceBar } from "./components/SurfaceBar";
+import { OutpatientShell } from "./components/OutpatientShell";
 import { penChips, allergyGuidance, interactionsForAgent, regimenInteractions, synEvidence, classData, glossData } from "./engines/clinical";
 import { buildRegimen, regimenAgents, refineAgents, refineOptionGroups, refineRegimen, deescalationPlan } from "./engines/regimen";
 import { _looseFind, drugLookup, orgLookup, _spxFor, drugCoversOrg, drugRoute } from "./engines/lookup";
@@ -70,18 +72,36 @@ export default function InpatientAbxGuide() {
       return out;
     } catch(e){ return {}; }
   })();
-  /* Phase 0.2 · bedside-mode flag — read from URL search params, not hash, so
-     it is independent of the deep-state hash sync. Visiting `?bedside=1` mounts
-     the Bedside shell stub; the default URL serves the classic 11-tab UI
-     unchanged. The toggle in BedsideShell flips back to classic without a
-     reload. Phase E flips the default to bedside and removes the flag. */
-  const _modeFromUrl = (() => {
+  /* Phase C · two-axis navigation: surface × mode.
+       surface ∈ { "inpatient", "outpatient" }    — clinical setting
+       mode    ∈ { "reference", "decide" }        — view within the surface
+     Default landing is inpatient + reference (the current 11-tab UI), so
+     existing links and bookmarks see no change. The Phase A/B Bedside
+     surface is now inpatient + decide. Outpatient is a placeholder for a
+     planned build-out and routes to OutpatientShell regardless of mode.
+     URL params:
+       ?surface=inpatient|outpatient   (default: inpatient)
+       ?mode=reference|decide          (default: reference)
+       ?bedside=1                      back-compat alias for
+                                       surface=inpatient & mode=decide */
+  const _navFromUrl = (() => {
     try {
       const q = new URLSearchParams(window.location.search);
-      return q.get("bedside") === "1" ? "bedside" : "classic";
-    } catch(e){ return "classic"; }
+      const isBedsideFlag = q.get("bedside") === "1";
+      const surface = (() => {
+        const s = q.get("surface");
+        return s === "outpatient" ? "outpatient" : "inpatient";
+      })();
+      const mode = (() => {
+        if(isBedsideFlag) return "decide";
+        const m = q.get("mode");
+        return m === "decide" ? "decide" : "reference";
+      })();
+      return { surface, mode };
+    } catch(e){ return { surface:"inpatient", mode:"reference" }; }
   })();
-  const [mode, setMode] = useState(_modeFromUrl);
+  const [surface, setSurface] = useState(_navFromUrl.surface);
+  const [mode, setMode]       = useState(_navFromUrl.mode);
   const [tab, setTab] = useState(_hashState.tab || "approach");
   const [cmdOpen, setCmdOpen] = useState(false);
   const [cmdQ, setCmdQ] = useState("");
@@ -205,6 +225,27 @@ export default function InpatientAbxGuide() {
   /* ---- derived patient quantities: one transform, memoized ---- */
   const d = useMemo(() => deriveCtx(ctx), [ctx]);
   const crcl = d.crcl, crclBand = d.crclBand;
+
+  /* Phase C · sync surface + mode to URL search params (not the hash, which
+     carries the deep tab/syndrome/ctx state). Drops both keys when at the
+     defaults so a clean URL stays clean, and preserves any unrelated query
+     params the user may have. Also retires the legacy ?bedside=1 flag from
+     the URL whenever surface/mode are written — it stays accepted on read
+     but does not persist into the rewritten URL. */
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      q.delete("bedside");
+      if(surface && surface !== "inpatient") q.set("surface", surface); else q.delete("surface");
+      if(mode    && mode    !== "reference") q.set("mode", mode);          else q.delete("mode");
+      const next = q.toString();
+      const cur = window.location.search.replace(/^\?/, "");
+      if(next !== cur){
+        const url = window.location.pathname + (next ? "?" + next : "") + window.location.hash;
+        window.history.replaceState(null, "", url);
+      }
+    } catch(e){ /* best-effort */ }
+  }, [surface, mode]);
 
   /* 4.2 · write deep-state back to the URL hash (debounced via effect deps).
      Phase 0 extension: also encode the case-state stub fields (cultures,
@@ -1572,23 +1613,53 @@ export default function InpatientAbxGuide() {
 
   const TABRENDER = { approach:renderApproach, empiric:renderEmpiric, directed:renderDirected, reference:renderReference, spectrum:renderSpectrum, penetration:renderPenetration, mechanisms:renderMechanisms, dose:renderDose, safety:renderSafety, course:renderCourse, adjuncts:renderAdjuncts };
 
-  /* ============ BEDSIDE MODE (Phase A · Case Bar + Answer Canvas) ============
-     `?bedside=1` mounts the bedside shell. The classic UI is fully preserved
-     below — this is an additive surface, not a replacement. CSS5 carries the
-     `.rx-bedside`-scoped mobile-first density rules added in Phase A.3. */
-  if(mode === "bedside") {
+  /* ============ PHASE C · SURFACE × MODE ROUTER ===========================
+     Two-axis navigation. Default landing (inpatient + reference) renders
+     the existing 11-tab UI byte-identical to the pre-Phase-C app. The
+     SurfaceBar is mounted above every branch so the toggle is always
+     reachable. The bar is sticky and lives in CSS5's bedside-scoped style
+     block; that block is now injected on every branch since the
+     surface/mode picker lives across all of them.
+     Branches:
+       inpatient + decide      → BedsideShell (Phase A/B)
+       outpatient + anything   → OutpatientShell placeholder
+       inpatient + reference   → the existing classic UI (falls through) */
+  const styleTag = <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5}</style>;
+  const bar = (
+    <SurfaceBar
+      surface={surface}
+      mode={mode}
+      onSurface={(s) => { setSurface(s); if(s === "outpatient") setMode("reference"); }}
+      onMode={(m) => setMode(m)}
+    />
+  );
+
+  if(surface === "outpatient") {
     return (
       <>
-        <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5}</style>
-        <BedsideShell caseState={caseState} setCaseState={setCaseState} onExit={() => setMode("classic")} />
+        {styleTag}
+        {bar}
+        <OutpatientShell onSwitchInpatient={() => setSurface("inpatient")} />
       </>
     );
   }
 
-  /* ============ RETURN ============ */
+  if(surface === "inpatient" && mode === "decide") {
+    return (
+      <>
+        {styleTag}
+        {bar}
+        <BedsideShell caseState={caseState} setCaseState={setCaseState} onExit={() => setMode("reference")} />
+      </>
+    );
+  }
+
+  /* ============ RETURN — inpatient + reference (the classic 11-tab UI) === */
   return (
     <div className="rx-root">
-      <style>{CSS + CSS2 + CSS3 + CSS4}</style>
+      <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5}</style>
+
+      {bar}
 
       <header className="rx-header">
         <div className="rx-wrap">

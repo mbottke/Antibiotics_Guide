@@ -73,6 +73,23 @@ test.describe("accessibility (axe-core, WCAG 2.1 AA)", () => {
     expect(r.violations, JSON.stringify(r.violations, null, 2)).toEqual([]);
   });
 
+  /* Phase C — the SurfaceBar two-axis nav mounts above every surface.
+     Verify both the default landing (inpatient + reference) and the
+     Outpatient placeholder shell clear AA. */
+  test("SurfaceBar default landing has no violations", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const r = await scan(page);
+    expect(r.violations, JSON.stringify(r.violations, null, 2)).toEqual([]);
+  });
+
+  test("Outpatient placeholder shell has no violations", async ({ page }) => {
+    await page.goto("/?surface=outpatient");
+    await page.waitForLoadState("networkidle");
+    const r = await scan(page);
+    expect(r.violations, JSON.stringify(r.violations, null, 2)).toEqual([]);
+  });
+
   /* Phase B — the Reassessment panel with all three triggers fired must
      clear AA. This is the highest-density bedside surface and the most
      likely place for a contrast or focus regression. */

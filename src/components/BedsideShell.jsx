@@ -59,7 +59,7 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
               background: "none", border: "1px solid var(--line)", borderRadius: 999,
               padding: "5px 11px", cursor: "pointer",
             }}>
-            <ArrowLeft size={12} /> Classic mode
+            <ArrowLeft size={12} /> Reference
           </button>
           <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".18em", textTransform:"uppercase", color:"var(--ox)", fontWeight:600 }}>
             Bedside — Phase A
