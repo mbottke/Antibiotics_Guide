@@ -202,15 +202,22 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId }) {
         <span style={{ fontSize:13, fontWeight:600, color:"var(--ink)" }}>{tier.k}</span>
         {tier.why && <span style={{ fontSize:11.5, color:"var(--muted)" }}>· added because {tier.why}</span>}
       </div>
-      {/* Phase D1 — multi-option presentation. The tier's rx prose is
-          split into discrete options so the clinician can compare them
-          side-by-side. Footnote markers (allergy / nephrotoxicity /
-          redundancy from the refinement engine) ride along by passing
-          renderRichWithFootnotes as the card's text renderer. */}
+      {/* Phase D1.5 — multi-option presentation with per-card decision
+          content + selection-narrowed dose adjustments. The tier's rx
+          prose is split into discrete options; each card surfaces the
+          drug fragment, the authored Why-pick / Watch-out content for
+          this option, and the patient-specific dose adjustments
+          computed against the SELECTED drug only. Footnote markers
+          from the refinement engine ride through renderFootnotesOnly
+          (no nested interactive chips). */}
       <RegimenOptions
         rx={tier.rx}
         accent={kind === "add" ? "add" : "core"}
         renderText={(text) => renderFootnotesOnly(text, inline)}
+        synId={synId}
+        tierLabel={tier.k}
+        ctx={ctx}
+        d={d}
       />
       {tier.note && (
         <div style={{ fontSize:12, color:"var(--ink2)", marginTop:4, lineHeight:1.5, fontStyle:"italic" }}>
@@ -218,31 +225,11 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId }) {
         </div>
       )}
 
-      {/* Patient-specific dose adjustments for this rx line — reuse the existing engine. */}
-      {ctx && ctx.on && (() => {
-        const adj = doseAdjustments(tier.rx, ctx, d, synId);
-        if(!adj.length) return null;
-        return (
-          <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginTop:8 }}>
-            {adj.map((a, i) => (
-              <span key={i} style={{
-                display:"inline-flex", alignItems:"center", gap:5,
-                fontSize:11, fontWeight:500, padding:"3px 8px", borderRadius:5,
-                background:"var(--decision-adjusted-bg)", color:"var(--decision-adjusted)",
-                border:"1px solid var(--decision-adjusted-line)",
-                fontFamily:"var(--mono)", letterSpacing:".01em",
-              }}>
-                <span style={{ opacity:.75, fontSize:9, letterSpacing:".08em", textTransform:"uppercase" }}>
-                  {a.kind === "renal" ? "renal" : a.kind === "weight" ? "weight" : a.kind === "hepatic" ? "hepatic" : a.kind === "hd" ? "HD" : a.kind}
-                </span>
-                <span style={{ fontWeight:600, color:"var(--ink)" }}>{a.agent.split(" / ")[0].replace(/\s*\(IV\)/i, "")}</span>
-                <ArrowRight size={10} />
-                <span style={{ fontWeight:600 }}>{a.value}</span>
-              </span>
-            ))}
-          </div>
-        );
-      })()}
+      {/* Phase D1.5 — the tier-level dose-adjustment chip strip moved
+          inside each option card (PerOptionDoseChips). The chips now
+          narrow to the selected drug instead of summing across the
+          whole tier, so selecting nitrofurantoin doesn't show
+          adjustments for fosfomycin / TMP-SMX. */}
 
       {/* Leader-annotation refinements (cross-cutting; can't be inlined) appear under the line. */}
       {leader.length > 0 && (
