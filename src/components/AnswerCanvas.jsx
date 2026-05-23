@@ -24,6 +24,7 @@ import { AGENT_RX } from "../data/drugs.js";
 import { ORG_BY_ID } from "../data/organisms.js";
 import { renderGloss, renderRich } from "./rich-text.jsx";
 import { Cite, DecisionTag, Ev } from "./primitives.jsx";
+import { RegimenOptions } from "./RegimenOptions.jsx";
 import { ReassessmentPanel } from "./ReassessmentPanel.jsx";
 
 /* ---------- refinement → footnote mapping ----------
@@ -73,6 +74,43 @@ function FootMark({ idx, step }) {
    injects FootMark elements after each agent-name match that has an
    attached refinement. Preserves ClassChip and TermChip popovers; only
    string nodes are searched. */
+/* Phase D1 — option-card text renderer. Same footnote-marker attachment
+   as renderRichWithFootnotes, but skips the rich-text drug/class chip
+   pass so the resulting nodes contain no focusable descendants. Lets
+   the OptionCard stay a proper <button role="radio"> without violating
+   the nested-interactive axe rule. Phase D2 reintroduces drug/class
+   drill from inside cards through a different mechanism (likely a
+   per-card "details" affordance, not inline chips). */
+function renderFootnotesOnly(text, inlineRefinements) {
+  if(typeof text !== "string") return text;
+  if(!inlineRefinements || !inlineRefinements.length) return text;
+  const out = [];
+  let key = 0, remaining = text;
+  const usedSteps = new Set();
+  while(remaining.length) {
+    let best = null;
+    for(const ent of inlineRefinements) {
+      if(usedSteps.has(ent.idx)) continue;
+      ent.rx.lastIndex = 0;
+      const m = ent.rx.exec(remaining);
+      if(m && (!best || m.index < best.match.index)) best = { match: m, ent };
+    }
+    if(!best) { out.push(remaining); break; }
+    const { match, ent } = best;
+    if(match.index > 0) out.push(remaining.slice(0, match.index));
+    const tone = _TONE_FOR[ent.step.type] || _TONE_FOR.note;
+    out.push(
+      <span key={"rf" + (key++)} style={{ textDecoration: tone.decoration, textDecorationColor: "var(--ox)" }}>
+        {match[0]}
+      </span>
+    );
+    out.push(<FootMark key={"fm" + (key++)} idx={ent.idx} step={ent.step} />);
+    usedSteps.add(ent.idx);
+    remaining = remaining.slice(match.index + match[0].length);
+  }
+  return out;
+}
+
 function renderRichWithFootnotes(text, onDrug, inlineRefinements) {
   const base = renderRich(text, onDrug);
   if(!Array.isArray(base) || !inlineRefinements.length) return base;
@@ -164,9 +202,16 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId }) {
         <span style={{ fontSize:13, fontWeight:600, color:"var(--ink)" }}>{tier.k}</span>
         {tier.why && <span style={{ fontSize:11.5, color:"var(--muted)" }}>· added because {tier.why}</span>}
       </div>
-      <div style={{ fontSize:14, lineHeight:1.6, color:"var(--ink)", padding:"4px 0" }}>
-        {renderRichWithFootnotes(tier.rx, onDrug, inline)}
-      </div>
+      {/* Phase D1 — multi-option presentation. The tier's rx prose is
+          split into discrete options so the clinician can compare them
+          side-by-side. Footnote markers (allergy / nephrotoxicity /
+          redundancy from the refinement engine) ride along by passing
+          renderRichWithFootnotes as the card's text renderer. */}
+      <RegimenOptions
+        rx={tier.rx}
+        accent={kind === "add" ? "add" : "core"}
+        renderText={(text) => renderFootnotesOnly(text, inline)}
+      />
       {tier.note && (
         <div style={{ fontSize:12, color:"var(--ink2)", marginTop:4, lineHeight:1.5, fontStyle:"italic" }}>
           {renderGloss(tier.note, onDrug)}
@@ -522,7 +567,11 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         )}
       </Section>
 
-      {/* DAY-3 REASSESSMENT (Phase B) — stateful workflow */}
+      {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
+          source control) that refine the regimen. Despite the legacy file
+          name, this is not a longitudinal reassessment workflow — it is a
+          set of optional state toggles that further narrow the snapshot
+          answer when the clinician knows them. */}
       <ReassessmentPanel
         caseState={caseState}
         setCaseState={setCaseState}
