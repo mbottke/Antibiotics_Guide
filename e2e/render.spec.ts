@@ -92,9 +92,12 @@ test.describe("bedside mode renders without runtime errors", () => {
     await page.goto("/?bedside=1");
     await page.waitForLoadState("networkidle");
 
-    // The Case Bar reuses the rx-builder shell; "Describe the case" is its
-    // headline so this also asserts the header copy lands.
-    await expect(page.getByText(/describe the case/i)).toBeVisible();
+    // The Case Bar mounts inside the rx-builder shell; assert both the shell
+    // header lands and the input is rendered. Two different elements use the
+    // phrase "Describe the case" (the page intro paragraph and the bar
+    // header), so we anchor to the class-scoped header to avoid ambiguity.
+    await expect(page.locator(".rx-builder-h").filter({ hasText: /describe the case/i })).toBeVisible();
+    await expect(page.locator('input[type="text"]').first()).toBeVisible();
     expect(errors, errors.join("\n")).toEqual([]);
   });
 
