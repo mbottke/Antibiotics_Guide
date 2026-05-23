@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output — produced fresh by `npm run build`; deploy.yml uploads it as a Pages artifact.
+dist/
+
+# test artifacts
+test-results/
+playwright-report/
+/coverage/
+
+# editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# env / local
+.env
+.env.*
+!.env.example
