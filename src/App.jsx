@@ -15,6 +15,7 @@ import { CSS, CSS2, CSS3, CSS4 } from "./styles/app-styles";
 import { PatientContextBar, DrugCard, OrgCard, RegimenCard, TrialCard, RapidDxTimeout, IVtoPO, MrsaCell, CmpCell, SpectrumCompare } from "./components/cards";
 import { ClassChip, TermChip, renderRx, renderGloss, renderRich } from "./components/rich-text";
 import { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer } from "./components/primitives";
+import { BedsideShell } from "./components/BedsideShell";
 import { penChips, allergyGuidance, interactionsForAgent, regimenInteractions, synEvidence, classData, glossData } from "./engines/clinical";
 import { buildRegimen, regimenAgents, refineAgents, refineOptionGroups, refineRegimen, deescalationPlan } from "./engines/regimen";
 import { _looseFind, drugLookup, orgLookup, _spxFor, drugCoversOrg, drugRoute } from "./engines/lookup";
@@ -35,7 +36,11 @@ export default function InpatientAbxGuide() {
   /* ---- 4.2 · shareable deep-state via URL hash (no browser storage) ----
      Encodes tab + open syndrome + patient context so a link reopens the exact
      view — e.g. #t=empiric&syn=hap&ctx=70:90:175:2.2:M:severe:hd reopens the HAP
-     card with this patient loaded. Read once on init; written back on change. */
+     card with this patient loaded. Read once on init; written back on change.
+
+     Phase 0 extension: the hash now also encodes case-state stub fields
+     (cultures, day-of-therapy, start date) for forward-compat with Phases
+     A–B. Old links remain valid — every new key is optional. */
   const _hashState = (() => {
     try {
       const h = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
@@ -51,9 +56,27 @@ export default function InpatientAbxGuide() {
           sex: sex==="F"?"F":"M", hepatic:["none","moderate","severe"].includes(hep)?hep:"none",
           hd: hd==="hd", on:true };
       }
+      const cul = h.get("cul");
+      if(cul) out.cultures = cul === "pending" ? { status:"pending", organism:null } : { status:"back", organism:cul };
+      const day = h.get("day");
+      if(day && !Number.isNaN(+day)) out.dayOfTx = +day;
+      const sd = h.get("sd");
+      if(sd && /^\d{4}-\d{2}-\d{2}$/.test(sd)) out.startDate = sd;
       return out;
     } catch(e){ return {}; }
   })();
+  /* Phase 0.2 · bedside-mode flag — read from URL search params, not hash, so
+     it is independent of the deep-state hash sync. Visiting `?bedside=1` mounts
+     the Bedside shell stub; the default URL serves the classic 11-tab UI
+     unchanged. The toggle in BedsideShell flips back to classic without a
+     reload. Phase E flips the default to bedside and removes the flag. */
+  const _modeFromUrl = (() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      return q.get("bedside") === "1" ? "bedside" : "classic";
+    } catch(e){ return "classic"; }
+  })();
+  const [mode, setMode] = useState(_modeFromUrl);
   const [tab, setTab] = useState(_hashState.tab || "approach");
   const [cmdOpen, setCmdOpen] = useState(false);
   const [cmdQ, setCmdQ] = useState("");
@@ -68,20 +91,47 @@ export default function InpatientAbxGuide() {
   const [pickOrg, setPickOrg] = useState(null);
   const [pickDrug, setPickDrug] = useState(null);
   const [openOrg, setOpenOrg] = useState(null);
-  /* ---- A2 · unified patient context (single source of truth) ---- */
-  const [ctx, setCtx] = useState({
-    on:false, age:65, weightKg:80, heightCm:170, scr:1.0, sex:"M",
-    mrsaRisk:false, pseudoRisk:false, esblRisk:false, severe:false, blAllergy:"none", // none|mild|severe
-    hepatic:"none", hd:false, // hepatic: none|moderate|severe (Child-Pugh proxy); hd: intermittent hemodialysis
-    cp:{ bili:"", alb:"", inr:"", ascites:"", enceph:"" }, // Child-Pugh scorer inputs (drives hepatic when complete)
-    ..._hashState.ctx,
+  /* ---- A2 · unified case state (Phase 0.1 · patient → caseState) ----
+     The single source of truth for everything case-driven. Patient (the old
+     `ctx`) is nested under `caseState.patient`; the remaining fields are
+     stubs populated by Phases A–B (the Case Bar, the Reassessment workflow):
+       · syndrome     — id of the actively selected presentation, or null
+       · cultures     — { status: "pending"|"back", organism: orgId|null }
+       · dayOfTx      — integer day of therapy, or null
+       · startDate    — ISO yyyy-mm-dd string, or null
+     The `ctx` / `setCtxField` / `setCpField` shims below preserve the exact
+     API every downstream component and engine currently uses, so this rename
+     ships with zero behavior change. */
+  const [caseState, setCaseState] = useState({
+    patient: {
+      on:false, age:65, weightKg:80, heightCm:170, scr:1.0, sex:"M",
+      mrsaRisk:false, pseudoRisk:false, esblRisk:false, severe:false, blAllergy:"none", // none|mild|severe
+      hepatic:"none", hd:false, // hepatic: none|moderate|severe (Child-Pugh proxy); hd: intermittent hemodialysis
+      cp:{ bili:"", alb:"", inr:"", ascites:"", enceph:"" }, // Child-Pugh scorer inputs (drives hepatic when complete)
+      ..._hashState.ctx,
+    },
+    syndrome:  _hashState.openSyn || null,
+    cultures:  _hashState.cultures || { status:"pending", organism:null },
+    dayOfTx:   _hashState.dayOfTx ?? null,
+    startDate: _hashState.startDate || null,
   });
-  const setCtxField = (k, v) => setCtx(c => ({ ...c, [k]: v }));
+  /* Compatibility shims — every existing reference to `ctx` and the two
+     setters reads/writes `caseState.patient` transparently. Removing these
+     in a later phase requires migrating every call site; for Phase 0 they
+     are how we get zero-behavior-change. */
+  const ctx = caseState.patient;
+  const setCtx = (updater) => setCaseState(c => ({
+    ...c,
+    patient: typeof updater === "function" ? updater(c.patient) : updater,
+  }));
+  const setCtxField = (k, v) => setCaseState(c => ({ ...c, patient: { ...c.patient, [k]: v } }));
   // Set one Child-Pugh component and, when all five are present, auto-set the hepatic stage.
-  const setCpField = (k, v) => setCtx(c => {
-    const cp = { ...c.cp, [k]: v };
+  const setCpField = (k, v) => setCaseState(c => {
+    const cp = { ...c.patient.cp, [k]: v };
     const res = childPugh(cp);
-    return res ? { ...c, cp, hepatic:res.stage } : { ...c, cp };
+    return res
+      ? { ...c, patient: { ...c.patient, cp, hepatic:res.stage } }
+      : { ...c, patient: { ...c.patient, cp } };
   });
   /* Knowledge-graph drawer (Phase B): { kind:"drug"|"org"|"trial", key } | null */
   const [drawer, setDrawer] = useState(null);
@@ -148,7 +198,10 @@ export default function InpatientAbxGuide() {
   const d = useMemo(() => deriveCtx(ctx), [ctx]);
   const crcl = d.crcl, crclBand = d.crclBand;
 
-  /* 4.2 · write deep-state back to the URL hash (debounced via effect deps). */
+  /* 4.2 · write deep-state back to the URL hash (debounced via effect deps).
+     Phase 0 extension: also encode the case-state stub fields (cultures,
+     dayOfTx, startDate) when populated. The classic UI does not populate
+     them, so default behavior emits the same hash as before. */
   useEffect(() => {
     try {
       const p = new URLSearchParams();
@@ -156,11 +209,15 @@ export default function InpatientAbxGuide() {
       if(tab === "empiric" && openSyn) p.set("syn", openSyn);
       if(ctx.on) p.set("ctx", [Math.round(+ctx.age)||"", Math.round(+ctx.weightKg)||"",
         Math.round(+ctx.heightCm)||"", ctx.scr, ctx.sex, ctx.hepatic, ctx.hd?"hd":"nohd"].join(":"));
+      const cul = caseState.cultures;
+      if(cul && cul.status === "back" && cul.organism) p.set("cul", cul.organism);
+      if(caseState.dayOfTx != null) p.set("day", String(caseState.dayOfTx));
+      if(caseState.startDate) p.set("sd", caseState.startDate);
       const next = p.toString();
       const cur = (window.location.hash || "").replace(/^#/, "");
       if(next !== cur) window.history.replaceState(null, "", next ? "#"+next : window.location.pathname + window.location.search);
     } catch(e){ /* hash sync is best-effort */ }
-  }, [tab, openSyn, ctx]);
+  }, [tab, openSyn, ctx, caseState.cultures, caseState.dayOfTx, caseState.startDate]);
 
   /* dose(name): renally-adjusted dose for THIS patient, or null when context is
      off / agent has no structured rule → caller renders the static string. */
@@ -1501,6 +1558,18 @@ export default function InpatientAbxGuide() {
   );
 
   const TABRENDER = { approach:renderApproach, empiric:renderEmpiric, directed:renderDirected, reference:renderReference, spectrum:renderSpectrum, penetration:renderPenetration, mechanisms:renderMechanisms, dose:renderDose, safety:renderSafety, course:renderCourse, adjuncts:renderAdjuncts };
+
+  /* ============ BEDSIDE MODE (Phase 0.2 · feature-flagged stub) ============
+     `?bedside=1` mounts the bedside shell. The classic UI is fully preserved
+     below — this is an additive surface, not a replacement. */
+  if(mode === "bedside") {
+    return (
+      <>
+        <style>{CSS + CSS2 + CSS3 + CSS4}</style>
+        <BedsideShell caseState={caseState} onExit={() => setMode("classic")} />
+      </>
+    );
+  }
 
   /* ============ RETURN ============ */
   return (
