@@ -1,33 +1,67 @@
-/* component · RegimenOptions — Phase D1.5 multi-option presentation with
-   per-card decision content. Each card carries the drug fragment, route
-   badge, the apex-quality "Why pick" + "Watch out" content from
-   data/regimenContent.js, and any patient-specific dose adjustments
-   computed against the selected drug. Selecting a different card
-   re-renders all of those — selection is a meaningful clinical action,
-   not a visual placebo.
+/* component · RegimenOptions — Phase D1.5 multi-option presentation
+   with per-card decision content. Each card carries:
+     * route badge + drug fragment + selection state
+     * a one-line "Pick if" verdict — the 5-second elevator pitch
+     * "Why pick" bullets (strengths, with **bold** killer facts)
+     * "Watch out" bullets with severity icons (stop / warn / note)
+     * per-card dose-adjustment chips (renal / hepatic / synergy)
+       computed against THIS option only, so selecting nitrofurantoin
+       doesn't surface fosfomycin's renal banding.
 
-   Design notes:
-   * The tier header (Core/Add badge, tier name, "added because" tag)
-     and the tier note still live OUTSIDE this component — RegimenOptions
-     just renders the option cards plus any per-option content.
-   * Each card shows: route badge, drug+dose fragment, the why-pick /
-     watch-out micro-content (when authored), the per-option renal /
-     hepatic / synergy dose-adjustment chips (filtered to the drugs in
-     this option), and a "Selected" affordance.
-   * The first option is selected on mount; clicking another card
-     re-narrows the surrounding canvas via the `onSelectionChange`
-     callback. AnswerCanvas hooks this to narrow its "Dosing for this
-     patient" section to the selected drug only.
-   * Inline footnote markers from refineRegimen ride through the
-     renderText prop; the card-level micro-content is plain prose so it
-     stays out of the nested-interactive a11y trap.
+   The card layout is bulleted/scannable rather than paragraph-style:
+   three cards side-by-side at 1100px width have to function as a
+   comparison table, and bullets compress the same factual density
+   into 30% less vertical space while making the deltas between
+   options visually instant.
+
+   Selection emits via onSelectionChange so the wider Answer Canvas
+   can narrow downstream sections (e.g. duration block, refinements)
+   to the picked drug.
+
+   Bold callout parsing: any `**text**` in pickIf / whyPick bullets
+   / watchOut bullets renders as an accented span (orange for whyPick
+   / pickIf, the severity color for watchOut). One pass, regex-driven,
+   no markdown library — the content layer is plain JS strings.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useState, useMemo, useEffect } from "react";
-import { AlertTriangle, Check, Lightbulb, Pill, Syringe } from "lucide-react";
+import { AlertTriangle, Check, Info, Pill, Syringe, XCircle, Zap } from "lucide-react";
 import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { lookupOptionContent } from "../data/regimenContent.js";
 import { doseAdjustments } from "../engines/dosing.js";
+
+/* Bold-callout parser. Splits a string on **…** segments and returns
+   an array of { text, bold } chunks. The renderer wraps bold chunks
+   in an accented span keyed to the calling context. */
+function parseBold(text) {
+  if(!text) return [];
+  const parts = [];
+  const re = /\*\*([^*]+)\*\*/g;
+  let last = 0, m;
+  while((m = re.exec(text)) !== null) {
+    if(m.index > last) parts.push({ text: text.slice(last, m.index), bold: false });
+    parts.push({ text: m[1], bold: true });
+    last = m.index + m[0].length;
+  }
+  if(last < text.length) parts.push({ text: text.slice(last), bold: false });
+  return parts;
+}
+
+function RichText({ text, accentColor, accentBg }) {
+  return (
+    <>
+      {parseBold(text).map((p, i) => p.bold ? (
+        <span key={i} style={{
+          fontWeight: 700,
+          color: accentColor,
+          background: accentBg || "transparent",
+          padding: accentBg ? "0 3px" : 0,
+          borderRadius: accentBg ? 3 : 0,
+        }}>{p.text}</span>
+      ) : <span key={i}>{p.text}</span>)}
+    </>
+  );
+}
 
 function RouteBadge({ route }) {
   if(!route) return null;
@@ -54,57 +88,118 @@ function RouteBadge({ route }) {
   );
 }
 
-/* Decision content block — the apex-quality micro-content. Lives inside
-   each card and only renders when content is authored for this option.
-   Layout: vertical stack of two labeled paragraphs. Color-coded so the
-   "why pick" reads as a positive cue (orange/Oxford) and the "watch
-   out" reads as a hard caution (amber/red-leaning). Compact spacing so
-   three cards fit a desktop row at 1100px without truncation. */
+/* Severity-specific bullet icon + color for watchOut entries. */
+function severityStyle(sev) {
+  if(sev === "stop") return {
+    Icon: XCircle,
+    color: "#b91c1c",
+    bg: "rgba(185, 28, 28, 0.08)",
+    line: "rgba(185, 28, 28, 0.25)",
+  };
+  if(sev === "warn") return {
+    Icon: AlertTriangle,
+    color: "var(--amber)",
+    bg: "var(--amber-soft)",
+    line: "var(--amber-line)",
+  };
+  return {  // note
+    Icon: Info,
+    color: "var(--ink2)",
+    bg: "transparent",
+    line: "transparent",
+  };
+}
+
+/* Decision content block — bullets + severity icons. Replaces the
+   prior paragraph-style layout. Renders nothing if the option has no
+   authored content (the card then shows just the drug fragment +
+   route + dose chips). */
 function DecisionContent({ content, accent }) {
-  if(!content || (!content.whyPick && !content.watchOut)) return null;
+  if(!content) return null;
+  const hasAny = content.pickIf || content.whyPick?.length || content.watchOut?.length;
+  if(!hasAny) return null;
   const accentColor = accent === "add" ? "var(--amber)" : "var(--ox)";
+  const accentBg    = accent === "add" ? "rgba(217, 119, 6, 0.10)" : "rgba(15, 76, 129, 0.08)";
+
   return (
-    <div style={{ marginTop: 9, display:"grid", gap:7 }}>
-      {content.whyPick && (
-        <div>
-          <div style={{
-            fontFamily:"var(--mono)", fontSize:9, letterSpacing:".1em",
-            textTransform:"uppercase", fontWeight:700,
-            color: accentColor, marginBottom:3,
-            display:"inline-flex", alignItems:"center", gap:4,
-          }}>
-            <Lightbulb size={10} aria-hidden /> Why pick
-          </div>
-          <div style={{ fontSize:11.5, lineHeight:1.5, color:"var(--ink2)", fontWeight:400 }}>
-            {content.whyPick}
-          </div>
+    <div style={{ marginTop: 9, display:"grid", gap:9 }}>
+      {/* Pick-if verdict — the 5-second elevator pitch */}
+      {content.pickIf && (
+        <div style={{
+          fontSize:11.5, lineHeight:1.45, color:"var(--ink)",
+          fontStyle:"italic", fontWeight:500,
+          background: accent === "add" ? "var(--amber-soft)" : "var(--ox-soft)",
+          border: "1px solid " + (accent === "add" ? "var(--amber-line)" : "var(--ox-line)"),
+          borderRadius: 6, padding: "5px 8px",
+          display:"flex", alignItems:"flex-start", gap:6,
+        }}>
+          <Zap size={11} aria-hidden style={{ color: accentColor, flexShrink: 0, marginTop: 2 }} />
+          <span><span style={{
+            fontFamily:"var(--mono)", fontStyle:"normal", fontWeight:700,
+            fontSize:9, letterSpacing:".1em", textTransform:"uppercase",
+            color: accentColor, marginRight: 5,
+          }}>Pick if</span>
+          <RichText text={content.pickIf} accentColor={accentColor} /></span>
         </div>
       )}
-      {content.watchOut && (
+
+      {/* Why-pick bullets — strengths */}
+      {content.whyPick?.length > 0 && (
         <div>
           <div style={{
             fontFamily:"var(--mono)", fontSize:9, letterSpacing:".1em",
             textTransform:"uppercase", fontWeight:700,
-            color:"var(--amber)", marginBottom:3,
-            display:"inline-flex", alignItems:"center", gap:4,
-          }}>
-            <AlertTriangle size={10} aria-hidden /> Watch out
-          </div>
-          <div style={{ fontSize:11.5, lineHeight:1.5, color:"var(--ink2)", fontWeight:400 }}>
-            {content.watchOut}
-          </div>
+            color: accentColor, marginBottom: 4,
+          }}>Why pick</div>
+          <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:3 }}>
+            {content.whyPick.map((b, i) => (
+              <li key={i} style={{
+                display:"flex", alignItems:"flex-start", gap:6,
+                fontSize:11.5, lineHeight:1.45, color:"var(--ink2)",
+              }}>
+                <span aria-hidden style={{
+                  flexShrink: 0, marginTop: 6,
+                  width: 4, height: 4, borderRadius: "50%",
+                  background: accentColor,
+                }} />
+                <span><RichText text={b} accentColor={accentColor} accentBg={accentBg} /></span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Watch-out bullets — cautions with severity icons */}
+      {content.watchOut?.length > 0 && (
+        <div>
+          <div style={{
+            fontFamily:"var(--mono)", fontSize:9, letterSpacing:".1em",
+            textTransform:"uppercase", fontWeight:700,
+            color:"var(--amber)", marginBottom: 4,
+          }}>Watch out</div>
+          <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:3 }}>
+            {content.watchOut.map((b, i) => {
+              const sty = severityStyle(b.sev || "note");
+              return (
+                <li key={i} style={{
+                  display:"flex", alignItems:"flex-start", gap:6,
+                  fontSize:11.5, lineHeight:1.45, color:"var(--ink2)",
+                }}>
+                  <sty.Icon size={11} aria-hidden style={{ color: sty.color, flexShrink: 0, marginTop: 3 }} />
+                  <span><RichText text={b.text} accentColor={sty.color} accentBg={sty.bg !== "transparent" ? sty.bg : undefined} /></span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
     </div>
   );
 }
 
-/* Per-card dose-adjustment chips. Computed against the OPTION text, not
-   the whole tier — so when the clinician picks one card the renal /
-   hepatic / synergy adjustments narrow to that drug. Returns null when
-   no adjustments apply or no patient context is on. Chip shape matches
-   the legacy tier-level chips (kind kicker + agent + arrow + value)
-   so the visual language stays consistent. */
+/* Per-card dose-adjustment chips. Computed against the OPTION text,
+   not the whole tier — selecting one card narrows renal / hepatic /
+   synergy adjustments to that drug. */
 function PerOptionDoseChips({ optionText, ctx, d, synId }) {
   if(!ctx || !ctx.on) return null;
   const adj = doseAdjustments(optionText, ctx, d, synId);
@@ -186,11 +281,8 @@ function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx
   const options = useMemo(() => splitRegimenOptions(rx), [rx]);
   const [pickedIdx, setPickedIdx] = useState(0);
 
-  // Reset selection when the rx text changes (a new tier or syndrome).
   useEffect(() => { setPickedIdx(0); }, [rx]);
 
-  // Broadcast the active option to the parent so the wider canvas (e.g.
-  // "Dosing for this patient") can narrow to the selected drug.
   useEffect(() => {
     if(!onSelectionChange) return;
     const active = options[pickedIdx];
@@ -201,13 +293,14 @@ function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx
 
   if(options.length === 0) return null;
 
-  // Layout: 1 option → single card; 2 → side-by-side; 3+ → auto-fit grid.
-  // On the bedside mobile breakpoint (.rx-bedside) the grid collapses to a
-  // single column automatically via the existing media query.
+  // 1 option → single card; 2 → side-by-side; 3+ → auto-fit grid.
+  // Bedside mobile (.rx-bedside) collapses to one column via the
+  // existing media query. The minmax floor is generous enough that
+  // bulleted content doesn't reflow into illegible columns.
   const cols = options.length === 1 ? "1fr"
              : options.length === 2 ? "repeat(2, 1fr)"
-             : options.length === 3 ? "repeat(auto-fit, minmax(220px, 1fr))"
-             :                        "repeat(auto-fit, minmax(200px, 1fr))";
+             : options.length === 3 ? "repeat(auto-fit, minmax(240px, 1fr))"
+             :                        "repeat(auto-fit, minmax(220px, 1fr))";
 
   return (
     <div

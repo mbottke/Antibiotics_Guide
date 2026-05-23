@@ -25,6 +25,8 @@ import { ORG_BY_ID } from "../data/organisms.js";
 import { renderGloss, renderRich } from "./rich-text.jsx";
 import { Cite, DecisionTag, Ev } from "./primitives.jsx";
 import { RegimenOptions } from "./RegimenOptions.jsx";
+import { tierHasContent } from "../data/regimenContent.js";
+import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { ReassessmentPanel } from "./ReassessmentPanel.jsx";
 
 /* ---------- refinement → footnote mapping ----------
@@ -219,7 +221,12 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId }) {
         ctx={ctx}
         d={d}
       />
-      {tier.note && (
+      {/* Suppress the tier-level italic note when per-card content
+          exists for this tier — the cards subsume the note's content
+          and presenting both creates the redundancy the user flagged.
+          When no per-card content is authored yet, the note remains
+          as the fallback explanation. */}
+      {tier.note && !tierHasContent(synId, tier.k, tier.rx, splitRegimenOptions) && (
         <div style={{ fontSize:12, color:"var(--ink2)", marginTop:4, lineHeight:1.5, fontStyle:"italic" }}>
           {renderGloss(tier.note, onDrug)}
         </div>
