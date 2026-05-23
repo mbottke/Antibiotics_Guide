@@ -210,6 +210,39 @@ const PDot = ({ lv }) => { const m={good:"d-good",mod:"d-mod",poor:"d-poor",var:
 
 const ToxDot = ({ lv }) => lv ? <span className={"tox-d "+(lv==="hi"?"tx-hi":lv==="mod"?"tx-mod":"tx-lo")} title={({hi:"notable / boxed concern",mod:"moderate",lo:"low / class-typical"})[lv]} /> : <span className="tx-dot-txt">&middot;</span>;
 
+/* DecisionTag — semantic decision-channel chip for the Bedside answer canvas.
+   Four states aligned to the --decision-* tokens: start (green, go as written),
+   adjusted (amber, renal/weight/substitution), avoid (oxblood, contraindicated
+   here), pending (neutral, awaiting data). Self-styling so it does not require
+   a CSS edit per consumer — Phase 0 ships the primitive; later phases compose
+   it into dose rows, refinement footnotes, and culture-state chips. */
+const _DECISION_STATES = {
+  start:    { label: "Start",    role: "go as written" },
+  adjusted: { label: "Adjusted", role: "modified for this patient" },
+  avoid:    { label: "Avoid",    role: "contraindicated here" },
+  pending:  { label: "Pending",  role: "awaiting data" },
+};
+function DecisionTag({ state = "start", children, title }) {
+  const meta = _DECISION_STATES[state] || _DECISION_STATES.start;
+  const bg = `var(--decision-${state}-bg)`;
+  const fg = `var(--decision-${state})`;
+  const bd = `var(--decision-${state}-line)`;
+  return (
+    <span
+      className={"rx-decision rx-decision-" + state}
+      title={title || meta.role}
+      aria-label={(typeof children === "string" ? children + " — " : "") + meta.role}
+      style={{
+        display:"inline-flex", alignItems:"center", gap:5,
+        fontSize:"11px", fontWeight:600, lineHeight:1.3, letterSpacing:".01em",
+        padding:"3px 8px", borderRadius:999, whiteSpace:"nowrap",
+        color:fg, background:bg, border:`1px solid ${bd}`,
+      }}>
+      {children || meta.label}
+    </span>
+  );
+}
+
 /* Copy a syndrome card as a plain-text note for the EHR. Stand-alone so the
    inline card render stays clean; mirrors the RegimenCard copy affordance. */
 function CardCopyButton({ syn }){
@@ -238,4 +271,4 @@ function CardCopyButton({ syn }){
   );
 }
 
-export { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer };
+export { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer, DecisionTag };
