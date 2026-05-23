@@ -3,7 +3,10 @@
 import { RISK_KW } from "../data/risk-keywords.js";
 import { _agentMatchTokens, _normd } from "../lib/util.js";
 import { AGENT_RX, FORM_FLAT } from "../data/drugs.js";
+import { SRC_CONTROL, SYNDROMES } from "../data/syndromes.js";
 import { drugCoversOrg, orgLookup } from "./lookup.js";
+import { deriveCtx } from "./dosing.js";
+import { synEvidence } from "./clinical.js";
 
 /* ============================================================================
    B4 · DE-ESCALATION SUGGESTER — narrowest definitive agent, by organism
@@ -189,4 +192,44 @@ function refineRegimen(texts, ctx, d){
   return { present, steps };
 }
 
-export { buildRegimen, regimenAgents, refineAgents, refineOptionGroups, refineRegimen, deescalationPlan };
+/* ============================================================================
+   composeAnswer — the Bedside Answer Canvas's single engine entry point.
+   Takes a caseState and returns everything the Answer Canvas needs to render
+   in one pure call: the assembled regimen, the patient-specific refinement
+   trail, the de-escalation plan, and the surrounding context (source
+   control, evidence, target organisms, duration). Pure; safe to call every
+   render; returns null when the syndrome is unknown or unset so the canvas
+   can show the "pick a presentation" empty state instead. */
+function composeAnswer(caseState){
+  if(!caseState || !caseState.syndrome) return null;
+  const s = SYNDROMES.find(x => x.id === caseState.syndrome);
+  if(!s) return null;
+  const patient = caseState.patient || {};
+  const d = deriveCtx(patient);
+  const ctx = { ...patient, crcl: d.crcl };
+  const { core, adds, others } = buildRegimen(s, ctx);
+  const activeTexts = [core.rx, ...adds.map(a => a.rx)];
+  const refinement = refineRegimen(activeTexts, ctx, d);
+  const empiricAgents = regimenAgents(activeTexts);
+  const deesc = deescalationPlan(s, empiricAgents);
+  return {
+    syndrome: s,
+    ctx,
+    d,
+    core,
+    adds,
+    others,
+    refinement,
+    deesc,
+    empiricAgents,
+    duration: s.duration,
+    deescGuide: s.deesc,
+    cover: s.cover,
+    bugs: s.bugs || [],
+    pearls: s.pearls || [],
+    sourceControl: SRC_CONTROL[s.id] || null,
+    evidence: synEvidence(s),
+  };
+}
+
+export { buildRegimen, regimenAgents, refineAgents, refineOptionGroups, refineRegimen, deescalationPlan, composeAnswer };

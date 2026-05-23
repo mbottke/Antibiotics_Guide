@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildRegimen, regimenAgents, deescalationPlan } from "../src/engines/regimen.js";
+import { buildRegimen, regimenAgents, deescalationPlan, composeAnswer } from "../src/engines/regimen.js";
 import { SYNDROMES } from "../src/data/syndromes.js";
 
 /* The empiric selector and the organism-directed de-escalation suggester — the
@@ -90,5 +90,107 @@ describe("deescalationPlan — organism-directed narrowing", () => {
   it("returns an empty plan when no organisms are supplied", () => {
     const bare = { ...cholangitis, bugs: [] };
     expect(deescalationPlan(bare, ["Cefepime"])).toEqual([]);
+  });
+});
+
+describe("composeAnswer — the Bedside answer-bundle entry point", () => {
+  it("returns null when the case has no syndrome", () => {
+    expect(composeAnswer({ patient: { on: false } })).toBeNull();
+    expect(composeAnswer({ syndrome: null, patient: {} })).toBeNull();
+  });
+
+  it("returns null for an unknown syndrome id", () => {
+    expect(composeAnswer({ syndrome: "not-a-real-syndrome", patient: {} })).toBeNull();
+  });
+
+  it("bundles the canonical fields for a sepsis case with no patient context", () => {
+    const r = composeAnswer({ syndrome: "sepsis", patient: { on: false } });
+    expect(r).toBeTruthy();
+    expect(r.syndrome.id).toBe("sepsis");
+    expect(r.core).toBeTruthy();
+    expect(r.core.rx).toMatch(/β-lactam|piperacillin|cefepime|meropenem/i);
+    expect(Array.isArray(r.adds)).toBe(true);
+    expect(Array.isArray(r.others)).toBe(true);
+    expect(typeof r.duration).toBe("string");
+    expect(Array.isArray(r.bugs)).toBe(true);
+    expect(Array.isArray(r.pearls)).toBe(true);
+    expect(Array.isArray(r.empiricAgents)).toBe(true);
+    expect(Array.isArray(r.deesc)).toBe(true);
+    expect(r.refinement).toBeTruthy();
+    expect(Array.isArray(r.refinement.steps)).toBe(true);
+  });
+
+  /* Snapshot-like spot checks across one representative syndrome per
+     category. We assert field-level structure rather than full snapshots,
+     so a legitimate content edit (e.g. new pearl) doesn't break the test
+     while a structural regression (missing field, wrong agent) does. */
+  const FIXTURES = [
+    { id: "sepsis",   shouldHaveBug: true },
+    { id: "cap",      shouldHaveBug: true },
+    { id: "hap",      shouldHaveBug: true },
+    { id: "ie",       shouldHaveBug: true },
+    { id: "pyelo",    shouldHaveBug: true },
+    { id: "cholangitis", shouldHaveBug: true },
+    { id: "cellulitis", shouldHaveBug: true },
+    { id: "meningitis", shouldHaveBug: true },
+    { id: "dfi",      shouldHaveBug: true },
+    { id: "sepsis-neutropenic", shouldHaveBug: true },
+  ];
+  FIXTURES.forEach(({ id, shouldHaveBug }) => {
+    it(`composes a non-empty answer for ${id}`, () => {
+      const r = composeAnswer({ syndrome: id, patient: { on: false } });
+      expect(r).toBeTruthy();
+      expect(r.syndrome.id).toBe(id);
+      expect(typeof r.core.rx).toBe("string");
+      expect(r.core.rx.length).toBeGreaterThan(0);
+      if (shouldHaveBug) expect(r.bugs.length).toBeGreaterThan(0);
+      expect(typeof r.duration).toBe("string");
+    });
+  });
+
+  it("applies risk-driven add-ons when the patient context flags them", () => {
+    const noRisk = composeAnswer({ syndrome: "hap", patient: { on: true } });
+    const withRisks = composeAnswer({
+      syndrome: "hap",
+      patient: { on: true, mrsaRisk: true, severe: true },
+    });
+    expect(withRisks.adds.length).toBeGreaterThan(noRisk.adds.length);
+  });
+
+  it("populates the refinement trail when allergy + nephrotoxicity rules fire", () => {
+    // Severe β-lactam allergy on a sepsis empiric regimen — RULE 1 fires:
+    // eliminate β-lactams, substitute aztreonam.
+    const r = composeAnswer({
+      syndrome: "sepsis",
+      patient: { on: true, blAllergy: "severe", mrsaRisk: true, pseudoRisk: true },
+    });
+    expect(r.refinement.steps.length).toBeGreaterThan(0);
+    const types = new Set(r.refinement.steps.map(s => s.type));
+    // Should include at least one eliminate (or substitute) action
+    expect(types.has("eliminate") || types.has("substitute")).toBe(true);
+  });
+
+  it("derives crcl into ctx when patient labs are present", () => {
+    const r = composeAnswer({
+      syndrome: "cap",
+      patient: { on: true, age: 72, weightKg: 80, sex: "M", scr: 1.5 },
+    });
+    expect(r.ctx.crcl).toBeGreaterThan(0);
+    expect(r.d.crcl).toBe(r.ctx.crcl);
+  });
+
+  it("surfaces sourceControl for syndromes that have one", () => {
+    const r = composeAnswer({ syndrome: "cholangitis", patient: { on: false } });
+    expect(r.sourceControl).toBeTruthy();
+    expect(r.sourceControl).toMatch(/drain|ercp|decompress/i);
+  });
+
+  it("surfaces evidence when the syndrome has a citation", () => {
+    const r = composeAnswer({ syndrome: "cap", patient: { on: false } });
+    // synEvidence may be null for some syndromes; when present it has the
+    // expected shape.
+    if (r.evidence) {
+      expect(typeof r.evidence.ref).toBe("string");
+    }
   });
 });
