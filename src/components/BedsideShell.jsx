@@ -46,7 +46,7 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
   const synName = _synName(caseState.syndrome);
 
   return (
-    <div className="rx-root" style={{ minHeight: "100vh", padding: "32px 22px 80px" }}>
+    <div className="rx-root rx-bedside">
       <div style={{ maxWidth: 780, margin: "0 auto" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
           <button

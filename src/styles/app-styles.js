@@ -935,4 +935,44 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-ix-singles-lab{ font-size:11px; color:var(--muted); font-style:italic; margin-bottom:6px; }
 `;
 
-export { CSS, CSS2, CSS3, CSS4 };
+/* ============================================================================
+   CSS5 · Bedside-mode scope (Phase A.3 · mobile-first density pass).
+   The Phase A surfaces (Case Bar, Answer Canvas) use scoped inline styles
+   for most rendering; this block adds the responsive rules and touch-
+   friendly affordances that can't be expressed inline cleanly. Scoped to
+   `.rx-bedside` so it never leaks into the classic UI.
+   ========================================================================== */
+const CSS5 = `
+.rx-bedside{ padding: 32px 22px 80px; min-height: 100vh; }
+.rx-bedside :focus-visible{ outline: 2px solid var(--ox); outline-offset: 2px; border-radius: 3px; }
+
+/* The Case Bar's free-text input must shrink to the viewport on narrow
+   screens — its parent uses flex so this forces it to honour the
+   container width. */
+.rx-bedside input[type="text"]{ width: 100%; min-width: 0; }
+
+/* Touch targets — bedside is phones-in-a-coat-pocket; bring buttons up to
+   ~38 px tappable height on mobile. The classic UI keeps its tighter
+   desktop spacing since it has the room. */
+@media (max-width: 540px){
+  .rx-bedside{ padding: 20px 14px 60px; }
+  .rx-bedside button{ min-height: 38px; }
+  .rx-bedside button[aria-label="Clear input"]{ min-height: 36px; }
+  /* The header row (Classic-mode + Bedside label) can run out of room — wrap. */
+  .rx-bedside h1{ font-size: 26px !important; }
+  /* The answer-header strip's syndrome name + Edit button should stack rather
+     than overflow on the narrowest devices. The strip uses inline flex with
+     a gap; this lets it wrap. */
+  .rx-bedside [data-bedside-header-strip]{ flex-wrap: wrap; }
+}
+
+/* Honour reduced motion (the global rx-root rule applies inside this scope
+   already via inheritance). */
+@media (prefers-reduced-motion: reduce){
+  .rx-bedside *,
+  .rx-bedside *::before,
+  .rx-bedside *::after{ transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+`;
+
+export { CSS, CSS2, CSS3, CSS4, CSS5 };

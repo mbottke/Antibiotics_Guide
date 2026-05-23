@@ -313,7 +313,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
   return (
     <div style={{ marginTop: 6 }}>
       {/* Header strip — syndrome name, risks, edit-case affordance */}
-      <div style={{
+      <div data-bedside-header-strip="true" style={{
         display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12,
         padding:"14px 18px", background:"var(--ox-softer)", border:"1px solid var(--ox-line)",
         borderRadius:12, marginBottom: 16,

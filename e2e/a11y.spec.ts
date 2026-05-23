@@ -52,4 +52,24 @@ test.describe("accessibility (axe-core, WCAG 2.1 AA)", () => {
     const tag = await page.evaluate(() => document.activeElement?.tagName?.toLowerCase());
     expect(["a", "button", "input", "select", "textarea"]).toContain(tag);
   });
+
+  /* Phase A — bedside surfaces must clear the same AA bar. The Case Bar
+     and the Answer Canvas both use new inline styles, so a contrast or
+     ARIA regression here is what this guards against. */
+  test("bedside Case Bar has no violations", async ({ page }) => {
+    await page.goto("/?bedside=1");
+    await page.waitForLoadState("networkidle");
+    const r = await scan(page);
+    expect(r.violations, JSON.stringify(r.violations, null, 2)).toEqual([]);
+  });
+
+  test("bedside Answer Canvas has no violations", async ({ page }) => {
+    await page.goto("/?bedside=1");
+    await page.waitForLoadState("networkidle");
+    await page.locator('input[type="text"]').first().fill("HAP prior MRSA");
+    await page.getByRole("button", { name: /apply case/i }).click();
+    await expect(page.getByText(/start now/i).first()).toBeVisible();
+    const r = await scan(page);
+    expect(r.violations, JSON.stringify(r.violations, null, 2)).toEqual([]);
+  });
 });

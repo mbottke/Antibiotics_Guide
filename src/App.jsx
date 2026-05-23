@@ -11,7 +11,7 @@ import {
   Check, Plus, Zap, Soup, Flame,
   Filter, Eye, EyeOff, RotateCcw,
 } from "lucide-react";
-import { CSS, CSS2, CSS3, CSS4 } from "./styles/app-styles";
+import { CSS, CSS2, CSS3, CSS4, CSS5 } from "./styles/app-styles";
 import { PatientContextBar, DrugCard, OrgCard, RegimenCard, TrialCard, RapidDxTimeout, IVtoPO, MrsaCell, CmpCell, SpectrumCompare } from "./components/cards";
 import { ClassChip, TermChip, renderRx, renderGloss, renderRich } from "./components/rich-text";
 import { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer } from "./components/primitives";
@@ -1559,14 +1559,14 @@ export default function InpatientAbxGuide() {
 
   const TABRENDER = { approach:renderApproach, empiric:renderEmpiric, directed:renderDirected, reference:renderReference, spectrum:renderSpectrum, penetration:renderPenetration, mechanisms:renderMechanisms, dose:renderDose, safety:renderSafety, course:renderCourse, adjuncts:renderAdjuncts };
 
-  /* ============ BEDSIDE MODE (Phase A.1 · Case Bar) ============
+  /* ============ BEDSIDE MODE (Phase A · Case Bar + Answer Canvas) ============
      `?bedside=1` mounts the bedside shell. The classic UI is fully preserved
-     below — this is an additive surface, not a replacement. The shell now
-     receives setCaseState so the Case Bar can apply parsed updates. */
+     below — this is an additive surface, not a replacement. CSS5 carries the
+     `.rx-bedside`-scoped mobile-first density rules added in Phase A.3. */
   if(mode === "bedside") {
     return (
       <>
-        <style>{CSS + CSS2 + CSS3 + CSS4}</style>
+        <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5}</style>
         <BedsideShell caseState={caseState} setCaseState={setCaseState} onExit={() => setMode("classic")} />
       </>
     );
