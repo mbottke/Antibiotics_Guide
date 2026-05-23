@@ -18,7 +18,7 @@ const SURFACES = [
 
 const MODES = [
   { id: "reference", label: "Reference", icon: BookOpen,   hint: "The full 11-tab reference: spectrum, formulary, penetration, mechanisms, dosing, course, safety" },
-  { id: "decide",    label: "Decide",    icon: Crosshair,  hint: "Case-driven workflow: describe the patient, get one composed answer with refinements, reassess at 48-72 h" },
+  { id: "decide",    label: "Decide",    icon: Crosshair,  hint: "Snapshot consult: describe the patient, see multiple regimen options side-by-side with patient-specific refinements" },
 ];
 
 function _btn({ active, disabled, showSoon, label, hint, Icon, onClick, leading }){

@@ -157,6 +157,61 @@ test.describe("bedside mode renders without runtime errors", () => {
   });
 });
 
+/* Phase D1 — multi-option presentation. The Answer Canvas renders each
+   regimen tier as a grid of OptionCards (one per parsed alternate) so
+   the clinician can compare options side-by-side. The "Current state"
+   relabel of the legacy Reassessment panel also lands here — the
+   snapshot framing replaces the longitudinal "Day-3" copy. */
+test.describe("Phase D1 — multi-option + current-state framing", () => {
+  test("applying a CAP case renders the multi-option regimen grid", async ({ page }) => {
+    await page.goto("/?bedside=1");
+    await page.waitForLoadState("networkidle");
+    const input = page.locator('input[type="text"]').first();
+    await input.fill("65M severe CAP icu");
+    await page.getByRole("button", { name: /apply case/i }).click();
+    // The grid mounts under the "Start now" section.
+    await expect(page.getByTestId("regimen-options").first()).toBeVisible();
+  });
+
+  test("a multi-option grid offers more than one card", async ({ page }) => {
+    await page.goto("/?bedside=1");
+    await page.waitForLoadState("networkidle");
+    await page.locator('input[type="text"]').first().fill("28F cystitis crcl 80");
+    await page.getByRole("button", { name: /apply case/i }).click();
+    const grid = page.getByTestId("regimen-options").first();
+    await expect(grid).toBeVisible();
+    const cards = grid.getByRole("radio");
+    // Cystitis ships three first-line oral options; expect at least 2 cards.
+    expect(await cards.count()).toBeGreaterThanOrEqual(2);
+  });
+
+  test("clicking a card marks it selected and unselects the prior pick", async ({ page }) => {
+    await page.goto("/?bedside=1");
+    await page.waitForLoadState("networkidle");
+    await page.locator('input[type="text"]').first().fill("28F cystitis crcl 80");
+    await page.getByRole("button", { name: /apply case/i }).click();
+    const grid = page.getByTestId("regimen-options").first();
+    const cards = grid.getByRole("radio");
+    const count = await cards.count();
+    if(count >= 2){
+      await expect(cards.nth(0)).toHaveAttribute("aria-checked", "true");
+      await cards.nth(1).click();
+      await expect(cards.nth(1)).toHaveAttribute("aria-checked", "true");
+      await expect(cards.nth(0)).toHaveAttribute("aria-checked", "false");
+    }
+  });
+
+  test("Current state replaces Day-3 reassessment in the panel header", async ({ page }) => {
+    await page.goto("/?bedside=1");
+    await page.waitForLoadState("networkidle");
+    await page.locator('input[type="text"]').first().fill("72M sepsis crcl 60");
+    await page.getByRole("button", { name: /apply case/i }).click();
+    // The panel header now reads "Current state", not "Day-3 reassessment".
+    await expect(page.getByText(/current state/i).first()).toBeVisible();
+    await expect(page.getByText(/day-?3 reassessment/i)).toHaveCount(0);
+  });
+});
+
 /* Phase C — SurfaceBar two-axis navigation. The bar is mounted above
    every surface; default landing is inpatient + reference (the current
    11-tab UI), so existing links see no behavior change. */

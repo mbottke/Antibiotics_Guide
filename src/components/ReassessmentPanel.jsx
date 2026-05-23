@@ -16,7 +16,7 @@
 import React from "react";
 import {
   AlertTriangle, ArrowRight, Bug, Calendar, Check, Clock, Crosshair,
-  FlaskConical, Pill, Scissors, TrendingDown,
+  FlaskConical, Pill, Scissors, Stethoscope, TrendingDown,
 } from "lucide-react";
 import { applyReassessment } from "../engines/regimen.js";
 import { ORGS, ORG_BY_ID } from "../data/organisms.js";
@@ -99,7 +99,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg }) 
           textTransform:"uppercase", color:"var(--ox)", fontWeight:700,
           display:"inline-flex", alignItems:"center", gap:6,
         }}>
-          <Clock size={12} /> Day-3 reassessment
+          <Stethoscope size={12} /> Current state
         </span>
         {r && r.activeTriggers.length > 0 && (
           <span style={{ fontSize:11, color:"var(--ink2)", fontStyle:"italic" }}>
