@@ -157,6 +157,45 @@ test.describe("bedside mode renders without runtime errors", () => {
   });
 });
 
+/* Phase C — SurfaceBar two-axis navigation. The bar is mounted above
+   every surface; default landing is inpatient + reference (the current
+   11-tab UI), so existing links see no behavior change. */
+test.describe("SurfaceBar (Phase C two-axis nav)", () => {
+  test("default landing is inpatient + reference (classic 11-tab UI)", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    // The SurfaceBar mounts above the classic header.
+    await expect(page.getByTestId("surface-bar")).toBeVisible();
+    // The classic 11-tab nav is still here.
+    await expect(page.locator(".rx-nav")).toBeVisible();
+    // The Approach lede still renders (the classic landing).
+    await expect(page.getByText(/principles of empiric antibacterial therapy/i)).toBeVisible();
+  });
+
+  test("clicking Decide switches the inpatient surface to the Bedside flow", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const bar = page.getByTestId("surface-bar");
+    await bar.getByRole("button", { name: /^Decide/i }).click();
+    // BedsideShell mounts; the Case Bar header lands.
+    await expect(page.locator(".rx-builder-h").filter({ hasText: /describe the case/i })).toBeVisible();
+  });
+
+  test("clicking Outpatient surfaces the planned-roadmap shell", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const bar = page.getByTestId("surface-bar");
+    await bar.getByRole("button", { name: /^Outpatient/i }).click();
+    await expect(page.getByText(/outpatient antibiotic guidance is on the roadmap/i)).toBeVisible();
+  });
+
+  test("legacy ?bedside=1 still routes to inpatient + decide", async ({ page }) => {
+    await page.goto("/?bedside=1");
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator(".rx-builder-h").filter({ hasText: /describe the case/i })).toBeVisible();
+  });
+});
+
 /* Day-3 reassessment workflow (Phase B). The panel mounts inside the
    Answer Canvas and mutates the regimen view as the user toggles its
    three structured inputs. */
