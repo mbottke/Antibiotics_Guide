@@ -29,6 +29,7 @@ import { AlertTriangle, Check, Info, Pill, Syringe, XCircle, Zap } from "lucide-
 import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { lookupOptionContent } from "../data/regimenContent.js";
 import { doseAdjustments } from "../engines/dosing.js";
+import { matchesCtx } from "../engines/ctxMatch.js";
 
 /* Bold-callout parser. Splits a string on **…** segments and returns
    an array of { text, bold } chunks. The renderer wraps bold chunks
@@ -114,7 +115,7 @@ function severityStyle(sev) {
    prior paragraph-style layout. Renders nothing if the option has no
    authored content (the card then shows just the drug fragment +
    route + dose chips). */
-function DecisionContent({ content, accent }) {
+function DecisionContent({ content, accent, ctx }) {
   if(!content) return null;
   const hasAny = content.pickIf || content.whyPick?.length || content.watchOut?.length;
   if(!hasAny) return null;
@@ -169,7 +170,14 @@ function DecisionContent({ content, accent }) {
         </div>
       )}
 
-      {/* Watch-out bullets — cautions with severity icons */}
+      {/* Watch-out bullets — cautions with severity icons. Phase D3.4:
+          bullets carrying a matchCtx predicate that fires against the
+          current patient ctx get elevated — left accent stripe in the
+          bullet's severity color, the bullet's own background nudged
+          toward that color, and a "FIRES NOW" chip pinned to the row.
+          The visual cue is the same vocabulary as MATCHES (D2/D3.2) so
+          the entire app speaks one elevation grammar. Never hides
+          non-matching bullets — safety contract. */}
       {content.watchOut?.length > 0 && (
         <div>
           <div style={{
@@ -180,13 +188,34 @@ function DecisionContent({ content, accent }) {
           <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:3 }}>
             {content.watchOut.map((b, i) => {
               const sty = severityStyle(b.sev || "note");
+              const ctxFires = !!(b.matchCtx && matchesCtx(b.matchCtx, ctx));
               return (
                 <li key={i} style={{
                   display:"flex", alignItems:"flex-start", gap:6,
                   fontSize:11.5, lineHeight:1.45, color:"var(--ink2)",
+                  padding: ctxFires ? "3px 6px" : 0,
+                  background: ctxFires
+                    ? (sty.bg !== "transparent" ? sty.bg : "var(--paper2)")
+                    : "transparent",
+                  border: ctxFires ? "1px solid " + sty.line : "none",
+                  borderLeft: ctxFires ? "3px solid " + sty.color : "none",
+                  borderRadius: ctxFires ? 5 : 0,
+                  transition: "background .12s, border-color .12s",
                 }}>
                   <sty.Icon size={11} aria-hidden style={{ color: sty.color, flexShrink: 0, marginTop: 3 }} />
-                  <span><RichText text={b.text} accentColor={sty.color} accentBg={sty.bg !== "transparent" ? sty.bg : undefined} /></span>
+                  <span style={{ flex: 1 }}>
+                    <RichText text={b.text} accentColor={sty.color} accentBg={sty.bg !== "transparent" ? sty.bg : undefined} />
+                  </span>
+                  {ctxFires && (
+                    <span style={{
+                      flex: "0 0 auto",
+                      fontFamily:"var(--mono)", fontSize:8, fontWeight:700,
+                      color:"#fff", background: sty.color,
+                      padding: "2px 5px", borderRadius: 3,
+                      letterSpacing:".06em", textTransform:"uppercase",
+                      whiteSpace:"nowrap",
+                    }}>Fires now</span>
+                  )}
                 </li>
               );
             })}
@@ -343,7 +372,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
       <div style={{ fontSize:13.5, lineHeight:1.5, color:"var(--ink)", fontWeight: selected ? 600 : 500 }}>
         {renderText ? renderText(titleCaseFirst(option.text)) : titleCaseFirst(option.text)}
       </div>
-      <DecisionContent content={content} accent={accent} />
+      <DecisionContent content={content} accent={accent} ctx={ctx} />
       <PerOptionDoseChips optionText={option.text} ctx={ctx} d={d} synId={synId} />
     </button>
   );

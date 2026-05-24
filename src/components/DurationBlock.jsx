@@ -23,6 +23,7 @@
 import React from "react";
 import { Clock, Check, AlertTriangle, ArrowUpRight, Calendar } from "lucide-react";
 import { Section } from "./Section.jsx";
+import { matchesCtx } from "../engines/ctxMatch.js";
 
 /* Bold-callout parser. Same as RegimenOptions — splits a string on
    **…** segments and returns chunks the renderer can accent. */
@@ -92,7 +93,7 @@ function addDaysIso(iso, n) {
   return `${y}-${mo}-${da}`;
 }
 
-function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSelect, startDate, onStartDateChange }) {
+function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSelect, startDate, onStartDateChange, ctx }) {
   if(!duration) return null;
   const { headline, evidence, branches = [], stopWhen = [], extendIf = [] } = duration;
   if(!headline && branches.length === 0 && stopWhen.length === 0) return null;
@@ -295,15 +296,43 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
             <div>
               <SubLabel icon={ArrowUpRight} text="Extend if" color="var(--amber)" />
               <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:4 }}>
-                {extendIf.map((s, i) => (
-                  <li key={i} style={{
-                    display:"flex", alignItems:"flex-start", gap:6,
-                    fontSize:11.5, lineHeight:1.45, color:"var(--ink2)",
-                  }}>
-                    <AlertTriangle size={11} aria-hidden style={{ color:"var(--amber)", flexShrink: 0, marginTop: 3 }} />
-                    <span><RichText text={s} accentColor="var(--amber)" accentBg="var(--amber-soft)" /></span>
-                  </li>
-                ))}
+                {extendIf.map((entry, i) => {
+                  /* Phase D3.4: extendIf entries can be plain strings
+                     (legacy / simple) OR { text, matchCtx? } objects.
+                     The object form lets authors tag entries with a
+                     ctx predicate so the row elevates when the
+                     patient's state matches the trigger. */
+                  const isObj = entry && typeof entry === "object";
+                  const text = isObj ? entry.text : entry;
+                  const ctxFires = !!(isObj && entry.matchCtx && matchesCtx(entry.matchCtx, ctx));
+                  return (
+                    <li key={i} style={{
+                      display:"flex", alignItems:"flex-start", gap:6,
+                      fontSize:11.5, lineHeight:1.45, color:"var(--ink2)",
+                      padding: ctxFires ? "3px 6px" : 0,
+                      background: ctxFires ? "var(--amber-soft)" : "transparent",
+                      border: ctxFires ? "1px solid var(--amber-line)" : "none",
+                      borderLeft: ctxFires ? "3px solid var(--amber)" : "none",
+                      borderRadius: ctxFires ? 5 : 0,
+                      transition: "background .12s, border-color .12s",
+                    }}>
+                      <AlertTriangle size={11} aria-hidden style={{ color:"var(--amber)", flexShrink: 0, marginTop: 3 }} />
+                      <span style={{ flex: 1 }}>
+                        <RichText text={text} accentColor="var(--amber)" accentBg="var(--amber-soft)" />
+                      </span>
+                      {ctxFires && (
+                        <span style={{
+                          flex: "0 0 auto",
+                          fontFamily:"var(--mono)", fontSize:8, fontWeight:700,
+                          color:"#fff", background: "var(--amber)",
+                          padding: "2px 5px", borderRadius: 3,
+                          letterSpacing:".06em", textTransform:"uppercase",
+                          whiteSpace:"nowrap",
+                        }}>Fires now</span>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}
