@@ -70,14 +70,32 @@ function SubLabel({ icon: Icon, text, color = "var(--ink2)" }) {
   );
 }
 
-/* Parse the first integer from a branch.days string ("14 d",
-   "28–42 d", "≥ 42 d", "1 dose"). Returns null for "Indefinite"
-   or any string with no digits. Used to compute the stop date. */
-function parseFirstInt(days) {
+/* Parse a branch.days string into a number of CALENDAR DAYS for the
+   stop-date math. Reads the first integer AND the unit token following
+   it ("3 d" → 3, "3–6 wk" → 21, "2 mo" → 60, "1 dose" → 1). Returns
+   null for "Indefinite" or any string with no digits.
+
+   This is the safety-critical bit the prior `parseFirstInt` got wrong:
+   it returned `3` for both "3 d" and "3–6 wk" without converting the
+   unit, which silently rendered a stop date ~18 days too early for
+   week-based branches. The audit gate forces explicit units on every
+   `days` string; this function now honors them. */
+function parseDurationDays(days) {
   if(!days || typeof days !== "string") return null;
   if(/indefinite/i.test(days)) return null;
   const m = days.match(/(\d+)/);
-  return m ? parseInt(m[1], 10) : null;
+  if(!m) return null;
+  const count = parseInt(m[1], 10);
+  // Look at the text following the first number to detect the unit
+  // keyword. Order matters: check "wk"/"week" before "d" so the latter
+  // doesn't false-match inside "weeks". For "dose", count the day on
+  // which the dose is given.
+  const tail = days.slice(m.index + m[1].length);
+  if(/\b(?:wk|weeks?)\b/i.test(tail))   return count * 7;
+  if(/\b(?:mo|months?)\b/i.test(tail))  return count * 30;
+  if(/\b(?:hr|hours?|h)\b/i.test(tail)) return Math.max(1, Math.round(count / 24));
+  // Default + explicit "d" / "day" / "days" / "dose":
+  return count;
 }
 
 /* Add n days to an ISO date string (YYYY-MM-DD); returns the same
@@ -118,12 +136,12 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
      to startDate. Ranges like "5–7 d" use the lower bound for the
      date — clinicians extend per evolution. */
   const activeBranch = branches.find(b => branchIsActive(b)) || null;
-  const activeDays = activeBranch ? parseFirstInt(activeBranch.days) : null;
+  const activeDays = activeBranch ? parseDurationDays(activeBranch.days) : null;
   const stopDate = startDate && activeDays != null ? addDaysIso(startDate, activeDays) : null;
   const indefinite = activeBranch && /indefinite/i.test(activeBranch.days);
 
   return (
-    <Section kicker="Duration · When to stop" icon={Clock}>
+    <Section kicker="Duration · When to stop" icon={Clock} testId="duration-block">
       {/* Headline + evidence */}
       {headline && (
         <div style={{

@@ -285,8 +285,15 @@ const SYNDROME_DECISION = {
         { text: "**Endocarditis or endovascular infection** confirmed — 4–6 wk regimen replaces sepsis duration" },
         { text: "**Severe shock / multi-organ failure** at presentation — extend to 10–14 d",
           matchCtx: { severe: true } },
-        { text: "**Immunocompromised host** — neutropenia, transplant, biologic; extend minimum to 14 d",
-          matchCtx: { any: [{ mrsaRisk: true }, { esblRisk: true }] } },
+        /* "Immunocompromised host" — bullet stays visible at default
+           emphasis. No matchCtx because the case parser does not yet
+           capture an immune-status field (neutropenia, transplant,
+           biologic, chronic steroid). Adding a future `immunocompromised`
+           ctx field would enable elevation here without changing the
+           text. Using mrsaRisk / esblRisk as proxies would be
+           clinically misleading (resistance-history flags ≠ immune
+           status), per PR #11 review feedback. */
+        "**Immunocompromised host** — neutropenia, transplant, biologic; extend minimum to 14 d",
       ],
     },
     monitoring: {
