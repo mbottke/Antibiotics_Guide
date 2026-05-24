@@ -18,7 +18,7 @@ function _synName(id) {
   return s ? s.name : id;
 }
 
-function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, onOpenPalette }) {
+function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, onOpenPalette, antibiogram, onOpenAntibiogramManager }) {
   /* Edit / view mode. Once a syndrome is set, default to view; the user can
      re-open the Case Bar by clicking Edit. While the Case Bar is open, the
      Answer Canvas stays hidden so the screen has one job at a time. */
@@ -154,6 +154,8 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
               onDrug={_onDrug}
               onOrg={_onOrg}
               onCite={_onCite}
+              antibiogram={antibiogram}
+              onOpenAntibiogramManager={onOpenAntibiogramManager}
             />
           </div>
         )}
@@ -165,6 +167,8 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
             onDrug={_onDrug}
             onOrg={_onOrg}
             onCite={_onCite}
+            antibiogram={antibiogram}
+            onOpenAntibiogramManager={onOpenAntibiogramManager}
           />
         )}
       </div>
