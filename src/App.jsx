@@ -623,8 +623,8 @@ export default function InpatientAbxGuide() {
     const fmActive = fmRoute !== "all" || !!fmCover;
     return (
       <>
-        <h2 className="rx-h2">Reference</h2>
-        <p className="rx-lede">The spectrum matrix, the formulary, the β-lactamase resistance ladder, and the allergy cross-reactivity map — the look-up layer beneath the syndrome and organism views.</p>
+        <h2 className="rx-h2">Formulary</h2>
+        <p className="rx-lede">The spectrum matrix, the drug formulary, the β-lactamase resistance ladder, and the allergy cross-reactivity map — the look-up layer beneath the syndrome and organism views.</p>
 
         <h3 className="rx-h3"><span className="ic"><LayoutGrid size={18}/></span>Spectrum of activity</h3>
         <div className="rx-card" style={{display:"flex",gap:"14px",alignItems:"flex-start"}}>
