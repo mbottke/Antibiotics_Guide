@@ -1634,6 +1634,44 @@ export default function InpatientAbxGuide() {
     />
   );
 
+  /* Knowledge-graph drawer — hoisted out of the reference-mode return so it
+     mounts in both decide and reference modes. Chip clicks in BedsideShell
+     (drug names, organism tokens, trial citations) now resolve to the same
+     monograph/organism/trial cards that the reference UI uses. When the user
+     opens a drawer in decide mode and then activates a navigation link
+     ("View spectrum", "Open syndrome card"), we switch back to reference
+     mode and route to the requested tab so the deep link works seamlessly. */
+  const _toRef = (fn) => (...args) => { setMode("reference"); fn(...args); };
+  const drawerEl = (
+    <Drawer
+      open={!!drawer}
+      onClose={()=>setDrawer(null)}
+      kicker={drawer ? (drawer.kind === "drug" ? "Drug monograph" : drawer.kind === "org" ? "Organism card" : drawer.kind === "regimen" ? "Assembled empiric regimen" : drawer.kind === "trial" ? "Evidence" : "") : ""}
+      icon={drawer ? (drawer.kind === "drug" ? Pill : drawer.kind === "regimen" ? Crosshair : drawer.kind === "trial" ? BookOpen : Bug) : undefined}
+      title={drawer ? (drawer.kind === "org" ? ((ORG_BY_ID[drawer.key]||{}).label || drawer.key) : drawer.kind === "regimen" ? ((SYNDROMES.find(s=>s.id===drawer.key)||{}).name || drawer.key) : drawer.kind === "trial" ? ((TRIAL_DETAIL[drawer.key]||{}).short || (GUIDELINES[drawer.key]||{}).body || drawer.key) : drawer.key) : ""}>
+      {drawer && drawer.kind === "drug" && (
+        <DrugCard name={drawer.key} doseFn={dose}
+          onSpectrum={_toRef((n)=>{ setTab("spectrum"); setPickDrug(n); setPickOrg(null); setDrawer(null); })}
+          onSyndrome={_toRef((id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); })}
+          onOrg={(id)=>openOrgDrawer(id)} />
+      )}
+      {drawer && drawer.kind === "org" && (
+        <OrgCard id={drawer.key}
+          onSpectrum={_toRef((id)=>{ setTab("spectrum"); setPickOrg(id); setPickDrug(null); setDrawer(null); })}
+          onSyndrome={_toRef((id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); })}
+          onDrug={(n)=>openDrug(n)} />
+      )}
+      {drawer && drawer.kind === "regimen" && (
+        <RegimenCard synId={drawer.key} ctx={{ ...ctx, crcl:d.crcl }} doseFn={dose}
+          onDrug={(n)=>openDrug(n)}
+          onOrg={(id)=>openOrgDrawer(id)}
+          onCite={(id)=>openTrial(id)}
+          onFull={_toRef((id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); })} />
+      )}
+      {drawer && drawer.kind === "trial" && <TrialCard id={drawer.key} />}
+    </Drawer>
+  );
+
   if(surface === "outpatient") {
     return (
       <>
@@ -1649,7 +1687,15 @@ export default function InpatientAbxGuide() {
       <>
         {styleTag}
         {bar}
-        <BedsideShell caseState={caseState} setCaseState={setCaseState} onExit={() => setMode("reference")} />
+        <BedsideShell
+          caseState={caseState}
+          setCaseState={setCaseState}
+          onExit={() => setMode("reference")}
+          onDrug={openDrug}
+          onOrg={openOrgDrawer}
+          onCite={openTrial}
+        />
+        {drawerEl}
       </>
     );
   }
@@ -1717,33 +1763,7 @@ export default function InpatientAbxGuide() {
         </div>
       )}
 
-      <Drawer
-        open={!!drawer}
-        onClose={()=>setDrawer(null)}
-        kicker={drawer ? (drawer.kind === "drug" ? "Drug monograph" : drawer.kind === "org" ? "Organism card" : drawer.kind === "regimen" ? "Assembled empiric regimen" : drawer.kind === "trial" ? "Evidence" : "") : ""}
-        icon={drawer ? (drawer.kind === "drug" ? Pill : drawer.kind === "regimen" ? Crosshair : drawer.kind === "trial" ? BookOpen : Bug) : undefined}
-        title={drawer ? (drawer.kind === "org" ? ((ORG_BY_ID[drawer.key]||{}).label || drawer.key) : drawer.kind === "regimen" ? ((SYNDROMES.find(s=>s.id===drawer.key)||{}).name || drawer.key) : drawer.kind === "trial" ? ((TRIAL_DETAIL[drawer.key]||{}).short || (GUIDELINES[drawer.key]||{}).body || drawer.key) : drawer.key) : ""}>
-        {drawer && drawer.kind === "drug" && (
-          <DrugCard name={drawer.key} doseFn={dose}
-            onSpectrum={(n)=>{ setTab("spectrum"); setPickDrug(n); setPickOrg(null); setDrawer(null); }}
-            onSyndrome={(id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); }}
-            onOrg={(id)=>openOrgDrawer(id)} />
-        )}
-        {drawer && drawer.kind === "org" && (
-          <OrgCard id={drawer.key}
-            onSpectrum={(id)=>{ setTab("spectrum"); setPickOrg(id); setPickDrug(null); setDrawer(null); }}
-            onSyndrome={(id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); }}
-            onDrug={(n)=>openDrug(n)} />
-        )}
-        {drawer && drawer.kind === "regimen" && (
-          <RegimenCard synId={drawer.key} ctx={{ ...ctx, crcl:d.crcl }} doseFn={dose}
-            onDrug={(n)=>openDrug(n)}
-            onOrg={(id)=>openOrgDrawer(id)}
-            onCite={(id)=>openTrial(id)}
-            onFull={(id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); }} />
-        )}
-        {drawer && drawer.kind === "trial" && <TrialCard id={drawer.key} />}
-      </Drawer>
+      {drawerEl}
 
       <main className="rx-main">
         <div className="rx-wrap">

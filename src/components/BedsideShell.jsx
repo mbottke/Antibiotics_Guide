@@ -18,7 +18,7 @@ function _synName(id) {
   return s ? s.name : id;
 }
 
-function BedsideShell({ caseState, setCaseState, onExit }) {
+function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite }) {
   /* Edit / view mode. Once a syndrome is set, default to view; the user can
      re-open the Case Bar by clicking Edit. While the Case Bar is open, the
      Answer Canvas stays hidden so the screen has one job at a time. */
@@ -35,14 +35,14 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
     if(update.syndrome ?? caseState.syndrome) setEditing(false);
   };
 
-  /* Drug / organism / trial open callbacks. The Bedside Answer Canvas does
-     not have its own Drawer wired up yet (the existing Drawer lives in App.jsx
-     and is tied to the classic UI). For Phase A.2 we no-op these so the
-     monograph buttons in the answer are inert; Phase B will introduce a
-     bedside-scoped drawer. */
-  const onDrug = () => {};
-  const onOrg = () => {};
-  const onCite = () => {};
+  /* Drug / organism / trial chip handlers — provided by App.jsx so the
+     decide-mode Answer Canvas can open the same Drawer monograph/organism/
+     trial cards that the reference UI uses. The Drawer itself lives in
+     App.jsx (hoisted out of the reference-only return) and is mounted in
+     both decide and reference branches. */
+  const _onDrug = onDrug || (() => {});
+  const _onOrg = onOrg || (() => {});
+  const _onCite = onCite || (() => {});
 
   const synName = _synName(caseState.syndrome);
 
@@ -109,9 +109,9 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
             caseState={caseState}
             setCaseState={setCaseState}
             onEditCase={() => setEditing(true)}
-            onDrug={onDrug}
-            onOrg={onOrg}
-            onCite={onCite}
+            onDrug={_onDrug}
+            onOrg={_onOrg}
+            onCite={_onCite}
           />
         )}
       </div>
