@@ -41,19 +41,19 @@ function pregSafetyStyle(s) {
   if(s === "yes") return {
     Icon: CheckCircle2,
     label: "SAFE",
-    color: "#15803d",
+    color: "#14532d",      // darker green: WCAG AA on light-green tinted backgrounds
     bg: "rgba(21, 128, 61, 0.08)",
   };
   if(s === "caution") return {
     Icon: AlertTriangle,
     label: "CAUTION",
-    color: "var(--amber)",
+    color: "#7c2d12",      // darker amber/brown: WCAG AA on amber-soft
     bg: "var(--amber-soft)",
   };
   return {
     Icon: XCircle,
     label: "AVOID",
-    color: "#b91c1c",
+    color: "#7f1d1d",      // darker red: WCAG AA on red-tinted backgrounds
     bg: "rgba(185, 28, 28, 0.08)",
   };
 }
