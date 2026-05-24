@@ -238,20 +238,49 @@ function titleCaseFirst(s) {
   return s;
 }
 
+/* β-lactam detection regex used by Phase D3.3 allergy-driven card
+   deprecation. Catches penicillins, cephalosporins, carbapenems, and
+   the generic class noun — but DOES NOT include aztreonam (monobactam,
+   negligible cross-reactivity with PCN anaphylaxis per IDSA and the
+   2022 AAAAI practice parameter). Aztreonam-containing cards therefore
+   remain safe even when the patient has documented β-lactam anaphylaxis.
+   The regex stays generous (cef\w+ covers all cephalosporin generations
+   incl. cefiderocol, ceftolozane-tazobactam, ceftaroline) so new
+   members ship safely without code changes. */
+const BETA_LACTAM_RX = /\b(?:penicillin|amoxicillin|ampicillin|dicloxacillin|oxacillin|nafcillin|piperacillin|amp-?sulbactam|amox-?clav|augmentin|pip-?tazo|pip-?taz|cef\w+|carbapenem|meropenem|imipenem|ertapenem|doripenem|β-?lactam|cephalosporin|cephamycin)\b/i;
+
 function OptionCard({ option, selected, primary, onSelect, renderText, accent, content, ctx, d, synId }) {
   const accentColor = accent === "add" ? "var(--amber)" : "var(--ox)";
   const accentSoft  = accent === "add" ? "var(--amber-soft)" : "var(--ox-soft)";
   const accentLine  = accent === "add" ? "var(--amber-line)" : "var(--ox-line)";
+
+  /* Phase D3.3 allergy-driven card deprecation. When the patient has
+     documented β-lactam anaphylaxis AND this card contains a β-lactam
+     agent (penicillin, cephalosporin, or carbapenem — not aztreonam),
+     surface a red top banner across the card. The card stays
+     clickable (clinician may know history is unreliable, or plan
+     desensitization) but the visual cue is unmissable at bedside.
+     Cards containing aztreonam are not flagged because the monobactam
+     does not cross-react. */
+  const anaphylaxis = ctx?.blAllergy === "severe";
+  const containsBetaLactam = BETA_LACTAM_RX.test(option.text);
+  const showAllergyBanner = anaphylaxis && containsBetaLactam;
+
   return (
     <button
       type="button"
       role="radio"
       aria-checked={selected}
+      aria-describedby={showAllergyBanner ? `allergy-warn-${synId}-${option.text.slice(0,20).replace(/\W+/g,"-")}` : undefined}
       onClick={onSelect}
       style={{
         textAlign:"left",
-        background: selected ? accentSoft : "var(--panel)",
-        border: "1px solid " + (selected ? accentLine : "var(--line)"),
+        background: selected
+          ? (showAllergyBanner ? "rgba(185,28,28,0.06)" : accentSoft)
+          : "var(--panel)",
+        border: "1px solid " + (selected
+          ? (showAllergyBanner ? "rgba(185,28,28,0.35)" : accentLine)
+          : (showAllergyBanner ? "rgba(185,28,28,0.25)" : "var(--line)")),
         borderRadius:10,
         padding:"11px 12px 12px",
         cursor:"pointer",
@@ -259,6 +288,27 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
         boxShadow: selected ? "inset 0 0 0 1px " + accentLine : "none",
         opacity: selected ? 1 : 0.94,
       }}>
+      {/* Allergy warning banner — D3.3. Spans the full card width with
+          negative margins to reach the card border. Reads as a chart
+          alert (red strip, white serif uppercase) so it leaps out even
+          when the rest of the card content is dense. */}
+      {showAllergyBanner && (
+        <div
+          id={`allergy-warn-${synId}-${option.text.slice(0,20).replace(/\W+/g,"-")}`}
+          style={{
+            background:"#b91c1c", color:"#fff",
+            margin:"-11px -12px 8px",
+            padding:"4px 10px",
+            borderRadius:"10px 10px 0 0",
+            fontFamily:"var(--mono)", fontSize:10, fontWeight:700,
+            letterSpacing:".06em", textTransform:"uppercase",
+            display:"flex", alignItems:"center", justifyContent:"center", gap:6,
+          }}>
+          <span aria-hidden>⚠</span>
+          β-lactam anaphylaxis on file — confirm history before use
+        </div>
+      )}
+
       {/* Top metadata strip: route badge(s) on the left, Recommended chip
           inline next to them (instead of an absolute-positioned tab that
           overlapped the card border on prior iterations), and the
@@ -301,9 +351,28 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
 
 function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx, d, onSelectionChange }) {
   const options = useMemo(() => splitRegimenOptions(rx), [rx]);
-  const [pickedIdx, setPickedIdx] = useState(0);
 
-  useEffect(() => { setPickedIdx(0); }, [rx]);
+  /* Phase D3.3 recommended-card auto-deflect: when the patient has
+     β-lactam anaphylaxis on file and the would-be-recommended (first)
+     card contains a β-lactam, shift the Recommended badge to the
+     first non-β-lactam card. The badge should never sit on a card
+     the patient can't safely receive without affirmative action
+     (desensitization, history re-review). Falls back to index 0 when
+     no safe option exists (e.g., every card contains a β-lactam —
+     in that case the allergy banners on every card make the
+     situation visible regardless). */
+  const recommendedIdx = useMemo(() => {
+    if(ctx?.blAllergy !== "severe") return 0;
+    const firstSafe = options.findIndex(o => !BETA_LACTAM_RX.test(o.text));
+    return firstSafe >= 0 ? firstSafe : 0;
+  }, [options, ctx]);
+
+  const [pickedIdx, setPickedIdx] = useState(recommendedIdx);
+
+  // When the rx changes (new tier) OR the recommendation deflects
+  // (allergy state changes), reset the picked card to the new
+  // recommendation so the initial visual is coherent.
+  useEffect(() => { setPickedIdx(recommendedIdx); }, [rx, recommendedIdx]);
 
   /* Fire onSelectionChange only when the USER explicitly clicks a
      card — not on initial mount. Without this guard, multi-tier
@@ -348,7 +417,7 @@ function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx
         <OptionCard key={i}
           option={opt}
           selected={i === pickedIdx}
-          primary={options.length > 1 && i === 0}
+          primary={options.length > 1 && i === recommendedIdx}
           accent={accent}
           onSelect={() => userPicked(i)}
           renderText={renderText}

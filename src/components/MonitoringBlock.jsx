@@ -82,15 +82,16 @@ function severityStyle(sev) {
 
 /* Does this item match the current cross-section selection?
    Returns true when:
-     - item.matchAgent regex matches the picked agent, OR
-     - item.matchBranch[] includes the picked branch label
+     - item.matchAgent regex matches ANY agent across all tiers' picks
+       (Phase D3.1 multi-tier aggregation — pickedAgents is the union),
+     - item.matchBranch[] includes the active duration branch label.
    Items with NEITHER tag are agent/branch-agnostic and never count
    as "matched" — they render at the default emphasis regardless of
    selection (which is the desired behavior: agent-agnostic items
    are always relevant). */
-function itemMatchesSelection(item, pickedAgent, pickedBranch) {
+function itemMatchesSelection(item, pickedAgents, pickedBranch) {
   let matched = false;
-  if(item.matchAgent && pickedAgent && item.matchAgent.test(pickedAgent)) matched = true;
+  if(item.matchAgent && pickedAgents.some(a => item.matchAgent.test(a))) matched = true;
   if(item.matchBranch && pickedBranch && item.matchBranch.includes(pickedBranch)) matched = true;
   return matched;
 }
@@ -156,7 +157,7 @@ function MonitoringItem({ item, matched }) {
   );
 }
 
-function MonitoringBlock({ monitoring, pickedAgent, pickedBranch }) {
+function MonitoringBlock({ monitoring, pickedAgents = [], pickedBranch }) {
   if(!monitoring) return null;
   const { headline, items = [] } = monitoring;
   if(!headline && items.length === 0) return null;
@@ -166,7 +167,7 @@ function MonitoringBlock({ monitoring, pickedAgent, pickedBranch }) {
 
   // Group items by severity for visual layering, then within each
   // group surface matched items first (still visible but elevated).
-  const decorated = items.map(i => ({ item: i, matched: itemMatchesSelection(i, pickedAgent, pickedBranch) }));
+  const decorated = items.map(i => ({ item: i, matched: itemMatchesSelection(i, pickedAgents, pickedBranch) }));
   const matchedCount = decorated.filter(d => d.matched).length;
   const bySeverity = (sev) => decorated
     .filter(d => (d.item.sev || "consider") === sev)

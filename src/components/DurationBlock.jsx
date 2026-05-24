@@ -92,7 +92,7 @@ function addDaysIso(iso, n) {
   return `${y}-${mo}-${da}`;
 }
 
-function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect, startDate, onStartDateChange }) {
+function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSelect, startDate, onStartDateChange }) {
   if(!duration) return null;
   const { headline, evidence, branches = [], stopWhen = [], extendIf = [] } = duration;
   if(!headline && branches.length === 0 && stopWhen.length === 0) return null;
@@ -100,13 +100,15 @@ function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect, st
   const accent = "var(--ox)";
   const accentBg = "rgba(15, 76, 129, 0.08)";
 
-  /* Branch is "active" when the user explicitly picked it OR its
-     matchAgent regex matches the agent picked above. Effective
-     branch derivation in AnswerCanvas mirrors this — both should
-     stay in sync. */
+  /* Branch is "active" when the user explicitly picked it (pickedBranch
+     matches the label) OR ANY agent picked across tiers matches the
+     branch's matchAgent regex. Per Phase D3.1 multi-tier aggregation:
+     the active branch is derived from the UNION of picks, not just
+     the latest single pick. Effective-branch derivation in AnswerCanvas
+     mirrors this; both stay in sync. */
   const branchIsActive = (b) => {
     if(pickedBranch === b.label) return true;
-    if(!pickedBranch && pickedAgent && b.matchAgent && b.matchAgent.test(pickedAgent)) return true;
+    if(!pickedBranch && b.matchAgent && pickedAgents.some(a => b.matchAgent.test(a))) return true;
     return false;
   };
 

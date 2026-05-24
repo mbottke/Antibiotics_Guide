@@ -84,7 +84,7 @@ const RISK_PATTERNS = [
    any reference to a β-lactam allergy without a severity term defaults to
    mild (the Case Bar lets the user escalate). */
 const ALLERGY_PATTERNS = [
-  { rx: /\b(?:anaphyla|sjs|dress|tens?\b|stevens-?johnson|anaphylactic|angioedema)\b/i, sev: "severe", label: "Severe β-lactam allergy" },
+  { rx: /\b(?:anaphylax(?:is|y)?|anaphylact(?:ic|oid)?|sjs|dress|tens?\b|stevens-?johnson|angioedema)\b/i, sev: "severe", label: "Severe β-lactam allergy" },
   { rx: /\b(?:rash|hives|urticari|itch)\b[^.,;]{0,40}\b(?:pcn|penicillin|amoxicillin|cephalo?sporin|β?-?lactam|ampicillin)\b/i, sev: "mild", label: "Low-risk β-lactam allergy" },
   { rx: /\b(?:pcn|penicillin|amoxicillin|cephalo?sporin|β?-?lactam|ampicillin)\b[^.,;]{0,40}\b(?:rash|hives|urticari|itch|gi|nausea|vomit)\b/i, sev: "mild", label: "Low-risk β-lactam allergy" },
   { rx: /\b(?:pcn|penicillin|β?-?lactam)\s+(?:allergy|reaction|intoleran)/i, sev: "mild", label: "β-lactam allergy" },
