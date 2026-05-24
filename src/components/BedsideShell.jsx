@@ -101,9 +101,15 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
           </div>
         </div>
 
-        {/* When in edit mode: show the headline + Case Bar. When in view mode:
-            show a compact summary strip with an Edit affordance. */}
-        {editing ? (
+        {/* Three states:
+            INITIAL — no syndrome yet → full-width "Build the case" intro
+              with the Case Bar (onboarding flow).
+            EDIT — syndrome set + editing toggled → split layout with the
+              Case Bar pinned as a side rail and the Answer Canvas
+              continuing to render on the right, so the user never loses
+              their reference point while adjusting context.
+            VIEW — syndrome set, not editing → Answer Canvas full width. */}
+        {editing && !caseState.syndrome && (
           <>
             <h1 style={{ fontFamily: "var(--serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-.014em", margin: "8px 0 6px" }}>
               Build the case
@@ -113,19 +119,45 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
               composes the empiric regimen, refinements, and de-escalation plan once a syndrome is set.
             </p>
             <CaseBar caseState={caseState} onApply={applyCase} onSkip={onExit} />
-            {caseState.syndrome && (
-              <button type="button" onClick={() => setEditing(false)}
-                style={{
-                  display:"inline-flex", alignItems:"center", gap:6,
-                  fontFamily:"var(--mono)", fontSize:11, letterSpacing:".08em", textTransform:"uppercase",
-                  color:"var(--muted)", background:"none", border:"none", padding:"6px 8px", cursor:"pointer",
-                  marginTop:-4,
-                }}>
-                ↩ Back to the answer
-              </button>
-            )}
           </>
-        ) : (
+        )}
+        {editing && caseState.syndrome && (
+          <div className="rx-bedside-split">
+            <aside className="rx-bedside-rail" aria-label="Edit case">
+              <div style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                marginBottom: 10, paddingBottom: 8, borderBottom: "1px solid var(--line2)",
+              }}>
+                <div style={{
+                  fontFamily: "var(--mono)", fontSize: 10, letterSpacing: ".14em",
+                  textTransform: "uppercase", color: "var(--ox)", fontWeight: 700,
+                }}>
+                  Edit case
+                </div>
+                <button type="button" onClick={() => setEditing(false)}
+                  aria-label="Close edit panel and return to answer"
+                  style={{
+                    fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".08em",
+                    textTransform: "uppercase", color: "var(--muted)",
+                    background: "none", border: "1px solid var(--line)", borderRadius: 999,
+                    padding: "3px 9px", cursor: "pointer",
+                  }}>
+                  ✕ Done
+                </button>
+              </div>
+              <CaseBar caseState={caseState} onApply={applyCase} onSkip={() => setEditing(false)} />
+            </aside>
+            <AnswerCanvas
+              caseState={caseState}
+              setCaseState={setCaseState}
+              onEditCase={() => setEditing(true)}
+              onDrug={_onDrug}
+              onOrg={_onOrg}
+              onCite={_onCite}
+            />
+          </div>
+        )}
+        {!editing && (
           <AnswerCanvas
             caseState={caseState}
             setCaseState={setCaseState}
