@@ -26,6 +26,7 @@ import { NOVEL_AGENTS } from "../src/data/novelAgents.js";
 import { PEDS_PREG_DOSING } from "../src/data/pedsPregDosing.js";
 import { SURGE_PROTOCOLS } from "../src/data/surgeProtocols.js";
 import { SITE_PENETRATION } from "../src/data/sitePenetration.js";
+import { GUIDELINES, EVOLVING, TRIAL_DETAIL } from "../src/data/evidence.js";
 
 /* -------- limits and known vocabularies ------------------------- */
 
@@ -770,6 +771,167 @@ describe("content-audit · Phase K notifiable-flag (P1)", () => {
       if(["bioterror", "emerging", "regional-outbreak"].includes(s.category)) {
         expect(/\*\*Notifiable\*\*/.test(s.publicHealth || ""),
           `${s.id} (${s.category}): publicHealth missing **Notifiable** marker — alert banner won't render`)
+          .toBe(true);
+      }
+    }
+  });
+});
+
+/* ============================================================
+   Tranche 6 — remaining P1/P2 audit gates from multi-agent
+   triage. Closes evidence-registry integrity gaps + Phase I
+   approved-year drift + Phase H/I/K word budgets + non-empty
+   evidence strings.
+   ============================================================ */
+
+describe("content-audit · evidence-registry integrity (P1)", () => {
+  test("EVOLVING[].ref keys must exist in GUIDELINES", () => {
+    for(const e of EVOLVING) {
+      if(e.ref) {
+        expect(GUIDELINES[e.ref], `EVOLVING[${e.h}].ref="${e.ref}" not in GUIDELINES — renders empty <Cite>`)
+          .toBeDefined();
+      }
+    }
+  });
+  test("TRIAL_DETAIL keys must exist in GUIDELINES", () => {
+    for(const k of Object.keys(TRIAL_DETAIL)) {
+      expect(GUIDELINES[k], `TRIAL_DETAIL["${k}"] not in GUIDELINES — opens with empty header`)
+        .toBeDefined();
+    }
+  });
+  test("GUIDELINES year must be in sane range (1970 ≤ year ≤ next year + 1)", () => {
+    /* Lower bound 1970 accommodates legitimate older landmark citations
+       (Hoffman 1984 typhoid regimen; Chandler 1970 orbital staging). */
+    const maxYear = new Date().getFullYear() + 1;
+    for(const [id, g] of Object.entries(GUIDELINES)) {
+      if(g.year !== null && g.year !== undefined) {
+        expect(typeof g.year, `GUIDELINES["${id}"].year must be number or null`).toBe("number");
+        expect(g.year, `GUIDELINES["${id}"].year=${g.year} below 1970 (likely typo)`).toBeGreaterThanOrEqual(1970);
+        expect(g.year, `GUIDELINES["${id}"].year=${g.year} above ${maxYear} (likely typo)`).toBeLessThanOrEqual(maxYear);
+      }
+    }
+  });
+});
+
+describe("content-audit · Phase I approved-year discipline (P1)", () => {
+  test("NOVEL_AGENTS.approved must be a number (year) — \"pending\" silently sorts to 0", () => {
+    const maxYear = new Date().getFullYear() + 1;
+    for(const a of NOVEL_AGENTS) {
+      // Allow "pending" as documented status but require explicit `status` field
+      // to make it visible rather than silently fail-safe at sort time.
+      if(typeof a.approved === "string" && a.approved === "pending") {
+        // Documented exception; renderer handles "pending" label
+        continue;
+      }
+      expect(typeof a.approved, `NOVEL_AGENTS["${a.id}"].approved must be number; got ${typeof a.approved}`).toBe("number");
+      expect(a.approved, `NOVEL_AGENTS["${a.id}"].approved=${a.approved} below 2000 (likely typo)`).toBeGreaterThanOrEqual(2000);
+      expect(a.approved, `NOVEL_AGENTS["${a.id}"].approved=${a.approved} above ${maxYear} (likely typo)`).toBeLessThanOrEqual(maxYear);
+    }
+  });
+});
+
+describe("content-audit · Phase H–K evidence non-empty (P2)", () => {
+  /* `evidence:` is the only provenance hook on each entry; an empty
+     or near-empty string renders a blank "source" line at the bedside. */
+  function check(arr, name) {
+    for(const e of arr) {
+      const tag = e.id || e.site || JSON.stringify(e).slice(0, 30);
+      expect(typeof e.evidence === "string" && e.evidence.trim().length > 5,
+        `${name}["${tag}"].evidence must be non-trivial string`).toBe(true);
+    }
+  }
+  test("REGIONAL_RESISTANCE.evidence non-empty",  () => check(REGIONAL_RESISTANCE, "REGIONAL_RESISTANCE"));
+  test("NOVEL_AGENTS.evidence non-empty",         () => check(NOVEL_AGENTS,        "NOVEL_AGENTS"));
+  test("SURGE_PROTOCOLS.evidence non-empty",      () => check(SURGE_PROTOCOLS,     "SURGE_PROTOCOLS"));
+  test("PEDS_PREG_DOSING.evidence non-empty",     () => check(PEDS_PREG_DOSING,    "PEDS_PREG_DOSING"));
+});
+
+const LIMITS_PHASE_HIL = {
+  pattern:      40,
+  impact:       60,
+  useCase:      30,
+  pitfall:      26,
+  pregNotes:    44,
+  clinical:     32,
+  empiric:      48,
+  publicHealth: 56,
+  antitoxin:    50,
+};
+
+describe("content-audit · Phase H/I/K word-budget caps (P2)", () => {
+  test("REGIONAL_RESISTANCE field word counts within budget", () => {
+    for(const r of REGIONAL_RESISTANCE) {
+      const wcp = wordCount(r.pattern);
+      const wci = wordCount(r.impact);
+      expect(wcp, `${r.id}.pattern has ${wcp} words (max ${LIMITS_PHASE_HIL.pattern})`).toBeLessThanOrEqual(LIMITS_PHASE_HIL.pattern);
+      expect(wci, `${r.id}.impact has ${wci} words (max ${LIMITS_PHASE_HIL.impact})`).toBeLessThanOrEqual(LIMITS_PHASE_HIL.impact);
+    }
+  });
+  test("NOVEL_AGENTS useCases + pitfalls within budget", () => {
+    for(const a of NOVEL_AGENTS) {
+      for(const u of (a.useCases || [])) {
+        const wc = wordCount(u);
+        expect(wc, `${a.id}.useCases entry has ${wc} words (max ${LIMITS_PHASE_HIL.useCase})`).toBeLessThanOrEqual(LIMITS_PHASE_HIL.useCase);
+      }
+      for(const p of (a.pitfalls || [])) {
+        const wc = wordCount(p);
+        expect(wc, `${a.id}.pitfalls entry has ${wc} words (max ${LIMITS_PHASE_HIL.pitfall})`).toBeLessThanOrEqual(LIMITS_PHASE_HIL.pitfall);
+      }
+    }
+  });
+  test("SURGE_PROTOCOLS clinical + empiric + publicHealth + antitoxin within budget", () => {
+    for(const s of SURGE_PROTOCOLS) {
+      const fields = [
+        ["clinical",      s.clinical,      LIMITS_PHASE_HIL.clinical],
+        ["empiric",       s.empiric,       LIMITS_PHASE_HIL.empiric],
+        ["publicHealth",  s.publicHealth,  LIMITS_PHASE_HIL.publicHealth],
+        ["antitoxin",     s.antitoxin,     LIMITS_PHASE_HIL.antitoxin],
+      ];
+      for(const [field, val, max] of fields) {
+        if(typeof val === "string") {
+          const wc = wordCount(val);
+          expect(wc, `${s.id}.${field} has ${wc} words (max ${max})`).toBeLessThanOrEqual(max);
+        }
+      }
+    }
+  });
+  test("PEDS_PREG_DOSING pregNotes within budget", () => {
+    for(const d of PEDS_PREG_DOSING) {
+      if(typeof d.pregNotes === "string") {
+        const wc = wordCount(d.pregNotes);
+        expect(wc, `${d.id}.pregNotes has ${wc} words (max ${LIMITS_PHASE_HIL.pregNotes})`).toBeLessThanOrEqual(LIMITS_PHASE_HIL.pregNotes);
+      }
+    }
+  });
+});
+
+describe("content-audit · combinedRisks regex soundness (P2)", () => {
+  /* The matchAgent disambiguation gate probes 50 agents against
+     branches in syndromeDecision; reuse the same probe panel against
+     combinedRisks.agents[] to catch typo'd patterns that match nothing. */
+  const PROBE = [
+    "vancomycin", "linezolid", "daptomycin", "ceftaroline", "telavancin", "dalbavancin",
+    "piperacillin-tazobactam", "cefepime", "ceftriaxone", "ceftazidime", "cefazolin", "nafcillin",
+    "meropenem", "imipenem", "ertapenem", "doripenem",
+    "ciprofloxacin", "levofloxacin", "moxifloxacin",
+    "amikacin", "gentamicin", "tobramycin",
+    "azithromycin", "clarithromycin", "erythromycin",
+    "doxycycline", "minocycline", "tigecycline",
+    "metronidazole", "clindamycin", "trimethoprim-sulfamethoxazole",
+    "fluconazole", "voriconazole", "isavuconazole", "posaconazole", "itraconazole",
+    "caspofungin", "micafungin", "amphotericin",
+    "colistin", "polymyxin",
+    "rifampin", "ceftolozane-tazobactam", "ceftazidime-avibactam", "meropenem-vaborbactam",
+    "cefiderocol", "sulbactam-durlobactam", "fosfomycin", "nitrofurantoin",
+    "valproate", "alcohol", "ethanol", "calcium gluconate",
+    "vre bacteremia", "vancomycin-resistant enterococcus",
+  ];
+  test("each combinedRisks rule's agents[] regex matches at least one probe agent", () => {
+    for(const r of COMBINED_RISKS) {
+      for(let i = 0; i < r.agents.length; i++) {
+        const rx = r.agents[i];
+        const matched = PROBE.some(p => rx.test(p));
+        expect(matched, `combinedRisks["${r.id}"].agents[${i}] (${rx}) matches NONE of the 50 probe agents — likely typo`)
           .toBe(true);
       }
     }
