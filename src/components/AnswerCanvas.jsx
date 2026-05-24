@@ -43,8 +43,9 @@ import { PedsPregBlock } from "./PedsPregBlock.jsx";
 import { getPedsPregForSyndrome } from "../data/pedsPregDosing.js";
 import { CombinedRisksBlock } from "./CombinedRisksBlock.jsx";
 import { ReasoningTraceBlock } from "./ReasoningTraceBlock.jsx";
+import { ObjectionsBlock } from "./ObjectionsBlock.jsx";
 import { Section } from "./Section.jsx";
-import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch, getReasoningForSyndrome } from "../data/syndromeDecision.js";
+import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch, getReasoningForSyndrome, getObjectionsForSyndrome } from "../data/syndromeDecision.js";
 
 /* ---------- refinement → footnote mapping ----------
    For each refinement step in composeAnswer.refinement.steps, decide
@@ -441,6 +442,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
      collapsed with the reference layers (Research, SitePenetration). */
   const _research = getSyndromeResearch(s.id);
   const _rationale = getReasoningForSyndrome(s.id);
+  const _objections = getObjectionsForSyndrome(s.id);
   const _regional = getRegionalForSyndrome(s.id);
   const _novel = getNovelForSyndrome(s.id);
   const _surge = getSurgeForSyndrome(s.id);
@@ -474,6 +476,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
     { id: "ans-deesc",      label: "48–72 h" },
     pickedAgents.length > 0 && { id: "ans-risks", label: "Risks" },
     _rationale && { id: "ans-rationale", label: "Why" },
+    _objections && _objections.length > 0 && { id: "ans-objections", label: "Challenge" },
     getSyndromeDuration(s.id) && { id: "ans-duration",   label: "Duration" },
     getSyndromeMonitoring(s.id) && { id: "ans-monitoring", label: "Monitor" },
     _regional.length > 0      && { id: "ans-regional",   label: "Regional" },
@@ -794,6 +797,19 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           every other depth layer's graceful-fallback contract. */}
       <div id="ans-rationale" style={{ scrollMarginTop: 96 }}>
         <ReasoningTraceBlock rationale={_rationale} onCite={onCite} />
+      </div>
+
+      {/* CHALLENGE · OBJECTIONS (Phase D2) — pharmacist's predictable
+          pushback, pre-answered. Follows the reasoning trace so the
+          reading order is "what + why + why not" → "the pushback
+          you'll hear at the bedside, already answered" → "how long".
+          Each Q renders as a bold mono kicker; each A as readable
+          prose with inline `[cite:id]` citations resolved through the
+          Cite primitive. Renders nothing when the syndrome has no
+          authored objections, matching every other depth layer's
+          graceful-fallback contract. */}
+      <div id="ans-objections" style={{ scrollMarginTop: 96 }}>
+        <ObjectionsBlock objections={_objections} onCite={onCite} />
       </div>
 
       <div id="ans-duration" style={{ scrollMarginTop: 96 }}>
