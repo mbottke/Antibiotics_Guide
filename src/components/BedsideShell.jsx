@@ -6,7 +6,7 @@
    the full vertical real estate. The user can re-expand by clicking Edit.
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useState } from "react";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil, Search } from "lucide-react";
 import { CaseBar } from "./CaseBar.jsx";
 import { AnswerCanvas } from "./AnswerCanvas.jsx";
 import { FontSizeControl } from "./FontSizeControl.jsx";
@@ -18,7 +18,7 @@ function _synName(id) {
   return s ? s.name : id;
 }
 
-function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite }) {
+function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, onOpenPalette }) {
   /* Edit / view mode. Once a syndrome is set, default to view; the user can
      re-open the Case Bar by clicking Edit. While the Case Bar is open, the
      Answer Canvas stays hidden so the screen has one job at a time. */
@@ -73,6 +73,27 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite }
             <ArrowLeft size={12} /> Reference
           </button>
           <div style={{ display:"flex", alignItems:"center", gap: 10 }}>
+            {onOpenPalette && (
+              <button
+                type="button"
+                onClick={onOpenPalette}
+                aria-label="Search the catalog — drugs, organisms, syndromes (⌘K)"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
+                  color: "var(--muted)",
+                  background: "var(--card)", border: "1px solid var(--line)", borderRadius: 8,
+                  padding: "5px 10px", cursor: "pointer",
+                }}>
+                <Search size={12} />
+                <span>Search</span>
+                <span style={{
+                  marginLeft: 4, padding: "1px 6px", borderRadius: 4,
+                  background: "var(--surface)", border: "1px solid var(--line)",
+                  fontSize: 10, color: "var(--ink2)",
+                }}>⌘K</span>
+              </button>
+            )}
             <FontSizeControl />
             <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".18em", textTransform:"uppercase", color:"var(--ox)", fontWeight:600 }}>
               Bedside — Phase A

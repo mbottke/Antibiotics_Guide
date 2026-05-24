@@ -174,14 +174,20 @@ export default function InpatientAbxGuide() {
   const openOrgDrawer = (id) => setDrawer({ kind:"org", key:id });
   const openTrial = (id)   => setDrawer({ kind:"trial", key:id });
 
-  /* ---- command palette index ---- */
+  /* ---- command palette index ----
+     Navigation items (View / Empiric / Directed) flip surface to reference
+     mode before applying the tab/syndrome target, so the palette routes
+     correctly whether the user invoked it from decide mode or reference
+     mode. Drug + Organism items just open the Drawer, which is mounted
+     in both modes (see drawerEl above) and needs no mode flip. */
+  const _navToRef = (fn) => () => { setMode("reference"); fn(); };
   const index = useMemo(() => {
     const items = [];
-    TABS.forEach(t => items.push({ kind:"View", name:t.label, sub:"Section", icon:t.icon, go:() => setTab(t.id) }));
-    SYNDROMES.forEach(s => items.push({ kind:"Empiric", name:s.name, sub:(SYN_CATS.find(c=>c.id===s.cat)||{}).label||"Syndrome", icon:(SYN_ICON[s.icon]||Stethoscope), go:() => { setTab("empiric"); setSynCat("all"); setOpenSyn(s.id); } }));
+    TABS.forEach(t => items.push({ kind:"View", name:t.label, sub:"Section", icon:t.icon, go: _navToRef(() => setTab(t.id)) }));
+    SYNDROMES.forEach(s => items.push({ kind:"Empiric", name:s.name, sub:(SYN_CATS.find(c=>c.id===s.cat)||{}).label||"Syndrome", icon:(SYN_ICON[s.icon]||Stethoscope), go: _navToRef(() => { setTab("empiric"); setSynCat("all"); setOpenSyn(s.id); }) }));
     FORMULARY.forEach(cl => cl.drugs.forEach(dr => items.push({ kind:"Drug", name:dr.name, sub:cl.cls, icon:Pill, go:() => setDrawer({ kind:"drug", key:dr.name }) })));
     ORGS.forEach(o => items.push({ kind:"Organism", name:o.label, sub:"Organism card", icon:Bug, go:() => setDrawer({ kind:"org", key:o.id }) }));
-    DIRECTED.forEach(g => g.items.forEach(o => items.push({ kind:"Directed", name:o.org, sub:"Directed-therapy row", icon:Crosshair, go:() => { setTab("directed"); setOpenOrg(slug(o.org)); } })));
+    DIRECTED.forEach(g => g.items.forEach(o => items.push({ kind:"Directed", name:o.org, sub:"Directed-therapy row", icon:Crosshair, go: _navToRef(() => { setTab("directed"); setOpenOrg(slug(o.org)); }) })));
     return items;
   }, []);
   const cmdResults = useMemo(() => {
@@ -1634,6 +1640,38 @@ export default function InpatientAbxGuide() {
     />
   );
 
+  /* Command palette overlay — hoisted out of the reference-mode return so
+     it mounts in both decide and reference modes. The global ⌘K keydown
+     listener (line ~195) already fires across the whole app; previously
+     the *overlay* JSX only rendered in reference mode, so pressing ⌘K in
+     decide mode flipped state but rendered nothing visible. Now the same
+     palette opens regardless of mode and navigation items flip to
+     reference mode automatically (see `_navToRef` above). */
+  const cmdPaletteEl = cmdOpen ? (
+    <div className="rx-cmd-overlay" onClick={()=>setCmdOpen(false)}>
+      <div className="rx-cmd" onClick={e=>e.stopPropagation()}>
+        <div className="rx-cmd-head">
+          <Search size={18} color="var(--muted)" />
+          <input autoFocus value={cmdQ} onChange={e=>{setCmdQ(e.target.value);setCmdIdx(0);}} placeholder="Jump to a syndrome, drug, organism, or section…" />
+          <span className="rx-cmd-esc">ESC</span>
+        </div>
+        <div className="rx-cmd-list">
+          {cmdResults.length === 0 && <div className="rx-cmd-empty">No matches for “{cmdQ}”</div>}
+          {cmdResults.map((r,i) => {
+            const RI = r.icon || ChevronRight;
+            return (
+              <button key={i} className="rx-cmd-item" data-active={i===cmdIdx} onMouseEnter={()=>setCmdIdx(i)} onClick={()=>go(r.go)}>
+                <span className="rx-cmd-ic"><RI size={15} /></span>
+                <span className="rx-cmd-tx"><span className="nm">{r.name}</span><span className="ct">{r.kind} · {r.sub}</span></span>
+                <ChevronRight size={15} color="var(--faint)" />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   /* Knowledge-graph drawer — hoisted out of the reference-mode return so it
      mounts in both decide and reference modes. Chip clicks in BedsideShell
      (drug names, organism tokens, trial citations) now resolve to the same
@@ -1694,7 +1732,9 @@ export default function InpatientAbxGuide() {
           onDrug={openDrug}
           onOrg={openOrgDrawer}
           onCite={openTrial}
+          onOpenPalette={() => { setCmdOpen(true); setCmdQ(""); setCmdIdx(0); }}
         />
+        {cmdPaletteEl}
         {drawerEl}
       </>
     );
@@ -1738,30 +1778,7 @@ export default function InpatientAbxGuide() {
         onClear={()=>setCtxField("on", false)}
         onJump={()=>setTab("dose")} />
 
-      {cmdOpen && (
-        <div className="rx-cmd-overlay" onClick={()=>setCmdOpen(false)}>
-          <div className="rx-cmd" onClick={e=>e.stopPropagation()}>
-            <div className="rx-cmd-head">
-              <Search size={18} color="var(--muted)" />
-              <input autoFocus value={cmdQ} onChange={e=>{setCmdQ(e.target.value);setCmdIdx(0);}} placeholder="Jump to a syndrome, drug, organism, or section…" />
-              <span className="rx-cmd-esc">ESC</span>
-            </div>
-            <div className="rx-cmd-list">
-              {cmdResults.length === 0 && <div className="rx-cmd-empty">No matches for “{cmdQ}”</div>}
-              {cmdResults.map((r,i) => {
-                const RI = r.icon || ChevronRight;
-                return (
-                  <button key={i} className="rx-cmd-item" data-active={i===cmdIdx} onMouseEnter={()=>setCmdIdx(i)} onClick={()=>go(r.go)}>
-                    <span className="rx-cmd-ic"><RI size={15} /></span>
-                    <span className="rx-cmd-tx"><span className="nm">{r.name}</span><span className="ct">{r.kind} · {r.sub}</span></span>
-                    <ChevronRight size={15} color="var(--faint)" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      {cmdPaletteEl}
 
       {drawerEl}
 
