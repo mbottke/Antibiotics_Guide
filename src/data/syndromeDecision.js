@@ -5223,7 +5223,485 @@ const SYNDROME_DECISION = {
     },
   },
 
+  /* ===========================================================
+     LEMIERRE SYNDROME — Fusobacterium necrophorum + IJ
+     thrombophlebitis + septic emboli. Penicillin-clindamycin or
+     pip-tazo; 4–6 wk; anticoag controversial. =================== */
+  lemierre: {
+    duration: {
+      headline: "4–6 wk IV → PO; cover Fusobacterium necrophorum; manage IJ thrombus + septic emboli + metastatic sites.",
+      evidence: "Society consensus — F. necrophorum dominant; extended course for septic thrombophlebitis + metastatic foci; anticoagulation case-by-case",
+      branches: [
+        { label: "Classic — F. necrophorum + IJ thrombus", days: "4–6 wk",
+          detail: "Pip-tazo or ampicillin-sulbactam IV → PO amox-clav or metronidazole; ID-driven duration",
+          matchAgent: /piperacillin|ampicillin-?sulbactam/i },
+        { label: "Severe sepsis + metastatic septic emboli", days: "6 wk + ICU",
+          detail: "Carbapenem + clindamycin + drainage of any drainable focus; aggressive ICU support",
+          matchAgent: /meropenem|imipenem/i },
+        { label: "PCN allergy (severe)", days: "4–6 wk",
+          detail: "Meropenem or moxifloxacin + metronidazole; ID consult",
+          matchAgent: /moxifloxacin|metronidazole/i },
+        { label: "Concomitant pleural empyema / pulmonary abscess", days: "6 wk + drainage",
+          detail: "Per empyema bands + drainage; chest tube + serial imaging" },
+      ],
+      stopWhen: [
+        "Blood cultures cleared",
+        "Septic emboli resolved on serial imaging",
+        "IJ thrombus stable or resolving",
+        "Source addressed — drainage of empyema / abscess",
+        "Pathogen-specific minimum 4–6 wk completed",
+      ],
+      extendIf: [
+        { text: "**Septic metastases** — chest, brain, joint — extend per site",
+          matchCtx: { severe: true } },
+        "Empyema or lung abscess — drainage + extend",
+        "Brain abscess — per brain abscess bands (8–12 wk)",
+        "Persistent bacteremia — re-workup + extend",
+      ],
+    },
+    monitoring: {
+      headline: "CT neck + chest at presentation; ID consult; anticoagulation case-by-case; drainage of metastatic foci.",
+      items: [
+        { sev: "required", what: "**CT neck with contrast + chest** at presentation",
+          why: "Confirms IJ thrombophlebitis + identifies pulmonary septic emboli / cavities / empyema" },
+        { sev: "required", what: "**Blood cultures × 2** with anaerobic media",
+          why: "F. necrophorum slow-growing anaerobe; alert lab to extend incubation" },
+        { sev: "required", what: "**ID consult** at presentation",
+          why: "Pathogen-specific + extended course + metastatic-focus management requires specialist input" },
+        { sev: "trigger", what: "**Drainage of accessible septic foci** — empyema, abscess, joint",
+          why: "Source control accelerates clearance + reduces mortality" },
+        { sev: "trigger", what: "**Anticoagulation case-by-case** for IJ thrombus",
+          why: "No clear RCT data; consider for propagation, persistent bacteremia, or cavernous sinus involvement" },
+        { sev: "trigger", what: "**Repeat imaging at 2 wk** to assess metastatic resolution",
+          why: "Persistent septic emboli drives extension; serial imaging tracks response" },
+        { sev: "trigger", what: "**Workup brain involvement** (CT/MRI) if neurologic signs",
+          why: "Cavernous sinus thrombosis + brain abscess can complicate; extends duration significantly" },
+        { sev: "consider", what: "**ENT consult** if persistent pharyngeal source",
+          why: "Peritonsillar abscess or chronic pharyngitis may need surgical drainage" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     ENDOPHTHALMITIS — sight-threatening; intravitreal antibiotics
+     PRIMARY; systemic adjunctive; ophtho emergency. ============= */
+  endophthalmitis: {
+    duration: {
+      headline: "Intravitreal vanco + ceftaz primary; systemic 7–14 d adjunctive; vitrectomy for severe / endogenous.",
+      evidence: "EVS 1995 + AAO — intravitreal antibiotics drive outcome; vitrectomy if light-perception-only vision at presentation; endogenous needs systemic",
+      branches: [
+        { label: "Post-cataract / post-injection (acute exogenous)", days: "Intravitreal + 7 d",
+          detail: "Intravitreal vancomycin 1 mg + ceftazidime 2.25 mg; tap-and-inject; oral fluoroquinolone systemic × 7 d",
+          matchAgent: /vancomycin|ceftazidime/i },
+        { label: "Severe (LP vision) — vitrectomy + intravitreal", days: "Vitrectomy + 14 d",
+          detail: "Pars plana vitrectomy + intravitreal antibiotics + systemic × 14 d; per EVS LP-vision benefit; ophtho emergency" },
+        { label: "Endogenous (hematogenous seeding)", days: "14–21 d + intravitreal",
+          detail: "Systemic 14–21 d treats source (BCx + echo + abdominal imaging); intravitreal early" },
+        { label: "Fungal (Candida, mold)", days: "6 wk + intravitreal",
+          detail: "Voriconazole or ampho IV × 6 wk + intravitreal vori or ampho; vitrectomy for moderate-severe",
+          matchAgent: /voriconazole|amphotericin/i },
+        { label: "Bleb-related (post-trabeculectomy)", days: "Intravitreal + 14 d",
+          detail: "Strep dominant; systemic × 14 d + intravitreal; ophtho + ID coordination" },
+      ],
+      stopWhen: [
+        "Intravitreal antibiotics administered",
+        "Vision stable or improving",
+        "Cultures clear or appropriately treated",
+        "Vitrectomy performed if indicated",
+        "Source workup completed (endogenous)",
+      ],
+      extendIf: [
+        { text: "**Endogenous source** — extend systemic per source + pathogen",
+          matchCtx: { severe: true } },
+        "Fungal pathogen — extend per IFI bands",
+        "Persistent infection — repeat intravitreal + vitrectomy",
+        "Bacteremia or other metastatic foci — per source",
+      ],
+    },
+    monitoring: {
+      headline: "Intravitreal is primary; ophtho emergency consult; tap-and-inject; vitrectomy for LP vision.",
+      items: [
+        { sev: "required", what: "**Emergent ophthalmology consult** — sight-threatening",
+          why: "Intravitreal antibiotics within hours preserves vision; delay drives permanent loss" },
+        { sev: "required", what: "**Vitreous tap + culture** before intravitreal antibiotics",
+          why: "Pathogen-directed therapy + sensitivity drive escalation if non-response" },
+        { sev: "required", what: "**Intravitreal vancomycin + ceftazidime**",
+          why: "Primary therapy; systemic alone fails (poor vitreous penetration)" },
+        { sev: "trigger", what: "**Pars plana vitrectomy** if vision LP or worse at presentation",
+          why: "EVS — vitrectomy benefit limited to LP-vision subgroup; standard of care in severe" },
+        { sev: "trigger", what: "**Workup endogenous source** if no recent ocular procedure",
+          why: "BCx + echo + abdominal imaging + UA + IV access review; treats underlying cause" },
+        { sev: "trigger", what: "**Repeat intravitreal at 48–72 h** if non-response",
+          why: "Persistent infection may need re-injection; ophtho-driven decision" },
+        { sev: "trigger", what: "**Fungal workup** if subacute / endogenous / immunocompromised",
+          why: "Candida endophthalmitis common in candidemia; ophtho exam mandatory in candidemia" },
+        { sev: "consider", what: "**Steroids (intravitreal dexamethasone) controversial**",
+          why: "Not standard; may benefit non-fungal severe disease; ophtho-driven decision" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     MEDIASTINITIS — post-sternotomy or descending necrotizing;
+     surgical debridement + broad antibiotics; high mortality. == */
+  mediastinitis: {
+    duration: {
+      headline: "Surgical debridement + 4–6 wk antibiotics; per pathogen; cardiac surgery + ID coordination critical.",
+      evidence: "STS + IDSA — surgical debridement drives outcome; pathogen-directed long course; high mortality without surgery",
+      branches: [
+        { label: "Post-sternotomy (cardiac surgery)", days: "4–6 wk",
+          detail: "Vancomycin + cefepime or pip-tazo; cover MRSA + GNR; cardiac surgery for debridement + closure",
+          matchAgent: /vancomycin|cefepime|piperacillin/i },
+        { label: "Descending necrotizing (oropharyngeal source)", days: "4–6 wk",
+          detail: "Pip-tazo + clinda or carbapenem + metronidazole; ENT + cardiothoracic + ID",
+          matchAgent: /clindamycin|metronidazole/i },
+        { label: "Esophageal perforation / Boerhaave", days: "4–6 wk",
+          detail: "Broad — pip-tazo or carbapenem; surgical / endoscopic source control + drainage" },
+        { label: "MRSA-confirmed", days: "4–6 wk",
+          detail: "Vancomycin or daptomycin; AUC monitoring; oral step-down with linezolid when stable",
+          matchAgent: /daptomycin|linezolid/i },
+      ],
+      stopWhen: [
+        "Surgical debridement complete + clean margins",
+        "Mediastinum closed or stable on negative-pressure",
+        "Afebrile + clinical recovery",
+        "Cultures cleared",
+        "Minimum 4–6 wk completed",
+      ],
+      extendIf: [
+        { text: "**Persistent surgical disease** — extend until margins clean",
+          matchCtx: { severe: true } },
+        "Bacteremia confirmed — per pathogen + source",
+        "Osteomyelitis of sternum — per chronic osteo bands",
+        "Inadequate source control — re-debridement",
+      ],
+    },
+    monitoring: {
+      headline: "Surgical debridement is the cure; cardiac surgery + ID; sternal osteomyelitis common; NPWT.",
+      items: [
+        { sev: "required", what: "**Cardiothoracic surgery emergent consult**",
+          why: "Surgical debridement + drainage drives outcome; antibiotic alone fails" },
+        { sev: "required", what: "**CT chest with contrast** at presentation",
+          why: "Defines extent + identifies abscess + planning surgical approach" },
+        { sev: "required", what: "**Blood cultures + wound / deep tissue cultures**",
+          why: "Pathogen identification drives narrowing; deep cultures often polymicrobial" },
+        { sev: "trigger", what: "**Negative-pressure wound therapy (NPWT)** post-debridement",
+          why: "Accelerates granulation + reduces re-debridement; standard adjunct" },
+        { sev: "trigger", what: "**Cover MRSA + GNR + anaerobes** empirically",
+          why: "Polymicrobial substrate; narrow on culture data at 48–72 h" },
+        { sev: "trigger", what: "**ENT consult** for descending necrotizing mediastinitis",
+          why: "Oropharyngeal source needs surgical + airway management" },
+        { sev: "trigger", what: "**Workup sternal osteomyelitis** with MRI / CT",
+          why: "Common complication; drives extended duration + surgical extent" },
+        { sev: "consider", what: "**Cardiac rehab + nutrition support** during recovery",
+          why: "Long-course IV + extended hospitalization; multi-modal recovery" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     MYCOTIC ANEURYSM — infected aortic / peripheral aneurysm;
+     surgical repair + 6 wk → lifelong suppression; Salmonella + S. aureus
+     dominant. ================================================== */
+  "mycotic-aneurysm": {
+    duration: {
+      headline: "Surgical repair + 6 wk IV; chronic suppression for retained graft; Salmonella + S. aureus dominant.",
+      evidence: "Society consensus — surgical repair mandatory; antibiotic alone fails; chronic suppression for in-situ repair / retained material",
+      branches: [
+        { label: "Surgical repair + native graft", days: "6 wk IV + chronic ppx",
+          detail: "Per pathogen; cefazolin or vanco or ceftriaxone; ID + vascular surgery",
+          matchAgent: /cefazolin|vancomycin|ceftriaxone/i },
+        { label: "Endovascular repair (EVAR)", days: "6 wk + indef ppx",
+          detail: "Graft is foreign body; lifelong oral suppression; ID-driven choice" },
+        { label: "Non-surgical candidate (compassionate suppression)", days: "Indefinite",
+          detail: "Lifelong oral suppression; high mortality; goals of care discussion" },
+        { label: "Salmonella (non-typhoidal, age > 50 or immunocompromised)", days: "6 wk + lifelong ppx",
+          detail: "Ceftriaxone or cipro per sensitivity; mycotic seeding common; surgical repair",
+          matchAgent: /ciprofloxacin/i },
+        { label: "Bacteremia + abdominal aortic substrate (workup)", days: "Per workup",
+          detail: "CT angio + extended antibiotics; high index of suspicion in Salmonella / S. aureus bacteremia" },
+      ],
+      stopWhen: [
+        "Surgical repair complete",
+        "Blood cultures cleared",
+        "Imaging shows stable repair",
+        "Pathogen-specific 6 wk IV completed",
+        "Lifelong suppression initiated (if retained material)",
+      ],
+      extendIf: [
+        { text: "**Retained foreign material** — lifelong oral suppression",
+          matchCtx: { severe: true } },
+        "Non-surgical candidate — chronic suppression + goals of care",
+        "Bacteremia persistent — extended IV + re-workup",
+        "Recurrent infection — re-imaging + re-intervention",
+      ],
+    },
+    monitoring: {
+      headline: "Vascular surgery emergent; CT angio; lifelong suppression for retained graft; Salmonella + age > 50 trigger.",
+      items: [
+        { sev: "required", what: "**Vascular surgery emergent consult**",
+          why: "Rupture risk + surgical repair drives mortality; antibiotic alone fails" },
+        { sev: "required", what: "**CT angiography** at presentation",
+          why: "Defines aneurysm + adjacent structures + surgical planning" },
+        { sev: "required", what: "**Blood cultures × 3** with anaerobic + extended hold",
+          why: "Pathogen identification + drives duration; slow-growers possible" },
+        { sev: "trigger", what: "**Salmonella + age > 50 → CT angio**",
+          why: "Mycotic aneurysm risk; vascular endothelial seeding common in non-typhoidal Salmonella" },
+        { sev: "trigger", what: "**S. aureus bacteremia + back pain → CT angio**",
+          why: "Mycotic seeding to vertebrae + aorta; high index of suspicion" },
+        { sev: "trigger", what: "**Lifelong oral suppression** for retained material",
+          why: "Foreign body + biofilm; recurrent rupture without continued antibiotics" },
+        { sev: "trigger", what: "**Serial imaging** at 3, 6, 12 mo + annually",
+          why: "Detects recurrence + new mycotic foci; standard surveillance" },
+        { sev: "consider", what: "**ID + vascular surgery quarterly** for long-term follow-up",
+          why: "Coordinated care drives suppression compliance + early detection of recurrence" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     PID — pelvic inflammatory disease. CDC 2021 — ceftriaxone +
+     doxy + metronidazole; outpatient feasible for mild. ======== */
+  pid: {
+    duration: {
+      headline: "14 d for outpatient (CTX + doxy + metro); IV → PO step-down for inpatient; longer for TOA.",
+      evidence: "CDC 2021 STI guidelines — ceftriaxone 500 mg IM + doxy + metro × 14 d; TOA needs IV + drainage consideration",
+      branches: [
+        { label: "Outpatient (mild-moderate)", days: "14 d",
+          detail: "Ceftriaxone 500 mg IM × 1 + doxy 100 mg PO BID + metronidazole 500 mg PO BID × 14 d",
+          matchAgent: /ceftriaxone|doxycycline|metronidazole/i },
+        { label: "Inpatient (severe / failed outpatient / pregnancy)", days: "14 d (IV → PO)",
+          detail: "Cefoxitin or cefotetan IV + doxy → PO step-down when stable; OR clinda + gentamicin",
+          matchAgent: /cefoxitin|cefotetan/i },
+        { label: "Tubo-ovarian abscess (TOA)", days: "14–21 d + drain?",
+          detail: "IV regimen + drainage if > 8 cm or non-response by 72 h; gyn + IR coordination" },
+        { label: "Pregnant", days: "14 d IV",
+          detail: "Avoid doxy + metro 1st trimester; cef + azithro alternative; OB-GYN driven" },
+        { label: "IUD in place", days: "14 d + IUD decision",
+          detail: "Removal not required if responding; consider removal if no improvement by 48–72 h" },
+      ],
+      stopWhen: [
+        "Clinical improvement + afebrile",
+        "Pelvic exam improving",
+        "TOA drained or resolving on imaging",
+        "Partner notified + treated",
+        "Minimum 14 d completed",
+      ],
+      extendIf: [
+        { text: "**TOA** > 8 cm or non-response — drainage + extend",
+          matchCtx: { severe: true } },
+        "Pregnancy — extend per OB-GYN",
+        "Recurrence — re-treatment + partner workup",
+        "Inadequate clinical response — re-image + escalate",
+      ],
+    },
+    monitoring: {
+      headline: "CDC 2021 regimen; partner notification + treatment; HIV + STI screen; TOA needs drainage if large.",
+      items: [
+        { sev: "required", what: "**Partner notification + treatment** — gonorrhea + chlamydia",
+          why: "Re-infection common; expedited partner therapy (EPT) where legally permitted" },
+        { sev: "required", what: "**HIV + syphilis + hepatitis screen**",
+          why: "Co-infection common; STI screen mandatory at PID diagnosis" },
+        { sev: "required", what: "**Pregnancy test** before treatment",
+          why: "Affects drug choice (doxy + metro 1st trimester contraindicated)" },
+        { sev: "trigger", what: "**Pelvic US or CT** for TOA workup",
+          why: "Distinguishes uncomplicated PID from TOA; drives drainage decision" },
+        { sev: "trigger", what: "**Hospitalize if pregnant / severe / failed outpatient / TOA / unable to tolerate PO**",
+          why: "CDC inpatient criteria; reduces complications + ensures adherence" },
+        { sev: "trigger", what: "**Drainage for TOA** > 8 cm or non-response by 72 h",
+          why: "Source control accelerates resolution; IR or surgical" },
+        { sev: "trigger", what: "**Counseling on long-term sequelae** — infertility, chronic pain, ectopic",
+          why: "Patient education + planning; addresses recurrence prevention" },
+        { sev: "consider", what: "**STI re-screen at 3 mo**",
+          why: "Re-infection common; routine re-screening per CDC" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     ORBITAL CELLULITIS — post-septal infection; sinusitis source;
+     emergent imaging + IV antibiotics + surgical consideration. */
+  orbital: {
+    duration: {
+      headline: "14–21 d IV → PO; ENT + ophtho consult; CT orbits at presentation; surgery for abscess / vision compromise.",
+      evidence: "Society consensus — post-septal infection sight + life-threatening; sinusitis dominant source; multidisciplinary",
+      branches: [
+        { label: "Orbital cellulitis (Chandler II) no abscess", days: "14 d IV → PO",
+          detail: "Ampicillin-sulbactam or ceftriaxone + metronidazole; oral step-down on clinical response",
+          matchAgent: /ampicillin-?sulbactam|ceftriaxone/i },
+        { label: "Subperiosteal abscess (Chandler III)", days: "14–21 d + drainage",
+          detail: "IV broad-spectrum + ENT drainage for > 10 mm, age > 9 yr, or vision compromise" },
+        { label: "Orbital abscess / cavernous sinus thrombosis", days: "21 d + surgery",
+          detail: "Surgical decompression + extended IV + anticoagulation for CST",
+          matchAgent: /meropenem/i },
+        { label: "MRSA-confirmed", days: "14–21 d",
+          detail: "Vancomycin + ceftriaxone or meropenem; ID-driven; AUC monitoring",
+          matchAgent: /vancomycin/i },
+        { label: "Fungal (post-DKA, neutropenic, mucor / aspergillus)", days: "Per IFI + surgery",
+          detail: "Mucor → liposomal amphotericin + emergent ENT surgery; aspergillus → vori; ID + ENT",
+          matchAgent: /amphotericin|voriconazole|isavuconazole/i },
+      ],
+      stopWhen: [
+        "Proptosis + ophthalmoplegia resolved",
+        "Vision stable or improving",
+        "Sinusitis source addressed (surgical / medical)",
+        "Imaging shows resolution",
+        "Minimum 14–21 d completed",
+      ],
+      extendIf: [
+        { text: "**Cavernous sinus thrombosis** — extend + anticoagulation",
+          matchCtx: { severe: true } },
+        "Intracranial extension — per brain abscess bands",
+        "Fungal pathogen — per IFI bands (weeks–months)",
+        "Inadequate drainage — surgical revision",
+      ],
+    },
+    monitoring: {
+      headline: "Emergent CT orbits + sinuses; ophtho + ENT + ID consult; vision check q4h; surgery for compromise.",
+      items: [
+        { sev: "required", what: "**Emergent CT orbits + sinuses with contrast**",
+          why: "Differentiates pre-septal vs orbital; identifies abscess + sinusitis source + intracranial extension" },
+        { sev: "required", what: "**Ophthalmology + ENT consult** at presentation",
+          why: "Multidisciplinary care drives outcome; ENT for sinus drainage, ophtho for visual monitoring" },
+        { sev: "required", what: "**Vision check q4h** — visual acuity, color, RAPD",
+          why: "Vision loss drives emergent surgical decompression; standard monitoring" },
+        { sev: "trigger", what: "**Surgical drainage** for subperiosteal abscess > 10 mm or vision compromise",
+          why: "Source control accelerates resolution; ENT-driven decision" },
+        { sev: "trigger", what: "**MRI brain + venogram** if CST suspected (chemosis, cranial nerve palsy, bilateral)",
+          why: "Cavernous sinus thrombosis high mortality; anticoagulation + extended therapy" },
+        { sev: "trigger", what: "**Cover MRSA** if community MRSA prevalent or post-trauma",
+          why: "Polymicrobial substrate; standard part of empiric in U.S." },
+        { sev: "trigger", what: "**Mucor workup** in DKA, neutropenic, or post-tx hosts",
+          why: "Rhino-orbital-cerebral mucormycosis — emergent surgical + amphotericin" },
+        { sev: "consider", what: "**Steroids contested** — not standard; case-by-case",
+          why: "May reduce inflammation but risks immunosuppression; ophtho + ID decision" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     LUDWIG'S ANGINA — bilateral submandibular cellulitis; airway
+     emergency; surgical + broad antibiotics. ==================== */
+  ludwig: {
+    duration: {
+      headline: "Airway management + broad anaerobic coverage + surgical drainage; 14 d IV → PO.",
+      evidence: "ENT + ID consensus — bilateral submandibular cellulitis with airway compromise; dental + oral source; surgical drainage drives outcome",
+      branches: [
+        { label: "Ludwig's angina, no airway compromise", days: "14 d IV → PO",
+          detail: "Ampicillin-sulbactam or clindamycin + cefoxitin; PO step-down when stable",
+          matchAgent: /ampicillin-?sulbactam|clindamycin/i },
+        { label: "Airway compromise / impending obstruction", days: "14 d + airway + surgery",
+          detail: "Emergent airway (awake fiberoptic or trach) + IV broad + ENT + ICU",
+          matchAgent: /piperacillin|meropenem/i },
+        { label: "Descending mediastinitis complication", days: "Per mediastinitis bands",
+          detail: "Per mediastinitis syndrome bands; cardiothoracic + ENT + ID" },
+        { label: "Immunocompromised / diabetic", days: "14–21 d",
+          detail: "Lower threshold to IV + extended course; consider fungal coverage if neutropenic" },
+      ],
+      stopWhen: [
+        "Airway secured + extubated",
+        "Surgical drainage complete",
+        "Afebrile + clinical recovery",
+        "Dental source addressed",
+        "Minimum 14 d completed",
+      ],
+      extendIf: [
+        { text: "**Mediastinitis** complication — per mediastinitis bands",
+          matchCtx: { severe: true } },
+        "Bacteremia confirmed — per pathogen",
+        "Inadequate drainage — re-explore + extend",
+        "Immunocompromised host — extend per ID",
+      ],
+    },
+    monitoring: {
+      headline: "Airway is the priority; ENT + anesthesia + ICU; surgical drainage; dental source mandatory.",
+      items: [
+        { sev: "required", what: "**Airway assessment + plan** before any intervention",
+          why: "Airway compromise sudden; awake fiberoptic intubation safer than RSI; trach standby" },
+        { sev: "required", what: "**ENT + anesthesia + ICU consult**",
+          why: "Multidisciplinary airway management drives mortality reduction" },
+        { sev: "required", what: "**CT neck with contrast** for surgical planning",
+          why: "Defines extent + abscess + mediastinal extension; drives drainage approach" },
+        { sev: "trigger", what: "**Surgical drainage** for any drainable collection",
+          why: "Source control accelerates resolution; ENT-driven" },
+        { sev: "trigger", what: "**Dental source identification + extraction**",
+          why: "Most cases dental in origin; source eradication prevents recurrence" },
+        { sev: "trigger", what: "**Cover anaerobes + GPC + GNR**",
+          why: "Polymicrobial oral flora; broad coverage standard" },
+        { sev: "trigger", what: "**Workup mediastinitis** with CT chest if persistent fever",
+          why: "Descending necrotizing mediastinitis high mortality complication" },
+        { sev: "consider", what: "**Steroids contested** — not standard; case-by-case",
+          why: "May reduce edema but immunosuppression risk; ENT + ID decision" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     POST-NEUROSURGICAL MENINGITIS / VENTRICULITIS — drain-related
+     or post-craniotomy; gram-negative + staphylococci; broad
+     spectrum + intraventricular adjunct in select cases. ======== */
+  "post-nsx-meningitis": {
+    duration: {
+      headline: "10–21 d per pathogen; cover GNR + staph; remove infected drain; intraventricular antibiotics in select cases.",
+      evidence: "IDSA 2017 healthcare-associated ventriculitis — drain removal + broad initial + pathogen-targeted; intraventricular as adjunct",
+      branches: [
+        { label: "EVD-associated, GNR (E. coli, Klebsiella)", days: "10–14 d",
+          detail: "Meropenem or cefepime + intraventricular gentamicin or colistin if needed; drain removal",
+          matchAgent: /meropenem|cefepime/i },
+        { label: "Coagulase-negative staph (shunt-associated)", days: "10–14 d + shunt removal",
+          detail: "Vancomycin + rifampin; shunt removal + EVD bridge then re-shunt",
+          matchAgent: /vancomycin|rifampin/i },
+        { label: "S. aureus / MRSA", days: "14 d + shunt removal",
+          detail: "Vancomycin + linezolid or daptomycin alternative; AUC monitoring",
+          matchAgent: /linezolid|daptomycin/i },
+        { label: "P. aeruginosa or MDR GNR", days: "14–21 d",
+          detail: "Per sensitivity — cefepime, meropenem, ceftazidime-avibactam, ceftolozane-tazobactam; intraventricular adjunct",
+          matchAgent: /ceftazidime-?avibactam|ceftolozane/i },
+        { label: "Empiric, awaiting pathogen", days: "Per pathogen after data",
+          detail: "Vancomycin + meropenem broad; narrow on CSF + drain culture data" },
+      ],
+      stopWhen: [
+        "CSF cultures cleared",
+        "CSF profile normalizing",
+        "Drain removed or shunt re-implanted",
+        "Afebrile + clinical recovery",
+        "Pathogen-specific minimum duration met",
+      ],
+      extendIf: [
+        { text: "**Persistent positive CSF cultures** — drain removal + re-target",
+          matchCtx: { severe: true } },
+        "Shunt retained — extend per neurosurgery + ID",
+        "Brain abscess co-existing — per brain abscess bands",
+        "MDR pathogen — extend per sensitivity + ID",
+      ],
+    },
+    monitoring: {
+      headline: "Remove infected drain; broad initial then narrow; intraventricular adjunct for MDR or persistent.",
+      items: [
+        { sev: "required", what: "**Remove or replace infected drain / shunt**",
+          why: "Source control; biofilm prevents antibiotic-only cure" },
+        { sev: "required", what: "**Daily CSF cultures + cell count + glucose**",
+          why: "Track clearance + sterilization; persistent positives drive escalation" },
+        { sev: "required", what: "**Neurosurgery consult** at presentation",
+          why: "Drain management + shunt revision require neurosurgical coordination" },
+        { sev: "trigger", what: "**Intraventricular antibiotics** for MDR or persistent positive CSF",
+          why: "Adjunct for inadequate CSF penetration; gentamicin / colistin / vancomycin; ID-driven dosing",
+          matchBranch: ["P. aeruginosa or MDR GNR"] },
+        { sev: "trigger", what: "**MRI brain** to rule out abscess or ventriculitis extent",
+          why: "Coexisting brain abscess drives extension + surgical consideration" },
+        { sev: "trigger", what: "**ID consult** at presentation",
+          why: "Pathogen + duration + intraventricular dosing complex" },
+        { sev: "trigger", what: "**Re-shunting decision** after sterilization",
+          why: "Timing balances infection clearance + hydrocephalus management" },
+        { sev: "consider", what: "**Workup ventriculostomy bundle compliance**",
+          why: "EVD-bundle measures reduce infection incidence" },
+      ],
+    },
+  },
+
 };
+
+/* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
 
 /* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
    null when the syndrome has no authored content, which signals the
