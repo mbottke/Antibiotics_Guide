@@ -27,6 +27,7 @@ import { PEDS_PREG_DOSING } from "../src/data/pedsPregDosing.js";
 import { SURGE_PROTOCOLS } from "../src/data/surgeProtocols.js";
 import { SITE_PENETRATION } from "../src/data/sitePenetration.js";
 import { GUIDELINES, EVOLVING, TRIAL_DETAIL } from "../src/data/evidence.js";
+import { TRIAL_TO_SYNDROMES, getSyndromesForTrial, _ORPHAN_IDS } from "../src/data/evidenceMap.js";
 
 /* -------- limits and known vocabularies ------------------------- */
 
@@ -953,6 +954,55 @@ describe("content-audit · Phase H/I/K word-budget caps (P2)", () => {
         expect(wc, `${d.id}.pregNotes has ${wc} words (max ${LIMITS_PHASE_HIL.pregNotes})`).toBeLessThanOrEqual(LIMITS_PHASE_HIL.pregNotes);
       }
     }
+  });
+});
+
+describe("content-audit · evidenceMap two-way trial ↔ syndrome index (Phase D3)", () => {
+  /* Every trial id in the reverse index must resolve to a GUIDELINES
+     entry. A pattern that names a missing id would silently drop the
+     reverse links — this gate keeps the map's matcher table aligned
+     with the registry. */
+  test("every TRIAL_TO_SYNDROMES key resolves to a GUIDELINES entry", () => {
+    for(const trialId of Object.keys(TRIAL_TO_SYNDROMES)) {
+      expect(GUIDELINES[trialId], `TRIAL_TO_SYNDROMES key "${trialId}" → unknown guideline id`).toBeDefined();
+    }
+  });
+
+  test("no orphan matcher ids in evidenceMap (catches a renamed GUIDELINES id)", () => {
+    expect(_ORPHAN_IDS, `evidenceMap matcher ids missing from GUIDELINES: ${_ORPHAN_IDS.join(", ")}`).toEqual([]);
+  });
+
+  /* Every syndrome in the value lists must be a real syndrome id —
+     guards against a syndrome rename + missing TRIAL_TO_SYNDROMES
+     refresh dropping the link. */
+  test("every syndrome referenced in TRIAL_TO_SYNDROMES is a real syndrome id", () => {
+    const synIds = new Set(SYNDROMES.map(s => s.id));
+    for(const [trialId, list] of Object.entries(TRIAL_TO_SYNDROMES)) {
+      for(const entry of list) {
+        expect(synIds.has(entry.id),
+          `TRIAL_TO_SYNDROMES["${trialId}"] references unknown syndrome id "${entry.id}"`).toBe(true);
+      }
+    }
+  });
+
+  /* Confidence floor — the map should anchor every well-known
+     landmark trial we depend on for decisions. If a future content
+     edit drops the BALANCE citation from every syndrome, this catches
+     it before users notice empty drawer sections. */
+  test("anchor trials maintain at least one reverse link", () => {
+    const anchors = ["balance", "stopit", "oviva", "poet", "merino", "capecod",
+                     "diabolo", "coda", "arrest", "modify", "fmt", "ssti", "fn", "ssc"];
+    for(const id of anchors) {
+      const list = getSyndromesForTrial(id);
+      expect(list.length, `anchor trial "${id}" has zero reverse links — likely a rename or citation regression`).toBeGreaterThan(0);
+    }
+  });
+
+  /* getSyndromesForTrial must be a pure function returning an array
+     even for unknown ids — graceful fallback for callers. */
+  test("getSyndromesForTrial returns an empty array for unknown ids", () => {
+    expect(getSyndromesForTrial("__nonexistent__")).toEqual([]);
+    expect(Array.isArray(getSyndromesForTrial("mono"))).toBe(true);
   });
 });
 

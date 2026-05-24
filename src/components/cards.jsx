@@ -13,6 +13,7 @@ import { deriveCtx } from "../engines/dosing.js";
 import { renderGloss, renderRich } from "./rich-text.jsx";
 import { CMP_LVL, CMP_ORGS, MRSA_CELL, ORG_BY_ID } from "../data/organisms.js";
 import { GUIDELINES, TRIAL_DETAIL } from "../data/evidence.js";
+import { getSyndromesForTrial } from "../data/evidenceMap.js";
 import { IVPO_CRITERIA, PO_AGENTS, RAPID_DX, TIMEOUT_ITEMS } from "../data/content.js";
 import { RDX_ICON } from "../data/ui-maps.js";
 import { _cmpActive } from "../lib/util.js";
@@ -457,9 +458,13 @@ function RegimenCard({ synId, ctx, doseFn, onDrug, onOrg, onCite, onFull }){
   );
 }
 
-function TrialCard({ id }){
+function TrialCard({ id, onSyndrome }){
   const g = GUIDELINES[id]; if(!g) return <div className="rx-dc-muted">Reference not found.</div>;
   const t = TRIAL_DETAIL[id];
+  /* Phase D3 · two-way evidence map: reverse links from this guideline /
+     trial to the syndrome decisions that cite it. Empty array = render
+     nothing (graceful fallback for orphan guidelines like `mono`/`stew`). */
+  const syndromes = getSyndromesForTrial(id);
   return (
     <div className="rx-dc">
       <div className="rx-dc-sub" style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
@@ -479,6 +484,20 @@ function TrialCard({ id }){
         </>
       )}
       {!t && <div className="rx-dc-note2">Primary source. Open the publication for full methods and results.</div>}
+      {syndromes.length > 0 && (
+        <div className="rx-dc-sec">
+          <div className="rx-dc-h"><Stethoscope size={14}/> Decisions powered by this trial <span className="rx-dc-hsub">syndrome cards that cite this source</span></div>
+          <div className="rx-dc-chips">
+            {syndromes.map(s => (
+              <button key={s.id} className="rx-tag t-neutral clk"
+                onClick={()=>onSyndrome && onSyndrome(s.id)}
+                title={"Open the " + s.name + " syndrome card"}>
+                {s.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
