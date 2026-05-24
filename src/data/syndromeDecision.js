@@ -6914,10 +6914,8 @@ const SYNDROME_DECISION = {
 
 /* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
 
-/* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
-
-/* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
-   null when the syndrome has no authored content, which signals the
+/* Lookup helpers — used by DurationBlock + MonitoringBlock + ResearchBlock.
+   Return null when the syndrome has no authored content, which signals the
    components to render nothing (legacy duration clock still shows in
    ReassessmentPanel). */
 function getSyndromeDecision(synId) {
@@ -6932,4 +6930,8 @@ function getSyndromeMonitoring(synId) {
   return SYNDROME_DECISION[synId]?.monitoring || null;
 }
 
-export { SYNDROME_DECISION, getSyndromeDecision, getSyndromeDuration, getSyndromeMonitoring };
+function getSyndromeResearch(synId) {
+  return SYNDROME_DECISION[synId]?.research || null;
+}
+
+export { SYNDROME_DECISION, getSyndromeDecision, getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch };
