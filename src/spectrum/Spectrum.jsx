@@ -1,7 +1,7 @@
 /* spectrum · self-contained antibiogram matrix (data + chart + styles, IIFE).
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useState, useMemo } from "react";
-import { BookOpen, Crosshair, Eye, EyeOff, Filter, Info, Layers, Microscope, RotateCcw, Search, Star, X } from "lucide-react";
+import { BookOpen, Crosshair, Expand, Eye, EyeOff, Filter, Info, Layers, Microscope, Minimize2, RotateCcw, Search, Star, X } from "lucide-react";
 import { ORGS, ORG_BY_ID } from "../data/organisms.js";
 
 /* ============================================================================
@@ -177,6 +177,28 @@ const CSS2 = `
   .sx-mxwrap{max-height:none; overflow:visible;}
   .sx-root{background:#fff;}
 }
+
+/* ---------------- FULLSCREEN MODE ----------------
+   When the user clicks "Fullscreen", the SpectrumChart root takes the
+   whole viewport. The header, footnotes, sources, and disclaimer
+   collapse so the 49-column matrix gets every available pixel of
+   vertical space. On a wide display the matrix fits without
+   horizontal scroll; vertical scroll is no longer bounded by 78vh. */
+.sx-full{position:fixed; inset:0; z-index:1000; background:var(--paper); overflow:auto; padding:0;}
+.sx-full .sx-header{display:none;}
+.sx-full .sx-fnwrap,
+.sx-full .sx-srcwrap,
+.sx-full .sx-foot{display:none;}
+/* In fullscreen the wrap padding shrinks so the table reaches edge to edge. */
+.sx-full .sx-wrap{max-width:none; padding:8px 12px;}
+.sx-full .sx-controls{padding:8px 12px 0; position:sticky; top:0; background:var(--paper); z-index:20; border-bottom:1px solid var(--line2);}
+/* Critical: in fullscreen the matrix container uses the remaining
+   viewport height instead of the global 78vh cap. The subtract accounts
+   for the sticky controls + legend strip above (~280px). */
+.sx-full .sx-mxwrap{max-height:calc(100vh - 280px);}
+/* The corner + sticky org header need to remain on top of the
+   fullscreen overlay's stacking context. */
+.sx-full .sx-corner,.sx-full .sx-sgth,.sx-full .sx-orgth{background:var(--panel);}
 `;
 
 /* ===================== DATA ===================== */
@@ -231,6 +253,25 @@ function SpectrumChart() {
   const [lockCol, setLockCol] = useState(null);
   const [showIntr, setShowIntr] = useState(true);
   const [tip, setTip] = useState(null);
+  /* Fullscreen mode — lifts the 49×~80 matrix out of the page flow into a
+     position:fixed overlay so the table can take the entire viewport. The
+     legend / footnotes / sources collapse so the matrix has all the vertical
+     real estate. On a wide monitor (≥1920px) the matrix fits without
+     horizontal scroll; on narrower screens horizontal scroll remains but
+     vertical scroll is no longer bounded by max-height:78vh. */
+  const [fullscreen, setFullscreen] = useState(false);
+  React.useEffect(() => {
+    if(!fullscreen || typeof document === "undefined") return;
+    const onKey = (e) => { if(e.key === "Escape") setFullscreen(false); };
+    document.addEventListener("keydown", onKey);
+    // Prevent body scroll behind the overlay.
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [fullscreen]);
 
   const ql = q.trim().toLowerCase();
   const qOrgs = useMemo(() => {
@@ -278,7 +319,7 @@ function SpectrumChart() {
   const sgVisCount = (sgid) => visOrgs.filter(o => o.sg === sgid).length;
 
   return (
-    <div className="sx-root">
+    <div className={"sx-root" + (fullscreen ? " sx-full" : "")} role={fullscreen ? "dialog" : undefined} aria-modal={fullscreen ? "true" : undefined} aria-label={fullscreen ? "Spectrum matrix — fullscreen view" : undefined}>
       <style>{CSS1 + CSS2}</style>
 
       <header className="sx-header">
@@ -312,6 +353,9 @@ function SpectrumChart() {
           </div>
           <button className="sx-toggle" data-on={showIntr} onClick={() => setShowIntr(v => !v)} title="Distinguish intrinsic resistance from acquired/no activity">
             {showIntr ? <Eye size={13} /> : <EyeOff size={13} />} Intrinsic R
+          </button>
+          <button className="sx-toggle" data-on={fullscreen} onClick={() => setFullscreen(v => !v)} title={fullscreen ? "Exit fullscreen (Esc)" : "Expand the matrix to use the full screen"}>
+            {fullscreen ? <Minimize2 size={13} /> : <Expand size={13} />} {fullscreen ? "Exit fullscreen" : "Fullscreen"}
           </button>
           {(q || sgOn.length < SUPERGROUPS.length || clsOn.length < CLASSES.length || lockActive) &&
             <button className="sx-reset" onClick={reset}><RotateCcw size={13} /> Reset</button>}
