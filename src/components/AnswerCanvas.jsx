@@ -37,6 +37,8 @@ import { NovelAgentsBlock } from "./NovelAgentsBlock.jsx";
 import { getNovelForSyndrome } from "../data/novelAgents.js";
 import { SurgeProtocolsBlock } from "./SurgeProtocolsBlock.jsx";
 import { getSurgeForSyndrome } from "../data/surgeProtocols.js";
+import { SitePenetrationBlock } from "./SitePenetrationBlock.jsx";
+import { getPenetrationForSyndrome } from "../data/sitePenetration.js";
 import { CombinedRisksBlock } from "./CombinedRisksBlock.jsx";
 import { Section } from "./Section.jsx";
 import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch } from "../data/syndromeDecision.js";
@@ -695,11 +697,11 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           tazo for DTR-Pseudomonas, ceftaz-avi for KPC-CRE, cefiderocol
           for metallo / CRAB, dalbavancin / oritavancin for OPAT MRSA). */}
       <NovelAgentsBlock agents={getNovelForSyndrome(s.id)} />
-      {/* SURGE + OUTBREAK · emerging pathogen alerts (Phase K).
-          Bioterror Tier-1, emerging viral, regional outbreaks,
-          novel resistance phenotypes that demand recognition +
-          reporting + specific empiric strategy. */}
+      {/* SURGE + OUTBREAK · emerging pathogen alerts (Phase K). */}
       <SurgeProtocolsBlock protocols={getSurgeForSyndrome(s.id)} />
+      {/* SITE PENETRATION · drug PK by anatomic compartment (Phase L).
+          Informs oral step-down + agent choice for sequestered sites. */}
+      <SitePenetrationBlock entries={getPenetrationForSyndrome(s.id)} />
 
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file
