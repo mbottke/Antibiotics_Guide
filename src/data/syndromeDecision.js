@@ -615,8 +615,8 @@ const SYNDROME_DECISION = {
           matchAgent: /vancomycin|linezolid/i },
         { sev: "trigger", what: "**Repeat imaging** at day 4–7 only if no clinical response",
           why: "Radiographic lag normal; image-driven extension without clinical change rarely helpful" },
-        { sev: "trigger", what: "**Steroids 5 d** (dexamethasone 6 mg) for severe CAP without shock — CAPE-COD",
-          why: "Severe CAP mortality benefit; not for septic shock alone",
+        { sev: "trigger", what: "**Hydrocortisone 200 mg/d IV × 4–8 d** for severe CAP without shock — CAPE-COD",
+          why: "CAPE-COD NEJM 2023 — 28-d mortality 6.2% vs 11.9%; excludes influenza + immunocompromised + septic shock",
           matchCtx: { severe: true } },
         { sev: "trigger", what: "**Atypical workup** (Legionella urine antigen, mycoplasma PCR) if non-response by 72 h",
           why: "Missed atypical drives empiric β-lactam failure; targeted therapy changes course" },
@@ -774,12 +774,12 @@ const SYNDROME_DECISION = {
   },
 
   /* ===========================================================
-     MENINGITIS — IDSA 2017 (Hooton) + 2024 update. Duration by
+     MENINGITIS — IDSA 2004 (Tunkel) + 2017 HCA-ventriculitis addendum. Duration by
      pathogen; dexamethasone + Hour-1 antibiotic delivery. ========== */
   meningitis: {
     duration: {
       headline: "Pathogen-driven: meningococcus 7 d, pneumococcus 10–14 d, Listeria ≥ 21 d, GNR / nosocomial 21+ d.",
-      evidence: "IDSA 2017 + 2024 — pathogen-specific durations; longer for GNR / Listeria / abscess substrate",
+      evidence: "IDSA 2004 (Tunkel) + 2017 HCA-ventriculitis addendum — pathogen-specific durations; longer for GNR / Listeria / abscess substrate",
       branches: [
         { label: "Neisseria meningitidis", days: "7 d",
           detail: "Penicillin G or ceftriaxone; close-contact prophylaxis to household + healthcare exposure" },
@@ -963,7 +963,7 @@ const SYNDROME_DECISION = {
           question: "FMT vs vancomycin for recurrent CDI",
           finding: "FMT cure rate 81% (single infusion) vs 31% vancomycin — trial stopped early for ethical reasons",
           bias: "Small + open-label; subsequent meta-analyses confirm > 90% efficacy" },
-        { name: "OFA NEJM 2022 (SER-109)",
+        { name: "ECOSPOR III NEJM 2022 (Feuerstadt — SER-109 / Vowst)",
           n: "182",
           question: "Standardized oral microbiome therapeutic vs placebo for recurrent CDI",
           finding: "Recurrence at 8 wk 12% (SER-109) vs 40% (placebo); now FDA-approved (Vowst 2023)",
@@ -1128,8 +1128,8 @@ const SYNDROME_DECISION = {
           why: "HRS is leading SBP complication; early detection drives albumin + terlipressin response" },
         { sev: "trigger", what: "**Secondary peritonitis workup** if PMN response inadequate + multiple organisms",
           why: "Surgical condition masquerading as SBP — perforation, abscess; CT + surgical consult" },
-        { sev: "trigger", what: "**Norfloxacin prophylaxis** post-resolution for recurrence prevention",
-          why: "≥ 1 prior SBP episode → 70% recurrence within 1 year without prophylaxis" },
+        { sev: "trigger", what: "**Secondary prophylaxis** post-resolution — ciprofloxacin 500 mg PO daily or TMP-SMX DS daily",
+          why: "≥ 1 prior SBP episode → 70% recurrence within 1 year without prophylaxis; norfloxacin discontinued in U.S. since 2014" },
         { sev: "trigger", what: "**Hepatic stage reassessment** — Child-Pugh / MELD score driving transplant candidacy",
           why: "SBP episode marks decompensation; trigger for transplant evaluation if not already listed",
           matchCtx: { hepStage: { in: ["B", "C"] } } },
@@ -1160,14 +1160,14 @@ const SYNDROME_DECISION = {
         { society: "AASLD",
           year: 2021,
           topic: "Cirrhosis ascites + SBP (Biggins)",
-          keypoint: "5-d course; albumin for high-risk; secondary prophylaxis with norfloxacin or TMP-SMX after first episode" },
+          keypoint: "5-d course; albumin for high-risk; secondary prophylaxis with ciprofloxacin or TMP-SMX after first episode (norfloxacin no longer available in U.S.)" },
         { society: "EASL",
           year: 2018,
           topic: "European cirrhosis ascites + SBP",
           keypoint: "Aligned with AASLD; emphasizes daptomycin or vancomycin for nosocomial SBP" },
       ],
       openQuestions: [
-        "Optimal SBP prophylaxis agent (norfloxacin vs rifaximin vs TMP-SMX) — adherence + resistance variable",
+        "Optimal SBP prophylaxis agent (cipro vs TMP-SMX vs rifaximin) — adherence + resistance variable",
         "Albumin dose in moderate-risk SBP — IDSA does not define hard threshold",
         "Empiric carbapenem in HA-SBP — local antibiogram-driven; institutional variation",
       ],
@@ -2306,12 +2306,12 @@ const SYNDROME_DECISION = {
   },
 
   /* ===========================================================
-     PROSTHETIC JOINT INFECTION — IDSA 2013 + 2024 update. DAIR vs
+     PROSTHETIC JOINT INFECTION — IDSA 2013 (Osmon) + DATIPO NEJM 2021. DAIR vs
      1-stage vs 2-stage; rifampin for retained hardware. =========== */
   pji: {
     duration: {
       headline: "3 mo total (hip) / 6 mo total (knee) for DAIR + retained hardware; 4–6 wk for 2-stage exchange.",
-      evidence: "IDSA 2013 + 2024 update — strategy-specific durations; rifampin combination central to DAIR",
+      evidence: "IDSA 2013 (Osmon) + DATIPO NEJM 2021 — strategy-specific durations (3 mo hip / 6 mo knee); rifampin combination central to DAIR",
       branches: [
         { label: "DAIR — retained hardware", days: "3 mo hip / 6 mo knee",
           detail: "Pathogen-directed IV × 2–6 wk + oral step-down with rifampin combo for total duration",
@@ -4589,7 +4589,7 @@ const SYNDROME_DECISION = {
         { name: "Geriak AAC 2019",
           n: "Cohort",
           question: "Daptomycin + ceftaroline salvage for persistent MRSA bacteremia",
-          finding: "Combination reduced mortality 4% vs 26% standard; observational salvage signal validated by ACTIVE-NA 2024",
+          finding: "Combination reduced mortality 0% (0/17) vs 26% (6/23) vanco-only in persistent MRSA bacteremia; small observational salvage cohort",
           bias: "Small + observational; ACTIVE-NA prospective" },
         { name: "Holland CID 2019",
           n: "Cohort",

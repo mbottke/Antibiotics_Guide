@@ -1078,6 +1078,36 @@ const SYNDROMES = [
       "Asplenic/hyposplenic patients should hold standby amoxicillin-clavulanate and seek urgent care for any fever.",
       "Vaccinate against pneumococcus, meningococcus, and H. influenzae type b — ideally before elective splenectomy." ] },
 
+  { id:"candidemia", cat:"immuno", icon:"shield", name:"Candidemia (scope note)",
+    line:"Antifungal scope note — see dedicated reference; surfaced here because it co-presents with line/neutropenic sepsis",
+    tiers:[
+      { k:"Empiric", rx:"Echinocandin (caspofungin 70 mg load → 50 mg q24h, or micafungin 100 mg q24h)",
+        note:"Antifungal — out of formal scope of this antibacterial reference. Echinocandin first-line per IDSA 2016 (Pappas); de-escalate to fluconazole if susceptible Candida albicans + clinically stable." },
+    ],
+    cover:{ empiric:"Candida spp. — antifungal not antibacterial; remove line + dilated fundoscopy + ≥ 14 d from first negative culture", drop:"Antibacterial regimen alone — fungemia does not respond" },
+    bugs:[],
+    duration:"≥ 14 d from first negative blood culture (IDSA 2016).",
+    deesc:"De-escalate echinocandin → fluconazole if isolate susceptible + clinically stable + non-neutropenic.",
+    pearls:[
+      "**Remove the line** — line removal independently improves survival.",
+      "**Dilated fundoscopy** within 1 wk — endogenous endophthalmitis in ~10%.",
+      "**Echo** — Candida endocarditis prevalence is rising in IVDU + line cohorts." ] },
+
+  { id:"tubo-ovarian", cat:"ssti", icon:"shield", name:"Tubo-Ovarian Abscess",
+    line:"Pelvic abscess complicating PID; drainage + IV antibiotic + gyn surgery",
+    tiers:[
+      { k:"Empiric", rx:"Ceftriaxone 1 g IV q24h + doxycycline 100 mg PO BID + metronidazole 500 mg IV/PO q8h (or cefotetan + doxy alternative)",
+        note:"Per CDC 2021 STI inpatient regimen for severe PID with TOA. Drainage for TOA > 8 cm or non-response by 72 h." },
+    ],
+    cover:{ empiric:"N. gonorrhoeae, C. trachomatis, polymicrobial enteric anaerobes + GNR + GBS", drop:"Outpatient regimen — TOA mandates inpatient + drainage decision" },
+    bugs:["entero","strep"],
+    duration:"14 d total (IV → PO step-down on clinical improvement); longer if drainage delayed.",
+    deesc:"De-escalate per cultures; transition to oral when afebrile + clinical improvement; gyn surgery + IR coordination for drainage.",
+    pearls:[
+      "**Drain for TOA > 8 cm** or non-response by 72 h — IR or surgical.",
+      "**Partner notification + STI screen** (HIV, syphilis, hepatitis) mandatory.",
+      "**Pelvic US or CT** at presentation to distinguish uncomplicated PID from TOA." ] },
+
   { id:"nocardia", cat:"immuno", icon:"shield", name:"Nocardiosis",
     line:"Pulmonary, CNS, or disseminated · cell-mediated defect",
     tiers:[

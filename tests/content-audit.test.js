@@ -21,6 +21,11 @@ import { SYNDROMES } from "../src/data/syndromes.js";
 import { REGIMEN_CONTENT } from "../src/data/regimenContent.js";
 import { SYNDROME_DECISION } from "../src/data/syndromeDecision.js";
 import { COMBINED_RISKS } from "../src/data/combinedRisks.js";
+import { REGIONAL_RESISTANCE } from "../src/data/regionalResistance.js";
+import { NOVEL_AGENTS } from "../src/data/novelAgents.js";
+import { PEDS_PREG_DOSING } from "../src/data/pedsPregDosing.js";
+import { SURGE_PROTOCOLS } from "../src/data/surgeProtocols.js";
+import { SITE_PENETRATION } from "../src/data/sitePenetration.js";
 
 /* -------- limits and known vocabularies ------------------------- */
 
@@ -659,4 +664,114 @@ describe("content-audit · combinedRisks.js entries", () => {
       }
     });
   }
+});
+
+/* ============================================================
+   Phase H–L cross-layer integrity gates — added after the
+   multi-agent audit-gap analysis surfaced dangling-syndrome-id
+   issues that silently fail-safe at runtime (candidemia +
+   tubo-ovarian shipped without parent syndromes, so the cross-
+   cutting layer rendered nothing).
+   ============================================================ */
+
+const KNOWN_SYNDROME_IDS = new Set(SYNDROMES.map(s => s.id));
+const PHASE_HIL_TABLES = [
+  { name: "REGIONAL_RESISTANCE", data: REGIONAL_RESISTANCE, idKey: "id" },
+  { name: "NOVEL_AGENTS",        data: NOVEL_AGENTS,        idKey: "id" },
+  { name: "PEDS_PREG_DOSING",    data: PEDS_PREG_DOSING,    idKey: "id" },
+  { name: "SURGE_PROTOCOLS",     data: SURGE_PROTOCOLS,     idKey: "id" },
+  { name: "SITE_PENETRATION",    data: SITE_PENETRATION,    idKey: "site" },
+];
+
+describe("content-audit · cross-layer syndrome-id integrity (P0)", () => {
+  for(const { name, data } of PHASE_HIL_TABLES) {
+    test(`${name}.syndromes[] references only known syndrome ids`, () => {
+      for(const entry of data) {
+        const tag = entry.id || entry.site || JSON.stringify(entry).slice(0, 40);
+        const syns = entry.syndromes || [];
+        for(const sid of syns) {
+          expect(KNOWN_SYNDROME_IDS.has(sid),
+            `${name} entry "${tag}" references unknown syndrome id "${sid}" — would silently render nothing`)
+            .toBe(true);
+        }
+      }
+    });
+  }
+});
+
+describe("content-audit · Phase H–L id uniqueness (P1)", () => {
+  for(const { name, data, idKey } of PHASE_HIL_TABLES) {
+    if(idKey !== "id") continue;  // SITE_PENETRATION uses `site`, validated separately
+    test(`${name} ids are unique`, () => {
+      const seen = new Set();
+      for(const entry of data) {
+        expect(seen.has(entry.id), `${name} duplicate id "${entry.id}"`).toBe(false);
+        seen.add(entry.id);
+      }
+    });
+  }
+});
+
+const REGIONAL_SEVERITY = new Set(["high", "moderate", "watch"]);
+const SURGE_SEVERITY    = new Set(["tier-1", "high", "watch"]);
+const SURGE_CATEGORY    = new Set(["bioterror", "emerging", "regional-outbreak", "novel-resistance"]);
+const PREG_SAFE         = new Set(["yes", "caution", "avoid"]);
+const PENETRATION_ENUM  = new Set(["excellent", "good", "modest", "poor"]);
+
+describe("content-audit · Phase H–L enum vocabulary (P0)", () => {
+  test("REGIONAL_RESISTANCE.severity ∈ {high, moderate, watch}", () => {
+    for(const r of REGIONAL_RESISTANCE) {
+      expect(REGIONAL_SEVERITY.has(r.severity),
+        `${r.id}: severity "${r.severity}" not in enum`).toBe(true);
+    }
+  });
+  test("SURGE_PROTOCOLS.severity ∈ {tier-1, high, watch}", () => {
+    for(const s of SURGE_PROTOCOLS) {
+      expect(SURGE_SEVERITY.has(s.severity),
+        `${s.id}: severity "${s.severity}" not in enum`).toBe(true);
+    }
+  });
+  test("SURGE_PROTOCOLS.category ∈ {bioterror, emerging, regional-outbreak, novel-resistance}", () => {
+    for(const s of SURGE_PROTOCOLS) {
+      expect(SURGE_CATEGORY.has(s.category),
+        `${s.id}: category "${s.category}" not in enum`).toBe(true);
+    }
+  });
+  test("PEDS_PREG_DOSING.pregSafe ∈ {yes, caution, avoid}", () => {
+    for(const d of PEDS_PREG_DOSING) {
+      expect(PREG_SAFE.has(d.pregSafe),
+        `${d.id}: pregSafe "${d.pregSafe}" not in enum`).toBe(true);
+    }
+  });
+  test("SITE_PENETRATION.drugs[].penetration ∈ {excellent, good, modest, poor}", () => {
+    for(const s of SITE_PENETRATION) {
+      for(const d of (s.drugs || [])) {
+        expect(PENETRATION_ENUM.has(d.penetration),
+          `site "${s.site}" drug "${d.agent}": penetration "${d.penetration}" not in enum`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("content-audit · Phase J pregSafe coherence (P2)", () => {
+  test("Category D/X agents cannot be flagged SAFE in pregnancy", () => {
+    for(const d of PEDS_PREG_DOSING) {
+      if(/\b(D|X)\b/.test(d.pregCategory || "")) {
+        expect(d.pregSafe, `${d.id}: pregCategory "${d.pregCategory}" + pregSafe "yes" is a contradiction`)
+          .not.toBe("yes");
+      }
+    }
+  });
+});
+
+describe("content-audit · Phase K notifiable-flag (P1)", () => {
+  test("Bioterror / emerging / regional-outbreak protocols carry **Notifiable** marker", () => {
+    for(const s of SURGE_PROTOCOLS) {
+      if(["bioterror", "emerging", "regional-outbreak"].includes(s.category)) {
+        expect(/\*\*Notifiable\*\*/.test(s.publicHealth || ""),
+          `${s.id} (${s.category}): publicHealth missing **Notifiable** marker — alert banner won't render`)
+          .toBe(true);
+      }
+    }
+  });
 });
