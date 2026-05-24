@@ -13,6 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "content:audit": "vitest run tests/content-audit.test.js",
+    "content:scaffold": "node scripts/new-syndrome.mjs",
     "verify": "npm run typecheck && npm run test && npm run build && npm run test:e2e"
   },
   "dependencies": {
