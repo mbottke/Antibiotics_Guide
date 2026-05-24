@@ -33,6 +33,8 @@ import { MonitoringBlock } from "./MonitoringBlock.jsx";
 import { ResearchBlock } from "./ResearchBlock.jsx";
 import { RegionalResistanceBlock } from "./RegionalResistanceBlock.jsx";
 import { getRegionalForSyndrome } from "../data/regionalResistance.js";
+import { NovelAgentsBlock } from "./NovelAgentsBlock.jsx";
+import { getNovelForSyndrome } from "../data/novelAgents.js";
 import { CombinedRisksBlock } from "./CombinedRisksBlock.jsx";
 import { Section } from "./Section.jsx";
 import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch } from "../data/syndromeDecision.js";
@@ -684,11 +686,13 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           which is the safe default during incremental rollout. */}
       <ResearchBlock research={getSyndromeResearch(s.id)} />
       {/* REGIONAL RESISTANCE · antibiogram alerts (Phase H). Renders
-          only when patterns affecting this syndrome exist. Surfaces
-          regional / institutional resistance shifts that change the
-          empiric strategy beyond what's baked into the syndrome
-          decision blocks above. */}
+          only when patterns affecting this syndrome exist. */}
       <RegionalResistanceBlock patterns={getRegionalForSyndrome(s.id)} />
+      {/* NOVEL AGENTS · newer drug profiles (Phase I). Surfaces
+          recent-approval agents with specific use-cases (ceftolozane-
+          tazo for DTR-Pseudomonas, ceftaz-avi for KPC-CRE, cefiderocol
+          for metallo / CRAB, dalbavancin / oritavancin for OPAT MRSA). */}
+      <NovelAgentsBlock agents={getNovelForSyndrome(s.id)} />
 
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file
