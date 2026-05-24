@@ -20,43 +20,143 @@
    Ordered: more specific phrases come first so "septic shock" hits sepsis
    (with severe=true) before generic "shock" tokens would match anything
    else. The third tuple element seeds any additional patient flags the
-   syndrome name implies (severe for shock, etc.). */
+   syndrome name implies (severe for shock, etc.).
+
+   When extending: each pattern must be specific enough that it does NOT
+   match a more general syndrome name listed BELOW it. Verified via the
+   self-test in tests/case-parser.test.js — every syndrome `name` from
+   data/syndromes.js must round-trip to its own id through this map. */
 const SYN_KEYWORDS = [
+  /* === Sepsis specifics (named patterns before generic shock/sepsis) === */
+  [/\b(?:overwhelming\s+)?post-?splenectomy\s+infection\b|\bopsi\b/i, "opsi",            {}],
+  [/\basplenia\s*[:\s-]\s*acute|\basplenia\s*(?:prophylaxis|febrile|standby)|acute\s*febrile\s*illness\s*(?:in\s*)?asplen/i, "asplenia-prophylaxis", {}],
+  [/\basplenic|asplenia|hyposplenic|hyposplenia|post-?splenectomy/i, "sepsis-asplenia", {}],
+  [/\bfebrile\s*neutropenia\b|\bfeb\s*neut\b/i,  "febneut",            {}],
+  [/\btyphlitis\b|neutropenic\s*enterocolit/i,   "typhlitis",          {}],
+  [/\bneutropenic\s*pneumonia\b|pneumonia\s*in\s*(?:the\s*)?(?:neutropenic|transplant)|transplant\s*pneumonia\b/i, "neutropenic-pna", {}],
+  [/\bneutropenic\s*(?:fever|sepsis)\b/i,        "sepsis-neutropenic", {}],
+  [/\bsepsis\s+with\s+a\s+toxin|toxin-?mediated\s+pattern/i, "sepsis-toxic",  { severe:true }],
+  [/\btoxic\s*shock(?:\s*syndrome)?\b|\btss\b/i, "tss",                { severe:true }],
   [/\bseptic\s*shock\b/i,                        "sepsis",             { severe:true }],
   [/\bsevere\s*sepsis\b/i,                       "sepsis",             { severe:true }],
-  [/\bneutropenic\s*(?:fever|sepsis)\b|\bfebrile\s*neutropenia\b/i, "sepsis-neutropenic", {}],
-  [/\basplenic|asplenia|post-?splenectomy/i,     "sepsis-asplenia",    {}],
-  [/\btoxic\s*shock\b|\btss\b/i,                 "sepsis-toxic",       { severe:true }],
-  [/\bhap\b|\bvap\b|\bventilator-?associated|hospital-?acquired\s*pne/i, "hap", {}],
+  [/\bhealthcare-?associated\s*sepsis\b|\bhcap\s*sepsis\b|\bhca[-\s]?sepsis\b|\bhcaq\b/i, "sepsis-hcaq", {}],
+  [/\babdominal\s*sepsis\b|\bsepsis.{0,40}abdominal\s*source\b|\bintra-?abdominal\s*sepsis\b/i, "sepsis-abdominal", {}],
+
+  /* === Respiratory === */
+  [/\bzoonotic.{0,30}pneumonia\b|\bq\s*fever\b|\bpsittacosis\b|\btularemia\b|\bleptospir/i, "zoonotic-pna", {}],
+  [/\bventilator-?associated\s+tracheobronchitis\b|\bvat\b(?!\s*[a-z])/i, "vat",         {}],
+  [/\bpost-?obstructive\s*pneumonia\b|\bpostobstructive\s*pne|\bobstructive\s*pneumonia\b/i, "postobstructive", {}],
+  [/\bacute\s+(?:bacterial\s+)?tracheobronchit|\bacute\s+bronchitis\b|\bpertussis\b|\btracheobronchit/i, "tracheobronchitis", {}],
+  [/\bhap\b|\bvap\b|\bventilator-?associated|hospital-?acquired\s*pne/i, "hap",          {}],
   [/\bcap\b|\bcommunity-?acquired\s*pne/i,       "cap",                {}],
-  [/\baspiration\s*pne|lung\s*abscess\b/i,       "aspiration",         {}],
-  [/\bempyema\b|\bparapneumonic\b/i,             "empyema",            {}],
-  [/\bcopd\s*exacerb|aecopd\b/i,                 "copd",               {}],
+  [/\baspiration\s*pne|aspiration\s*pneumonia\b|\blung\s*abscess\b/i, "aspiration",      {}],
+  [/\bsubdural\s*empyema\b/i,                    "subdural-empyema",   {}],   // must precede generic empyema
+  [/\bempyema\b|\bparapneumonic\b|\bcomplicated\s*pleural\s*effusion\b/i, "empyema",     {}],
+  [/\bcopd\s*exacerb|aecopd\b|\bcopd\s*flare\b/i,"copd",               {}],
   [/\bbronchiectasis\b/i,                        "bronchiectasis",     {}],
   [/\bpneumonia\b|\bpna\b/i,                     "cap",                {}],  // fallback after specifics
-  [/\bsab\b|\bstaph(?:ylococcus)?\s*aureus\s*bacterem/i, "sab",        {}],
+
+  /* === Bloodstream & cardiac === */
+  [/\bpersistent\s*mrsa\s*(?:bacterem|bsi)/i,    "persistent-mrsa",    {}],
+  [/\bpseudomonas\s*bacterem|\bpseudo\s*bact\b|\bpseudomonal\s*bsi\b/i, "pseudo-bact",   {}],
+  [/\bvre\s*bacterem|vancomycin-?resistant\s*entero[a-z]*\s*bacterem/i, "vre-bact", {}],
+  [/\bpolymicrobial\s*(?:bacterem|bsi)/i,        "polymicrobial-bact", {}],
+  [/\bstreptococcal\s*bacterem|\bstrep\s*bacterem/i, "strep-bact",     {}],
+  [/\blemierre\b|\bseptic\s*thrombophlebit/i,    "lemierre",           {}],
+  [/\bendophthalmit/i,                           "endophthalmitis",    {}],
+  [/\bmycotic\s*(?:\([^)]*\)\s*)?aneurysm\b|\binfected\s*aneurysm\b/i, "mycotic-aneurysm", {}],
+  [/\bvascular\s*graft\s*infect|\bcied\s*infect|\blvad\s*infect|\bpacemaker\s*infect|\bicd\s*infect/i, "device-vascular", {}],
+  [/\bsab\b|\bstaph(?:ylococcus)?\s*aureus\s*bacterem|\bs\.?\s*aureus\s*bacterem/i, "sab", {}],
+  [/\bcons\b|coagulase-?negative\s*staph(?:ylococcal)?\s*(?:bacterem|bsi)|\bs\.?\s*epidermidis\s*bacterem/i, "cons", {}],
   [/\bgnr\s*bacterem|gram-?negative\s*bacterem/i,"gnbact",             {}],
-  [/\b(?:infective\s*)?endocarditis\b|\bie\b(?!\s*\.)|\bpve\b/i,"ie",  {}],
-  [/\bcrbsi\b|catheter-?related\s*(?:blood|bsi)/i,"crbsi",             {}],
+  [/\bcrbsi\b|catheter-?related\s*(?:blood|bsi)|\bclabsi\b/i, "crbsi", {}],
+  [/\bpve\b|prosthetic\s*valve\s*(?:endocard|ie\b)|(?:\bie\b|endocard[a-z]*)[\s—\-]+(?:on\s+)?(?:a\s+|the\s+)?prosthetic\s*valve/i, "ie-pve", {}],
+  [/\bnve\b|native\s*valve\s*(?:endocard|ie\b)|(?:\bie\b|endocard[a-z]*)[\s—\-]+(?:on\s+)?(?:a\s+|the\s+)?native\s*valve/i, "ie-native", {}],
+  [/\b(?:infective\s*)?endocarditis\b|\bie\b(?!\s*\.)/i, "ie",         {}],
   [/\bentero(?:coccal)?\s*bacterem/i,            "entbact",            {}],
+
+  /* === Genitourinary === */
+  [/\bemphysematous\s*(?:pyelo|cystit|uti)/i,    "emphysematous-uti",  {}],   // before plain pyelo/cystitis
+  [/\burosepsis\b|\bobstructive\s*pyelo|\bobstructed\s*pyelo/i, "urosepsis", { severe:true }],
+  [/\basymptomatic\s*bacteriuria\b|\basb\b(?![a-z])|\basymp\s*bact\b/i, "asymp-bact", {}],
+  [/\btransplant\s*uti\b|uti\s+in\s+(?:the\s+)?(?:renal\s+)?transplant|renal\s*transplant\s*recipient/i, "transplant-uti", {}],
+  [/\bscrotal\s*abscess\b|testicular\s*abscess\b/i, "scrotal-abscess", {}],
+  [/\bpid\b|pelvic\s*inflammatory\s*disease\b/i, "pid",                {}],   // listed first so PID's own name (which mentions TOA) routes correctly
+  [/\btubo-?ovarian\s*absc/i,                    "tubo-ovarian",       {}],
+  [/\brenal\s*abscess\b|perinephric\s*abscess\b|\brenal\s*carbuncle\b/i, "renalabscess", {}],
   [/\bcystitis\b|\bsimple\s*uti\b|\blower\s*uti\b/i, "cystitis",       {}],
-  [/\bpyelo(?:nephritis)?\b/i,                   "pyelo",              {}],
+  [/\bpyelo(?:nephritis)?\b|\bupper\s*(?:tract|uti)\b|complicated\s*uti\b/i, "pyelo",   {}],
   [/\bcauti\b/i,                                 "cauti",              {}],
   [/\bprostatitis\b/i,                           "prostatitis",        {}],
+  [/\bepididymo-?orchit|\bepididymit|\borchitis\b/i, "epididymo",      {}],
   [/\buti\b/i,                                   "cystitis",           {}],
+
+  /* === Intra-abdominal === */
   [/\bsbp\b|\bspontaneous\s*bacterial\s*peritonitis\b/i, "sbp",        {}],
-  [/\bcholangitis\b/i,                           "cholangitis",        {}],
-  [/\bdiverticulitis\b/i,                        "diverticulitis",     {}],
+  [/\bpd[-\s]*peritonit|\bperitoneal\s*dialysis[-\s]*(?:associated\s+)?peritonit/i, "pd-peritonitis", {}],
+  [/\bpyogenic\s*liver\s*abscess\b|\bliver\s*abscess\b|hepatic\s*abscess\b/i, "liverabscess", {}],
+  [/\bsplenic\s*abscess\b/i,                     "splenic-abscess",    {}],
+  [/\bappendicitis\b|appendiceal\s*abscess\b/i,  "appendicitis",       {}],
+  [/\btoxic\s*megacolon\b|\bfulminant\s*colitis\b|\bsevere\s*colitis\b/i, "toxic-megacolon", {}],
+  [/\bmesenteric\s*ischem|bowel\s*ischem|\bbowel\s*perforat|intestinal\s*perforat/i, "mesenteric-isch", {}],
+  [/\bcholangitis\b|\bcholecystit/i,             "cholangitis",        {}],
+  [/\bdiverticulit/i,                            "diverticulitis",     {}],
+  [/\binfected\s*pancreatic\s*necros|pancreatic\s*necros|infected\s*necrotizing\s*pancreatit|\bpancreatic\s*abscess\b/i, "pancreatic", {}],
   [/\bperitonitis\b|\biai\b|\bintra-?abdominal/i,"peritonitis",        {}],
+
+  /* === Skin, soft tissue & bone === */
+  [/\bvert(?:ebral)?\s*osteo(?:myelitis)?\b|\bdiscit|\bspond(?:ylo)?discit/i, "vertosteo", {}],
+  [/\borbital\s*(?:\([^)]*\)\s*)?cellulit|post-?septal\s*cellulit/i, "orbital",  {}],   // before generic cellulitis
+  [/\bludwig|deep\s*neck\s*(?:space\s*)?infect|retropharyngeal\s*abscess\b|parapharyngeal\s*abscess\b/i, "ludwig", {}],
+  [/\berysipelas\b/i,                            "erysipelas",         {}],
+  [/\blymphangit/i,                              "lymphangitis",       {}],
+  [/\bhidradenit/i,                              "hidradenitis",       {}],
+  [/\binfected\s*(?:venous|arterial|leg)|(?:venous|arterial|leg).{0,30}ulcer.{0,10}infect|venous\s*stasis\s*ulcer\s*infect/i, "infected-ulcer", {}],
+  [/\bperianal\s*abscess\b|perirectal\s*abscess\b|ischiorectal\s*abscess\b/i, "perianal-abscess", {}],
+  [/\bfournier\b/i,                              "fournier",           { severe:true }],
+  [/\bbursit/i,                                  "bursitis",           {}],
+  [/\bpyomyosit/i,                               "pyomyositis",        {}],
+  [/\binfected\s*pressure\s*(?:injury|ulcer)|pressure\s*(?:ulcer|injury|sore)\s*infect|\bdecubitus\s*ulcer\s*infect|sacral\s*ulcer\s*infect|\bdecubitus\b/i, "pressure", {}],
+  [/\bcapnocytophaga\b|\bcapno\b(?![a-z])/i,     "capno",              {}],   // before "bites" so Capnocytophaga + dog bite resolves correctly
+  [/\bbite\s*wound|\b(?:dog|cat|human|animal)\s*bite\b/i, "bites",     {}],
+  [/\bmastit|\bbreast\s*abscess\b/i,             "mastitis",           {}],
+  [/\bssi\b|surgical\s*site\s*infect|wound\s*infect/i, "ssi",          {}],
+  [/\bmediastinit/i,                             "mediastinitis",      {}],
   [/\bcellulitis\b/i,                            "cellulitis",         {}],
-  [/\bnec(?:rotizing)?\s*(?:fasc|sti)\b|\bnsti\b/i, "necfasc",         { severe:true }],
+  [/\bpurulent\s*ssti\b|\bcutaneous\s*abscess\b|\bskin\s*abscess\b|\bfuruncle\b|\bcarbuncle\b|\bboil\b/i, "purulent", {}],
+  [/\bnec(?:rotizing)?\s*(?:fasc|sti|soft-?tissue)|\bnsti\b|\bnf\b(?![a-z])/i, "necfasc", { severe:true }],
   [/\bdfi\b|\bdiabetic\s*foot/i,                 "dfi",                {}],
-  [/\bosteo(?:myelitis)?\b/i,                    "osteo",              {}],
   [/\bpji\b|\bprosthetic\s*joint/i,              "pji",                {}],
-  [/\bseptic\s*arthritis\b/i,                    "septic-arthritis",   {}],
+  [/\bseptic\s*arthritis\b|\bnative\s*joint\s*infect/i, "septic-arthritis", {}],
+  [/\bosteo(?:myelitis)?\b/i,                    "osteo",              {}],
+
+  /* === CNS === */
+  [/\bventriculit/i,                             "ventriculitis",      {}],
+  [/\bpost-?(?:nsx|neurosurg)|healthcare-?associated\s*meningitis\b|nosocomial\s*meningitis\b|post-?neurosurgical\s*meningitis\b/i, "post-nsx-meningitis", {}],
+  [/\bcavernous\s*sinus\s*thromb|\bseptic\s*cavernous/i, "cavernous-thromb", {}],
+  [/\bcsf\s*(?:shunt|drain)|\bshunt\s*infect|\bvp\s*shunt|\bevd\s*infect/i, "shunt-infection", {}],
+  [/\bneuroborrelios|neurosyphilis|\blyme\s*meningit|\btabes\s*dorsalis\b/i, "neuro-lyme-syphilis", {}],
+  [/\bbrain\s*abscess\b|cerebral\s*abscess\b/i,  "brainabscess",       {}],
+  [/\bepidural\s*abscess\b|spinal\s*epidural\s*absc/i, "epidural",     {}],
   [/\bmeningitis\b/i,                            "meningitis",         {}],
-  [/\bbrain\s*abscess\b/i,                       "brainabscess",       {}],
-  [/\bc[\.\s-]*diff(?:icile)?\b|\bcdi\b/i,       "cdiff",              {}],
+
+  /* === Toxin-mediated & GI === */
+  [/\bc[\.\s-]*diff(?:icile)?\b|\bcdi\b(?![a-z])|clostridioides\s*difficile|clostridium\s*difficile/i, "cdiff", {}],
+  [/\bgas\s*gangrene\b|clostridial\s*myonecros/i,"gas-gangrene",       { severe:true }],
+  [/\btetanus\b/i,                               "tetanus",            {}],
+  [/\bbotulism\b/i,                              "botulism",           {}],
+  [/\benteric\s*fever\b|\btyphoid\b|\bparatyphoid\b/i, "enteric-fever", {}],
+  [/\bsevere\s*(?:bacterial\s*)?gastroenterit|severe\s*diarrhea\b|invasive\s*diarrhea\b|\bshigellos|\bsalmonellos|invasive\s*campylobacter/i, "severe-gastroenteritis", {}],
+
+  /* === Immunocompromised host === */
+  [/\bcandidem|\bcandida\s*(?:bsi|bacterem|bloodstream)/i, "candidemia", {}],
+  [/\bnocardios|\bnocardia\b/i,                  "nocardia",           {}],
+  [/\blisterios|\blisteria\b/i,                  "listeria",           {}],
+  [/\bsot\s*infect|solid-?organ\s*transplant|post-?transplant\s*infect|infection\s+in\s+(?:the\s+)?(?:solid-?organ\s+)?transplant/i, "sot-infection", {}],
+  [/\bbiologic[s]?\s*(?:infect|therapy|immunotherapy)|targeted\s*immunotherapy|infection\s+on\s+biologic|\btnf\s*(?:inhibitor|alpha)|jak\s*inhibitor\s*infect/i, "biologic-infection", {}],
+  [/\bcgd\b|chronic\s*granulomatous\s*disease|defined\s*immune\s*defect|immune\s*defect.{0,20}pathogen|pathogen\s*pattern/i, "cgd-defect", {}],
+
+  /* === Generic fallbacks (last) === */
   [/\bsepsis\b/i,                                "sepsis",             {}],  // generic fallback
 ];
 
