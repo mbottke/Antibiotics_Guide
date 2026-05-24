@@ -33,6 +33,8 @@ import { MonitoringBlock } from "./MonitoringBlock.jsx";
 import { ResearchBlock } from "./ResearchBlock.jsx";
 import { RegionalResistanceBlock } from "./RegionalResistanceBlock.jsx";
 import { getRegionalForSyndrome } from "../data/regionalResistance.js";
+import { AntibiogramBlock } from "./AntibiogramBlock.jsx";
+import { SYNDROMES } from "../data/syndromes.js";
 import { NovelAgentsBlock } from "./NovelAgentsBlock.jsx";
 import { getNovelForSyndrome } from "../data/novelAgents.js";
 import { SurgeProtocolsBlock } from "./SurgeProtocolsBlock.jsx";
@@ -290,7 +292,7 @@ function RefinementRow({ idx, step, onDrug }) {
 }
 
 /* ---------- the canvas itself ---------- */
-function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite }) {
+function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite, antibiogram, onOpenAntibiogramManager }) {
   const ans = useMemo(() => composeAnswer(caseState), [caseState]);
   const [copied, setCopied] = useState(false);
 
@@ -479,6 +481,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
     _objections && _objections.length > 0 && { id: "ans-objections", label: "Challenge" },
     getSyndromeDuration(s.id) && { id: "ans-duration",   label: "Duration" },
     getSyndromeMonitoring(s.id) && { id: "ans-monitoring", label: "Monitor" },
+    antibiogram               && { id: "ans-antibiogram", label: "Local %S" },
     _regional.length > 0      && { id: "ans-regional",   label: "Regional" },
     _novel.length > 0         && { id: "ans-novel",      label: "Novel" },
     _surgeTier1.length > 0    && { id: "ans-surge",      label: "Surge" },
@@ -833,7 +836,18 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
       </div>
       {/* PROMOTED depth layers (Phase H + I) — drive the empiric choice
           when resistance / novel-agent context applies, so they render
-          above Research + reference layers. */}
+          above Research + reference layers. Phase E adds the
+          institution-specific overlay ABOVE the regional narrative so
+          the actionable local %S shows first. */}
+      {antibiogram && (
+        <div id="ans-antibiogram" style={{ scrollMarginTop: 96 }}>
+          <AntibiogramBlock
+            antibiogram={antibiogram}
+            syndrome={s}
+            onOpenManager={onOpenAntibiogramManager}
+          />
+        </div>
+      )}
       <div id="ans-regional" style={{ scrollMarginTop: 96 }}>
         <RegionalResistanceBlock patterns={_regional} />
       </div>

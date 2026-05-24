@@ -16,6 +16,8 @@ import { PatientContextBar, DrugCard, OrgCard, RegimenCard, TrialCard, RapidDxTi
 import { ClassChip, TermChip, renderRx, renderGloss, renderRich } from "./components/rich-text";
 import { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer } from "./components/primitives";
 import { BedsideShell } from "./components/BedsideShell";
+import { AntibiogramManager } from "./components/AntibiogramManager";
+import { getSeedAntibiograms } from "./data/antibiograms/index.js";
 import { SurfaceBar } from "./components/SurfaceBar";
 import { SectionNav } from "./components/SectionNav";
 import { OutpatientShell } from "./components/OutpatientShell";
@@ -123,6 +125,16 @@ export default function InpatientAbxGuide() {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [cmdQ, setCmdQ] = useState("");
   const [cmdIdx, setCmdIdx] = useState(0);
+  /* Phase E3 — antibiogram registry + manager modal. Seeds with the
+     hardcoded ILH antibiogram; E4 will swap the in-memory list for a
+     localStorage-backed store with user uploads. */
+  const [antibiograms, setAntibiograms] = useState(() => getSeedAntibiograms());
+  const [activeAntibiogramId, setActiveAntibiogramId] = useState(() => {
+    const seeds = getSeedAntibiograms();
+    return seeds.length > 0 ? seeds[0].id : null;
+  });
+  const [antibiogramManagerOpen, setAntibiogramManagerOpen] = useState(false);
+  const activeAntibiogram = antibiograms.find(a => a.id === activeAntibiogramId) || null;
   const [openSyn, setOpenSyn] = useState(_hashState.openSyn || "sepsis");
   const [synCat, setSynCat] = useState("all");
   const [selSyn, setSelSyn] = useState(_hashState.openSyn || "sepsis");   // B2 regimen-builder selection
@@ -546,6 +558,26 @@ export default function InpatientAbxGuide() {
           onOrg={openOrgDrawer}
           onCite={openTrial}
           onOpenPalette={() => { setCmdOpen(true); setCmdQ(""); setCmdIdx(0); }}
+          antibiogram={activeAntibiogram}
+          onOpenAntibiogramManager={() => setAntibiogramManagerOpen(true)}
+        />
+        <AntibiogramManager
+          open={antibiogramManagerOpen}
+          onClose={() => setAntibiogramManagerOpen(false)}
+          antibiograms={antibiograms}
+          activeId={activeAntibiogramId}
+          onSelect={(id) => setActiveAntibiogramId(id)}
+          onSave={(ab) => {
+            setAntibiograms(list => [...list.filter(x => x.id !== ab.id), ab]);
+            setActiveAntibiogramId(ab.id);
+          }}
+          onDelete={(id) => {
+            setAntibiograms(list => list.filter(x => x.id !== id));
+            if(activeAntibiogramId === id) {
+              const remaining = antibiograms.filter(x => x.id !== id);
+              setActiveAntibiogramId(remaining.length ? remaining[0].id : null);
+            }
+          }}
         />
         {cmdPaletteEl}
         {drawerEl}
