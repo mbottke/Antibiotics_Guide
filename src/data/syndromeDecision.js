@@ -1914,8 +1914,14 @@ const SYNDROME_DECISION = {
       ],
       extendIf: [
         "Persistent or new abscess on imaging",
-        { text: "**Immunocompromised host** — extend per pathogen + response",
-          matchCtx: { mrsaRisk: true } },
+        /* "Immunocompromised host" — left without matchCtx because the
+           case parser does not yet capture an immune-status field
+           (neutropenia, transplant, biologic, chronic steroid). Using
+           mrsaRisk / esblRisk as proxies would be clinically misleading
+           (resistance-history flags ≠ immune status). Bullet stays
+           visible at default emphasis; a future `immunocompromised`
+           ctx field would enable proper elevation without text change. */
+        "**Immunocompromised host** — extend per pathogen + response",
         "Nocardia / Listeria / fungal pathogen — extend per organism",
         "Hardware retained — suppression considered",
       ],
@@ -1932,8 +1938,7 @@ const SYNDROME_DECISION = {
         { sev: "trigger", what: "**MRI at 1, 2, 4, 8 weeks** — track resolution",
           why: "Imaging-driven duration; expanding abscess triggers re-aspiration + extended therapy" },
         { sev: "trigger", what: "**Workup HIV / transplant / steroid** for Listeria / Nocardia risk",
-          why: "Immunocompromise substrate drives empiric expansion + extended duration",
-          matchCtx: { mrsaRisk: true } },
+          why: "Immunocompromise substrate drives empiric expansion + extended duration; ask explicitly — substrate not captured by ctx" },
         { sev: "trigger", what: "**Anticonvulsant prophylaxis** for cortical / large abscess",
           why: "~30% develop seizures; levetiracetam typical" },
         { sev: "consider", what: "Steroids only for mass effect / herniation",
