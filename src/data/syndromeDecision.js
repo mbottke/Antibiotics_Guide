@@ -6995,6 +6995,10 @@ const SYNDROME_DECISION = {
           why: "Evidence weak; reserve for clostridial myonecrosis; never delay surgery" },
       ],
     },
+    rationale: {
+      driver: "TSS is superantigen-driven distributive shock — TSST-1 (S. aureus) and SpeA/SpeC (GAS) crosslink MHC-II to Vβ-TCR, triggering polyclonal T-cell activation and a cytokine storm. Multi-modal therapy is mandatory: source control (debride wound, remove tampon/packing, drain abscess) + a cidal anti-staph or anti-strep agent (vancomycin until MSSA confirmed; penicillin + cefazolin for GAS) + clindamycin 900 mg IV q8h to halt ribosomal toxin synthesis + IVIG 1 g/kg load then 0.5 g/kg × 2 d for confirmed streptococcal TSS to neutralize circulating superantigen. Aggressive fluid + vasopressor support and ICU admission round out the bundle.",
+      guideline: "ssti",
+      rejected: "Cidal monotherapy without clindamycin was deliberately rejected — β-lactams alone fail to suppress ongoing toxin production at the high inocula seen in TSS (the Eagle effect), and clindamycin's ribosomal block is the toxin-suppression rationale (IDSA 2014). IVIG for staphylococcal TSS was tempered: the mortality benefit established by Linnér (CID 2014) and Darenberg (CID 2003) is anchored to GAS-TSS only — no similar signal for S. aureus TSS, where source control and removal of the tampon/foreign body dominate." },
     research: {
       headline: "Source control mandatory; clindamycin for toxin suppression; IVIG mortality benefit limited to GAS-TSS.",
       trials: [
@@ -7082,6 +7086,10 @@ const SYNDROME_DECISION = {
           why: "Evidence weak / contested; NEVER delay surgery for HBO; adjunct only" },
       ],
     },
+    rationale: {
+      driver: "Gas gangrene is a surgical emergency — C. perfringens (or C. septicum after GI translocation) generates alpha-toxin (phospholipase C) and theta-toxin (perfringolysin O) that lyse muscle and vascular endothelium, producing the characteristic crepitant, anesthetic, necrotic limb with mortality > 90% if surgery is delayed. Therapy is multi-modal: emergent serial debridement to clean margins (the cure), high-dose penicillin G 4 MU IV q4h (cidal vs Clostridium), and clindamycin 900 mg IV q8h to halt ribosomal toxin synthesis at high inocula (the Eagle effect). C. septicum mandates colonoscopy on recovery — strong association with occult colon cancer.",
+      guideline: "ssti",
+      rejected: "Antibiotic-only or HBO-first management was deliberately rejected — the IDSA 2014 SSTI guideline anchors outcome to operative debridement within hours; antibiotics alone do not penetrate ischemic, gas-laden necrotic muscle. Hyperbaric oxygen is reserved as adjunct only where institutionally available without delay, and Brown (Surg Infect 2014) plus the IDSA 2014 panel agree HBO must never postpone surgery. Penicillin monotherapy without clindamycin was tempered: toxin production continues unless ribosomal synthesis is blocked." },
     research: {
       headline: "Surgery is the cure; mortality > 90% without; rapid debridement + penicillin + clindamycin; HBO contested.",
       trials: [
@@ -7164,6 +7172,10 @@ const SYNDROME_DECISION = {
           why: "Stimulus reduction reduces spasm frequency; supportive measure" },
       ],
     },
+    rationale: {
+      driver: "Tetanus is a toxin-mediated disease — C. tetani in a contaminated wound elaborates tetanospasmin, which is retrograde-transported to the spinal cord and cleaves synaptobrevin in inhibitory interneurons, abolishing GABA/glycine release and producing tonic spasms and autonomic storm. Therapy is multi-modal: human tetanus immune globulin 3000–6000 units IM (neutralizes circulating, unbound toxin only) + wound debridement (eradicates the organism and any spore reservoir) + metronidazole 500 mg IV q6h × 7–10 d + ICU-level benzodiazepine + magnesium for spasm and autonomic control. The disease does NOT confer immunity, so an active Tdap series is mandatory at presentation.",
+      guideline: "cdc_abx",
+      rejected: "Penicillin G as the antibacterial backbone was deliberately rejected — penicillin is a GABA-A receptor antagonist at high doses and may worsen tetanic spasms; Ahmadsyah (BMJ 1985) showed metronidazole produced shorter ICU stay and lower mortality, and WHO now endorses metronidazole as preferred. Relying on TIG or active vaccination alone was rejected: TIG cannot reach toxin already internalized at the synapse, and vaccination produces antibody too slowly for the acute episode — only the multi-modal bundle changes outcome." },
     research: {
       headline: "Tetanus IG + metronidazole + wound debridement + ICU; lifetime vaccination required (disease does NOT confer immunity).",
       trials: [
@@ -7250,6 +7262,10 @@ const SYNDROME_DECISION = {
           why: "Toxin-bound nerve terminals require regeneration; supportive care long-haul" },
       ],
     },
+    rationale: {
+      driver: "Botulism is a neurotoxin disease, not a bacterial infection in the conventional sense — C. botulinum toxin cleaves SNARE proteins (SNAP-25, syntaxin, synaptobrevin) at the presynaptic cholinergic terminal, blocking acetylcholine release and producing symmetric, descending flaccid paralysis culminating in respiratory failure. The intervention is multi-modal: early heptavalent equine BAT antitoxin (obtain via CDC; neutralizes circulating, unbound toxin only) + ICU with serial VC/NIF monitoring and elective intubation + supportive care over weeks. Antibiotics are reserved for wound botulism only — penicillin G or metronidazole + debridement — because lysing organisms in the foodborne/infant form releases more toxin.",
+      guideline: "cdc_abx",
+      rejected: "Empiric antibiotics in foodborne or infant botulism were deliberately rejected — antibiotic-induced organism lysis releases additional intraluminal toxin and worsens disease; the CDC reserves antibacterials for wound botulism after debridement. Aminoglycosides and clindamycin are contraindicated outright in any botulism subtype: both potentiate the presynaptic neuromuscular block and can precipitate respiratory failure (Santos CID 1981, Sobel CID 2005). Waiting for laboratory confirmation before contacting CDC for BAT was rejected — earlier antitoxin is more effective because it cannot reverse toxin already internalized." },
     research: {
       headline: "Antitoxin neutralizes circulating toxin only; aminoglycosides + clindamycin contraindicated (neuromuscular block).",
       trials: [
@@ -7335,6 +7351,10 @@ const SYNDROME_DECISION = {
           why: "Ty21a oral or ViCPS injectable; recommended for endemic-area travel" },
       ],
     },
+    rationale: {
+      driver: "Enteric fever is travel-acquired Salmonella Typhi or Paratyphi — the empiric backbone is ceftriaxone 2 g IV q24h or azithromycin 1 g PO daily (10–14 d), reflecting WHO 2018 first-line. Fluoroquinolones are deliberately avoided empirically in any S. Asian exposure because cipro and nalidixic-acid resistance now exceeds 90% across Pakistan, India, and Bangladesh, and XDR strains require carbapenem (meropenem) plus azithromycin. Severe disease (typhoid encephalopathy, shock) gets adjunctive dexamethasone — the Hoffman regimen (3 mg/kg load then 1 mg/kg q6h × 8 doses) cut mortality from 56% to 10% (Punjabi/Hoffman NEJM 1984). Chronic carriers need 4–6 wk cipro/amox-clav + cholecystectomy if stones.",
+      guideline: "hoffman",
+      rejected: "Empiric fluoroquinolone monotherapy was deliberately rejected for any returning S. Asian traveler — global resistance has eroded the historical first-line role of cipro/ofloxacin, and WHO + CDC pivoted to ceftriaxone/azithromycin. Empiric carbapenem for routine uncomplicated enteric fever was tempered: meropenem is reserved for XDR strains or hemodynamic instability (Trivedi Lancet ID 2020); blanket use would accelerate carbapenem resistance and lose the activity needed for true XDR cases." },
     research: {
       headline: "Ceftriaxone + azithro first-line; FQ resistance > 90% in S. Asia; dexamethasone reduces mortality in severe.",
       trials: [
@@ -7433,6 +7453,10 @@ const SYNDROME_DECISION = {
           why: "Prolongs toxin exposure + bacterial contact; supportive in non-invasive only" },
       ],
     },
+    rationale: {
+      driver: "Most acute bacterial gastroenteritis is self-limited and antibiotics are NOT indicated — hydration is the core treatment, and reflexive empiric antibiotics for non-invasive diarrhea prolong carriage, accelerate resistance, and provide minimal symptom benefit (IDSA 2017, Shane). Treatment is reserved for specific substrates: all symptomatic Shigella (azithromycin × 3 d), severe or immunocompromised Campylobacter (azithromycin × 3–5 d, FQs avoided given > 50% global resistance), severe or immunocompromised non-typhoidal Salmonella (ceftriaxone/cipro 7–14 d, longer in HIV with focal disease), and cholera (single-dose doxycycline + aggressive ORS). Bloody diarrhea must clear EHEC before any antibiotic decision.",
+      guideline: "stew",
+      rejected: "Empiric antibiotics in suspected or confirmed EHEC / STEC were deliberately rejected outright — Wong (NEJM 2000) showed ~10× higher HUS risk in pediatric EHEC + antibiotic exposure via Shiga-toxin release on bacterial lysis, and the contraindication holds firm in adults (Reuter Lancet ID 2023). Empiric FQs for suspected Campylobacter were tempered: global ciprofloxacin resistance now exceeds 50% per Reller (CID 2019), so azithromycin is first-line. Routine treatment of non-typhoidal Salmonella in immunocompetent hosts was rejected — prolongs carriage without clinical benefit." },
     research: {
       headline: "Most acute gastroenteritis is viral or self-limited; EHEC antibiotics CONTRAINDICATED (HUS risk); selective use.",
       trials: [
@@ -7529,6 +7553,10 @@ const SYNDROME_DECISION = {
           why: "High-acuity substrate; pressor support + ventilation common" },
       ],
     },
+    rationale: {
+      driver: "Typhlitis (neutropenic enterocolitis) is a translocation disease driven by mucosal injury in profound neutropenia (ANC < 500) — chemotherapy-induced cecal/ileal breach lets enteric flora seed the bowel wall, producing polymicrobial transmural inflammation with mortality 30–50% in severe disease. Therapy combines broad anti-pseudomonal + anaerobic + Gram-positive cover (pip-tazo or meropenem, plus vancomycin if MRSA risk) per the IDSA 2018 neutropenic-fever framework, bowel rest with NG decompression, and CT abdomen at presentation to identify pneumatosis or perforation. Persistent fever > 96 h triggers empiric mold-active antifungal. Surgery is reserved for perforation or non-response; ANC recovery is the inflection point.",
+      guideline: "fn",
+      rejected: "Reflexive early laparotomy in non-perforated typhlitis was deliberately rejected — operating into profoundly neutropenic, edematous bowel carries prohibitive mortality, and Bow (CID 1998) plus the IDSA 2018 framework favor conservative management until ANC recovers, reserving surgery for perforation or non-response. Colonoscopy in active severe disease was tempered: the inflamed cecal wall is at high perforation risk; testing is deferred until ANC recovery. Empiric antifungal at admission was rejected — IDSA reserves mold-active therapy for persistent fever > 96 h on broad antibacterial coverage." },
     research: {
       headline: "Broad anti-pseudomonal + ANC recovery + surgical for perforation; CT abdomen first; empiric antifungal for persistent fever.",
       trials: [
