@@ -1795,6 +1795,14 @@ const SYNDROME_DECISION = {
           why: "Flap / graft / negative-pressure dressing — multi-stage closure planning" },
       ],
     },
+    objections: [
+      { q: "Why rush to OR — can't antibiotics buy time?",
+        a: "Antibiotics alone cannot penetrate non-perfused necrotic tissue; surgical debridement within 12–24 h is the single strongest predictor of survival. Mishra 2017 and other cohorts show mortality doubles with each delay tier. Antibiotics + clindamycin for toxin suppression are essential adjuncts but never a substitute for source control [cite:ssti]." },
+      { q: "Why add clindamycin if pip-tazo already covers strep?",
+        a: "Clindamycin is the Eagle-effect agent: it suppresses ribosomal exotoxin and M-protein production at stationary phase when β-lactam binding is reduced. Continue until toxin-producing group A strep or clostridia are excluded by culture. β-lactam alone treats the bug but not the toxin driving shock and tissue loss [cite:ssti]." },
+      { q: "Why IVIG only for streptococcal TSS, not all nec fasc?",
+        a: "IVIG neutralizes superantigens specific to group A strep TSS; the evidence base (observational + small RCTs) does not extend to polymicrobial type I or Vibrio disease. Reserve for GAS-confirmed or strongly suspected TSS with shock; institutional availability and cost preclude routine empiric use [cite:ssti]." },
+    ],
     research: {
       headline: "Surgery drives outcome — antibiotic alone fails; clindamycin for toxin suppression; IVIG benefit GAS-specific.",
       trials: [
@@ -1973,6 +1981,14 @@ const SYNDROME_DECISION = {
           why: "Improves healing rates + reduces secondary procedures" },
       ],
     },
+    objections: [
+      { q: "Why open and drain rather than escalating antibiotics?",
+        a: "Surgical site infections are source-control problems; antibiotics fail when pus and devitalized tissue remain. Open the wound, drain, and debride — then antibiotics treat surrounding cellulitis, not the cavity. STOP-IT showed ~4 days post-adequate-source-control suffices for intra-abdominal SSI without escalating spectrum [cite:stopit]." },
+      { q: "Why only 4–7 days after drainage — surgeons want 10–14?",
+        a: "STOP-IT (n=518) randomized fixed ~4 d vs symptom-guided therapy after adequate source control and found no difference in recurrence, SSI, or death. Longer courses select for resistance and Clostridioides difficile without outcome benefit. Anchor duration to source control adequacy, not arbitrary tradition [cite:stopit]." },
+      { q: "Why not broad gram-negative cover for every wound infection?",
+        a: "Superficial SSI after clean surgery is staph/strep-dominant; gram-negatives matter only after GI/GU/biliary procedures or in immunocompromised hosts. Reflexive carbapenem use drives resistance. Match spectrum to surgical site and tailor on culture per stewardship principles [cite:stew]." },
+    ],
     research: {
       headline: "Drainage + STOP-IT-aligned 4 d for organ-space; hardware-retained needs rifampin; pathogen + depth-driven choice.",
       trials: [
@@ -2052,6 +2068,14 @@ const SYNDROME_DECISION = {
           why: "Adjunctive only; never delay surgery; institutional availability varies" },
       ],
     },
+    objections: [
+      { q: "Why emergency OR — can broad antibiotics stabilize first?",
+        a: "Fournier gangrene is necrotizing fasciitis of perineum; every hour of delay to debridement increases mortality. Resuscitate in parallel, not sequentially — antibiotics + surgery within 12 h. Polymicrobial gut/skin flora seeded into fascial planes cannot be cleared by antibiotics alone [cite:ssti]." },
+      { q: "Why pip-tazo + vancomycin + clindamycin — isn't that overkill?",
+        a: "Polymicrobial type I infection requires gram-negative, anaerobic, MRSA, and toxin-suppressive coverage simultaneously. Clindamycin adds ribosomal toxin suppression for streptococcal/clostridial components. De-escalate based on operative cultures within 48–72 h; empiric overlap is appropriate until pathogens identified [cite:ssti]." },
+      { q: "Why diverting colostomy for some patients?",
+        a: "Fecal contamination of a fresh perineal wound impairs healing and reseeds infection. Selective diversion is considered for extensive perianal/perineal involvement, sphincter destruction, or repeated soiling. Decision is surgical and case-specific; not all patients require it but threshold should be low in extensive disease [cite:mono]." },
+    ],
     research: {
       headline: "Mortality 20–40%; emergent serial debridement; broad polymicrobial + clindamycin; diabetic substrate.",
       trials: [
@@ -6019,6 +6043,14 @@ const SYNDROME_DECISION = {
           why: "IDSA 2014 + outcome data — drainage alone sufficient; avoids selection pressure" },
       ],
     },
+    objections: [
+      { q: "Why I&D alone for a small abscess — no antibiotics?",
+        a: "For uncomplicated abscess <2 cm without surrounding cellulitis or systemic signs in an immunocompetent host, incision and drainage alone is sufficient. IDSA 2014 endorses this; antibiotics add marginal benefit and select for resistance. Reserve TMP-SMX or doxycycline for larger, multiple, or systemic disease [cite:ssti]." },
+      { q: "Then why did Talan show TMP-SMX improved cure?",
+        a: "Talan NEJM 2016 (n=1,265) found TMP-SMX improved cure ~7% in drained abscesses overall, but absolute benefit was small and concentrated in larger lesions or surrounding cellulitis. For truly small isolated abscesses the number-needed-to-treat is high. Shared decision-making and stewardship still apply [cite:ssti]." },
+      { q: "Why not clindamycin — it covers MRSA too?",
+        a: "Clindamycin has rising MRSA resistance regionally (often 20–40%) and a high Clostridioides difficile risk. TMP-SMX and doxycycline retain reliable activity against community MRSA and have favorable safety profiles. Use clindamycin only when inducible resistance excluded and alternatives contraindicated [cite:ssti]." },
+    ],
     research: {
       headline: "I&D primary; antibiotics adjunct only for cellulitis / systemic / immunocompromised; Talan 2016 supports TMP-SMX.",
       trials: [
@@ -6253,6 +6285,14 @@ const SYNDROME_DECISION = {
           why: "Accelerates granulation; complement to debridement + offloading" },
       ],
     },
+    objections: [
+      { q: "Why no antibiotics for a colonized pressure ulcer?",
+        a: "All chronic wounds are colonized; positive surface swabs reflect biofilm, not infection. Treat only with cellulitis, systemic signs, or deep extension (osteomyelitis). Antibiotics for colonization drive resistance and C. difficile without improving healing. Local wound care, offloading, and debridement are the interventions that matter [cite:stew]." },
+      { q: "Why not just culture and treat what grows?",
+        a: "Surface swabs grow normal skin and colonizing flora; deep tissue biopsy after debridement is the meaningful sample. Treating swab organisms leads to overtreatment and missed pathogens. Reserve cultures for clinically infected wounds and obtain them appropriately — deep tissue or bone, not surface [cite:ssti]." },
+      { q: "Why is offloading more important than antibiotics?",
+        a: "Pressure ulcers result from sustained tissue ischemia; without pressure relief, no antibiotic course will heal them. Offloading, nutrition, moisture control, and debridement address the cause. Antibiotics are adjunctive for documented infection only, not a substitute for the wound care bundle [cite:mono]." },
+    ],
     research: {
       headline: "Colonization is universal in stage 3/4 ulcers; antibiotics for invasive infection only; offloading + nutrition drive cure.",
       trials: [
@@ -6332,6 +6372,14 @@ const SYNDROME_DECISION = {
           why: "Retained FB drives persistent infection; X-ray or US" },
       ],
     },
+    objections: [
+      { q: "Why amoxicillin-clavulanate for every bite — not just cephalexin?",
+        a: "Bites are polymicrobial: oral anaerobes plus Pasteurella multocida (cats/dogs) and Eikenella corrodens (humans). Cephalexin misses Pasteurella and Eikenella; amox-clav covers both plus anaerobes in one agent. IDSA 2014 endorses amox-clav as the empiric standard for prophylaxis and established infection [cite:ssti]." },
+      { q: "Why prophylaxis for some bites but not others?",
+        a: "Prophylaxis is indicated for cat bites (deep puncture, high Pasteurella rate), hand/face/genital bites, bites with crush injury, immunocompromised hosts, and bites near prosthetic joints. Low-risk superficial dog bites in healthy hosts may be observed with wound care alone. Tetanus and rabies assessment separate from antibiotic decision [cite:ssti]." },
+      { q: "What if the patient is penicillin-allergic?",
+        a: "Doxycycline plus metronidazole, or moxifloxacin monotherapy, cover Pasteurella, Eikenella, and oral anaerobes. Avoid cephalexin plus metronidazole (misses Pasteurella reliably). Clarify allergy history — many labeled allergies tolerate cephalosporins; true IgE-mediated penicillin allergy warrants the alternatives above [cite:ssti]." },
+    ],
     research: {
       headline: "Amox-clav workhorse covers Pasteurella + Eikenella + anaerobes; tetanus + rabies risk assessment + hand surgery for deep.",
       trials: [
@@ -6413,6 +6461,14 @@ const SYNDROME_DECISION = {
           why: "Improves drainage + continuation of breastfeeding; reduces recurrence" },
       ],
     },
+    objections: [
+      { q: "Why continue breastfeeding through mastitis — won't it harm baby?",
+        a: "ABM 2022 and IDSA endorse continued breastfeeding or pumping; milk stasis perpetuates inflammation and infection. Maternal flora is already in the infant's environment, and the antibiotics used (dicloxacillin, cephalexin, clindamycin) are compatible with lactation. Stopping breastfeeding worsens mastitis and risks abscess [cite:ssti]." },
+      { q: "Why dicloxacillin — not broader cover for MRSA?",
+        a: "Lactational mastitis is overwhelmingly methicillin-susceptible Staphylococcus aureus; dicloxacillin or cephalexin is first-line. Add MRSA cover (TMP-SMX, clindamycin) only for prior MRSA, no response at 48 h, abscess, or high-prevalence settings. Reflexive MRSA cover overtreats most cases [cite:ssti]." },
+      { q: "Why image at 48–72 h if no improvement?",
+        a: "Persistent fever or tenderness beyond 48–72 h of appropriate antibiotics signals abscess (10% of mastitis), requiring ultrasound-guided drainage. Continuing antibiotics without addressing collected pus is a stewardship and outcome failure. Image early when trajectory disappoints; drain when abscess confirmed [cite:mono]." },
+    ],
     research: {
       headline: "Continue breastfeeding (safe for infant); aspirate abscess before surgical I&D; rule out IBC if non-response.",
       trials: [
@@ -6497,6 +6553,14 @@ const SYNDROME_DECISION = {
           why: "Prevention of recurrence; addressable at every visit" },
       ],
     },
+    objections: [
+      { q: "Why no MRSA cover for erysipelas?",
+        a: "Erysipelas is a sharply demarcated dermal/lymphatic infection caused almost exclusively by beta-hemolytic streptococci. Penicillin or cefazolin is curative; MRSA cover adds toxicity and resistance pressure without benefit. Pallin 2013 confirmed adding TMP-SMX did not improve cure in non-purulent SSTI [cite:pallin]." },
+      { q: "Why only 5 days — surgeons and primary care expect 10?",
+        a: "Hepburn 2004 and Tansarli 2018 meta-analysis demonstrate 5-day courses are non-inferior to 10-day courses in uncomplicated SSTI with clinical response. IDSA 2014 endorses the short course. Extend only for slow response, extensive involvement, or bacteremia [cite:ssti]." },
+      { q: "Why treat tinea pedis when the infection is on the leg?",
+        a: "Interdigital fissures from tinea pedis are the dominant portal of entry for streptococcal leg erysipelas. Untreated tinea drives recurrence; topical antifungal is a cheap, high-yield intervention. PATCH trials further support prophylactic penicillin in recurrent cases with addressable substrate [cite:ssti]." },
+    ],
     research: {
       headline: "PATCH I + II established PCN prophylaxis reduces recurrence ~45% in lymphedema substrate.",
       trials: [
@@ -6580,6 +6644,14 @@ const SYNDROME_DECISION = {
           why: "Modifiable substrate; same as erysipelas / cellulitis" },
       ],
     },
+    objections: [
+      { q: "Why no broad cover for acute streptococcal lymphangitis?",
+        a: "Acute lymphangitis with proximal red streaking is overwhelmingly group A streptococcal; penicillin or cefazolin is curative. Reflexive vancomycin or pip-tazo adds toxicity, cost, and resistance pressure without benefit. Reserve broader cover for purulent component, immunocompromise, or atypical exposure (nodular sporotrichoid pattern) [cite:ssti]." },
+      { q: "Why investigate for entry portal even after clinical resolution?",
+        a: "Tinea pedis, dermatitis, and venous stasis breaks are common portals; untreated, they drive recurrence. Treating the underlying substrate is the durable intervention. Mark and document the portal; address it as part of discharge planning, not as an afterthought [cite:ssti]." },
+      { q: "Why consider nontuberculous mycobacteria or sporotrichosis?",
+        a: "Nodular ascending lymphangitis (sporotrichoid pattern) with gardening, aquarium, or fish-handling exposure suggests Sporothrix, Mycobacterium marinum, or Nocardia — not strep. Treatment differs entirely (itraconazole, doxycycline, TMP-SMX). History reframes the diagnosis when classic acute strep pattern doesn't fit [cite:mono]." },
+    ],
     research: {
       headline: "Strep-dominant acute lymphangitis; nodular pattern → sporotrichoid workup (sporothrix, nocardia, mycobacterium marinum).",
       trials: [
@@ -6658,6 +6730,14 @@ const SYNDROME_DECISION = {
           why: "Common comorbidities; addressable" },
       ],
     },
+    objections: [
+      { q: "Why combination clindamycin plus rifampin for 10–12 weeks?",
+        a: "Hidradenitis suppurativa is an immune-mediated follicular disease, not a primary infection; Gener and subsequent cohorts show clindamycin-rifampin combination reduces lesion counts and induces remission over 10–12 weeks. Single-agent or short courses underperform. Pair with surgical and biologic therapy (adalimumab) for moderate-severe disease [cite:mono]." },
+      { q: "Why not just incise and drain every flare?",
+        a: "Simple I&D provides short-term relief but high recurrence; definitive surgical excision or deroofing of sinus tracts is the durable answer for Hurley II–III disease. Antibiotics treat acute infection and suppress inflammation, but cure requires surgery plus immunomodulation. Multidisciplinary care beats serial drainage [cite:mono]." },
+      { q: "Why screen for smoking, obesity, and metabolic syndrome?",
+        a: "Smoking and obesity are strongly associated with hidradenitis severity and recurrence; weight reduction and smoking cessation reduce disease activity. Metabolic syndrome and depression co-cluster and worsen outcomes. Disease control requires addressing modifiable comorbidities, not just antibiotic prescribing [cite:mono]." },
+    ],
     research: {
       headline: "Disease-modifying combination (clinda + rifampin) + adalimumab for moderate-severe; smoking + obesity strongest risk factors.",
       trials: [
@@ -6736,6 +6816,14 @@ const SYNDROME_DECISION = {
           why: "Wound healing is protein + glycemic-dependent; modifiable" },
       ],
     },
+    objections: [
+      { q: "Why no antibiotics for a clean-looking diabetic foot ulcer?",
+        a: "IWGDF/IDSA 2023 defines infection by clinical criteria — purulence, two or more inflammatory signs, deep extension. A clean ulcer without these is colonization, not infection. Antibiotics for colonization drive resistance and C. difficile while offloading, debridement, and glycemic control heal the wound [cite:iwgdf_idsa]." },
+      { q: "Why probe-to-bone matters more than imaging?",
+        a: "Positive probe-to-bone in a diabetic foot ulcer has high positive predictive value for osteomyelitis and shifts duration from days to weeks. MRI confirms when uncertain. Bedside probe is cheap, immediate, and changes management; pair with deep tissue or bone culture, not surface swabs [cite:dfi]." },
+      { q: "Why is offloading equal in importance to antibiotics?",
+        a: "Pressure repeatedly applied to a neuropathic ulcer prevents healing regardless of antibiotic regimen. Total contact casting or removable cast walker offloads load and accelerates closure. Antibiotic stewardship without offloading is failure; treat the infection AND the cause [cite:iwgdf_idsa]." },
+    ],
     research: {
       headline: "Colonization universal; antibiotics for invasive only; compression (venous) + revascularization (arterial) drive cure.",
       trials: [
@@ -8222,6 +8310,14 @@ const SYNDROME_DECISION = {
           why: "Long-course IV + extended hospitalization; multi-modal recovery" },
       ],
     },
+    objections: [
+      { q: "Why surgical debridement before broadening antibiotics?",
+        a: "Post-sternotomy mediastinitis is a deep space infection with retained hardware and devitalized bone; antibiotics cannot sterilize until source control achieved. Debridement, wire removal where appropriate, and negative-pressure wound therapy are foundational. Antibiotics treat surrounding tissue and bacteremia, not the cavity [cite:ssti]." },
+      { q: "Why empiric vancomycin plus gram-negative cover?",
+        a: "Post-cardiac-surgery mediastinitis is staph-dominant (including MRSA), but enteric gram-negatives and Pseudomonas occur in 15–30%, especially with prolonged ICU exposure. Vancomycin plus cefepime or pip-tazo covers empirically; de-escalate on operative cultures within 48–72 h per stewardship [cite:stew]." },
+      { q: "Why 4–6 weeks of IV therapy after debridement?",
+        a: "Sternal osteomyelitis with retained wires or unstable bone requires prolonged courses analogous to native bone osteomyelitis. Duration shortens with complete debridement and clean margins; extends with retained hardware or persistent collection. Anchor to source control adequacy and inflammatory marker trend [cite:mono]." },
+    ],
     research: {
       headline: "Surgical debridement drives outcome; cardiothoracic + ENT + ID coordination; NPWT + sternal osteo surveillance.",
       trials: [
@@ -9354,6 +9450,14 @@ const SYNDROME_DECISION = {
           why: "30–50% of abscesses associated with fistula; planned definitive surgery" },
       ],
     },
+    objections: [
+      { q: "Why drainage alone for simple perianal abscess?",
+        a: "Sözener 2011 RCT showed antibiotics after adequate drainage did not reduce fistula formation or recurrence in immunocompetent patients. ASCRS endorses drainage-alone for simple disease without systemic signs, immunocompromise, or extensive cellulitis. Reflexive antibiotic prescribing adds resistance pressure without benefit [cite:mono]." },
+      { q: "When do antibiotics actually add value?",
+        a: "Add antibiotics for surrounding cellulitis, systemic inflammatory signs, immunocompromise (diabetes, neutropenia, HIV), valvular heart disease, or complex/recurrent disease. Cover enteric gram-negatives and anaerobes (amox-clav or metronidazole plus cephalosporin). Duration short (~5–7 d) after adequate drainage [cite:ssti]." },
+      { q: "Why pelvic MRI for recurrent or complex disease?",
+        a: "Recurrent perianal abscess raises concern for fistula-in-ano (30–50%) or Crohn disease; pelvic MRI maps tract anatomy and guides definitive surgery. Failure to investigate leads to repeated drainage cycles. Colorectal surgery referral is essential for complex, recurrent, or suspected IBD-related disease [cite:mono]." },
+    ],
     research: {
       headline: "Drainage alone for simple immunocompetent (ASCRS); IBD workup for recurrent; pelvic MRI for complex.",
       trials: [
