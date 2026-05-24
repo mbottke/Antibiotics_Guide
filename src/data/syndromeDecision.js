@@ -5266,6 +5266,10 @@ const SYNDROME_DECISION = {
           why: "Aspergillus or mucor can mimic bacterial abscess in immunocompromised" },
       ],
     },
+    rationale: {
+      driver: "Aspiration splits into two diseases — chemical pneumonitis (witnessed event, no fever / leukocytosis by 48 h) needs no antibiotics, while bacterial aspiration pneumonia is treated per CAP / HAP for the host substrate (ceftriaxone + azithromycin community; pip-tazo or cefepime for hospital-acquired). Anaerobic coverage is reserved for putrid sputum, poor dentition, or cavitary disease — Marik (NEJM 2001) and Mandell 2007 reframed the microbiology to oral streptococci + GNR rather than reflexive Bacteroides. Lung abscess runs 3–6 wk anchored to radiographic cavity resolution plus drainage when accessible.",
+      guideline: "cap",
+      rejected: "Routine empiric anaerobic coverage was deliberately rejected for non-cavitary hospital aspiration — Mandell IDSA 2007 and ATS / IDSA 2019 found anaerobes are not the dominant pathogen absent putrid sputum, poor dentition, or cavity. Reflexive clindamycin invites C. difficile + collateral damage without benefit, and antibiotics for pure chemical pneumonitis (no fever / leukocytosis by 48 h) drive selection pressure without changing outcome." },
     research: {
       headline: "Anaerobic coverage overstated for hospital aspiration; abscess driven by source control + cavity resolution.",
       trials: [
@@ -5361,6 +5365,10 @@ const SYNDROME_DECISION = {
           why: "Post-obstructive empyema from tumor / foreign body drives recurrence" },
       ],
     },
+    rationale: {
+      driver: "Empyema is a source-control disease — chest-tube drainage is the treatment and antibiotics are adjunctive. Empiric ampicillin-sulbactam or ceftriaxone covers community-acquired pleural infection (Strep milleri + oral anaerobes); pip-tazo or cefepime for hospital-acquired. Loculated empyema gets intrapleural tPA 10 mg + DNase 5 mg BID × 3 d per MIST-2 (NEJM 2011) — surgical referral fell from 39% to 16% with the combination. Duration is drainage-anchored (2–4 wk total) and tied to lung re-expansion plus clinical recovery, not a fixed calendar.",
+      guideline: "mist2",
+      rejected: "Streptokinase alone was deliberately rejected — MIST-1 (NEJM 2005, n=454) showed monotherapy fibrinolytic ineffective vs placebo; only the tPA + DNase combination of MIST-2 produces benefit, and neither agent alone is justified. Aminoglycosides are deliberately avoided for primary pleural therapy because activity is lost in the low-pH purulent space, and antibiotics alone without drainage fail in loculated or frank empyema." },
     research: {
       headline: "MIST-2 established intrapleural tPA + DNase combination; drainage drives outcome; surgical decortication for failure.",
       trials: [
@@ -5456,6 +5464,10 @@ const SYNDROME_DECISION = {
           why: "Highest-impact long-term interventions; addressable at every admission" },
       ],
     },
+    rationale: {
+      driver: "Antibiotics in AECOPD benefit only those meeting Anthonisen criteria — 2 of 3 (increased dyspnea, sputum volume, or purulence), with purulence the strongest single predictor. Five days is non-inferior to longer courses (Falagas Chest 2008 meta) for amox-clav, doxycycline, or a macrolide chosen against the local antibiogram; severe / ICU substrate extends to 5–7 d. Anti-pseudomonal cover is reserved for frequent exacerbators, prior P. aeruginosa, or bronchiectasis overlap. Adjunctive prednisone 40 mg × 5 d is mandated (REDUCE).",
+      guideline: "reduce",
+      rejected: "Empiric antibiotics for Anthonisen-type-3 (dyspnea alone, no sputum change) were deliberately rejected — Anthonisen 1987 and the Cochrane 2018 update show no benefit without purulence or 2-of-3, and reflexive treatment drives resistance + collateral damage. The legacy 7–14 d course was tempered by Falagas 2008: 5 d is non-inferior and reduces adverse events. Routine anti-pseudomonal cover for every admission was rejected — reserve for frequent exacerbators + prior cultures." },
     research: {
       headline: "Anthonisen criteria + 5-day REDUCE steroid; antibiotics benefit purulent + 2-of-3 criteria.",
       trials: [
@@ -5552,6 +5564,10 @@ const SYNDROME_DECISION = {
           why: "Reduce exacerbations + improve functional status" },
       ],
     },
+    rationale: {
+      driver: "Bronchiectasis exacerbations sit on a structural-lung-disease substrate where pathogen drift is the norm — sputum culture every exacerbation is mandated. Empirics follow prior cultures: amox-clav or doxycycline for H. influenzae / Moraxella; anti-pseudomonal β-lactam or ciprofloxacin once P. aeruginosa is established. Standard course is 14 d (BTS 2019 / Hill), with first P. aeruginosa isolate triggering an eradication attempt (14 d IV + 3 mo inhaled). Airway clearance is the non-pharmacologic backbone — antibiotics alone underperform without it.",
+      guideline: "cap",
+      rejected: "Routine 7-day short courses were deliberately rejected — BTS 2019 anchors 14 d for the structural-lung substrate because shorter courses correlate with earlier recurrence in non-CAP airway disease, and Chalmers (PROMISE 2018) shows severity drives the relapse trajectory. Symptomatic-only management of a first P. aeruginosa isolate was rejected because eradication while colonization is fresh reduces conversion to chronic carriage, which independently worsens outcomes." },
     research: {
       headline: "14-day standard; first P. aeruginosa isolate → eradication attempt; airway clearance non-pharmacologic backbone.",
       trials: [
@@ -5642,6 +5658,10 @@ const SYNDROME_DECISION = {
           why: "Antibiotic stewardship — treatment in pure colonization rarely benefits" },
       ],
     },
+    rationale: {
+      driver: "VAT is treated only when purulent secretions + clinical change occur in the absence of a new infiltrate — distinguishing VAT from colonization is the threshold decision (Martin-Loeches 2014; IDSA / ATS 2016). When treated, empirics target the ICU substrate (anti-pseudomonal β-lactam ± vancomycin per risk + ETA culture) for 7 d, with aggressive de-escalation at 48–72 h. Nseir (CCM 2008) supports treatment in the purulent VAT subset by reducing VAP progression; routine treatment across all positive endotracheal aspirates is not supported.",
+      guideline: "hapvap",
+      rejected: "Routine treatment of positive ETA without fever, leukocytosis, infiltrate, or clinical decline was deliberately rejected — IDSA 2016 and Martin-Loeches frame positive culture in a stable ventilated patient as colonization, not infection, and treating it drives MDR selection without benefit. Inhaled antibiotic monotherapy was tempered: limited data, and inactivation in the airway secretions limits efficacy without systemic backbone." },
     research: {
       headline: "Controversial entity; Nseir showed reduced VAP progression in selected; routine treatment NOT supported.",
       trials: [
@@ -5734,6 +5754,10 @@ const SYNDROME_DECISION = {
           why: "Functional optimization + risk reduction across underlying disease" },
       ],
     },
+    rationale: {
+      driver: "Post-obstructive pneumonia is a source-control disease — bronchoscopy plus relief of the obstructing tumor, foreign body, mucus plug, or stricture drives durable cure (Abers 2019). The acute episode is treated per CAP / HAP for 7–10 d (ceftriaxone or pip-tazo / cefepime depending on substrate), with anaerobic cover added for putrid sputum, poor dentition, or cavitation where stagnant distal secretions harbor oral anaerobes. Cavitary or necrotizing disease extends to 3–6 wk anchored to radiographic resolution, and thoracic-oncology coordination is mandated for any non-relievable obstruction.",
+      guideline: "cap",
+      rejected: "Chronic suppressive antibiotics in lieu of obstruction relief were deliberately rejected — Abers (J Thorac Oncol 2019) showed recurrence is inevitable without bronchoscopy + intervention, and suppression rarely produces durable benefit while driving resistance + C. difficile risk. Reflexive anaerobic coverage for every post-obstructive episode was tempered: Rolston (CID 2014) restricts anaerobic add-on to putrid sputum / poor dentition / cavitary disease, not as routine in clear-sputum cases." },
     research: {
       headline: "Bronchoscopy + tumor workup mandatory; recurrence inevitable without obstruction relief.",
       trials: [
@@ -5823,6 +5847,10 @@ const SYNDROME_DECISION = {
           why: "Prevention reduces recurrent bronchitis incidence" },
       ],
     },
+    rationale: {
+      driver: "Acute bronchitis is overwhelmingly viral — Smith Cochrane 2017 (n=5099) showed antibiotics shorten cough by ~12 h while increasing AEs ~25%, and ACP 2016 explicitly recommends against treatment for uncomplicated bronchitis. The carve-outs are pertussis (azithromycin × 5 d; reduces transmission rather than symptoms) and confirmed bacterial superinfection with new fever / purulent sputum / focal exam. CXR is obtained whenever fever, tachycardia, focal exam, or hypoxia raises concern for pneumonia, which changes the entire calculus.",
+      guideline: "stew",
+      rejected: "Empiric antibiotics for the typical viral acute bronchitis presentation were deliberately rejected — IDSA / SHEA 2016 stewardship and ACP 2016 both identify acute bronchitis as a high-value de-prescribing target, and Smith Cochrane 2017 quantified the harm-to-benefit imbalance. Azithromycin for symptomatic benefit (rather than transmission control) in pertussis was tempered: macrolides given beyond the first week have minimal effect on cough duration." },
     research: {
       headline: "ACP 2016 + Smith Cochrane 2017 — acute bronchitis viral; antibiotics drive resistance without benefit.",
       trials: [
@@ -5917,6 +5945,10 @@ const SYNDROME_DECISION = {
           why: "Unusual pathogens; specific therapeutic and reporting requirements" },
       ],
     },
+    rationale: {
+      driver: "Exposure history is the diagnostic key — birds → psittacosis; livestock / parturient animals → Q fever; rabbits / ticks → tularemia; rodents → plague; freshwater + leptospirosis. Doxycycline 100 mg BID is the workhorse for Q fever (14 d), psittacosis (10–14 d), and ehrlichia; fluoroquinolone is an alternative. Pneumonic plague and pulmonary tularemia are tier-1 select agents and require streptomycin or gentamicin (or cipro / doxy) plus public-health reporting + lab alert. Inhalational anthrax gets 60 d combination cipro + clindamycin + antitoxin per CDC.",
+      guideline: "cdc_abx",
+      rejected: "Empiric β-lactam monotherapy was deliberately rejected for suspected zoonotic atypical pneumonia — Q fever (Coxiella) is intracellular and resistant to cell-wall agents, and the same applies to psittacosis and ehrlichia. The legacy short course for chronic Q fever was rejected: chronic / endocarditis Q fever needs 12–18 mo doxycycline + hydroxychloroquine, and stopping at 14 d misses the relapsing intracellular reservoir." },
     research: {
       headline: "Exposure history is the diagnostic key; doxycycline workhorse; CDC reporting for tier-1 select agents.",
       trials: [
@@ -6018,6 +6050,10 @@ const SYNDROME_DECISION = {
           why: "Recurrence high without prophylaxis during ongoing immunosuppression" },
       ],
     },
+    rationale: {
+      driver: "Pneumonia in the neutropenic / transplant host demands broad bacterial + mold + viral coverage with simultaneous diagnostic work — CT chest within 24 h (CXR is insensitive without inflammatory cells), serial galactomannan + BDG, and BAL when imaging or empiric therapy fails. Empiric backbone is anti-pseudomonal β-lactam (pip-tazo, cefepime, or meropenem) ± vancomycin per IDSA 2018; mold-active therapy (voriconazole or isavuconazole) is added at 96 h of persistent fever or sooner on CT halo / reverse halo. Duration anchors to pathogen + ANC > 500 + clinical resolution.",
+      guideline: "fn",
+      rejected: "Empiric narrow β-lactam without anti-pseudomonal cover was deliberately rejected — IDSA 2018 mandates anti-pseudomonal coverage from the first dose because GNR + P. aeruginosa bacteremia drive early mortality and a missed dose halves survival. Withholding mold-active therapy at 96 h of persistent fever was rejected: Cordonnier EORTC and IDSA establish empiric or preemptive (galactomannan + CT driven) antifungal escalation; delay past 96 h drives breakthrough invasive fungal infection." },
     research: {
       headline: "CT chest within 24 h; galactomannan + BDG monitoring; empiric mold-active for persistent fever ≥ 96 h.",
       trials: [
