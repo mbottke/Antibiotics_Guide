@@ -520,7 +520,19 @@ export default function InpatientAbxGuide() {
                           {s.pearls.map((p,pi) => <li key={pi} dangerouslySetInnerHTML={{__html:p.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}} />)}
                         </ul>
 
-                        <div className="rx-cardfoot">
+                        <div className="rx-cardfoot" style={{ gap: 10 }}>
+                          <button
+                            type="button"
+                            className="rx-tag t-ox clk"
+                            onClick={() => {
+                              setCaseState(cs => ({ ...cs, syndrome: s.id }));
+                              setMode("decide");
+                            }}
+                            title="Open this syndrome in decide mode with the current patient context"
+                            style={{ marginRight: "auto" }}>
+                            <Crosshair size={12} style={{ verticalAlign: "-1px", marginRight: 4 }} />
+                            Open as case
+                          </button>
                           <CardCopyButton syn={s} />
                         </div>
                       </div>
