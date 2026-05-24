@@ -1819,6 +1819,10 @@ const SYNDROME_DECISION = {
           why: "Flap / graft / negative-pressure dressing — multi-stage closure planning" },
       ],
     },
+    rationale: {
+      driver: "Necrotizing fasciitis is a surgical emergency — antibiotics are adjunctive, debridement is the disease. Mishra (Surgery Today 2017) shows mortality < 10% when the OR is within 12 h, climbing > 40% past 24 h, so time-to-debridement is the single most modifiable factor. Empiric coverage is broad polymicrobial (pip-tazo or carbapenem + vancomycin) plus clindamycin for toxin suppression in any GAS or clostridial substrate. Duration follows surgical adequacy — continued until margins are clean on serial re-look, typically 48–72 h after the last debridement (IDSA 2014; WSES 2018).",
+      guideline: "ssti",
+      rejected: "Antibiotic-driven 'wait and see' management was deliberately rejected — Stevens IDSA 2014 and WSES are emphatic that surgical exploration is required at clinical suspicion, and antibiotic-only treatment of established necrotizing infection has near-universal failure with mortality climbing 10% per hour of delay. Hyperbaric oxygen was tempered: evidence is weak and contested, and it must never delay surgical debridement. Reflexive IVIG outside of confirmed GAS toxic shock was rejected — benefit is GAS-specific, not polymicrobial type I." },
     research: {
       headline: "Surgery drives outcome — antibiotic alone fails; clindamycin for toxin suppression; IVIG benefit GAS-specific.",
       trials: [
@@ -2001,6 +2005,10 @@ const SYNDROME_DECISION = {
           why: "Improves healing rates + reduces secondary procedures" },
       ],
     },
+    rationale: {
+      driver: "SSI is fundamentally a source-control disease — opening the incision early is the inflection point, antibiotics are adjunctive. Superficial / incisional SSI often resolves with drainage alone; deep / organ-space SSI follows STOP-IT (NEJM 2015) — 4 d post-drainage non-inferior to symptom-guided in adequately controlled infection. Empirics target the operative site flora (cefazolin or per local antibiogram; pip-tazo + vancomycin for organ-space colorectal / hepatobiliary substrate). Hardware-retained SSI extends to ≥ 6 wk with adjunctive rifampin once cultures positive — the biofilm rule.",
+      guideline: "stopit",
+      rejected: "Reflexive 10–14 d empiric courses for drained SSI were deliberately rejected — STOP-IT 2015 established that 4 d post-source-control is non-inferior to symptom-guided therapy in complicated intra-abdominal infection, and the SSI subset follows the same principle. Empiric antibiotics for superficial incisional SSI without surrounding cellulitis or systemic signs were tempered: drainage alone is often sufficient (Stevens IDSA 2014), and antibiotics drive resistance + C. difficile without changing wound trajectory." },
     research: {
       headline: "Drainage + STOP-IT-aligned 4 d for organ-space; hardware-retained needs rifampin; pathogen + depth-driven choice.",
       trials: [
@@ -2080,6 +2088,10 @@ const SYNDROME_DECISION = {
           why: "Adjunctive only; never delay surgery; institutional availability varies" },
       ],
     },
+    rationale: {
+      driver: "Fournier's gangrene is the perineal subset of necrotizing fasciitis — antibiotics are adjunctive, emergent debridement is the disease, and mortality climbs ~10% per hour of OR delay (Sorensen J Urol 2009). Empirics are broad polymicrobial (pip-tazo + vancomycin + clindamycin) covering enteric GNR + anaerobes + MRSA + toxin-producing strep; clindamycin runs throughout for ribosomal toxin suppression. Diabetes is the dominant substrate, multi-team coordination (urology + general surgery + ID + ICU) is mandated, and diverting colostomy / suprapubic catheter address ongoing fecal or urinary contamination of the wound bed.",
+      guideline: "ssti",
+      rejected: "Antibiotic-only management or waiting for imaging was deliberately rejected — clinical suspicion alone justifies the OR (WSES 2018 / Stevens IDSA 2014), and CT or MRI must never delay surgery in the deteriorating patient because mortality is time-to-debridement-driven. Hyperbaric oxygen as primary therapy was rejected: observational support only, never delay surgical debridement, and institutional availability varies. Narrow-spectrum empirics were tempered — the polymicrobial substrate demands enteric + anaerobic + MRSA + GAS coverage from the first dose." },
     research: {
       headline: "Mortality 20–40%; emergent serial debridement; broad polymicrobial + clindamycin; diabetic substrate.",
       trials: [
@@ -6147,6 +6159,10 @@ const SYNDROME_DECISION = {
           why: "IDSA 2014 + outcome data — drainage alone sufficient; avoids selection pressure" },
       ],
     },
+    rationale: {
+      driver: "Purulent SSTI is community-MRSA-dominant in the US, but I&D is the cure — antibiotics are adjunctive. Talan (NEJM 2016, n=1,265) showed TMP-SMX × 7 d after I&D raises cure ~7% over placebo, with benefit concentrated in abscesses > 2 cm, surrounding cellulitis, or systemic signs; small simple abscesses heal with drainage alone. Empiric MRSA cover (TMP-SMX, doxycycline, or clindamycin) is appropriate when antibiotics are indicated. Recurrent disease triggers decolonization (mupirocin nares + chlorhexidine wash × 5–10 d) plus household-contact coordination per IDSA 2014.",
+      guideline: "ssti",
+      rejected: "Reflexive antibiotic courses for every drained abscess were deliberately rejected — IDSA 2014 and outcome data both support drainage alone for simple, small abscesses without surrounding cellulitis or systemic signs, and adjunctive antibiotics drive resistance without changing wound trajectory. Empiric β-lactam monotherapy (cephalexin alone) was tempered: in community-MRSA-prevalent regions it under-covers the dominant pathogen, and Daum NEJM 2017 (n=786) shows TMP-SMX + drainage outperforms placebo + drainage for cure." },
     research: {
       headline: "I&D primary; antibiotics adjunct only for cellulitis / systemic / immunocompromised; Talan 2016 supports TMP-SMX.",
       trials: [
@@ -6389,6 +6405,10 @@ const SYNDROME_DECISION = {
           why: "Accelerates granulation; complement to debridement + offloading" },
       ],
     },
+    rationale: {
+      driver: "Pressure injuries colonize universally — surface swab growth alone is NOT an indication to treat (NPUAP / IDSA 2019). Antibiotics are reserved for invasive infection: surrounding cellulitis, sepsis from the ulcer source, or underlying osteomyelitis on probe-to-bone / MRI. When indicated, empirics cover MRSA + GNR + anaerobes; pathogen-directed therapy follows deep tissue or bone culture, not surface swab. Cure is driven by debridement + offloading + nutrition support — without these, no antibiotic course succeeds, and the wound returns the moment pressure resumes.",
+      guideline: "ssti",
+      rejected: "Treating positive surface swabs without invasive signs was deliberately rejected — colonization is universal in stage 3/4 ulcers, and antibiotics for colonization alone drive resistance + C. difficile without benefit. Empiric antibiotic courses in lieu of offloading and debridement were tempered: NPUAP / IDSA frame these as the primary intervention, and antibiotics without pressure relief amount to selection pressure on a non-healing wound. Reflexive surface-culture-directed narrow therapy was rejected — deep tissue or bone culture is required to drive pathogen-specific decisions." },
     research: {
       headline: "Colonization is universal in stage 3/4 ulcers; antibiotics for invasive infection only; offloading + nutrition drive cure.",
       trials: [
@@ -6468,6 +6488,10 @@ const SYNDROME_DECISION = {
           why: "Retained FB drives persistent infection; X-ray or US" },
       ],
     },
+    rationale: {
+      driver: "Amox-clav is the workhorse — it covers the bite-specific pathogens (Pasteurella in cat / dog, Eikenella in human) plus oral anaerobes + skin GPC in a single agent. Prophylaxis × 3–5 d is indicated for high-risk wounds (cat bites, hand bites, deep / puncture wounds, immunocompromised host); established infection runs 7–14 d, and deep / joint / tendon involvement extends to 14–21 d with hand-surgery washout (IDSA 2014 / Stevens). Tetanus prophylaxis + rabies risk assessment + closure decisions (do NOT primarily close cat / hand bites) carry equal clinical weight.",
+      guideline: "ssti",
+      rejected: "Clindamycin + ciprofloxacin or cephalexin alone were deliberately rejected as primary empirics — both miss Pasteurella (cephalexin) or Eikenella (clinda + cipro misses Pasteurella, and Eikenella is intrinsically resistant to clindamycin), and IDSA 2014 documents treatment failures with these regimens. Primary surgical closure of cat or hand bites was rejected: infection rates are prohibitive, and delayed closure or secondary intention is the safer default. Withholding tetanus booster or rabies risk assessment was tempered — bites are tetanus-prone and rabies is a public-health priority." },
     research: {
       headline: "Amox-clav workhorse covers Pasteurella + Eikenella + anaerobes; tetanus + rabies risk assessment + hand surgery for deep.",
       trials: [
@@ -6549,6 +6573,10 @@ const SYNDROME_DECISION = {
           why: "Improves drainage + continuation of breastfeeding; reduces recurrence" },
       ],
     },
+    rationale: {
+      driver: "Lactational mastitis is S. aureus-dominant — empiric dicloxacillin or cephalexin × 10–14 d, with vancomycin or TMP-SMX added per MRSA prevalence and infant safety (TMP-SMX safe > 2 mo old). Continued breastfeeding / pumping is mandated by ABM 2022 — it provides effective drainage, is safe for the infant, and abrupt weaning drives engorgement + abscess. Suspected abscess gets bedside US + needle aspiration before surgical I&D (less morbid, preserves breastfeeding). Non-lactational sub-areolar disease covers anaerobes (amox-clav / clinda) and demands smoking cessation; inflammatory breast cancer mimics mastitis and must be excluded at 1 wk of non-response.",
+      guideline: "ssti",
+      rejected: "Abrupt weaning during lactational mastitis was deliberately rejected — ABM 2022 documents that stopping nursing drives engorgement, milk stasis, and abscess; continued effective drainage is therapeutic. Reflexive surgical I&D before needle aspiration was tempered: aspiration is less morbid, preserves breastfeeding, and is effective for most lactational abscesses (Dixon CMR 2017). Empiric coverage that misses MRSA in high-prevalence settings was rejected: rising community MRSA in lactational mastitis warrants risk-stratified empirics rather than reflexive narrow β-lactam." },
     research: {
       headline: "Continue breastfeeding (safe for infant); aspirate abscess before surgical I&D; rule out IBC if non-response.",
       trials: [
@@ -6633,6 +6661,10 @@ const SYNDROME_DECISION = {
           why: "Prevention of recurrence; addressable at every visit" },
       ],
     },
+    rationale: {
+      driver: "Erysipelas is superficial-dermal streptococcal disease (St. Anthony's fire — sharp raised border distinguishes from cellulitis) and is overwhelmingly PCN-responsive. Empiric penicillin V or amoxicillin × 5 d is adequate for uncomplicated disease (Hepburn 2004, IDSA 2014); cefazolin or cephalexin substitute for mild PCN allergy. Tinea pedis as entry portal is treated concurrently — interdigital fissures are the dominant recurrence driver. PATCH I + II (BMJ 2018, n=1,124) established PCN V 250 mg BID prophylaxis cuts recurrence ~45% over 3 yr in lymphedema / venous stasis substrate, with protective effect waning post-discontinuation.",
+      guideline: "ssti",
+      rejected: "Reflexive MRSA cover for non-purulent erysipelas was deliberately rejected — erysipelas is strep-dominant per IDSA 2014, MRSA empirics drive resistance without benefit, and the rapid PCN response is diagnostic of correct organism. Prolonged 10–14 d courses for uncomplicated disease were tempered: Hepburn 2004 showed 5 d non-inferior to 10 d, and pure erysipelas responds quickly. Routine prophylaxis after a single episode was rejected — PATCH supports ppx for ≥ 2 episodes / yr in a lymphedema substrate, not first-episode disease." },
     research: {
       headline: "PATCH I + II established PCN prophylaxis reduces recurrence ~45% in lymphedema substrate.",
       trials: [
@@ -6716,6 +6748,10 @@ const SYNDROME_DECISION = {
           why: "Modifiable substrate; same as erysipelas / cellulitis" },
       ],
     },
+    rationale: {
+      driver: "Acute lymphangitis with ascending streaks is overwhelmingly streptococcal — empiric penicillin, cefazolin, or cephalexin × 7 d resolves typical disease quickly (IDSA 2014 / Stevens). Identifying + treating the entry portal (abrasion, IVDU, tinea, puncture) prevents recurrence; marking the proximal extent allows serial tracking for ascending spread. The diagnostic pivot is nodular ascending pattern (sporotrichoid) — rose-thorn / gardening exposure → sporothrix (itraconazole × 3–6 mo); soil → nocardia (TMP-SMX, months); fish tank / aquaria → Mycobacterium marinum — and these demand biopsy plus atypical workup, not standard β-lactam therapy.",
+      guideline: "ssti",
+      rejected: "Reflexive β-lactam continuation for a nodular ascending pattern was deliberately rejected — sporothrix, nocardia, and atypical mycobacteria are intrinsically resistant to PCN-class agents, and time-to-correct-diagnosis drives outcome in chronic atypical lymphangitis. Empiric MRSA cover in pure acute strep lymphangitis was tempered: lymphangitic disease is strep-dominant, reflexive MRSA cover drives resistance, and IDSA 2014 reserves MRSA empirics for purulent entry or systemic signs." },
     research: {
       headline: "Strep-dominant acute lymphangitis; nodular pattern → sporotrichoid workup (sporothrix, nocardia, mycobacterium marinum).",
       trials: [
@@ -6794,6 +6830,10 @@ const SYNDROME_DECISION = {
           why: "Common comorbidities; addressable" },
       ],
     },
+    rationale: {
+      driver: "Hidradenitis suppurativa is a chronic immune-mediated disease of the follicular epithelium — antibiotics are adjunctive, not curative. Mild flares get doxycycline or clindamycin × 10–14 d; moderate-severe disease (Hurley II/III) gets combination clindamycin + rifampin × 10–12 wk as disease-modifying therapy (Gulliver JEAD 2016 — reduces lesion count + flare frequency, not just suppressive). Adalimumab is FDA-approved for Hurley II/III, and surgical excision / deroofing addresses chronic sinus tracts. Smoking cessation + weight management are the strongest modifiable risk factors — addressable at every visit.",
+      guideline: "ssti",
+      rejected: "Treating HS as a simple bacterial abscess disease was deliberately rejected — it is chronic immune-mediated follicular pathology, not primarily infectious, and reflexive short antibiotic courses without dermatology referral + biologic evaluation in moderate-severe disease miss the disease-modifying window. Surgical excision as monotherapy was tempered: medical + surgical combination is standard for Hurley II/III; isolated excision recurs without systemic therapy. Long-term prophylactic monotherapy with single-agent antibiotics drives resistance without the combination's disease-modifying signal." },
     research: {
       headline: "Disease-modifying combination (clinda + rifampin) + adalimumab for moderate-severe; smoking + obesity strongest risk factors.",
       trials: [
@@ -6872,6 +6912,10 @@ const SYNDROME_DECISION = {
           why: "Wound healing is protein + glycemic-dependent; modifiable" },
       ],
     },
+    rationale: {
+      driver: "Chronic leg ulcers colonize universally — surface swab growth alone is NOT an indication to treat (Margolis Cochrane 2014; IDSA + Wound Society 2019). Antibiotics are reserved for invasive infection: surrounding cellulitis, sepsis from the ulcer source, or underlying osteomyelitis on probe-to-bone / MRI. Cure is substrate-driven — compression (30–40 mmHg) for venous ulcers, revascularization + ABI assessment for arterial ulcers; without these, no antibiotic course succeeds. When antibiotics are indicated, deep tissue or bone culture (not surface swab) drives pathogen-directed therapy, and the diabetic foot ulcer subset routes to its own algorithm.",
+      guideline: "ssti",
+      rejected: "Treating positive surface swabs in chronic leg ulcers was deliberately rejected — colonization is universal, antibiotics for colonization alone confer no benefit (Margolis 2014), and reflexive treatment drives resistance + C. difficile. Empiric antibiotic courses in lieu of compression or revascularization were tempered: the substrate disease (venous insufficiency or arterial occlusion) drives healing, and antibiotics without addressing the substrate are insufficient. Routine MRSA empirics without invasive signs were rejected per stewardship principles." },
     research: {
       headline: "Colonization universal; antibiotics for invasive only; compression (venous) + revascularization (arterial) drive cure.",
       trials: [
@@ -8366,6 +8410,10 @@ const SYNDROME_DECISION = {
           why: "Long-course IV + extended hospitalization; multi-modal recovery" },
       ],
     },
+    rationale: {
+      driver: "Acute mediastinitis is a surgical disease — emergent cardiothoracic debridement drives outcome and antibiotics are adjunctive over a long course (4–6 wk). Post-sternotomy disease is MRSA + GNR-dominant, so empiric vancomycin + cefepime or pip-tazo is the substrate-matched empiric (STS / IDSA 2017). Descending necrotizing disease from an oropharyngeal source adds anaerobic + clindamycin coverage and ENT participation; esophageal perforation / Boerhaave demands urgent surgical or endoscopic source control + broad-spectrum coverage. NPWT post-debridement, sternal osteomyelitis surveillance, and multi-team coordination (cardiac surgery + ENT + ID) define the recovery course.",
+      guideline: "ssti",
+      rejected: "Antibiotic-only management was deliberately rejected — Trouillet (J Thorac Cardiovasc Surg 1996) and Pairolero (Ann Thorac Surg 2010) both document that aggressive debridement drives outcomes, and antibiotics without surgical source control have near-uniform failure with mortality > 50%. Narrow empiric coverage was tempered: the polymicrobial substrate of post-sternotomy + descending + esophageal-source disease demands broad coverage from the first dose pending operative cultures. Withholding NPWT post-debridement was rejected — it accelerates granulation + reduces re-debridement and is standard adjunct." },
     research: {
       headline: "Surgical debridement drives outcome; cardiothoracic + ENT + ID coordination; NPWT + sternal osteo surveillance.",
       trials: [
@@ -9510,6 +9558,10 @@ const SYNDROME_DECISION = {
           why: "30–50% of abscesses associated with fistula; planned definitive surgery" },
       ],
     },
+    rationale: {
+      driver: "Perianal abscess is fundamentally a surgical drainage disease — Sözener (Dis Colon Rectum 2011 RCT) and ASCRS 2016 both confirm that simple drained abscess in the immunocompetent host does NOT benefit from adjunctive antibiotics. Antibiotics are reserved for surrounding cellulitis, systemic signs, complex / deep / ischiorectal / supralevator disease (10–14 d + EUA), diabetic / immunocompromised / IBD substrate, or Fournier extension. Empirics cover anaerobes + enteric GNR + GPC (amox-clav PO or ceftriaxone + metronidazole IV). 30–50% of abscesses harbor an associated fistula; pelvic MRI defines the anatomy and drives the post-acute surgical plan.",
+      guideline: "ssti",
+      rejected: "Empiric antibiotics for every drained perianal abscess were deliberately rejected — Sözener's RCT and ASCRS 2016 establish that simple, immunocompetent, adequately drained disease does not benefit, and reflexive treatment drives resistance + C. difficile. Antibiotic-only management of complex / ischiorectal / supralevator disease was tempered: these require examination under anesthesia + definitive surgical drainage, not extended antibiotic courses alone. Missing the IBD workup in recurrent / atypical disease was rejected — perianal fistulizing Crohn's changes long-term management entirely." },
     research: {
       headline: "Drainage alone for simple immunocompetent (ASCRS); IBD workup for recurrent; pelvic MRI for complex.",
       trials: [
