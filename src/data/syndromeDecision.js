@@ -6151,7 +6151,7 @@ const SYNDROME_DECISION = {
         a: "VAT lies between airway colonization and VAP — ATS / IDSA 2016 HAP / VAP guidance [cite:hapvap] does not endorse routine antibiotic treatment because most cases never progress, and reflexive treatment exposes all ventilated patients to broad-spectrum selection pressure. Only Nseir (CCM 2008, n=58) suggested reduced VAP progression with IV antibiotics, but the trial was small and unreplicated. Stewardship [cite:stew] reserves treatment for symptomatic substrate with quantitative culture support." },
       { q: "Why insist on quantitative culture thresholds before treating?",
         a: "Endotracheal aspirate > 10^6 CFU/mL or BAL > 10^4 CFU/mL distinguishes infection from colonization — [cite:hapvap] anchors this threshold to avoid treating chronic airway flora. Without quantitation, every ventilated patient with a positive culture risks empiric anti-pseudomonal cover, driving resistance and C. difficile [cite:stew]. The threshold combined with clinical signs (purulence, fever, leukocytosis) defines a treat-able entity vs colonization." },
-      { q: "Why short 7 d if treating — VAP gets 7 d, VAT should be longer?",
+      { q: "Why 7 d if treating — should VAT be longer than VAP?",
         a: "When VAT is treated (purulence + signs + quantitative threshold), 7 d aligns with the PneumA RCT [cite:pneuma] for VAP — Chastre (JAMA 2003, n=401) showed 8 d non-inferior to 15 d in VAP with lower resistance emergence. VAT is a lesser substrate with no evidence supporting longer courses; [cite:hapvap] applies the 7-d default. Extending beyond 7 d compounds resistance pressure without demonstrated benefit." },
     ],
     research: {
