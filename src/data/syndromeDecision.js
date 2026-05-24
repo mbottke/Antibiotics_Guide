@@ -1165,6 +1165,16 @@ const SYNDROME_DECISION = {
           why: "Non-selective beta-blockers may worsen HRS; case-by-case decision" },
       ],
     },
+    objections: [
+      { q: "Why 5 d — surely peritoneal infection needs longer?",
+        a: "5 d ceftriaxone is the AASLD 2021 [cite:aasld] standard for community SBP with documented PMN response at 48 h (> 25% drop on repeat paracentesis) — Runyon's foundational cohorts and subsequent meta-analyses show no benefit from 10–14 d, and longer courses select for resistant gut flora without changing relapse. The 5-d floor is gated by AND-joined response criteria, not arbitrary; non-responders pivot to broaden + workup for secondary peritonitis, not reflexive extension." },
+      { q: "Why ceftriaxone alone — should we broaden empirically?",
+        a: "Community SBP is enteric GNR (E. coli, Klebsiella) translocating across cirrhotic gut in > 70% of episodes — ceftriaxone 2 g IV q24h covers this substrate without driving collateral resistance. AASLD 2021 [cite:aasld] reserves pip-tazo or carbapenem for healthcare-associated or recent-hospitalization SBP where Fernandez (2019) documented > 30% 3GC failure. Reflexive broad-spectrum empirics in community SBP wastes spectrum and selects MDR flora in a population that will be re-admitted." },
+      { q: "Why mandatory albumin — adds cost without obvious need?",
+        a: "Sort (NEJM 1999, n=126) showed albumin 1.5 g/kg day 1 + 1 g/kg day 3 dropped HRS from 30% → 10% and in-hospital mortality 29% → 10% in high-risk SBP — Sigal (Gut 2007) confirmed benefit is restricted to Cr > 1, BUN > 30, or bilirubin > 4 per AASLD 2021 [cite:aasld]. Universal albumin in low-risk SBP wastes a costly resource; selective use in the high-risk substrate is one of the most cost-effective interventions in hepatology." },
+      { q: "Why secondary prophylaxis — drives resistance long-term?",
+        a: "AASLD 2021 [cite:aasld] mandates secondary prophylaxis (cipro 500 mg PO daily or TMP-SMX DS daily) after first SBP episode — recurrence is ~70% within 1 year without it, and each recurrence carries 20–30% mortality. The resistance cost is real but the benefit-risk skews strongly toward prophylaxis; episode marks decompensation and trigger for transplant evaluation. Norfloxacin was historically preferred but discontinued in U.S. since 2014." },
+    ],
     research: {
       headline: "5-d ceftriaxone + albumin reduces HRS + mortality in high-risk SBP; secondary prophylaxis prevents recurrence.",
       trials: [
@@ -1258,6 +1268,16 @@ const SYNDROME_DECISION = {
           why: "Underlying anatomic / oncologic cause drives recurrence prevention strategy" },
       ],
     },
+    objections: [
+      { q: "Why ERCP first — can we trial antibiotics alone?",
+        a: "Cholangitis is a source-control disease — Lai (Gut 1992, n=82) established emergent ERCP superior to surgery for severe cholangitis, with lower mortality + complications, and Tokyo TG18 [cite:tokyo] codifies it: Grade III (severe with organ failure) gets emergent ERCP, Grade II within 48 h, Grade I elective. Antibiotics alone cannot decompress an obstructed biliary tree; the obstructed system is a closed-space abscess equivalent. Delaying drainage in favor of antibiotic optimization carries unacceptable mortality." },
+      { q: "Why 4 d post-drainage — STOP-IT was for IAI, not biliary?",
+        a: "Karasawa (Surgery Today 2019) applied STOP-IT principles directly to cholangitis after adequate biliary drainage — 4 d non-inferior to longer symptom-guided courses, mirroring STOP-IT [cite:stopit] in source-controlled IAI. Tokyo TG18 [cite:tokyo] now endorses short-course post-drainage; extension only for inadequate drainage (stent malfunction, retained stones), bacteremia (extend to 7–10 d on organism), or healthcare/ESBL flora needing carbapenem. The principle generalizes: source control is the gate." },
+      { q: "Why not anti-pseudomonal + enterococcal cover routinely?",
+        a: "Tokyo TG18 [cite:tokyo] and IDSA / SIS reserve anti-pseudomonal pip-tazo + ampicillin or vanco for healthcare-associated, post-procedural, or immunocompromised cholangitis — community cholangitis is enteric E. coli / Klebsiella / Bacteroides dominant, where ceftriaxone + metronidazole covers > 90% at lower cost and resistance pressure. Reflexive broad-spectrum empirics in community disease drives carbapenem-sparing failure and AKI without survival benefit." },
+      { q: "Why carbapenem for ESBL — pip-tazo is susceptible?",
+        a: "MERINO (JAMA 2018, n=378) [cite:merino] showed pip-tazo mortality 12.3% vs meropenem 3.7% in ceftriaxone-resistant Enterobacterales bacteremia despite in-vitro susceptibility — the β-lactamase inhibitor fails at bacteremic biliary inoculum. For bacteremic ESBL cholangitis, IDSA AMR-GN 2024 [cite:amrgn] mandates a carbapenem (ertapenem outpatient, meropenem severe). In-vitro MIC does not predict in-vivo outcome at high-burden biliary substrate." },
+    ],
     research: {
       headline: "Tokyo TG18 grades severity + drives source-control timing; antibiotics adjunct after biliary decompression.",
       trials: [
@@ -1346,6 +1366,16 @@ const SYNDROME_DECISION = {
           why: "Surgical referral after ≥ 2 episodes; case-by-case decision with colorectal surgery" },
       ],
     },
+    objections: [
+      { q: "Why no antibiotics for uncomplicated — that feels wrong?",
+        a: "DIABOLO (Br J Surg 2017, n=528) [cite:diabolo] and AVOD (JAMA Surg 2012, n=623) [cite:avod] both showed observation non-inferior to antibiotics in CT-confirmed uncomplicated diverticulitis at 6-month recurrence + complications + readmission — most episodes resolve on bowel rest alone, and reflexive prescription drives C. diff + collateral resistance without changing outcomes. AGA / ACG endorse selective antibiotic use. Reserve antibiotics for immunocompromised, severe presentation, or non-response by 72 h; the stewardship win is documented." },
+      { q: "Why 4 d post-source control — these patients are still tender?",
+        a: "STOP-IT (NEJM 2015, n=518) [cite:stopit] established 4 d non-inferior to symptom-guided (8+ d) in complicated IAI after adequate source control — same SSI, recurrence, and death rates including the post-drainage diverticulitis cohort. Persistent tenderness without fever, leukocytosis, or imaging progression at day 4 is post-inflammatory, not infection; extending antibiotics drives nothing forward. Persistent fever or rising markers triggers re-imaging + re-drainage, not reflexive extension." },
+      { q: "Why amox-clav + cipro/metronidazole — why not pip-tazo?",
+        a: "Community diverticulitis is enteric GNR + Bacteroides — amox-clav or cipro + metronidazole covers > 90% of community isolates at lower cost, less resistance pressure, and oral availability for outpatient pathway [cite:diabolo]. Pip-tazo is reserved for severe / HCAQ / immunocompromised / recent broad-antibiotic exposure where resistant GNR or enterococcal cover matters. Reflexive IV broad-spectrum in moderate disease wastes spectrum and prevents the outpatient transition that AGA 2015 endorses." },
+      { q: "Why drain abscesses ≥ 4 cm — why not just antibiotics?",
+        a: "Abscess > 3–4 cm represents a contained collection that antibiotics alone cannot sterilize — percutaneous drainage is the inflection point per AGA / ACG, with antibiotic course shortened to 4 d post-drainage per STOP-IT [cite:stopit]. Smaller pericolic abscesses may resolve on antibiotics, but the threshold matters: undrained collection drives recurrence + chronic sinus formation. Surgery is reserved for free perforation, ongoing peritonitis, or recurrent disease where elective resection becomes appropriate." },
+    ],
     research: {
       headline: "DIABOLO + AVOD established antibiotic-free observation for uncomplicated; STOP-IT covers complicated.",
       trials: [
@@ -1431,6 +1461,16 @@ const SYNDROME_DECISION = {
           why: "Enteral nutrition preserves gut barrier + reduces bacterial translocation" },
       ],
     },
+    objections: [
+      { q: "Why no prophylactic antibiotics in sterile necrosis?",
+        a: "Villatoro (Cochrane 2010 meta) showed no mortality benefit from prophylactic antibiotics in sterile necrosis and an increase in fungal + MDR overgrowth; PROPATRIA (Lancet 2008, n=298) [cite:propatria] showed probiotic prophylaxis actually INCREASED mortality in severe pancreatitis. ACG 2024 [cite:acg_pancreatitis] mandates antibiotics ONLY for documented infected necrosis (FNA-positive or gas-on-imaging). Reflexive prophylaxis in sterile disease is harm without benefit." },
+      { q: "Why carbapenem when infection documented — overkill?",
+        a: "Documented infected pancreatic necrosis is a high-burden, deep-tissue, polymicrobial GNR + anaerobic substrate where adequate pancreatic penetration matters — meropenem 1 g q8h or imipenem penetrate necrotic pancreatic tissue better than most alternatives and cover the substrate per ACG 2024 [cite:acg_pancreatitis]. Pip-tazo is acceptable for moderate disease + susceptible organism but carbapenem is the audit-defensible first-line in severe documented infection. Step-down on culture data drives narrowing." },
+      { q: "Why step-up not upfront necrosectomy — surgery seems definitive?",
+        a: "PANTER (NEJM 2010, n=88) [cite:dutchstepup] established minimally invasive step-up (PCD → endoscopic → VARD if needed) reduces major complications + mortality vs primary open necrosectomy — ~35% resolve on PCD alone, sparing surgery. ACG 2024 [cite:acg_pancreatitis] endorses step-up as standard; upfront open surgery in modern pancreatitis is hard to defend. Surgical timing follows the step-up algorithm: drain first, escalate only on failure." },
+      { q: "Why no routine echinocandin — fungal infection seems common?",
+        a: "Routine antifungal prophylaxis in pancreatic necrosis was deliberately rejected — Candida colonization is common but invasive infection in immunocompetent hosts is rare, and reflexive echinocandin drives resistance without benefit per ACG 2024 [cite:acg_pancreatitis]. Reserve echinocandin for documented FNA-positive Candida, protracted necrosis with risk factors (TPN, prolonged antibiotics, immunocompromise), or post-necrosectomy fungal isolates. Species-driven narrowing applies." },
+    ],
     research: {
       headline: "PROPATRIA + Dutch step-up established no antibiotic prophylaxis in sterile necrosis; documented infection drives course.",
       trials: [
@@ -1522,6 +1562,16 @@ const SYNDROME_DECISION = {
           why: "Long IV courses drive line complications; oral step-down at 2 wk standard" },
       ],
     },
+    objections: [
+      { q: "Why percutaneous drainage first — open surgery is definitive?",
+        a: "Stalker (World J Surg 2014) established PCD first-line for accessible unilocular pyogenic liver abscesses ≥ 5 cm, with surgery reserved for multiloculated collections or PCD failure — lower morbidity than upfront surgery and equivalent durable cure when paired with 4–6 wk targeted antibiotics [cite:stopit]. AASLD aligns; reflexive surgical exploration in modern practice is overkill for the typical pyogenic abscess. Drainage is the inflection point — route is secondary." },
+      { q: "Why 4–6 wk total — that's a long course for an abscess?",
+        a: "Pyogenic liver abscess duration is anchored by AASLD + WSES consensus: 2 wk IV + 4 wk oral step-down = 4–6 wk total, tracked to imaging response. The hepatic substrate is poorly perfused once walled off, drainage is incomplete in most cases, and shorter courses carry > 20% relapse. Streptococcus anginosus group is destructive and warrants the longer end; hypervirulent K. pneumoniae (K1/K2) seeds endophthalmitis + CNS in ~10% (Chang 2012) and gets extended courses + metastatic screen [cite:aasld]." },
+      { q: "Why oral step-down at 2 wk — IV feels safer?",
+        a: "The OVIVA [cite:oviva] principle extends beyond bone/joint — once drainage is adequate, the patient is afebrile, cultures + susceptibilities are back, and a bioavailable oral option exists (amox-clav, FQ, TMP-SMX), oral step-down avoids 4+ wk of line complications without efficacy compromise. AASLD-aligned series support this transition. Reserve continued IV for bacteremic course with endovascular focus, hypervirulent disease, or no bioavailable oral target. The line-complication cost of 4 wk IV is real." },
+      { q: "Why drain amoebic — metronidazole alone is curative?",
+        a: "Amoebic liver abscess (Stanley Lancet 2003) responds to metronidazole 7–10 d + luminal agent (paromomycin or iodoquinol × 7 d) for cyst clearance — drainage is reserved for abscesses > 5 cm, left-lobe (rupture into pericardium), or non-response by 5–7 d. Serology + travel history differentiate from pyogenic; routine drainage in classic amoebic disease is unnecessary and risks bacterial superinfection. The diagnosis drives the management split [cite:aasld]." },
+    ],
     research: {
       headline: "Drainage + 4–6 wk total course; hypervirulent K. pneumoniae prompts metastatic-screen workup; amoebic distinct.",
       trials: [
@@ -1610,6 +1660,16 @@ const SYNDROME_DECISION = {
           matchBranch: ["Antibiotic-only management (selected)"] },
       ],
     },
+    objections: [
+      { q: "Why a single preop dose — shouldn't we continue postop?",
+        a: "ASHP/IDSA/SIS surgical prophylaxis guidance (Bratzler 2013) [cite:proph] establishes a single preoperative dose of ceftriaxone + metronidazole (or pip-tazo) as adequate for uncomplicated appendectomy when the appendix is removed intact — no postoperative course needed. Continued antibiotics without an indication drive C. diff + collateral resistance without changing wound infection or abscess rates. Reserve postoperative continuation for perforated disease (4 d per STOP-IT [cite:stopit]) or abscess management." },
+      { q: "Why 4 d post-source-control — appendicitis seems different?",
+        a: "STOP-IT (NEJM 2015, n=518) [cite:stopit] included perforated appendicitis in the complicated IAI cohort and established 4 d fixed non-inferior to symptom-guided (8+ d) regimens — same SSI, recurrence, and death rates. Extension only for inadequate source control (persistent abscess, leak), bacteremia, or immunocompromise. Reflexive 7–10 d postoperative courses after perforated appendicitis fail audit and drive collateral harm without changing outcomes." },
+      { q: "Why offer antibiotic-only management — surgery is standard?",
+        a: "CODA (NEJM 2020, n=1,552) [cite:coda] established antibiotic-only management non-inferior to appendectomy at 90 d for QoL in CT-confirmed uncomplicated cases, opening a defined option for shared decision-making. The trade-off: ~30% require appendectomy by 5 y, and the appendicolith subgroup did worse with antibiotics alone. Surgery remains gold standard; the antibiotic-only path is for selected patients with strong preference for non-operative trial — counsel honestly on the recurrence rate." },
+      { q: "Why interval appendectomy after abscess — drainage suffices?",
+        a: "Phlegmon or periappendiceal abscess managed nonoperatively (drainage + 7–10 d antibiotics) is the appropriate acute strategy, but interval appendectomy at 6–8 weeks is standard per WSES 2020 to prevent recurrence and exclude underlying malignancy — particularly important in patients ≥ 40 y where colon cancer presenting as appendicitis is a real consideration [cite:coda]. Colonoscopy after antibiotic-only management in older patients is the same logic." },
+    ],
     research: {
       headline: "CODA 2020 + APPAC opened antibiotic-only door for selected uncomplicated; surgery remains gold standard.",
       trials: [
@@ -1885,6 +1945,16 @@ const SYNDROME_DECISION = {
           why: "Hyperglycemia impairs healing + immune function; adjunctive to all other measures" },
       ],
     },
+    objections: [
+      { q: "Why 1–2 wk for mild DFI — legacy was 4 wk?",
+        a: "IWGDF / IDSA 2023 [cite:iwgdf_idsa] [cite:dfi] explicitly shortened mild soft-tissue DFI to 1–2 wk — Senneville and the modern evidence base showed prolonged courses select for resistance without changing healing. The legacy 4–6 wk course conflated soft-tissue infection with osteomyelitis; tissue-depth stratification is the audit-defensible model now. Reserve 4–6 wk only for confirmed osteomyelitis (probe-to-bone + or MRI positive), and shorten further (~1 wk) if all infected bone is resected." },
+      { q: "Why not anti-pseudomonal cover routinely — diabetics are sicker?",
+        a: "IWGDF / IDSA 2023 [cite:iwgdf_idsa] reserves anti-pseudomonal coverage (pip-tazo) for prior Pseudomonas isolate, severe infection with warm-climate exposure, extensive maceration, or limb-threatening disease — community DFI is overwhelmingly strep + staph + enteric GNR in mild / moderate presentation. Reflexive pip-tazo in mild outpatient DFI is unjustified breadth that drives resistance + AKI; oral cephalexin or amox-clav is appropriate first-line for mild outpatient management." },
+      { q: "Why oral step-down for osteo — DFI osteo seems serious?",
+        a: "OVIVA (NEJM 2019, n=1,054) [cite:oviva] included DFI osteomyelitis subset and showed oral non-inferior to IV at 1-year treatment failure with ~75% reduction in line complications. IWGDF / IDSA 2023 [cite:iwgdf_idsa] endorses oral step-down for compliant patients with a highly bioavailable agent (FQ, TMP-SMX, linezolid for MRSA) matched to bone-biopsy organism. Reserve continued IV for limb-threatening sepsis, intolerance of oral, or no bioavailable target. Stewardship + LOS gains are real." },
+      { q: "Why probe-to-bone test — MRI is more sensitive?",
+        a: "Probe-to-bone test has ~87% PPV for osteomyelitis in DFI per Lavery / Lipsky, is bedside-immediate, and drives the decision to obtain bone biopsy + extend course to 4–6 wk per IWGDF / IDSA 2023 [cite:iwgdf_idsa]. MRI is sensitive but lags and may not be available immediately; probe-to-bone + ESR > 70 is a strong combined signal. Bone biopsy + culture before empirics (when stable) drives targeted long-course therapy; empiric therapy halves culture yield." },
+    ],
     research: {
       headline: "IDSA 2023 stratifies by tissue depth + osteo; offloading + vascular assessment + glycemic control drive outcomes.",
       trials: [
@@ -2128,6 +2198,16 @@ const SYNDROME_DECISION = {
           why: "Adjunctive evidence; institutional availability varies" },
       ],
     },
+    objections: [
+      { q: "Why oral step-down — IV has always been the standard for bone?",
+        a: "OVIVA (NEJM 2019, n=1,054) [cite:oviva] established oral non-inferior to IV at 1-year treatment failure across bone + joint infections — with ~75% reduction in line-related complications (DVT, line sepsis, AKI). The total course remains 6 wk, but the IV phase is shortened to initial stabilization (typically 1–2 wk) before stepping down to a highly bioavailable oral agent matched to the bone-biopsy organism. Reserve continued IV for inability to tolerate oral, no bioavailable target, or unstable disease." },
+      { q: "Why biopsy before empirics — patient is symptomatic?",
+        a: "Empiric antibiotics halve bone-biopsy culture yield per IDSA 2015 — condemning the patient to a 6-week broad-spectrum course rather than targeted therapy [cite:vosteo]. When the patient is hemodynamically stable, biopsy first (image-guided or open), then start empirics. The 24–48 h delay is acceptable in stable disease; the downstream stewardship + outcome benefit is documented. Reserve empiric-first for septic or unstable patients where waiting is unsafe." },
+      { q: "Why not add rifampin empirically — biofilm is everywhere?",
+        a: "Rifampin combination is reserved for confirmed staphylococcal osteo with RETAINED hardware (Zimmerli 1998: rifampin + cipro 100% cure vs 58% control) — never empirically and never as monotherapy [cite:vosteo]. Single-agent rifampin selects rapid resistance within days; combination outside the staph + hardware setting carries hepatotoxicity + CYP3A4 interactions (warfarin, statins, immunosuppressants) without benefit. Wait for culture-positive staph + retained hardware before adding." },
+      { q: "Why 6 wk minimum — that seems arbitrary?",
+        a: "IDSA 2015 (Berbari) anchors 6 wk as the minimum total course for native osteomyelitis from definitive debridement, supported by Park (PLoS One 2019 meta) and OVIVA outcomes [cite:oviva]. Shorter courses carry higher relapse; longer courses don't improve outcomes in responders. Extension applies for inadequate source control (retained sequestrum, undrained abscess), persistent ESR/CRP elevation, or immunocompromise. The 6-wk floor is gated by AND-joined clinical response, not arbitrary." },
+    ],
     research: {
       headline: "OVIVA — oral non-inferior to IV at 1-y treatment failure; debridement drives outcomes in chronic disease.",
       trials: [
@@ -2209,6 +2289,16 @@ const SYNDROME_DECISION = {
           why: "Non-inferior in selected; reduces line burden" },
       ],
     },
+    objections: [
+      { q: "Why 6 wk — legacy was 12 wk?",
+        a: "Bernard (Lancet 2015, n=351) [cite:vosteo] established 6 wk non-inferior to 12 wk for pyogenic vertebral osteomyelitis provided the organism is identified and the patient has clinical response — same treatment failure, mortality, and functional recovery. IDSA 2015 endorses 6 wk as standard; Park 2019 meta confirms across subgroups. The 12-wk legacy was empiric tradition without supporting outcome data. Extension applies only for inadequate response, immunocompromise, retained material, or fungal / TB / brucella substrate." },
+      { q: "Why biopsy before empirics — antibiotic delay seems dangerous?",
+        a: "IDSA 2015 (Berbari) [cite:vosteo] mandates image-guided bone biopsy BEFORE empirics in hemodynamically + neurologically stable patients — empiric therapy halves culture yield, condemning the patient to a 6-wk broad-spectrum course rather than targeted regimen matched to organism. The 24–48 h biopsy delay is acceptable in stable disease. Exception: epidural abscess + neurologic deficit, or sepsis at presentation — empiric-first applies, biopsy at decompression." },
+      { q: "Why emergent surgery for epidural abscess — antibiotic trial first?",
+        a: "Spinal epidural abscess (Darouiche NEJM 2006) [cite:darouicheea] with new or progressing neurologic deficit is a surgical emergency — emergent MRI followed by neurosurgical decompression within hours, not days. Delay-to-decompression is the strongest predictor of permanent deficit. Antibiotic-only trial is reserved for stable patients without deficit, with close neuro monitoring; any progression triggers surgery. Cord compression doesn't reverse on antibiotics alone." },
+      { q: "Why oral step-down — vertebral disease seems higher-stakes?",
+        a: "OVIVA (NEJM 2019, n=1,054) [cite:oviva] included vertebral osteomyelitis subset and established oral non-inferior to IV at 1-y treatment failure with substantial line-complication reduction. Select for: compliant patient, identified organism, highly bioavailable oral target (FQ, TMP-SMX, linezolid for MRSA), ESR + CRP trending normal, and reliable ID follow-up. BSAC 2024 endorses early oral switch. Reserve continued IV for unstable disease, no bioavailable agent, or deficit-evolution risk." },
+    ],
     research: {
       headline: "OVIVA established oral non-inferiority at 6 wk; debridement + biopsy-driven pathogen direct outcomes.",
       trials: [
@@ -2300,6 +2390,16 @@ const SYNDROME_DECISION = {
           why: "Anatomy + complete drainage drive surgical approach" },
       ],
     },
+    objections: [
+      { q: "Why drainage essential — antibiotics with high doses won't work?",
+        a: "Native septic arthritis is a drainage-first disease — joint aspiration + arthrotomy, arthroscopy, or serial therapeutic taps controls the bacterial burden that antibiotics cannot reach in synovial fluid alone. Geirsson (Lancet ID 2014) established open / arthroscopic drainage equivalent; serial aspiration acceptable for small accessible joints. IDSA 2010 + EULAR 2020 align with IDSA SSTI principles [cite:ssti]. Antibiotic-only management in established septic arthritis carries ~30% residual joint dysfunction (Bardin ARD 2003), driven primarily by inadequate source control." },
+      { q: "Why 2–4 wk — can we step down oral earlier per OVIVA?",
+        a: "OVIVA (NEJM 2019, n=1,054) [cite:oviva] included native septic arthritis subset and supports oral step-down once initial drainage is adequate and the patient is stable with a bioavailable agent matched to organism. Total duration is 2–4 wk depending on pathogen + drainage adequacy; the IV phase is shortened to initial control. Reserve continued IV for inability to tolerate oral, no bioavailable target, polyarticular disease, or concurrent bacteremia per SAB bands." },
+      { q: "Why only 7 d for gonococcal — that's a third the standard?",
+        a: "Gonococcal arthritis is the short outlier per IDSA + CDC STI 2021 [cite:cdc_sti] — ceftriaxone 1 g IV q24h converted to IM, 7 d total typically suffices because N. gonorrhoeae lacks the destructive synovial enzyme profile of S. aureus, drainage is rarely required, and the organism clears rapidly with cephalosporin. Mandatory adjuncts: partner notification + full STI screen (HIV, chlamydia, syphilis, hep B/C). Extend beyond 7 d only for atypical / endocarditis-pattern disease." },
+      { q: "Why not anti-pseudomonal cover empirically?",
+        a: "Routine anti-pseudomonal coverage for community native septic arthritis was deliberately tempered — Pseudomonas is reserved for IV drug use, immunocompromise, prior Pseudomonas isolate, or healthcare exposure. Community native septic arthritis is overwhelmingly S. aureus + streptococcus; cefazolin empiric covers MSSA, vancomycin added only when MRSA risk factors present [cite:ssti]. Reflexive pip-tazo in community disease wastes spectrum without changing outcomes." },
+    ],
     research: {
       headline: "Drainage + targeted antibiotics drive outcomes; gonococcal is the short outlier (7 d ceftriaxone).",
       trials: [
@@ -2393,6 +2493,16 @@ const SYNDROME_DECISION = {
           why: "PJI recurrence risk persists; symptoms must trigger early presentation" },
       ],
     },
+    objections: [
+      { q: "Why 3 mo hip / 6 mo knee for DAIR — DATIPO had options?",
+        a: "DATIPO (NEJM 2021, n=410) [cite:datipo] specifically showed 6 wk INFERIOR to 12 wk in DAIR + retained hardware — the longer course had lower treatment failure, supporting the IDSA 2013 (Osmon) 3-mo hip / 6-mo knee durations. The biofilm substrate on retained prosthesis is the driver — antibiotics need extended duration to penetrate and suppress biofilm-embedded organisms. Reserve 6 wk only for 2-stage exchange (between stages, with hardware removed and spacer in place)." },
+      { q: "Why rifampin combination — can we use a single agent?",
+        a: "Zimmerli (JAMA 1998, n=33) established rifampin + ciprofloxacin 100% cure vs 58% control for staphylococcal PJI with retained hardware — rifampin penetrates the biofilm matrix that vancomycin / β-lactams alone cannot reach. NEVER as monotherapy (selects rapid resistance within days), NEVER before cultures positive [cite:datipo]. Combination drug-interaction screen mandatory (CYP3A4: warfarin, statins, immunosuppressants, OCPs) + LFT monitoring. Outside the staph + retained-hardware setting, rifampin offers no benefit." },
+      { q: "Why DAIR over 2-stage — 2-stage is the gold standard?",
+        a: "DAIR (debridement, antibiotics, implant retention) is appropriate for acute / early PJI (typically < 3 wk symptoms), stable hardware, susceptible organism, and intact soft tissue — IDSA 2013 (Osmon) endorses with rifampin combination per DATIPO [cite:datipo]. 2-stage exchange remains gold standard for chronic / late infection, biofilm-resistant organism (Pseudomonas, fungal), failed DAIR, or compromised soft tissue. Strategy is co-decided by ortho + ID + plastics based on chronicity, microbiology, and host substrate." },
+      { q: "Why sonication of explanted hardware — cultures suffice?",
+        a: "Polymicrobial + biofilm flora on explanted prostheses are missed by standard tissue cultures alone — sonication (Trampuz NEJM 2007) disrupts biofilm and increases pathogen yield by 20–30% over swabs or single tissue culture. IDSA 2013 (Osmon) + EBJIS 2024 mandate 3–5 deep tissue cultures + sonication on explants to maximize yield [cite:datipo]. Pathogen identification drives the antibiotic plan; missed pathogen condemns the patient to broad-spectrum failure." },
+    ],
     research: {
       headline: "Strategy-specific durations; rifampin combination central to DAIR retained-hardware success.",
       trials: [
@@ -6099,6 +6209,16 @@ const SYNDROME_DECISION = {
           why: "Reduces line complications + length of stay; outpatient completion feasible" },
       ],
     },
+    objections: [
+      { q: "Why drainage essential — antibiotics for organized abscess?",
+        a: "Pyomyositis is overwhelmingly S. aureus (Crum CID 2004 — 75–95%) — antibiotics alone fail to sterilize an organized muscle abscess, which seeds bacteremia + recurs without drainage. MRI defines abscess vs phlegmon and guides IR or surgical drainage. IDSA 2014 SSTI [cite:ssti] is explicit: organized collections need source control. Reflexive antibiotic-only management of a drainable collection wastes time and risks decompensation; drainage is the inflection point." },
+      { q: "Why mandatory blood cultures — pyomyositis is local?",
+        a: "Concurrent S. aureus bacteremia is common in pyomyositis and escalates management to the SAB bundle (TEE for IE workup, 14-d minimum, ID consult, halved mortality with ID consult per IDSA 2011) [cite:ie]. Blood cultures × 2 at presentation are non-negotiable; positive cultures shift the case from a 3-wk SSTI to a 4–6+ wk endovascular workup. Missing bacteremia in pyomyositis is a missed SAB diagnosis with attributable mortality." },
+      { q: "Why not broaden GNR + anaerobe cover routinely?",
+        a: "Routine pip-tazo broad-spectrum was deliberately tempered for pyomyositis — the substrate is staphylococcal in 75–95% of cases per Crum / IDSA 2014 [cite:ssti], and reflexive GNR + anaerobic coverage wastes spectrum without changing outcomes. Reserve broader empirics for polymicrobial concern (bowel-adjacent muscle, post-traumatic, immunocompromised), tropical exposure with atypical pathogens, or bacteremic with non-staph identified. MSSA → cefazolin / nafcillin; MRSA → vancomycin / linezolid is the audit-defensible default." },
+      { q: "Why HIV + DM screen on new diagnosis — feels off-target?",
+        a: "Crum CID 2004 and subsequent series document that HIV (untreated cell-mediated compromise) and uncontrolled diabetes are the dominant modifiable substrates predisposing to pyomyositis — particularly tropical pyomyositis [cite:ssti]. Screening on new diagnosis catches treatable underlying disease that drives recurrence + complications. The cost of the labs is trivial; the downstream public-health + individual-care benefit is documented. Standard of care for new presentation." },
+    ],
     research: {
       headline: "S. aureus 75-95%; MRI early + drainage drives outcomes; SAB workup if S. aureus; HIV + DM screen for new diagnosis.",
       trials: [
@@ -6177,6 +6297,16 @@ const SYNDROME_DECISION = {
           why: "Underlying substrate drives recurrence; modifiable" },
       ],
     },
+    objections: [
+      { q: "Why mandatory aspiration — antibiotics can be empiric?",
+        a: "Aspiration at presentation is both diagnostic (cell count + Gram stain + crystal exam to exclude gout / pseudogout) and therapeutic — empiric antibiotics for sterile crystal bursitis drive resistance without benefit, and missing the crystal diagnosis means the patient remains untreated. IDSA 2014 SSTI [cite:ssti] aligns: fluid analysis differentiates the substrate. Reflexive empiric antibiotics without aspiration in classic olecranon / prepatellar bursitis is below-standard practice. The bedside tap takes minutes; the downstream decision-quality gain is substantial." },
+      { q: "Why 10–14 d — cellulitis is 5 d?",
+        a: "Bursitis duration exceeds cellulitis because the bursal space is avascular + slow to clear — Stell (Aust Fam Phys 2010) and society consensus support 10–14 d post-aspiration in the immunocompetent host, with extension to 14–21 d for immunocompromise or chronic disease (gout, RA, dialysis). Cellulitis short-course (Hepburn / Tansarli, IDSA 2014) [cite:ssti] doesn't extrapolate — different anatomy, different pharmacokinetic milieu. Persistent or recurrent disease triggers surgical bursectomy + ortho consult." },
+      { q: "Why oral cephalexin — should this be IV?",
+        a: "Oral cephalexin / dicloxacillin has ~90% bioavailability and matches IV cefazolin for uncomplicated olecranon / prepatellar bursitis without sepsis or systemic toxicity per IDSA 2014 [cite:ssti]. Reserve IV for severe sepsis, inability to tolerate oral, deep / atypical bursa involvement, or failed outpatient therapy. The IV-to-PO step-down is a stewardship win and an outpatient-eligibility gain, not a quality-of-care concession in low-risk hosts." },
+      { q: "Why not routine MRSA cover — feels safer?",
+        a: "Pallin (CID 2013) [cite:pallin] in cellulitis and IDSA 2014 SSTI [cite:ssti] establish that routine MRSA cover is unjustified in low-risk hosts — septic bursitis is overwhelmingly MSSA, and cefazolin / cephalexin is appropriate first-line in community presentation. Reserve vancomycin or PO TMP-SMX / doxy / clinda for purulent component, IVDU, prior MRSA isolate, prosthetic adjacent material, or non-response at 72 h. Reflexive vancomycin in community bursitis wastes a narrow agent." },
+    ],
     research: {
       headline: "Aspirate + culture distinguishes infection from crystal; 10-14 d after drainage; bursectomy for failure.",
       trials: [
@@ -9018,6 +9148,16 @@ const SYNDROME_DECISION = {
           why: "Touch contamination most common source; education reduces recurrence" },
       ],
     },
+    objections: [
+      { q: "Why IP antibiotics — IV is easier and adequate?",
+        a: "ISPD 2022 (Li update) establishes IP antibiotics first-line because the catheter IS a peritoneal-cavity device — IP dosing achieves substantially higher local concentrations than IV without systemic toxicity, and the route matches the infection compartment. Reflexive IV-only therapy was deliberately rejected by ISPD; IV is reserved for systemic sepsis or bacteremic substrate. IP cefazolin + ceftazidime (or vancomycin + aminoglycoside per local antibiogram) is the standard backbone, dosed per bag with nephrology + PD-nurse coordination [cite:stopit]." },
+      { q: "Why catheter removal for fungal — biofilm can be suppressed?",
+        a: "Fungal PD peritonitis mandates catheter removal — biofilm prevents sterilization and recurrence is near-universal with retention per ISPD 2022 + Boudville (Kidney Int 2012). Transition to HD is non-negotiable; the catheter cannot be salvaged. This is the cleanest source-control mandate in PD peritonitis [cite:stopit]. The same logic applies to refractory bacterial peritonitis at day 5 (non-response) — biofilm + tunnel involvement drives recurrence, and the catheter must come out." },
+      { q: "Why 14–21 d — peritonitis duration in cirrhosis is 5 d?",
+        a: "PD peritonitis duration is longer than SBP because the catheter substrate harbors biofilm flora that requires extended therapy to suppress + clear — ISPD 2022 mandates 14 d for gram-positive (S. aureus, CoNS, Strep), 14–21 d for gram-negative (E. coli, Klebsiella, Pseudomonas), and surgical workup for polymicrobial / enteric flora suggesting perforation. The duration tracks the source (the catheter), not just the bacteremic milieu [cite:stopit]. Effluent cell count > 100/μL + PMN > 50% drives ongoing-infection assessment." },
+      { q: "Why not routine carbapenem empiric — covers everything?",
+        a: "Routine empiric carbapenem in PD peritonitis was tempered to enteric polymicrobial source (suggesting perforation), known MDR colonization, or recent broad-antibiotic exposure — community PD peritonitis is touch-contamination skin flora (S. aureus, CoNS, Strep) + occasional GNR, where IP cefazolin + ceftazidime covers > 90% of isolates [cite:stopit]. Reflexive carbapenem drives collateral resistance + replaces a narrow IP backbone without changing outcomes. Reserve for documented MDR or polymicrobial enteric." },
+    ],
     research: {
       headline: "ISPD 2022 — IP antibiotics first-line; catheter removal mandatory for fungal + refractory at day 5; effluent cell count drives diagnosis.",
       trials: [
@@ -9104,6 +9244,16 @@ const SYNDROME_DECISION = {
           why: "Mycotic aneurysm + IE + line infection drive recurrence" },
       ],
     },
+    objections: [
+      { q: "Why PCD first — splenectomy is definitive source control?",
+        a: "Lardiere (World J Surg 2009) established percutaneous drainage first-line for accessible unilocular splenic abscesses ≥ 5 cm — preserves the spleen, avoids the lifelong OPSI risk of asplenia [cite:bisharat], and pairs with 4–6 wk targeted antibiotics for durable cure. Splenectomy is reserved for multiloculated collections, PCD failure, or hemodynamic instability. Reflexive upfront splenectomy in a salvageable case carries the OPSI cost without offsetting benefit; spleen preservation is the modern audit-defensible standard." },
+      { q: "Why TEE for bacteremic — splenic abscess is local?",
+        a: "Splenic abscess most often arises from bacteremic seeding — S. aureus or Streptococcus on blood culture mandates TEE to exclude IE as the source per AHA 2015 + IDSA SAB 2011 [cite:ie]. A missed IE source converts a 4–6 wk splenic-abscess course into the wrong treatment paradigm with potentially lethal endovascular focus left untreated. TEE is non-negotiable for bacteremic gram-positive substrate; positive findings shift to IE bands + surgical decision for valve disease." },
+      { q: "Why mandatory OPSI prophylaxis after splenectomy?",
+        a: "Overwhelming post-splenectomy infection (Bisharat Lancet ID 2001) [cite:bisharat] carries 50–70% mortality without prevention — pneumococcal (PCV15 + PPSV23), meningococcal (MenACWY + MenB), and Hib vaccines per CDC ACIP 2024 [cite:cdc_acip] + BSH 2011 [cite:davies_bsh] are mandatory, ideally 2 wk pre-splenectomy or as soon as possible post-op. Standby antibiotic (amoxicillin or cefuroxime) for fever + medical-alert documentation completes the bundle. Skipping prophylaxis after splenectomy is below standard of care." },
+      { q: "Why HIV workup for Salmonella splenic abscess?",
+        a: "Salmonella splenic abscess is a marker of cell-mediated immune compromise — disproportionately seen in untreated HIV, hematologic malignancy, and other T-cell-deficient hosts [cite:bisharat]. HIV workup at presentation catches treatable underlying disease that drives recurrence + opportunistic comorbidity. Extended ceftriaxone or cipro course (4–6 wk) pairs with drainage; immune restoration drives durable outcome. The screen cost is trivial; missed diagnosis condemns the patient to recurrent invasive disease." },
+    ],
     research: {
       headline: "PCD or surgical drainage drives outcome; Salmonella seeding common in immunocompromised; OPSI ppx mandatory post-splenectomy.",
       trials: [
