@@ -30,6 +30,7 @@ import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { ReassessmentPanel } from "./ReassessmentPanel.jsx";
 import { DurationBlock } from "./DurationBlock.jsx";
 import { MonitoringBlock } from "./MonitoringBlock.jsx";
+import { CombinedRisksBlock } from "./CombinedRisksBlock.jsx";
 import { Section } from "./Section.jsx";
 import { getSyndromeDuration, getSyndromeMonitoring } from "../data/syndromeDecision.js";
 
@@ -280,20 +281,39 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
   const ans = useMemo(() => composeAnswer(caseState), [caseState]);
   const [copied, setCopied] = useState(false);
 
-  /* Phase D2 cross-section selection state. Two interlocking signals:
-       pickedAgent  — the agent picked in any RegimenOptions card
-                      (core or add tier; latest pick wins, scoped to
-                      this syndrome render)
+  /* Phase D3.1 cross-section selection state — multi-tier aware.
+       picksByTier  — { [tierLabel]: agentText | null } — one pick
+                      per tier (Core / Add MRSA / Add resistant-GNR
+                      cover / etc.). The actual regimen is the UNION
+                      of picks across every tier (cefepime + vanco,
+                      not just whichever was clicked last). Combined-
+                      regimen risk detection (D3.2) runs against this
+                      union so pairs like pip-tazo + vanco fire even
+                      when picked from separate tiers.
+       pickedAgents — the union derived from picksByTier; consumed by
+                      every downstream matcher (matchAgent regex on
+                      duration branches + monitoring items, combined-
+                      risk pair detection).
        pickedBranch — the duration branch the clinician clicked in
-                      DurationBlock; null when no manual selection
+                      DurationBlock; null when no manual selection.
 
-     DurationBlock + MonitoringBlock both consume these signals;
-     selections in either propagate downstream so monitoring items
-     tagged with matchAgent / matchBranch leap out as MATCHES. The
-     state is intentionally local to AnswerCanvas — it's ephemeral
-     UI exploration, not part of the persisted caseState. */
-  const [pickedAgent, setPickedAgent] = useState(null);
+     The state is intentionally local to AnswerCanvas — it's
+     ephemeral UI exploration, not part of the persisted caseState. */
+  const [picksByTier, setPicksByTier] = useState({});
   const [pickedBranch, setPickedBranch] = useState(null);
+
+  const pickedAgents = useMemo(
+    () => Object.values(picksByTier).filter(Boolean),
+    [picksByTier]
+  );
+
+  /* Per-tier pick setter — a curried factory so each RxLine can
+     report into its own tier slot without colliding with sibling
+     tiers' picks. The tier label is the key (tier.k); null clears
+     the pick for that tier (currently unused but supported). */
+  const setTierPick = (tierLabel) => (agentText) => {
+    setPicksByTier(prev => ({ ...prev, [tierLabel]: agentText }));
+  };
 
   /* Bidirectional bridge: the sourceControlled chip in
      ReassessmentPanel and the matching duration branch represent
@@ -322,12 +342,16 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
       const b = dur.branches.find(br => /uncomplicated|source[\s-]?controlled/i.test(br.label));
       if(b) return b.label;
     }
-    if(pickedAgent) {
-      const match = dur.branches.find(b => b.matchAgent && b.matchAgent.test(pickedAgent));
+    // Any picked agent whose matchAgent regex hits a branch lights
+    // that branch. First match wins — picks from earlier tiers
+    // (Core) take precedence over later ones (Add) which matches
+    // the visual / clinical reading order.
+    for(const agent of pickedAgents) {
+      const match = dur.branches.find(b => b.matchAgent && b.matchAgent.test(agent));
       if(match) return match.label;
     }
     return null;
-  }, [pickedAgent, pickedBranch, sourceControlled, ans]);
+  }, [pickedAgents, pickedBranch, sourceControlled, ans]);
 
   /* When a branch is clicked, also flip the sourceControlled chip
      to match (set on the source-controlled branch, clear on others).
@@ -452,17 +476,20 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         </div>
       )}
 
-      {/* START NOW — the regimen. Latest pick across any tier (core or
-          add) wins as the cross-section pickedAgent; downstream blocks
-          (DurationBlock, MonitoringBlock) light their matchAgent items. */}
+      {/* START NOW — the regimen. Each tier's pick is reported into
+          its own slot in picksByTier; the union (pickedAgents) drives
+          downstream cross-section linking. This is the D3.1 multi-tier
+          aggregation foundation: combined-risk detection (D3.2) reads
+          across all tiers so pairs like pip-tazo + vancomycin fire
+          even when the user picked them from separate tiers. */}
       <Section kicker="Start now" icon={Crosshair} sticky>
         <RxLine kind="core" tier={ans.core} refinements={coreRefinements} onDrug={onDrug}
           ctx={ans.ctx} d={ans.d} synId={s.id}
-          onAgentSelect={setPickedAgent} />
+          onAgentSelect={setTierPick(ans.core.k)} />
         {ans.adds.map((a, i) => (
           <RxLine key={i} kind="add" tier={a} refinements={[]} onDrug={onDrug}
             ctx={ans.ctx} d={ans.d} synId={s.id}
-            onAgentSelect={setPickedAgent} />
+            onAgentSelect={setTierPick(a.k)} />
         ))}
 
         {/* Allergy guardrail — quick read above the dose calc */}
@@ -626,9 +653,15 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           branch) propagates to MonitoringBlock so items tagged with
           matchBranch surface as MATCHES. Both signals also drive the
           MonitoringBlock matchAgent highlighting. */}
+      {/* COMBINED-REGIMEN RISKS (Phase D3.2) — agent-pair interactions
+          detected across the union of picks from every tier above.
+          Renders nothing when no risks fire, so the page baseline is
+          unchanged for safe combinations. */}
+      <CombinedRisksBlock pickedAgents={pickedAgents} />
+
       <DurationBlock
         duration={getSyndromeDuration(s.id)}
-        pickedAgent={pickedAgent}
+        pickedAgents={pickedAgents}
         pickedBranch={effectiveBranch}
         onBranchSelect={handleBranchSelect}
         startDate={startDate}
@@ -636,7 +669,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
       />
       <MonitoringBlock
         monitoring={getSyndromeMonitoring(s.id)}
-        pickedAgent={pickedAgent}
+        pickedAgents={pickedAgents}
         pickedBranch={effectiveBranch}
       />
 
