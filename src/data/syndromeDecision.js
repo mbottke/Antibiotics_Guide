@@ -3979,6 +3979,10 @@ const SYNDROME_DECISION = {
           why: "Address entry portal" },
       ],
     },
+    rationale: {
+      driver: "Native-valve IE duration is organism-driven from the first negative blood culture, with an endocarditis team (ID + cardiology + cardiac surgery) mandated by AHA 2015 / ESC 2023 — coordinated care drops registry mortality from 27% → 13%. PCN-susceptible viridans / S. gallolyticus complete 4 wk of penicillin G or ceftriaxone; enterococcal disease prefers ampicillin + ceftriaxone × 6 wk (Fernandez-Hidalgo, CID 2013 — equivalent cure with substantially less nephrotoxicity than amp + gent); MSSA gets cefazolin or nafcillin × 6 wk; MRSA gets vancomycin (AUC 400–600) or daptomycin 8–10 mg/kg × 6 wk. Early surgery for HF, abscess, large vegetation + embolus, or persistent BCx is a Class I indication.",
+      guideline: "ie",
+      rejected: "Adjunctive rifampin for native-valve staphylococcal IE was deliberately rejected — ARREST (Lancet 2018, n=770) showed no mortality benefit and increased AEs / drug interactions; rifampin retains its role only in PVE staph where biofilm penetration matters. Routine 2-week aminoglycoside synergy for native-valve viridans IE was tempered: the short-course PCN + gent regimen is restricted to strictly uncomplicated low-risk per Sexton 1998 — most patients get standard 4-wk monotherapy without the renal / ototoxicity cost." },
     research: {
       headline: "AHA 2015 + ESC 2023 align on pathogen-driven 4–6 wk; viridans short course (2 wk + gent) for selected low-risk.",
       trials: [
@@ -4068,6 +4072,10 @@ const SYNDROME_DECISION = {
           why: "Lifelong oral per ID + cardiac surgery" },
       ],
     },
+    rationale: {
+      driver: "PVE inverts the native-valve calculus — the foreign body is the source, biofilm dominates, and surgery is far more common (almost universal in early PVE < 1 year). Staphylococcal PVE adds rifampin to vancomycin or a β-lactam for biofilm penetration plus gentamicin × 2 wk synergy, with a minimum 6-wk IV course (AHA 2015 + ESC 2023 Class I). Streptococcal / enterococcal PVE uses the same agents as native valve but for ≥ 6 wk with a lower surgical threshold. Culture-negative PVE is empirically covered with vancomycin + cefepime + rifampin while atypical pathogens (HACEK, Bartonella, Coxiella) are worked up — these change agents fundamentally.",
+      guideline: "ie",
+      rejected: "The native-valve approach of omitting rifampin was deliberately rejected for staphylococcal PVE — Karchmer (JAMA 1993) and decades of cohort data establish rifampin combination as central to biofilm penetration on prosthetic material, the opposite of the ARREST native-valve verdict. Antibiotic monotherapy without surgical evaluation in early PVE (< 1 year) was rejected: paravalvular extension, valve dehiscence, and persistent bacteremia are surgical Class I indications, and delaying valve replacement worsens mortality." },
     research: {
       headline: "Rifampin combination central to PVE staph; aminoglycoside synergy first 2 wk; surgery indicated for paravalvular extension.",
       trials: [
@@ -4163,6 +4171,10 @@ const SYNDROME_DECISION = {
           matchBranch: ["Line retained (lock therapy)"] },
       ],
     },
+    rationale: {
+      driver: "CRBSI is fundamentally a hardware-removal problem — biofilm on the catheter renders systemic-only therapy inadequate, and line removal is mandatory for S. aureus, Pseudomonas, Candida, and any persistent bacteremia (Mermel / IDSA 2009). Duration runs from the first negative culture after line removal and is pathogen-specific: uncomplicated CoNS 5–7 d, S. aureus 14 d minimum with TEE workup (15–25% endocarditis risk), Candida 14 d after clearance with mandatory dilated fundoscopy, and GNR 7 d under BALANCE bands. Differential time-to-positivity > 2 h between line and peripheral cultures favors line source — useful when both stay in.",
+      guideline: "crbsi_g",
+      rejected: "Antibiotic lock therapy as a salvage strategy was deliberately tempered — Raad (CID 2013) showed ~70% salvage for CoNS but substantially lower for S. aureus and Pseudomonas, and IDSA 2009 reserves lock therapy for CoNS + clinically stable + long-term-line-essential patients. Routine empiric continuation of broad coverage past 48 h was rejected: pathogen identification + speciation drive narrowing to a single targeted agent, and persistent broad coverage drives AKI + C. difficile + resistance without clinical benefit." },
     research: {
       headline: "Line removal drives outcome; pathogen-specific duration (S. aureus 14 d min, CoNS 7 d); echo for S. aureus.",
       trials: [
@@ -4427,6 +4439,10 @@ const SYNDROME_DECISION = {
           why: "Falling PCT supports BALANCE-style early stop" },
       ],
     },
+    rationale: {
+      driver: "BALANCE (NEJM 2025, n=3,608) is the modern anchor — 7 d non-inferior to 14 d at the 4% margin for 90-day mortality in GNR bacteremia with adequate source control, displacing the legacy 14-d default. The 7-d clock starts at the first negative blood culture, requires source control achieved, and excludes endovascular focus + immunocompromise + non-fermenters without control. Resistance phenotype redirects the agent: ESBL → carbapenem (MERINO showed pip-tazo mortality 12.3% vs 3.7% on meropenem and stopped early); AmpC → cefepime; KPC-CRE → ceftaz-avi or mero-vabor; metallo-CRE → cefiderocol or ceftaz-avi + aztreonam.",
+      guideline: "balance",
+      rejected: "The reflexive 14-d course was deliberately rejected — BALANCE 2025 and Yahav (CID 2019) both established 7 d non-inferior in source-controlled GNR bacteremia, and longer courses simply expose patients to AKI, C. difficile, and selection of resistant flora without benefit. Empiric piperacillin-tazobactam for serious ESBL bloodstream infection was rejected by MERINO (JAMA 2018): in-vitro susceptibility does not equal clinical efficacy at the inoculum + pK exposure of bacteremia — use a carbapenem." },
     research: {
       headline: "BALANCE established 7 d non-inferior to 14 d in source-controlled GNR bacteremia; MERINO showed pip-tazo inferior for ESBL.",
       trials: [
@@ -4511,6 +4527,10 @@ const SYNDROME_DECISION = {
           why: "CoNS biofilm on hardware drives recurrence" },
       ],
     },
+    rationale: {
+      driver: "The diagnostic challenge in CoNS bacteremia is the contaminant rate — a single positive culture is contamination in over 50% of practice, so management hinges on ≥ 2 positive sets plus a plausible source (line, hardware, prosthetic material) plus clinical signs before committing to therapy (Mermel / IDSA 2009). True infection with line removed completes 5–7 d of vancomycin (most CoNS are methicillin-resistant) or cefazolin / nafcillin for the oxacillin-susceptible minority. S. lugdunensis is the critical outlier — hypervirulent CoNS that must be treated as S. aureus (14 d minimum with TEE) regardless of phenotype, because missed identification predicts treatment failure.",
+      guideline: "crbsi_g",
+      rejected: "Treating every positive CoNS culture as true infection was deliberately rejected — over half are skin contaminants, and committing such patients to 7+ days of vancomycin drives AKI, line exposure, and resistance with no benefit. Empiric prolonged courses with retained hardware were tempered: lock-therapy salvage is appropriate only for selected stable patients with long-term-line-essential indications, and persistent positivity on lock therapy should trigger explant rather than further IV escalation." },
     research: {
       headline: "Distinguish contaminant from true infection (≥ 2 cultures + hardware + clinical); line out is the inflection point.",
       trials: [
@@ -4591,6 +4611,10 @@ const SYNDROME_DECISION = {
           why: "Enterococcal seeding from GI/GU tract" },
       ],
     },
+    rationale: {
+      driver: "Enterococcal bacteremia management hinges on species + susceptibility — E. faecalis (typically amp-S) gets ampicillin or penicillin G × 7–14 d for uncomplicated disease; E. faecium / VRE requires daptomycin 10–12 mg/kg high-dose or linezolid (Britt CID 2017 — higher dose reduced mortality + microbiologic failure). TEE is mandatory for persistent bacteremia or community-onset disease because enterococcal IE complicates 20–30% of bacteremic episodes and shifts duration to 6 wk. For E. faecalis IE, ampicillin + ceftriaxone replaced amp + gent as the preferred regimen (Fernandez-Hidalgo, CID 2013, n=246) — equivalent cure with substantially less nephrotoxicity.",
+      guideline: "ie",
+      rejected: "Routine ampicillin + gentamicin synergy for E. faecalis IE was deliberately rejected — Fernandez-Hidalgo demonstrated amp + ceftriaxone equivalent cure with markedly less AKI, and the renal cost of 2 wk of synergistic gentamicin is unnecessary in most amp-S disease. Standard 4–6 mg/kg daptomycin dosing for VRE bacteremia was rejected: Britt 2017 and IDSA 2011 require 10–12 mg/kg high-dose for bacteremia, as standard doses under-treat the higher MICs and select dapto-resistant subpopulations." },
     research: {
       headline: "Fernandez-Hidalgo 2013 validated ampicillin + ceftriaxone for E. faecalis IE; daptomycin-HD for VRE bacteremia.",
       trials: [
@@ -4667,6 +4691,10 @@ const SYNDROME_DECISION = {
           why: "Rhabdomyolysis risk; reversible if caught early" },
       ],
     },
+    rationale: {
+      driver: "Persistent MRSA bacteremia at ≥ 7 d on appropriate vancomycin is a salvage emergency — mortality climbs steeply, and an unidentified endovascular or metastatic focus is present in 30–50% of cases. The salvage protocol is daptomycin 10 mg/kg + ceftaroline combination (Geriak AAC 2019 — mortality 0% combination vs 26% vanco-only in small persistent cohort), with synergy that bypasses vancomycin failure mechanisms (MIC creep, biofilm, intracellular persistence). PET-CT identifies occult source in 30–50% (Holland CID 2019) and changes management. ID consult mandatory; mortality benefit replicates across registries.",
+      guideline: "arrest",
+      rejected: "Continuing higher-dose vancomycin alone past day 7 of persistent bacteremia was deliberately rejected — Geriak and successor cohorts established that the failure mechanism is vancomycin-specific (heteroresistance, AUC ceiling, biofilm penetration) and not dose-responsive; doubling down on the failing agent wastes time. Adding rifampin to vancomycin for persistent MRSA bacteremia was tempered: ARREST (Lancet 2018) showed no mortality benefit in SAB and increased drug interactions — rifampin retains its role only in PVE staph + retained hardware." },
     research: {
       headline: "Vanco failure → daptomycin + ceftaroline salvage; PET-CT for occult source; persistent ≥ 7 d triggers protocol.",
       trials: [
@@ -4746,6 +4774,10 @@ const SYNDROME_DECISION = {
           why: "Identify + control source for cure" },
       ],
     },
+    rationale: {
+      driver: "Susceptible Pseudomonas bacteremia is managed with a single anti-pseudomonal β-lactam (cefepime, pip-tazo, meropenem, or ceftazidime) sufficient in most cases — Paul (BMJ 2014 meta) showed combination therapy does not reduce mortality overall and drives nephrotoxicity. Duration is 7–14 d in source-controlled disease; BALANCE excluded Pseudomonas, so the 7-d floor is extrapolated rather than proven. DTR-Pseudomonas (CRPa) requires mechanism-matched novel β-lactams per IDSA 2024 (Tamma): ceftolozane-tazobactam or ceftazidime-avibactam for most KPC-mediated, imipenem-relebactam alternative, cefiderocol for metallo-β-lactamases or pan-resistant strains. Extended-infusion β-lactams improve PK target attainment.",
+      guideline: "amrgn",
+      rejected: "Routine empiric β-lactam + aminoglycoside combination for Pseudomonas bacteremia was deliberately tempered — Paul 2014 and IDSA 2024 confirm no mortality benefit outside neutropenic / septic-shock empirics, and the renal cost of combination is unjustified after susceptibility narrowing. Inhaled adjunctive antibiotics for Pseudomonas pneumonia / bacteremia were rejected: IASIS + INHALE trials both negative for nebulized aminoglycoside or colistin add-on, despite intuitive appeal." },
     research: {
       headline: "Anti-pseudomonal β-lactam ± aminoglycoside synergy; ID consult mandatory; novel β-lactams for MDR strains.",
       trials: [
@@ -4832,6 +4864,10 @@ const SYNDROME_DECISION = {
           why: "Enterococcal translocation from gut common" },
       ],
     },
+    rationale: {
+      driver: "VRE bacteremia treatment hinges on dose, not just drug — daptomycin 10–12 mg/kg high-dose is primary, NOT the 4–6 mg/kg used for SSTI, because standard dosing under-treats the higher VRE MICs and selects dapto-resistant subpopulations (Britt CID 2017 — high-dose reduced mortality + microbiologic failure). Linezolid 600 mg q12h is an equally acceptable alternative with bacteriostatic mechanism, but cytopenias + peripheral neuropathy + lactic acidosis limit courses > 14 d. Persistent VRE bacteremia on monotherapy triggers combination salvage with ceftaroline or ampicillin synergy. CK weekly + statin hold mandatory on daptomycin high-dose.",
+      guideline: "ie",
+      rejected: "Standard daptomycin dosing (4–6 mg/kg) for VRE bacteremia was deliberately rejected — Britt 2017 and IDSA 2011 require 10–12 mg/kg high-dose for bacteremic disease, and standard doses are associated with treatment failure + selection of dapto-non-susceptible E. faecium. Routine empiric combination therapy was tempered: monotherapy with high-dose daptomycin or linezolid is sufficient for uncomplicated cases, and combination is reserved for persistent bacteremia after 5–7 d of failing monotherapy or for IE." },
     research: {
       headline: "Daptomycin high-dose (10-12 mg/kg) primary; linezolid alternative; combination salvage for persistent.",
       trials: [
@@ -4903,6 +4939,10 @@ const SYNDROME_DECISION = {
           why: "Polymicrobial IE rare but reported" },
       ],
     },
+    rationale: {
+      driver: "Polymicrobial bacteremia almost always reflects an uncontrolled deep source — gut translocation (abdominal abscess, ischemic bowel, biliary obstruction) drives the majority, and source control is the inflection point that determines outcome. Empiric coverage starts broad (pip-tazo + vanco typical) to cover enteric GNR + anaerobes + Gram-positives, with narrowing on speciation at 48–72 h essential for stewardship. STOP-IT bands apply once the abdominal source is controlled (~4 d post-control non-inferior to longer regimens). Upper-GI perforation or postoperative substrate should add empiric echinocandin coverage — Candida co-infection carries substantial mortality if missed.",
+      guideline: "stopit",
+      rejected: "Sustained broad empiric coverage beyond 72 h was deliberately rejected — by the time speciation is back, polymicrobial sets typically simplify to one or two dominant pathogens, and persistent multi-agent therapy without narrowing drives AKI + C. difficile + resistance without benefit. Antibiotic-only management without surgical / interventional source control was tempered: persistent polymicrobial bacteremia without an identified drainable focus mandates re-imaging and re-intervention; antibiotic escalation merely buys time the source still needs surgery to fix." },
     research: {
       headline: "Surgical source control drives outcome; broad initial → narrow on cultures; echinocandin for upper-GI perf.",
       trials: [
@@ -4977,6 +5017,10 @@ const SYNDROME_DECISION = {
           why: "Identify entry portal for prevention" },
       ],
     },
+    rationale: {
+      driver: "Streptococcal bacteremia management forks by species — penicillin-susceptible viridans / anginosus / gallolyticus complete 10–14 d of penicillin G or ceftriaxone, while S. gallolyticus mandates colonoscopy regardless of age (25–80% association with colon cancer or polyps; Klein JAMA Surg 2019). Severe invasive GAS adds clindamycin for ribosomal toxin suppression — Linnér (CID 2014) supported the combination + IVIG signal in streptococcal TSS; routine ribosomal block continues 5+ d past clinical stability. Streptococcal IE shifts to 4–6 wk per IE bands; the 2-wk PCN + gent regimen is restricted to strictly uncomplicated low-risk viridans (Sexton 1998).",
+      guideline: "ssti",
+      rejected: "Single-agent penicillin without clindamycin for severe invasive GAS was deliberately rejected — toxin-mediated tissue destruction continues even when the organism is being killed, and ribosomal block (clindamycin) is the only mechanism that halts exotoxin production. Skipping colonoscopy after S. gallolyticus bacteremia was rejected: the 25–80% colon-cancer association is too high to defer workup regardless of patient age — colonoscopy at bacteremia diagnosis is the standard." },
     research: {
       headline: "10–14 d for PCN-susceptible; S. gallolyticus → colonoscopy; clindamycin + IVIG for GAS-TSS.",
       trials: [
@@ -5064,6 +5108,10 @@ const SYNDROME_DECISION = {
           why: "Hardware seeding from endocarditis vs vice-versa" },
       ],
     },
+    rationale: {
+      driver: "Vascular graft / CIED / LVAD / pacemaker infection is a hardware-biofilm disease — explant is the curative path, and antibiotics alone fail when the device stays in. Vascular surgery + ID coordination is mandatory at presentation; TEE is standard to identify endocarditis or lead-vegetation. Staphylococcal hardware retention requires rifampin combination (biofilm penetration; Zimmerli principle) plus a long IV β-lactam or vancomycin, with the minimum duration ≥ 6 wk and surgical removal preferred whenever feasible. Lifelong oral suppression is reserved for irretrievable hardware where the surgical risk outweighs the suppression risk — a case-by-case ID + vascular surgery + cardiac surgery decision.",
+      guideline: "ie",
+      rejected: "Empiric continuation of broad systemic therapy without surgical evaluation was deliberately rejected — biofilm on prosthetic material is not penetrated by systemic-alone dosing, and delayed explant in retrievable devices worsens outcomes substantially. Empiric rifampin before culture data was tempered: rifampin retains its role only for confirmed staph + retained hardware, and starting before susceptibilities are back risks rapid resistance selection on what may turn out to be a non-staph or fully removable infection." },
     research: {
       headline: "Explant drives outcomes; rifampin for retained staph hardware; lifelong suppression for irretrievable.",
       trials: [
@@ -8096,6 +8144,10 @@ const SYNDROME_DECISION = {
           why: "Peritonsillar abscess or chronic pharyngitis may need surgical drainage" },
       ],
     },
+    rationale: {
+      driver: "Lemierre is septic thrombophlebitis of the internal jugular vein — Fusobacterium necrophorum > 80% (Karkos Laryngoscope 2009), seeded from an oropharyngeal source. Treatment runs 4–6 wk because the IJ thrombus and the typical pulmonary septic emboli are slow to clear; standard empirics are pip-tazo or ampicillin-sulbactam IV with anaerobic coverage built in, transitioning to oral amox-clav or metronidazole when stable. CT neck + chest at presentation confirms IJ thrombus + identifies pulmonary emboli, empyema, or abscesses requiring drainage. ID consult early; metastatic foci (brain, joint, vertebrae) drive extension beyond the 4–6-wk baseline.",
+      guideline: "ssti",
+      rejected: "Standard short-course bacteremia management (7–14 d) was deliberately rejected for Lemierre — the IJ thrombus and pulmonary septic emboli have substantially slower clearance kinetics than uncomplicated bacteremia, and shorter courses risk relapse + persistent metastatic seeding. Routine anticoagulation for all IJ thrombi was tempered: Phua (Eur J Clin Microbiol 2013) and successor reviews showed heterogeneous practice without clear mortality benefit — anticoagulation is reserved for propagation, persistent bacteremia, or cavernous sinus involvement." },
     research: {
       headline: "F. necrophorum dominant; 4–6 wk pathogen-directed; anticoagulation case-by-case for IJ thrombus.",
       trials: [
@@ -8181,6 +8233,10 @@ const SYNDROME_DECISION = {
           why: "Not standard; may benefit non-fungal severe disease; ophtho-driven decision" },
       ],
     },
+    rationale: {
+      driver: "Endophthalmitis treatment is fundamentally a vitreous-penetration problem — systemic antibiotics fail because the blood–retinal barrier limits intravitreal drug levels, so intravitreal vancomycin 1 mg + ceftazidime 2.25 mg is the primary therapy delivered as tap-and-inject within hours of suspicion (EVS Arch Ophthalmol 1995). Vitrectomy adds benefit limited to the light-perception-only subgroup. Endogenous endophthalmitis (hematogenous seeding, often Candida or hypervirulent K. pneumoniae) needs 14–21 d systemic to treat the source plus intravitreal early. Fungal disease extends to 6 wk with voriconazole or amphotericin systemic + intravitreal. Ophthalmology emergency — delay drives permanent vision loss.",
+      guideline: "ie",
+      rejected: "Systemic-only therapy for endophthalmitis was deliberately rejected — the vitreous + aqueous compartments are poorly penetrated by systemic dosing, and intravitreal antibiotics within hours of suspicion are the only proven path to vision preservation (EVS 1995). Routine vitrectomy for all severities was tempered: EVS established benefit limited to the light-perception-only subgroup, and earlier or less severe cases do not benefit from the surgical exposure + complication risk." },
     research: {
       headline: "EVS 1995 — intravitreal antibiotics PRIMARY; vitrectomy for LP vision; systemic alone fails (poor vitreous penetration).",
       trials: [
@@ -8360,6 +8416,10 @@ const SYNDROME_DECISION = {
           why: "Coordinated care drives suppression compliance + early detection of recurrence" },
       ],
     },
+    rationale: {
+      driver: "Mycotic aneurysm is a surgical emergency — rupture risk dominates, and antibiotic-only management uniformly fails (Lee J Vasc Surg 2010). Vascular surgery emergent consult + CT angiography at presentation define the aneurysm + adjacent structures + surgical approach. Open repair or endovascular (EVAR) achieves source control; pathogen-directed IV runs 6 wk minimum, with lifelong oral suppression standard for any retained foreign material (graft, stent-graft). Salmonella + age > 50 and S. aureus bacteremia + back pain are the two highest-yield clinical triggers for CT angio workup. Non-typhoidal Salmonella seeds vascular endothelium preferentially — high index of suspicion in any age > 50 patient with NTS bacteremia.",
+      guideline: "ie",
+      rejected: "Antibiotic-only management of mycotic aneurysm was deliberately rejected — rupture risk dominates the natural history, and even prolonged appropriate antibiotics cannot reliably stabilize an infected aneurysm without surgical or endovascular repair. Truncated short-course bacteremia management (7–14 d) was tempered: even after successful repair, the perivascular substrate and foreign material burden warrant 6 wk IV minimum + chronic suppression for retained graft material; the 7-d BALANCE bands explicitly exclude endovascular substrate." },
     research: {
       headline: "Surgical repair + 6 wk IV; lifelong suppression for retained graft; Salmonella + age > 50 → CT angio.",
       trials: [
