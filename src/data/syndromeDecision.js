@@ -2200,8 +2200,8 @@ const SYNDROME_DECISION = {
       headline: "7 d once afebrile ≥ 48 h + ANC recovering; longer if documented bacteremia or source.",
       evidence: "IDSA 2018 (Taplitz) — discontinue when afebrile + ANC > 500; longer for documented infection",
       branches: [
-        { label: "FUO, response by 48 h, ANC recovering", days: "7 d or to ANC > 500",
-          detail: "Stop empirics when afebrile + ANC recovering; no documented source" },
+        { label: "FUO, response by 48 h, ANC recovering", days: "7 d",
+          detail: "Stop empirics when afebrile + ANC recovering (ANC > 500); no documented source" },
         { label: "Documented bacteremia", days: "7–14 d",
           detail: "BALANCE bands apply; from first negative BCx; pathogen-driven duration" },
         { label: "Documented deep infection (pneumonia, abscess)", days: "Per source",
@@ -2641,8 +2641,8 @@ const SYNDROME_DECISION = {
       headline: "Stop empirics when afebrile + ANC > 500; longer for documented infection.",
       evidence: "IDSA 2018 (Taplitz) — early-stop strategy; documented infection drives pathogen-specific duration",
       branches: [
-        { label: "FUO, defervescence by 48 h", days: "Until ANC > 500",
-          detail: "Stop empirics at afebrile + ANC recovering; no documented source" },
+        { label: "FUO, defervescence by 48 h", days: "Until ANC recovers",
+          detail: "Stop empirics at afebrile + ANC > 500; no documented source" },
         { label: "Documented bacteremia", days: "Per pathogen",
           detail: "Treat per source-specific bands; BALANCE 7 d for GNR controlled" },
         { label: "Documented deep infection", days: "Per source",
