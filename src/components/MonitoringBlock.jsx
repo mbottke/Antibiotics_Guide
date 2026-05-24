@@ -21,6 +21,7 @@
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
 import { Activity, AlertTriangle, CheckCircle2, Info } from "lucide-react";
+import { Section } from "./Section.jsx";
 
 /* Bold-callout parser. Shared shape with RegimenOptions / DurationBlock. */
 function parseBold(text) {
@@ -174,30 +175,14 @@ function MonitoringBlock({ monitoring, pickedAgent, pickedBranch }) {
   const trigger  = bySeverity("trigger");
   const consider = bySeverity("consider");
 
+  /* Render through the shared Section so the kicker + box chrome
+     match every other section on the page. The "N matches for
+     selection" chip lives in the kicker row (right of the label)
+     as the only section-level adornment. */
   return (
-    <section
-      data-testid="monitoring-block"
-      style={{
-        background:"var(--panel)",
-        border:"1px solid var(--line)",
-        borderRadius:10,
-        padding:"14px 16px",
-        marginTop: 12,
-      }}>
-      {/* Title strip */}
-      <div style={{
-        display:"flex", alignItems:"center", gap:7, marginBottom:10,
-        paddingBottom:8, borderBottom:"1px solid var(--line)",
-        justifyContent: "space-between",
-      }}>
-        <div style={{ display:"flex", alignItems:"center", gap:7 }}>
-          <Activity size={14} color={accent} aria-hidden />
-          <span style={{
-            fontFamily:"var(--mono)", fontSize:10.5, letterSpacing:".12em",
-            textTransform:"uppercase", fontWeight:700, color:"var(--ink)",
-          }}>Monitoring · What to check</span>
-        </div>
-        {matchedCount > 0 && (
+    <Section kicker="Monitoring · What to check" icon={Activity} testId="monitoring-block">
+      {matchedCount > 0 && (
+        <div style={{ marginBottom: headline || items.length ? 10 : 0, display:"flex", justifyContent:"flex-end" }}>
           <span style={{
             display:"inline-flex", alignItems:"center", gap:5,
             fontFamily:"var(--mono)", fontSize:9, letterSpacing:".08em",
@@ -207,8 +192,8 @@ function MonitoringBlock({ monitoring, pickedAgent, pickedBranch }) {
           }}>
             {matchedCount} {matchedCount === 1 ? "match" : "matches"} for selection
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Headline */}
       {headline && (
@@ -236,7 +221,7 @@ function MonitoringBlock({ monitoring, pickedAgent, pickedBranch }) {
           {consider.map((d, i) => <MonitoringItem key={"c"+i} item={d.item} matched={d.matched} />)}
         </ul>
       )}
-    </section>
+    </Section>
   );
 }
 

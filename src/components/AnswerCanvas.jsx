@@ -30,6 +30,7 @@ import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { ReassessmentPanel } from "./ReassessmentPanel.jsx";
 import { DurationBlock } from "./DurationBlock.jsx";
 import { MonitoringBlock } from "./MonitoringBlock.jsx";
+import { Section } from "./Section.jsx";
 import { getSyndromeDuration, getSyndromeMonitoring } from "../data/syndromeDecision.js";
 
 /* ---------- refinement → footnote mapping ----------
@@ -156,34 +157,8 @@ function renderRichWithFootnotes(text, onDrug, inlineRefinements) {
 }
 
 /* ---------- section primitives ---------- */
-function Section({ kicker, title, icon: Icon, children, sticky }) {
-  return (
-    <section style={{ marginBottom: 18 }}>
-      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom: 10 }}>
-        {kicker && (
-          <span style={{
-            fontFamily: "var(--mono)", fontSize: 10, letterSpacing: ".14em",
-            textTransform: "uppercase", color: "var(--ox)", fontWeight: 700,
-            display:"inline-flex", alignItems:"center", gap:6,
-          }}>
-            {Icon && <Icon size={12} />} {kicker}
-          </span>
-        )}
-        {title && (
-          <h3 style={{ fontFamily:"var(--serif)", fontSize:17, fontWeight:600, margin:0, color:"var(--ink)" }}>
-            {title}
-          </h3>
-        )}
-      </div>
-      <div style={{
-        background:"var(--panel)", border:"1px solid var(--line)", borderRadius:12,
-        padding:16, ...(sticky ? { borderTop:"3px solid var(--ox)" } : {}),
-      }}>
-        {children}
-      </div>
-    </section>
-  );
-}
+/* Section component extracted to ./Section.jsx so DurationBlock +
+   MonitoringBlock can render through the same chrome. */
 
 /* ---------- the rendered rx line + footnote list ---------- */
 function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId, onAgentSelect }) {
@@ -320,20 +295,59 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
   const [pickedAgent, setPickedAgent] = useState(null);
   const [pickedBranch, setPickedBranch] = useState(null);
 
-  /* Effective branch: the explicit pickedBranch when the user has
-     clicked one, otherwise the branch whose matchAgent regex matches
-     the currently-picked agent. This way, picking the Fosfomycin
-     regimen card auto-derives the Fosfomycin duration branch for
-     downstream monitoring matchBranch filtering — without forcing
-     the user to also click the duration branch. */
+  /* Bidirectional bridge: the sourceControlled chip in
+     ReassessmentPanel and the matching duration branch represent
+     the same clinical fact. When either changes, the other syncs.
+
+     Source-of-truth resolution:
+       1. If user manually clicked a duration branch → that wins
+          (pickedBranch state).
+       2. Else if the sourceControlled chip is checked → light the
+          first "uncomplicated / source controlled"-labeled branch.
+       3. Else if a regimen agent has matchAgent matching a branch
+          → light it (the existing auto-derivation).
+     Branches click handler also toggles the chip to keep the two
+     UI surfaces consistent; the bridge is symmetric. */
+  const sourceControlled = !!caseState.clinical?.sourceControlled;
+  const setSourceControlled = (val) => setCaseState(c => ({
+    ...c, clinical: { ...(c.clinical || {}), sourceControlled: !!val }
+  }));
+
   const effectiveBranch = useMemo(() => {
     if(pickedBranch) return pickedBranch;
-    if(!pickedAgent || !ans?.syndrome) return null;
+    if(!ans?.syndrome) return null;
     const dur = getSyndromeDuration(ans.syndrome.id);
     if(!dur?.branches) return null;
-    const match = dur.branches.find(b => b.matchAgent && b.matchAgent.test(pickedAgent));
-    return match ? match.label : null;
-  }, [pickedAgent, pickedBranch, ans]);
+    if(sourceControlled) {
+      const b = dur.branches.find(br => /uncomplicated|source[\s-]?controlled/i.test(br.label));
+      if(b) return b.label;
+    }
+    if(pickedAgent) {
+      const match = dur.branches.find(b => b.matchAgent && b.matchAgent.test(pickedAgent));
+      if(match) return match.label;
+    }
+    return null;
+  }, [pickedAgent, pickedBranch, sourceControlled, ans]);
+
+  /* When a branch is clicked, also flip the sourceControlled chip
+     to match (set on the source-controlled branch, clear on others).
+     This is the second leg of the bidirectional bridge. */
+  const handleBranchSelect = (label) => {
+    if(label === null) { setPickedBranch(null); return; }
+    setPickedBranch(prev => (prev === label ? null : label));
+    if(ans?.syndrome) {
+      const dur = getSyndromeDuration(ans.syndrome.id);
+      const branch = dur?.branches?.find(b => b.label === label);
+      const isSourceBranch = branch && /uncomplicated|source[\s-]?controlled/i.test(branch.label);
+      setSourceControlled(!!isSourceBranch);
+    }
+  };
+
+  /* Start date for the duration clock. Was owned by ReassessmentPanel;
+     moved here so it can be threaded into DurationBlock (where the
+     stop-date math lives) without zigzagging through caseState. */
+  const startDate = caseState.startDate || "";
+  const setStartDate = (sd) => setCaseState(c => ({ ...c, startDate: sd || null }));
 
   if(!ans) {
     return (
@@ -615,8 +629,10 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
       <DurationBlock
         duration={getSyndromeDuration(s.id)}
         pickedAgent={pickedAgent}
-        pickedBranch={pickedBranch}
-        onBranchSelect={setPickedBranch}
+        pickedBranch={effectiveBranch}
+        onBranchSelect={handleBranchSelect}
+        startDate={startDate}
+        onStartDateChange={setStartDate}
       />
       <MonitoringBlock
         monitoring={getSyndromeMonitoring(s.id)}

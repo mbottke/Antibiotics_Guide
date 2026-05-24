@@ -1,23 +1,28 @@
 /* component · DurationBlock — Phase D2 structured duration content.
    Renders the syndrome-level "when to stop" decision below the
-   regimen options in the Answer Canvas. Three parts:
+   regimen options in the Answer Canvas. Wraps the existing Section
+   component so its kicker, icon, and chrome match every other
+   section on the page (no internal title strip — formatting
+   consistency contract).
 
+   Content:
      1. Headline + evidence anchor — the bottom line at a glance
-     2. Branches — clinical-state grid (uncomplicated / endocarditis
-        / hardware-retained), each with a prominent day-count chip
-     3. Stop-when checklist + Extend-if triggers — the discharge
+     2. Clinical-state branches grid (clickable; bidirectional with
+        the Source-controlled chip in ReassessmentPanel)
+     3. Start date input + computed Stop date strip — duration math
+        used to live in ReassessmentPanel but a stop date is purely
+        a duration calc, so it belongs here
+     4. Stop-when checklist + Extend-if triggers — the discharge
         checklist as a two-column scan
 
    Renders nothing when the syndrome has no authored content; the
-   legacy duration clock in ReassessmentPanel still shows in that
-   case from the `syndrome.duration` string parser.
-
-   Visual language matches RegimenOptions: same color palette,
-   same **bold** callout parser, same severity vocabulary.
+   legacy duration clock falls through ReassessmentPanel from the
+   `syndrome.duration` string parser as before.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
-import { Clock, Check, AlertTriangle, ArrowUpRight } from "lucide-react";
+import { Clock, Check, AlertTriangle, ArrowUpRight, Calendar } from "lucide-react";
+import { Section } from "./Section.jsx";
 
 /* Bold-callout parser. Same as RegimenOptions — splits a string on
    **…** segments and returns chunks the renderer can accent. */
@@ -51,7 +56,7 @@ function RichText({ text, accentColor, accentBg }) {
   );
 }
 
-function SectionLabel({ icon: Icon, text, color = "var(--ink2)" }) {
+function SubLabel({ icon: Icon, text, color = "var(--ink2)" }) {
   return (
     <div style={{
       display:"flex", alignItems:"center", gap:5, marginBottom:6,
@@ -64,7 +69,30 @@ function SectionLabel({ icon: Icon, text, color = "var(--ink2)" }) {
   );
 }
 
-function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect }) {
+/* Parse the first integer from a branch.days string ("14 d",
+   "28–42 d", "≥ 42 d", "1 dose"). Returns null for "Indefinite"
+   or any string with no digits. Used to compute the stop date. */
+function parseFirstInt(days) {
+  if(!days || typeof days !== "string") return null;
+  if(/indefinite/i.test(days)) return null;
+  const m = days.match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+/* Add n days to an ISO date string (YYYY-MM-DD); returns the same
+   shape so the <input type="date"> roundtrip is clean. */
+function addDaysIso(iso, n) {
+  if(!iso || n == null) return null;
+  const d = new Date(iso + "T00:00:00");
+  if(Number.isNaN(d.getTime())) return null;
+  d.setDate(d.getDate() + n);
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, "0");
+  const da = String(d.getDate()).padStart(2, "0");
+  return `${y}-${mo}-${da}`;
+}
+
+function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect, startDate, onStartDateChange }) {
   if(!duration) return null;
   const { headline, evidence, branches = [], stopWhen = [], extendIf = [] } = duration;
   if(!headline && branches.length === 0 && stopWhen.length === 0) return null;
@@ -72,39 +100,27 @@ function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect }) 
   const accent = "var(--ox)";
   const accentBg = "rgba(15, 76, 129, 0.08)";
 
-  /* Branch is "active" when EITHER the user explicitly picked it
-     OR its matchAgent regex matches the agent picked in the regimen
-     cards above. This lets the regimen → duration link be implicit
-     (picking nitrofurantoin auto-lights the Nitrofurantoin branch)
-     while still allowing manual override by clicking. */
+  /* Branch is "active" when the user explicitly picked it OR its
+     matchAgent regex matches the agent picked above. Effective
+     branch derivation in AnswerCanvas mirrors this — both should
+     stay in sync. */
   const branchIsActive = (b) => {
     if(pickedBranch === b.label) return true;
     if(!pickedBranch && pickedAgent && b.matchAgent && b.matchAgent.test(pickedAgent)) return true;
     return false;
   };
 
-  return (
-    <section
-      data-testid="duration-block"
-      style={{
-        background:"var(--panel)",
-        border:"1px solid var(--line)",
-        borderRadius:10,
-        padding:"14px 16px",
-        marginTop: 12,
-      }}>
-      {/* Title strip */}
-      <div style={{
-        display:"flex", alignItems:"center", gap:7, marginBottom:10,
-        paddingBottom:8, borderBottom:"1px solid var(--line)",
-      }}>
-        <Clock size={14} color={accent} aria-hidden />
-        <span style={{
-          fontFamily:"var(--mono)", fontSize:10.5, letterSpacing:".12em",
-          textTransform:"uppercase", fontWeight:700, color:"var(--ink)",
-        }}>Duration · When to stop</span>
-      </div>
+  /* Stop-date computation: pull the integer day count from the
+     active branch (explicit pick wins over auto-derived) and add
+     to startDate. Ranges like "5–7 d" use the lower bound for the
+     date — clinicians extend per evolution. */
+  const activeBranch = branches.find(b => branchIsActive(b)) || null;
+  const activeDays = activeBranch ? parseFirstInt(activeBranch.days) : null;
+  const stopDate = startDate && activeDays != null ? addDaysIso(startDate, activeDays) : null;
+  const indefinite = activeBranch && /indefinite/i.test(activeBranch.days);
 
+  return (
+    <Section kicker="Duration · When to stop" icon={Clock}>
       {/* Headline + evidence */}
       {headline && (
         <div style={{
@@ -112,7 +128,7 @@ function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect }) 
           border: "1px solid var(--ox-line)",
           borderRadius: 7,
           padding: "8px 11px",
-          marginBottom: branches.length || stopWhen.length || extendIf.length ? 12 : 0,
+          marginBottom: 12,
         }}>
           <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600 }}>
             <RichText text={headline} accentColor={accent} />
@@ -127,23 +143,25 @@ function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect }) 
 
       {/* Branches — clinical-state grid. Each branch is clickable; the
           selected branch propagates to MonitoringBlock so matched items
-          can highlight. Selection persists until cleared (clicking the
-          same branch again clears it). When no manual selection, the
-          regimen card's pickedAgent implicitly lights the matching
-          branch via matchAgent regex. The day chip carries explicit
-          units from the data — never inferred — because a unit-less
-          number is a real safety hazard (fosfomycin 1 dose vs 1 day). */}
+          can highlight AND to the sourceControlled chip in the Current
+          State section (bidirectional sync). Selection persists until
+          cleared (clicking the same branch again clears it). The day
+          chip carries explicit units from the data — never inferred —
+          because a unit-less number is a real safety hazard (fosfomycin
+          1 dose vs 1 day). */}
       {branches.length > 0 && (
-        <div style={{ marginBottom: stopWhen.length || extendIf.length ? 12 : 0 }}>
-          <SectionLabel text="Course by clinical state — click to filter monitoring" color={accent} />
-          <div style={{
-            display:"grid",
-            gap:7,
-            gridTemplateColumns: branches.length === 1 ? "1fr"
-              : branches.length === 2 ? "repeat(2, 1fr)"
-              : branches.length <= 4 ? "repeat(auto-fit, minmax(180px, 1fr))"
-              :                         "repeat(auto-fit, minmax(160px, 1fr))",
-          }}>
+        <div style={{ marginBottom: 12 }}>
+          <SubLabel text="Course by clinical state — click to filter monitoring + sync chips" color={accent} />
+          <div
+            data-testid="duration-branches"
+            style={{
+              display:"grid",
+              gap:7,
+              gridTemplateColumns: branches.length === 1 ? "1fr"
+                : branches.length === 2 ? "repeat(2, 1fr)"
+                : branches.length <= 4 ? "repeat(auto-fit, minmax(180px, 1fr))"
+                :                         "repeat(auto-fit, minmax(160px, 1fr))",
+            }}>
             {branches.map((b, i) => {
               const active = branchIsActive(b);
               const interactive = !!onBranchSelect;
@@ -191,6 +209,63 @@ function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect }) 
         </div>
       )}
 
+      {/* Start-date input + computed Stop-date. Lives here because
+          stop date = startDate + branch-days arithmetic. Was in
+          ReassessmentPanel; moved as part of the D2 consolidation
+          (start date is a duration concern, not a current-state one). */}
+      {onStartDateChange && branches.length > 0 && (
+        <div style={{
+          display:"grid",
+          gridTemplateColumns: "minmax(220px, auto) 1fr",
+          gap: 12, alignItems:"center",
+          padding: "8px 10px",
+          background: "var(--paper2)",
+          border: "1px solid var(--line)",
+          borderRadius: 7,
+          marginBottom: stopWhen.length || extendIf.length ? 12 : 0,
+        }}>
+          <label style={{ display:"flex", alignItems:"center", gap:8, fontSize:11.5, color:"var(--ink2)" }}>
+            <Calendar size={11} aria-hidden style={{ color: accent }} />
+            <span style={{
+              fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".08em",
+              textTransform:"uppercase", fontWeight:700, color: "var(--ink2)",
+            }}>First effective dose</span>
+            <input
+              type="date"
+              value={startDate || ""}
+              onChange={(e) => onStartDateChange(e.target.value || null)}
+              style={{
+                fontFamily:"var(--mono)", fontSize:12,
+                padding:"3px 6px", borderRadius:4,
+                border:"1px solid var(--line)", background:"var(--panel)",
+                color:"var(--ink)",
+              }} />
+          </label>
+          <div style={{ fontSize: 12, color: "var(--ink2)", textAlign: "right" }}>
+            {!startDate ? (
+              <span style={{ fontStyle:"italic" }}>
+                Pick the first-effective-dose date to compute a stop date from the {activeBranch ? "selected" : "active"} branch.
+              </span>
+            ) : indefinite ? (
+              <span>
+                Branch is <b>Indefinite</b> — no fixed stop date. Long-term suppression per ID.
+              </span>
+            ) : stopDate ? (
+              <span>
+                Stop on <b style={{ fontFamily:"var(--mono)", color: accent }}>{stopDate}</b>
+                {activeBranch && (
+                  <> · <span style={{ color:"var(--muted)" }}>{activeBranch.days} from start, branch "{activeBranch.label}"</span></>
+                )}
+              </span>
+            ) : (
+              <span style={{ fontStyle: "italic" }}>
+                Click a branch above to bind the duration; range branches use the lower bound.
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Stop-when + Extend-if — two columns */}
       {(stopWhen.length || extendIf.length) > 0 && (
         <div style={{
@@ -200,7 +275,7 @@ function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect }) 
         }}>
           {stopWhen.length > 0 && (
             <div>
-              <SectionLabel icon={Check} text={`Stop when (ALL of)`} color="#0f7a3b" />
+              <SubLabel icon={Check} text="Stop when (ALL of)" color="#0f7a3b" />
               <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:4 }}>
                 {stopWhen.map((s, i) => (
                   <li key={i} style={{
@@ -216,7 +291,7 @@ function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect }) 
           )}
           {extendIf.length > 0 && (
             <div>
-              <SectionLabel icon={ArrowUpRight} text="Extend if" color="var(--amber)" />
+              <SubLabel icon={ArrowUpRight} text="Extend if" color="var(--amber)" />
               <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:4 }}>
                 {extendIf.map((s, i) => (
                   <li key={i} style={{
@@ -232,7 +307,7 @@ function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect }) 
           )}
         </div>
       )}
-    </section>
+    </Section>
   );
 }
 
