@@ -679,6 +679,81 @@ describe("content-audit · syndromeDecision.rationale panels (optional)", () => 
   }
 });
 
+/* ============================================================
+   Phase D2.1 · objections panel shape validation. The optional
+   `objections:` sibling on syndromeDecision entries carries the
+   pharmacist's challenge-mode content: 2-4 Q/A pairs per
+   syndrome where Q is the predictable pharmacist pushback
+   (≤ 14 words) and A is the evidence-backed defended answer
+   (30-100 words, ≥ 1 `[cite:id]` token resolving in GUIDELINES).
+   Sits beside `rationale:` as the question-answer pair surface.
+   ============================================================ */
+
+const LIMITS_OBJECTIONS = {
+  qMaxWords:    14,
+  aMinWords:    30,
+  aMaxWords:   100,
+  minPairs:      2,
+  maxPairs:      4,
+};
+
+describe("content-audit · syndromeDecision.objections panels (optional)", () => {
+  const decisionIds = Object.keys(SYNDROME_DECISION);
+  for(const id of decisionIds) {
+    const e = SYNDROME_DECISION[id];
+    if(!e.objections) continue;
+    const label = `[${id} | objections]`;
+
+    test(`${label} — array shape + pair counts`, () => {
+      expect(Array.isArray(e.objections), `${label} must be array`).toBe(true);
+      expect(e.objections.length,
+        `${label} needs ≥ ${LIMITS_OBJECTIONS.minPairs} pairs`)
+        .toBeGreaterThanOrEqual(LIMITS_OBJECTIONS.minPairs);
+      expect(e.objections.length,
+        `${label} has ${e.objections.length} pairs (max ${LIMITS_OBJECTIONS.maxPairs})`)
+        .toBeLessThanOrEqual(LIMITS_OBJECTIONS.maxPairs);
+    });
+
+    for(let i = 0; i < e.objections.length; i++) {
+      const o = e.objections[i];
+      const pairLabel = `${label}[${i}]`;
+
+      test(`${pairLabel} — q is non-empty + within word budget`, () => {
+        expect(typeof o.q, `${pairLabel}.q must be string`).toBe("string");
+        expect(o.q.trim().length, `${pairLabel}.q non-empty`).toBeGreaterThan(0);
+        const wcQ = wordCount(o.q);
+        expect(wcQ,
+          `${pairLabel}.q has ${wcQ} words (max ${LIMITS_OBJECTIONS.qMaxWords}): "${o.q}"`)
+          .toBeLessThanOrEqual(LIMITS_OBJECTIONS.qMaxWords);
+      });
+
+      test(`${pairLabel} — a is non-empty + within word budget`, () => {
+        expect(typeof o.a, `${pairLabel}.a must be string`).toBe("string");
+        expect(o.a.trim().length, `${pairLabel}.a non-empty`).toBeGreaterThan(0);
+        const wcA = wordCount(o.a);
+        expect(wcA,
+          `${pairLabel}.a has ${wcA} words (min ${LIMITS_OBJECTIONS.aMinWords})`)
+          .toBeGreaterThanOrEqual(LIMITS_OBJECTIONS.aMinWords);
+        expect(wcA,
+          `${pairLabel}.a has ${wcA} words (max ${LIMITS_OBJECTIONS.aMaxWords})`)
+          .toBeLessThanOrEqual(LIMITS_OBJECTIONS.aMaxWords);
+      });
+
+      test(`${pairLabel} — every [cite:id] token resolves in GUIDELINES`, () => {
+        const re = /\[cite:([a-z0-9_-]+)\]/gi;
+        const cites = [...o.a.matchAll(re)].map(m => m[1]);
+        expect(cites.length,
+          `${pairLabel}.a must carry ≥ 1 [cite:id] token (answer must be evidence-backed)`)
+          .toBeGreaterThanOrEqual(1);
+        for(const cid of cites) {
+          expect(Object.keys(GUIDELINES).includes(cid),
+            `${pairLabel}.a [cite:${cid}] must resolve in GUIDELINES registry`).toBe(true);
+        }
+      });
+    }
+  }
+});
+
 describe("content-audit · combinedRisks.js entries", () => {
   test("ids are unique", () => {
     const seen = new Set();
