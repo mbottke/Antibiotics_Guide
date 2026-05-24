@@ -3198,6 +3198,26 @@ const SYNDROME_DECISION = {
           why: "Rarely successful but considered case-by-case for explant-contraindicated patients" },
       ],
     },
+    research: {
+      headline: "IDSA 2017 — drain removal mandatory; intraventricular adjunct for MDR / refractory; daily CSF cultures.",
+      trials: [
+        { name: "Tunkel IDSA 2017",
+          n: "Guideline",
+          question: "Healthcare-associated ventriculitis modern management",
+          finding: "Remove drain + 10–21 d post-removal; intraventricular antibiotics for refractory or MDR; CSF cultures daily",
+          bias: "Guideline synthesis" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2017,
+          topic: "Ventriculitis / shunt infection (Tunkel)",
+          keypoint: "Drain or shunt removal; pathogen-directed; intraventricular for MDR" },
+      ],
+      openQuestions: [
+        "Re-shunting timing — sterilization + stability driven",
+        "Optimal intraventricular agent — gentamicin / colistin / vancomycin",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -4775,6 +4795,26 @@ const SYNDROME_DECISION = {
           why: "Hardware seeding from endocarditis vs vice-versa" },
       ],
     },
+    research: {
+      headline: "Explant drives outcomes; rifampin for retained staph hardware; lifelong suppression for irretrievable.",
+      trials: [
+        { name: "Karchmer Heart 1993",
+          n: "Cohort",
+          question: "Hardware retention vs explant outcomes",
+          finding: "Explant when feasible; rifampin combination critical for retained staph; lifelong suppression for irretrievable",
+          bias: "Pre-modern hardware; principle holds" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2018,
+          topic: "Vascular device infection",
+          keypoint: "Explant; rifampin for retained staph; TEE workup for source" },
+      ],
+      openQuestions: [
+        "Lifetime suppression discontinuation — long-term stability",
+        "Rifampin in MRSA-VDI — observational support",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -4824,6 +4864,26 @@ const SYNDROME_DECISION = {
           why: "Renal-transplant pyelonephritis presents differently; image early" },
         { sev: "consider", what: "**BK virus workup** if culture-negative pyuria",
           why: "BK reactivation common in transplant + dysuria" },
+      ],
+    },
+    research: {
+      headline: "AST 2019 — early post-tx ASB treated; later asymptomatic NOT treated; drug interactions complex.",
+      trials: [
+        { name: "AST IDCOP 2019",
+          n: "Guideline",
+          question: "Modern transplant UTI management",
+          finding: "Early post-tx (< 3 mo) ASB treated; later asymptomatic NOT treated; broaden empiric per prior cultures",
+          bias: "Society consensus" },
+      ],
+      guidelines: [
+        { society: "AST",
+          year: 2019,
+          topic: "Solid-organ transplant UTI",
+          keypoint: "Transplant ID + drug interaction screen; treat early ASB; pathogen-directed long course for resistant" },
+      ],
+      openQuestions: [
+        "BK virus workup — when culture-negative + dysuria",
+        "Graft pyelonephritis imaging threshold",
       ],
     },
   },
@@ -5908,6 +5968,26 @@ const SYNDROME_DECISION = {
           why: "Accelerates granulation; complement to debridement + offloading" },
       ],
     },
+    research: {
+      headline: "Colonization is universal in stage 3/4 ulcers; antibiotics for invasive infection only; offloading + nutrition drive cure.",
+      trials: [
+        { name: "Lyder Adv Wound Care 1996",
+          n: "Cohort",
+          question: "Modern pressure injury management",
+          finding: "Surface swab is colonization; antibiotics for cellulitis/sepsis/osteo only; offloading + nutrition + debridement primary",
+          bias: "Pre-modern offloading; principle holds" },
+      ],
+      guidelines: [
+        { society: "NPUAP / IDSA",
+          year: 2019,
+          topic: "Pressure injury management",
+          keypoint: "Antibiotics ONLY for invasive infection; debridement + offloading + nutrition" },
+      ],
+      openQuestions: [
+        "Deep tissue culture for osteo workup — probe-to-bone + MRI",
+        "NPWT timing — stage 3/4 cavities increasingly standard",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -5965,6 +6045,26 @@ const SYNDROME_DECISION = {
           why: "Bloodborne pathogen risk assessment; PEP if indicated" },
         { sev: "consider", what: "**Imaging** if FB suspected (tooth fragment, dirt)",
           why: "Retained FB drives persistent infection; X-ray or US" },
+      ],
+    },
+    research: {
+      headline: "Amox-clav workhorse covers Pasteurella + Eikenella + anaerobes; tetanus + rabies risk assessment + hand surgery for deep.",
+      trials: [
+        { name: "Talan IDSA 2014 / Stevens",
+          n: "Guideline",
+          question: "Modern bite wound management",
+          finding: "Amox-clav covers Pasteurella (cat/dog) + Eikenella (human); 3–5 d prophylaxis for high-risk; 7–14 d for established infection",
+          bias: "Guideline synthesis" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2014,
+          topic: "Bite wound infections (Stevens)",
+          keypoint: "Amox-clav; do NOT primarily close cat / hand bites; tetanus + rabies + HIV/HBV assessment" },
+      ],
+      openQuestions: [
+        "Capnocytophaga workup in asplenic + dog bite — high-risk",
+        "Closure decisions — cat / hand / face differ",
       ],
     },
   },
@@ -6253,6 +6353,26 @@ const SYNDROME_DECISION = {
           why: "Common comorbidities; addressable" },
       ],
     },
+    research: {
+      headline: "Disease-modifying combination (clinda + rifampin) + adalimumab for moderate-severe; smoking + obesity strongest risk factors.",
+      trials: [
+        { name: "Gulliver J Eur Acad Dermatol 2016",
+          n: "RCT meta",
+          question: "Combination clinda + rifampin × 10–12 wk for HS",
+          finding: "Reduces lesion count + flare frequency in Hurley II/III; disease-modifying not just suppressive",
+          bias: "Heterogeneous severity scoring" },
+      ],
+      guidelines: [
+        { society: "Dermatology consensus",
+          year: 2020,
+          topic: "Hidradenitis suppurativa",
+          keypoint: "Combination antibiotics for moderate; adalimumab for Hurley II/III; surgery for chronic sinus tracts" },
+      ],
+      openQuestions: [
+        "Optimal biologic sequencing — adalimumab → secukinumab",
+        "Surgical vs medical for severe — combined typical",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -6309,6 +6429,26 @@ const SYNDROME_DECISION = {
           why: "Specialized care drives healing; complex multi-modal management" },
         { sev: "consider", what: "**Nutrition + glycemic optimization**",
           why: "Wound healing is protein + glycemic-dependent; modifiable" },
+      ],
+    },
+    research: {
+      headline: "Colonization universal; antibiotics for invasive only; compression (venous) + revascularization (arterial) drive cure.",
+      trials: [
+        { name: "Margolis Cochrane 2014",
+          n: "Meta",
+          question: "Antibiotic strategy in chronic leg ulcer",
+          finding: "Antibiotics for colonization alone NOT beneficial; reserve for cellulitis / sepsis / osteo",
+          bias: "Heterogeneous ulcer types" },
+      ],
+      guidelines: [
+        { society: "Wound society / IDSA",
+          year: 2019,
+          topic: "Chronic ulcer infection",
+          keypoint: "Stewardship; compression (venous) or revascularization (arterial); MRI for osteo workup" },
+      ],
+      openQuestions: [
+        "Deep tissue culture in osteo workup — probe-to-bone signal",
+        "NPWT in chronic ulcer — supportive",
       ],
     },
   },
@@ -7441,6 +7581,26 @@ const SYNDROME_DECISION = {
           why: "Disseminated disease in TNFi-exposed; geographic + occupational history" },
       ],
     },
+    research: {
+      headline: "Mechanism drives differential; TNFi → latent TB screen; anti-CD20/JAKi → HBV screen; checkpoint → ICI colitis vs CDI.",
+      trials: [
+        { name: "Winthrop CID 2019",
+          n: "Cohort review",
+          question: "Modern biologic-associated infection patterns",
+          finding: "TNFi → TB + granulomatous; anti-CD20 → encapsulated + viral; JAKi → VZV / HBV reactivation; checkpoint → ICI colitis",
+          bias: "Real-world signals consistent across registries" },
+      ],
+      guidelines: [
+        { society: "Rheum / Onc consensus",
+          year: 2023,
+          topic: "Biologic infection management",
+          keypoint: "Hold biologic + reduce IS; latent TB + HBV screen pre-treatment; vaccination review (avoid live)" },
+      ],
+      openQuestions: [
+        "Biologic resumption timing — disease activity vs infection resolution",
+        "ICI colitis vs CDI distinction — both can coexist",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -7498,6 +7658,26 @@ const SYNDROME_DECISION = {
           why: "Inherited defects; family at risk; transplant or gene therapy may be curative" },
         { sev: "consider", what: "**Specialty center referral** — primary immunodeficiency clinic",
           why: "Coordinated multi-disciplinary care; trial enrollment for emerging therapies" },
+      ],
+    },
+    research: {
+      headline: "Defect-specific organism pattern; CGD → catalase-positive; CVID → encapsulated; complement → Neisseria.",
+      trials: [
+        { name: "Marciano CID 2014",
+          n: "Cohort",
+          question: "Modern CGD outcomes + ppx",
+          finding: "Lifetime TMP-SMX + itraconazole + IFN-γ reduces infection by ~50%; immunology + family screening + transplant decision",
+          bias: "Single-center NIH cohort" },
+      ],
+      guidelines: [
+        { society: "PIDTC / JMF",
+          year: 2020,
+          topic: "Primary immunodeficiency management",
+          keypoint: "Defect-specific organism patterns drive empiric; immunology consult + family screening" },
+      ],
+      openQuestions: [
+        "Genetic counseling indications — inherited defects",
+        "Transplant or gene therapy — curative for SCID + CGD",
       ],
     },
   },
@@ -8361,6 +8541,31 @@ const SYNDROME_DECISION = {
           why: "Multiple confounders; ASB ≠ delirium cause; broader workup needed before antibiotics" },
         { sev: "consider", what: "**Patient + family education** on ASB stewardship",
           why: "Shared decision-making; reduces requests for unnecessary urine cultures + treatment" },
+      ],
+    },
+    research: {
+      headline: "IDSA 2019 — do NOT treat asymptomatic bacteriuria; treat ONLY pregnancy + pre-procedural urologic instrumentation.",
+      trials: [
+        { name: "Nicolle IDSA 2019",
+          n: "Guideline",
+          question: "Modern ASB management",
+          finding: "Treating non-pregnant non-procedural ASB drives resistance + AKI + CDI without benefit; symptom-driven only",
+          bias: "Guideline synthesis" },
+        { name: "Trautner CID 2014",
+          n: "Cohort",
+          question: "ASB stewardship in catheterized patients",
+          finding: "Catheter-associated ASB treatment harmful; cloudy urine + odor are NOT indications",
+          bias: "Multi-center observational" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2019,
+          topic: "Asymptomatic bacteriuria (Nicolle)",
+          keypoint: "Do NOT treat ASB in elderly / catheter / diabetic / SCI; pregnancy + pre-procedural exception" },
+      ],
+      openQuestions: [
+        "Mental status change in elderly + bacteriuria — broader workup",
+        "Pre-procedural single dose timing — ~30 min before",
       ],
     },
   },
