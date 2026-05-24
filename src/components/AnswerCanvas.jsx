@@ -643,7 +643,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                 const changed = a && a.kind === "band" && a.changed;
                 return (
                   <div key={n} style={{
-                    display:"flex", justifyContent:"space-between", alignItems:"center", gap:8,
+                    display:"flex", justifyContent:"space-between", alignItems:"center", gap:8, flexWrap:"wrap",
                     padding:"5px 10px", background: changed ? "var(--decision-adjusted-bg)" : "var(--paper2)",
                     border:`1px solid ${changed ? "var(--decision-adjusted-line)" : "var(--line)"}`, borderRadius:6,
                     fontSize:12, fontFamily:"var(--mono)",
@@ -653,7 +653,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                         background:"none", border:"none", cursor:"pointer", padding:0, textAlign:"left", minWidth:0, overflow:"hidden", textOverflow:"ellipsis" }}>
                       {n.split(" / ")[0]}
                     </button>
-                    <span style={{ color: changed ? "var(--decision-adjusted)" : "var(--ink2)", fontWeight:600, whiteSpace:"nowrap" }}>{stat || ""}</span>
+                    <span style={{ color: changed ? "var(--decision-adjusted)" : "var(--ink2)", fontWeight:600, minWidth:0, overflowWrap:"anywhere" }}>{stat || ""}</span>
                   </div>
                 );
               })}

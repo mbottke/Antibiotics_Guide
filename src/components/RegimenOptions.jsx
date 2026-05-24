@@ -237,18 +237,19 @@ function PerOptionDoseChips({ optionText, ctx, d, synId }) {
     <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginTop: 9 }}>
       {adj.map((a, i) => (
         <span key={i} style={{
-          display:"inline-flex", alignItems:"center", gap:4,
+          display:"inline-flex", flexWrap:"wrap", alignItems:"center", gap:4,
           fontSize:10.5, fontWeight:500, padding:"3px 7px", borderRadius:5,
           background:"var(--decision-adjusted-bg)", color:"var(--decision-adjusted)",
           border:"1px solid var(--decision-adjusted-line)",
           fontFamily:"var(--mono)", letterSpacing:".01em",
+          maxWidth:"100%", minWidth:0,
         }}>
-          <span style={{ opacity:.75, fontSize:9, letterSpacing:".08em", textTransform:"uppercase" }}>
+          <span style={{ fontSize:9, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700 }}>
             {a.kind === "renal" ? "renal" : a.kind === "weight" ? "weight" : a.kind === "hepatic" ? "hepatic" : a.kind === "hd" ? "HD" : a.kind}
           </span>
           <span style={{ fontWeight:600, color:"var(--ink)" }}>{(a.agent || "").split(" / ")[0].replace(/\s*\(IV\)/i, "")}</span>
-          <span style={{ opacity:.6 }}>→</span>
-          <span style={{ fontWeight:600 }}>{a.value}</span>
+          <span aria-hidden style={{ color:"var(--decision-adjusted)" }}>→</span>
+          <span style={{ fontWeight:600, overflowWrap:"anywhere", minWidth:0 }}>{a.value}</span>
         </span>
       ))}
     </div>
