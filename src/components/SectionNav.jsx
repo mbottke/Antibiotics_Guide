@@ -18,9 +18,14 @@ import React from "react";
 import { SECTIONS } from "../data/sections.js";
 
 function SectionNav({ section, onSection }) {
+  /* The bar is a navigation, not a strict tablist — section "panels" in
+     App.jsx don't carry 1:1 ids because each section contains multiple
+     tab panels. aria-pressed communicates active state cleanly; matches
+     the SurfaceBar pattern above and avoids the axe-core
+     aria-valid-attr-value violation that a tablist/aria-controls combo
+     would trip when the controlled element doesn't exist. */
   return (
     <nav
-      role="tablist"
       aria-label="Reference sections"
       data-testid="section-nav"
       style={{
@@ -48,9 +53,7 @@ function SectionNav({ section, onSection }) {
             <button
               key={s.id}
               type="button"
-              role="tab"
-              aria-selected={active}
-              aria-controls={`section-${s.id}`}
+              aria-pressed={active}
               title={s.hint}
               onClick={() => onSection && onSection(s.id)}
               style={{
