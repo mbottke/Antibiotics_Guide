@@ -2020,6 +2020,26 @@ const SYNDROME_DECISION = {
           why: "Adjunctive only; never delay surgery; institutional availability varies" },
       ],
     },
+    research: {
+      headline: "Mortality 20–40%; emergent serial debridement; broad polymicrobial + clindamycin; diabetic substrate.",
+      trials: [
+        { name: "Sorensen J Urol 2009",
+          n: "Cohort review",
+          question: "Modern Fournier outcomes",
+          finding: "Time-to-OR + extent of disease + diabetic substrate predict mortality; aggressive debridement essential",
+          bias: "Single-center cohort" },
+      ],
+      guidelines: [
+        { society: "WSES",
+          year: 2018,
+          topic: "Necrotizing soft tissue infection",
+          keypoint: "Emergent serial debridement + broad antibiotics + clindamycin; diabetic + urology consult" },
+      ],
+      openQuestions: [
+        "Diverting colostomy timing — perineal involvement extent",
+        "HBO benefit — observational support only",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -2074,6 +2094,31 @@ const SYNDROME_DECISION = {
           why: "Source control accelerates response; antibiotic alone fails in chronic disease" },
         { sev: "consider", what: "Hyperbaric oxygen for refractory chronic osteo",
           why: "Adjunctive evidence; institutional availability varies" },
+      ],
+    },
+    research: {
+      headline: "OVIVA — oral non-inferior to IV at 1-y treatment failure; debridement drives outcomes in chronic disease.",
+      trials: [
+        { name: "OVIVA NEJM 2019 (Li)",
+          n: "1,054",
+          question: "Oral vs IV for bone + joint infection",
+          finding: "Oral non-inferior at 1-y treatment failure; ~75% reduction in IV-line complications",
+          bias: "Required highly bioavailable oral options" },
+        { name: "Bernard Lancet 2015 (vert subset)",
+          n: "351",
+          question: "6 vs 12 wk vertebral osteo",
+          finding: "6 wk non-inferior; foundation of modern duration",
+          bias: "French cohort" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2015,
+          topic: "Native + vertebral osteomyelitis (Berbari)",
+          keypoint: "6 wk standard + biopsy-driven pathogen direction; OVIVA-supportive oral step-down" },
+      ],
+      openQuestions: [
+        "OVIVA threshold + criteria — case-by-case",
+        "Rifampin combination thresholds — hardware retention",
       ],
     },
   },
@@ -2821,6 +2866,26 @@ const SYNDROME_DECISION = {
           why: "Long IV courses → line complications; oral step-down at 2 wk standard" },
       ],
     },
+    research: {
+      headline: "Drainage drives outcome; > 3-5 cm collections percutaneously drained; 4-6 wk total with oral step-down.",
+      trials: [
+        { name: "Lin Mayo Clin Proc 2008",
+          n: "Cohort",
+          question: "Modern renal/perinephric abscess management",
+          finding: "PCD for ≥ 3-5 cm collections; surgical for multiloculated or failure; 2 wk IV then oral × 2-4 wk",
+          bias: "Single-center" },
+      ],
+      guidelines: [
+        { society: "EAU / AUA",
+          year: 2024,
+          topic: "Renal abscess management",
+          keypoint: "Drainage + 4-6 wk targeted antibiotic; workup endocarditis source for S. aureus" },
+      ],
+      openQuestions: [
+        "Endovascular workup threshold — S. aureus or persistent",
+        "Surgical thresholds — multiloculated or PCD failure",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -2869,6 +2934,26 @@ const SYNDROME_DECISION = {
           matchCtx: { severe: true } },
         { sev: "consider", what: "**Glycemic control protocol** post-acute phase",
           why: "Recurrence prevention; HbA1c < 7 reduces re-infection risk" },
+      ],
+    },
+    research: {
+      headline: "Mortality 25-50% with parenchymal involvement; emergent surgical decompression + urology; diabetic control critical.",
+      trials: [
+        { name: "Huang Kidney Int 2007",
+          n: "Cohort",
+          question: "Emphysematous pyelonephritis classification + surgery thresholds",
+          finding: "Class I-II → conservative + drainage; Class III-IV → emergent nephrectomy; diabetic substrate drives outcomes",
+          bias: "Asian cohort; classification widely adopted" },
+      ],
+      guidelines: [
+        { society: "AUA",
+          year: 2024,
+          topic: "Emphysematous urinary tract infection",
+          keypoint: "Class-stratified surgical thresholds; diabetic glycemic control; broad antibiotics + PCD" },
+      ],
+      openQuestions: [
+        "Class III-IV conservative trial — high mortality without surgery",
+        "Renal-preserving surgical approach — selected cases",
       ],
     },
   },
@@ -3098,6 +3183,26 @@ const SYNDROME_DECISION = {
           why: "Image-driven duration; persistent collection drives re-drainage + extension" },
       ],
     },
+    research: {
+      headline: "Emergent neurosurgical drainage + 4-6 wk IV; source from sinus/otitis spread; mortality < 10% with timely surgery.",
+      trials: [
+        { name: "Brouwer Lancet Neurol 2014",
+          n: "Cohort review",
+          question: "Modern subdural empyema outcomes",
+          finding: "Surgical drainage + targeted antibiotics drive mortality reduction; sinusitis + otitis dominant sources",
+          bias: "European cohort" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2017,
+          topic: "CNS empyema management",
+          keypoint: "Emergent neurosurgery + 4-6 wk targeted; cortical-vein thrombosis workup" },
+      ],
+      openQuestions: [
+        "Anticoagulation in cortical-vein thrombosis — controversial",
+        "Optimal repeat-imaging schedule — clinical + radiographic driven",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -3147,6 +3252,26 @@ const SYNDROME_DECISION = {
           why: "Mixed evidence; weigh thrombus extension vs bleed risk" },
         { sev: "consider", what: "Septic embolic workup — brain MRI, lung CT, echo",
           why: "Disseminated foci change duration + need additional drainage" },
+      ],
+    },
+    research: {
+      headline: "Cavernous sinus involvement raises mortality 10-30%; anticoagulation case-by-case; sinusitis dominant source.",
+      trials: [
+        { name: "Bhatia Lancet 2003",
+          n: "Cohort review",
+          question: "Modern cavernous sinus thrombosis outcomes",
+          finding: "Mortality decreased from > 80% pre-antibiotic to 10-30% with broad coverage + ENT source control; anticoagulation increasingly favored",
+          bias: "Pre-modern imaging; signal replicated" },
+      ],
+      guidelines: [
+        { society: "IDSA / society consensus",
+          year: 2017,
+          topic: "Cavernous sinus thrombosis",
+          keypoint: "Broad coverage + ENT consult + ophtho + neurology; anticoagulation case-by-case" },
+      ],
+      openQuestions: [
+        "Anticoagulation indications — propagation vs bleed risk",
+        "Steroid role — limited evidence",
       ],
     },
   },
@@ -3264,6 +3389,26 @@ const SYNDROME_DECISION = {
           why: "Drives extended-course decision + additional drainage" },
         { sev: "consider", what: "**Suppressive oral therapy** if explant impossible",
           why: "Lifelong; ID + neurosurgery + patient counseling on recurrence risk" },
+      ],
+    },
+    research: {
+      headline: "Explant + reimplant standard; CoNS / S. aureus dominant; rifampin for retained hardware; lifelong suppression for irretrievable.",
+      trials: [
+        { name: "Tunkel IDSA 2017",
+          n: "Guideline",
+          question: "Modern shunt infection management",
+          finding: "Two-stage explant + reimplant after CSF sterilization; rifampin for retained staph; lifelong oral suppression if irretrievable",
+          bias: "Guideline synthesis" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2017,
+          topic: "Shunt + EVD infection (Tunkel)",
+          keypoint: "Explant + reimplant; rifampin for retained staph; intraventricular for refractory" },
+      ],
+      openQuestions: [
+        "Reimplant timing — clinical + CSF sterilization driven",
+        "Optimal oral suppression agent for irretrievable",
       ],
     },
   },
@@ -4603,6 +4748,26 @@ const SYNDROME_DECISION = {
           why: "Enterococcal translocation from gut common" },
       ],
     },
+    research: {
+      headline: "Daptomycin high-dose (10-12 mg/kg) primary; linezolid alternative; combination salvage for persistent.",
+      trials: [
+        { name: "Britt CID 2017",
+          n: "Cohort",
+          question: "Daptomycin dose in VRE bacteremia",
+          finding: "Higher dose (10-12 mg/kg) reduced mortality + microbiologic failure; CK + statin monitoring",
+          bias: "Observational" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2011,
+          topic: "VRE bacteremia (Liu)",
+          keypoint: "Daptomycin-HD primary; linezolid alternative; combination salvage for persistent" },
+      ],
+      openQuestions: [
+        "Optimal duration in uncomplicated — 7-14 d",
+        "Daptomycin MIC creep — ceftaroline salvage",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -4652,6 +4817,26 @@ const SYNDROME_DECISION = {
           why: "Candida co-infection drives mortality if missed" },
         { sev: "consider", what: "**Workup endocarditis** if persistent BCx",
           why: "Polymicrobial IE rare but reported" },
+      ],
+    },
+    research: {
+      headline: "Surgical source control drives outcome; broad initial → narrow on cultures; echinocandin for upper-GI perf.",
+      trials: [
+        { name: "Solomkin SIS / IDSA 2017",
+          n: "Guideline",
+          question: "Modern polymicrobial intra-abdominal bacteremia",
+          finding: "Broad-spectrum + source control + echinocandin for upper-GI substrate; STOP-IT-aligned 4 d post-source-control",
+          bias: "Guideline synthesis" },
+      ],
+      guidelines: [
+        { society: "SIS / IDSA",
+          year: 2017,
+          topic: "Polymicrobial / intra-abdominal infection (Mazuski)",
+          keypoint: "Broad → narrow; surgical source control + echinocandin for high-risk; STOP-IT 4 d" },
+      ],
+      openQuestions: [
+        "Routine echinocandin in upper-GI perf — high-risk dependent",
+        "Endocarditis workup threshold — persistent BCx",
       ],
     },
   },
@@ -5794,6 +5979,26 @@ const SYNDROME_DECISION = {
           why: "IDSA 2014 + outcome data — drainage alone sufficient; avoids selection pressure" },
       ],
     },
+    research: {
+      headline: "I&D primary; antibiotics adjunct only for cellulitis / systemic / immunocompromised; Talan 2016 supports TMP-SMX.",
+      trials: [
+        { name: "Talan NEJM 2016",
+          n: "1,265",
+          question: "TMP-SMX adjunct after I&D for cutaneous abscess",
+          finding: "TMP-SMX × 7 d after I&D ↑ cure rate ~7% vs placebo; benefit greatest in large abscesses or surrounding cellulitis",
+          bias: "U.S. cohort; MRSA-dominant region" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2014,
+          topic: "Purulent SSTI (Stevens)",
+          keypoint: "I&D primary; antibiotics adjunct for fever/systemic/large/surrounding cellulitis" },
+      ],
+      openQuestions: [
+        "Decolonization for recurrent — mupirocin + chlorhexidine",
+        "Antibiotic-free observation for small simple abscess — supported",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -5854,6 +6059,26 @@ const SYNDROME_DECISION = {
           why: "Reduces line complications + length of stay; outpatient completion feasible" },
       ],
     },
+    research: {
+      headline: "S. aureus 75-95%; MRI early + drainage drives outcomes; SAB workup if S. aureus; HIV + DM screen for new diagnosis.",
+      trials: [
+        { name: "Crum CID 2004",
+          n: "Cohort review",
+          question: "Modern pyomyositis epidemiology + outcomes",
+          finding: "S. aureus dominant 75-95%; MRI early + drainage drives outcomes; HIV / DM screen for new diagnosis",
+          bias: "U.S. cohort; tropical pyomyositis underrepresented" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2014,
+          topic: "Pyomyositis (Stevens)",
+          keypoint: "MRI + drainage + 3-4 wk targeted; longer for multifocal / immunocompromised" },
+      ],
+      openQuestions: [
+        "Tropical vs temperate epidemiology — substrate variation",
+        "MRSA empiric thresholds — local prevalence",
+      ],
+    },
   },
 
   /* ===========================================================
@@ -5910,6 +6135,26 @@ const SYNDROME_DECISION = {
           why: "Prevention of recurrence in housemaid's knee / student's elbow" },
         { sev: "consider", what: "**Workup chronic disease** — gout, RA, dialysis — for recurrent disease",
           why: "Underlying substrate drives recurrence; modifiable" },
+      ],
+    },
+    research: {
+      headline: "Aspirate + culture distinguishes infection from crystal; 10-14 d after drainage; bursectomy for failure.",
+      trials: [
+        { name: "Stell Aust Fam Phys 2010",
+          n: "Cohort review",
+          question: "Modern septic bursitis management",
+          finding: "Aspirate at presentation drives diagnosis; 10-14 d targeted antibiotic + serial aspiration; bursectomy for failure",
+          bias: "Outpatient-focused cohort" },
+      ],
+      guidelines: [
+        { society: "Society consensus",
+          year: 2017,
+          topic: "Septic bursitis",
+          keypoint: "Aspirate + culture; 10-14 d targeted; bursectomy for failure / recurrent" },
+      ],
+      openQuestions: [
+        "Re-aspiration timing — 48-72 h response check",
+        "Surgical bursectomy thresholds — failure or recurrence",
       ],
     },
   },
@@ -6293,6 +6538,26 @@ const SYNDROME_DECISION = {
           why: "Reduces edema + accelerates clearance" },
         { sev: "consider", what: "**Lymphedema workup** for recurrent disease",
           why: "Modifiable substrate; same as erysipelas / cellulitis" },
+      ],
+    },
+    research: {
+      headline: "Strep-dominant acute lymphangitis; nodular pattern → sporotrichoid workup (sporothrix, nocardia, mycobacterium marinum).",
+      trials: [
+        { name: "Stevens IDSA 2014",
+          n: "Guideline",
+          question: "Acute lymphangitis management",
+          finding: "PCN-class for acute strep; sporotrichoid pattern → biopsy + ID workup; 7 d short-course standard",
+          bias: "Guideline" },
+      ],
+      guidelines: [
+        { society: "IDSA",
+          year: 2014,
+          topic: "Lymphangitis (Stevens)",
+          keypoint: "PCN-class for acute strep; sporotrichoid → biopsy + atypical workup" },
+      ],
+      openQuestions: [
+        "Sporotrichoid workup threshold — nodular ascending pattern",
+        "Antifungal duration — itraconazole 3-6 mo for sporothrix",
       ],
     },
   },
