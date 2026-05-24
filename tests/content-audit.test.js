@@ -127,6 +127,38 @@ function validateCtxPredicate(pred, path = "matchCtx") {
 
 /* -------- the audit --------------------------------------------- */
 
+describe("content-audit · days-field unit-string contract (regression)", () => {
+  /* Direct regression coverage for the apex contract that branch.days
+     MUST carry an explicit unit / descriptive label. Catches bare
+     integers AND bare ranges (the gap surfaced on PR #10 review).
+     The check mirrors the rule applied in the branches block below. */
+  const reject = (s) => /^[\d\s\-–—≥≤><=.,/]+$/.test(s.trim());
+
+  test("accepts strings carrying explicit units / labels", () => {
+    for(const s of ["5 d", "1 dose", "5–7 d", "4–6 wk", "≥ 42 d", "Indefinite", "FMT + 10 d bridge", "10–14 d + OR"]) {
+      expect(reject(s), `should accept "${s}"`).toBe(false);
+    }
+  });
+
+  test("rejects bare integers", () => {
+    for(const s of ["5", "14", "42"]) {
+      expect(reject(s), `should reject bare integer "${s}"`).toBe(true);
+    }
+  });
+
+  test("rejects unitless ranges", () => {
+    for(const s of ["5-7", "5–7", "5—7", "10/14"]) {
+      expect(reject(s), `should reject unitless range "${s}"`).toBe(true);
+    }
+  });
+
+  test("rejects unitless comparator-prefixed numbers", () => {
+    for(const s of ["≥42", "≥ 42", "<=42", ">=42", "<14"]) {
+      expect(reject(s), `should reject unitless comparator "${s}"`).toBe(true);
+    }
+  });
+});
+
 describe("content-audit · coverage report", () => {
   const allSynIds = SYNDROMES.map(s => s.id);
   const regimenIds = Object.keys(REGIMEN_CONTENT);
@@ -248,10 +280,17 @@ describe("content-audit · syndromeDecision.js entries", () => {
           expect(typeof b.days, `${label} branch[${i}].days must be a string`).toBe("string");
 
           // Apex contract: days MUST carry an explicit unit; bare integers
-          // are forbidden (fosfomycin "1" rendering as "1 d" was a real
-          // safety hazard before this gate landed).
-          const bare = /^\d+$/.test(b.days.trim());
-          expect(bare, `${label} branch[${i}].days "${b.days}" is bare integer — add unit ("d", "wk", "dose", "Indefinite")`).toBe(false);
+          // AND bare ranges ("5-7", "5–7", "≥42", ">=42") are forbidden
+          // (fosfomycin "1" rendering as "1 d" was a real safety hazard;
+          // ranges without units extend the same hazard). The rule: at
+          // least one alphabetical character must appear in the days
+          // string so a unit word (d / dose / wk / mo / hr) or a known
+          // descriptive label (Indefinite, FMT, etc.) is present.
+          const daysTrim = b.days.trim();
+          const onlyNumericContent = /^[\d\s\-–—≥≤><=.,/]+$/.test(daysTrim);
+          expect(onlyNumericContent,
+            `${label} branch[${i}].days "${b.days}" is missing a unit / descriptive label — add "d", "dose", "wk", "mo", "Indefinite", etc. (bare numbers AND bare ranges are both forbidden)`)
+            .toBe(false);
           expect(b.days.length, `${label} branch[${i}].days too long for chip`).toBeLessThanOrEqual(LIMITS.branchDaysMaxLen);
 
           expect(typeof b.detail, `${label} branch[${i}].detail must be a string`).toBe("string");

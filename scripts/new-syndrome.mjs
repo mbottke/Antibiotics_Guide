@@ -75,7 +75,7 @@ ${tiers.map(label => `  ${JSON.stringify(label)}: [
         { sev: "note", text: "TODO useful context that doesn't change action" },
       ],
     },
-  ],`).join(",\n")}
+  ],`).join("\n")}
 },
 
 // ─────────────────────────────────────────────────────────────
