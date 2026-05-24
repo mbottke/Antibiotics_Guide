@@ -186,7 +186,7 @@ function Section({ kicker, title, icon: Icon, children, sticky }) {
 }
 
 /* ---------- the rendered rx line + footnote list ---------- */
-function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId }) {
+function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId, onAgentSelect }) {
   // Split refinements into inline-attachable vs leader-display.
   const { inline, leader } = useMemo(() => _attachRefinements(refinements), [refinements]);
   const tierColor = kind === "add" ? "var(--amber)" : "var(--ox)";
@@ -223,6 +223,7 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId }) {
         tierLabel={tier.k}
         ctx={ctx}
         d={d}
+        onSelectionChange={onAgentSelect}
       />
       {/* Suppress the tier-level italic note when per-card content
           exists for this tier — the cards subsume the note's content
@@ -303,6 +304,36 @@ function RefinementRow({ idx, step, onDrug }) {
 function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite }) {
   const ans = useMemo(() => composeAnswer(caseState), [caseState]);
   const [copied, setCopied] = useState(false);
+
+  /* Phase D2 cross-section selection state. Two interlocking signals:
+       pickedAgent  — the agent picked in any RegimenOptions card
+                      (core or add tier; latest pick wins, scoped to
+                      this syndrome render)
+       pickedBranch — the duration branch the clinician clicked in
+                      DurationBlock; null when no manual selection
+
+     DurationBlock + MonitoringBlock both consume these signals;
+     selections in either propagate downstream so monitoring items
+     tagged with matchAgent / matchBranch leap out as MATCHES. The
+     state is intentionally local to AnswerCanvas — it's ephemeral
+     UI exploration, not part of the persisted caseState. */
+  const [pickedAgent, setPickedAgent] = useState(null);
+  const [pickedBranch, setPickedBranch] = useState(null);
+
+  /* Effective branch: the explicit pickedBranch when the user has
+     clicked one, otherwise the branch whose matchAgent regex matches
+     the currently-picked agent. This way, picking the Fosfomycin
+     regimen card auto-derives the Fosfomycin duration branch for
+     downstream monitoring matchBranch filtering — without forcing
+     the user to also click the duration branch. */
+  const effectiveBranch = useMemo(() => {
+    if(pickedBranch) return pickedBranch;
+    if(!pickedAgent || !ans?.syndrome) return null;
+    const dur = getSyndromeDuration(ans.syndrome.id);
+    if(!dur?.branches) return null;
+    const match = dur.branches.find(b => b.matchAgent && b.matchAgent.test(pickedAgent));
+    return match ? match.label : null;
+  }, [pickedAgent, pickedBranch, ans]);
 
   if(!ans) {
     return (
@@ -407,13 +438,17 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         </div>
       )}
 
-      {/* START NOW — the regimen */}
+      {/* START NOW — the regimen. Latest pick across any tier (core or
+          add) wins as the cross-section pickedAgent; downstream blocks
+          (DurationBlock, MonitoringBlock) light their matchAgent items. */}
       <Section kicker="Start now" icon={Crosshair} sticky>
         <RxLine kind="core" tier={ans.core} refinements={coreRefinements} onDrug={onDrug}
-          ctx={ans.ctx} d={ans.d} synId={s.id} />
+          ctx={ans.ctx} d={ans.d} synId={s.id}
+          onAgentSelect={setPickedAgent} />
         {ans.adds.map((a, i) => (
           <RxLine key={i} kind="add" tier={a} refinements={[]} onDrug={onDrug}
-            ctx={ans.ctx} d={ans.d} synId={s.id} />
+            ctx={ans.ctx} d={ans.d} synId={s.id}
+            onAgentSelect={setPickedAgent} />
         ))}
 
         {/* Allergy guardrail — quick read above the dose calc */}
@@ -569,9 +604,25 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           falls back to the legacy narrative Duration section below
           (which is suppressed in that case to avoid duplication). The
           regimen cards say what to start; these blocks say when to stop
-          and what to check. */}
-      <DurationBlock duration={getSyndromeDuration(s.id)} />
-      <MonitoringBlock monitoring={getSyndromeMonitoring(s.id)} />
+          and what to check.
+
+          Cross-section linking: pickedAgent (from RegimenOptions cards
+          above) implicitly lights the matching duration branch via
+          matchAgent regex; pickedBranch (from clicking a duration
+          branch) propagates to MonitoringBlock so items tagged with
+          matchBranch surface as MATCHES. Both signals also drive the
+          MonitoringBlock matchAgent highlighting. */}
+      <DurationBlock
+        duration={getSyndromeDuration(s.id)}
+        pickedAgent={pickedAgent}
+        pickedBranch={pickedBranch}
+        onBranchSelect={setPickedBranch}
+      />
+      <MonitoringBlock
+        monitoring={getSyndromeMonitoring(s.id)}
+        pickedAgent={pickedAgent}
+        pickedBranch={effectiveBranch}
+      />
 
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file

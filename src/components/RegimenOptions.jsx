@@ -226,6 +226,18 @@ function PerOptionDoseChips({ optionText, ctx, d, synId }) {
   );
 }
 
+/* Title-case the first ASCII letter of an option's text. The splitter
+   produces "fosfomycin 3 g PO × 1" for the second/third entries in a
+   tier (it just slices after the comma+or), so card titles otherwise
+   render with a lowercase leading drug-name letter. Skips non-ASCII
+   leads (Greek β, etc.) so "β-lactam..." stays as authored. */
+function titleCaseFirst(s) {
+  if(!s) return s;
+  const c = s.charAt(0);
+  if(c >= "a" && c <= "z") return c.toUpperCase() + s.slice(1);
+  return s;
+}
+
 function OptionCard({ option, selected, primary, onSelect, renderText, accent, content, ctx, d, synId }) {
   const accentColor = accent === "add" ? "var(--amber)" : "var(--ox)";
   const accentSoft  = accent === "add" ? "var(--amber-soft)" : "var(--ox-soft)";
@@ -269,7 +281,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
         )}
       </div>
       <div style={{ fontSize:13.5, lineHeight:1.5, color:"var(--ink)", fontWeight: selected ? 600 : 500 }}>
-        {renderText ? renderText(option.text) : option.text}
+        {renderText ? renderText(titleCaseFirst(option.text)) : titleCaseFirst(option.text)}
       </div>
       <DecisionContent content={content} accent={accent} />
       <PerOptionDoseChips optionText={option.text} ctx={ctx} d={d} synId={synId} />

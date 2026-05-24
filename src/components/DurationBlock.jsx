@@ -64,13 +64,24 @@ function SectionLabel({ icon: Icon, text, color = "var(--ink2)" }) {
   );
 }
 
-function DurationBlock({ duration }) {
+function DurationBlock({ duration, pickedAgent, pickedBranch, onBranchSelect }) {
   if(!duration) return null;
   const { headline, evidence, branches = [], stopWhen = [], extendIf = [] } = duration;
   if(!headline && branches.length === 0 && stopWhen.length === 0) return null;
 
   const accent = "var(--ox)";
   const accentBg = "rgba(15, 76, 129, 0.08)";
+
+  /* Branch is "active" when EITHER the user explicitly picked it
+     OR its matchAgent regex matches the agent picked in the regimen
+     cards above. This lets the regimen → duration link be implicit
+     (picking nitrofurantoin auto-lights the Nitrofurantoin branch)
+     while still allowing manual override by clicking. */
+  const branchIsActive = (b) => {
+    if(pickedBranch === b.label) return true;
+    if(!pickedBranch && pickedAgent && b.matchAgent && b.matchAgent.test(pickedAgent)) return true;
+    return false;
+  };
 
   return (
     <section
@@ -114,10 +125,17 @@ function DurationBlock({ duration }) {
         </div>
       )}
 
-      {/* Branches — clinical-state grid */}
+      {/* Branches — clinical-state grid. Each branch is clickable; the
+          selected branch propagates to MonitoringBlock so matched items
+          can highlight. Selection persists until cleared (clicking the
+          same branch again clears it). When no manual selection, the
+          regimen card's pickedAgent implicitly lights the matching
+          branch via matchAgent regex. The day chip carries explicit
+          units from the data — never inferred — because a unit-less
+          number is a real safety hazard (fosfomycin 1 dose vs 1 day). */}
       {branches.length > 0 && (
         <div style={{ marginBottom: stopWhen.length || extendIf.length ? 12 : 0 }}>
-          <SectionLabel text="Course by clinical state" color={accent} />
+          <SectionLabel text="Course by clinical state — click to filter monitoring" color={accent} />
           <div style={{
             display:"grid",
             gap:7,
@@ -126,34 +144,49 @@ function DurationBlock({ duration }) {
               : branches.length <= 4 ? "repeat(auto-fit, minmax(180px, 1fr))"
               :                         "repeat(auto-fit, minmax(160px, 1fr))",
           }}>
-            {branches.map((b, i) => (
-              <div key={i} style={{
-                background: "var(--paper2)",
-                border: "1px solid var(--line)",
-                borderRadius: 7,
-                padding: "8px 10px",
-                display:"flex", flexDirection:"column", gap:4,
-              }}>
-                <div style={{ display:"flex", alignItems:"baseline", gap:8, justifyContent:"space-between" }}>
-                  <span style={{ fontSize:11.5, fontWeight:600, color:"var(--ink)", lineHeight:1.35 }}>
-                    {b.label}
-                  </span>
-                  <span style={{
-                    fontFamily:"var(--mono)", fontSize:14, fontWeight:700,
-                    color: accent, background: accentBg,
-                    padding: "1px 7px", borderRadius: 5, whiteSpace:"nowrap",
-                    border: "1px solid var(--ox-line)",
+            {branches.map((b, i) => {
+              const active = branchIsActive(b);
+              const interactive = !!onBranchSelect;
+              const toggle = () => onBranchSelect && onBranchSelect(pickedBranch === b.label ? null : b.label);
+              const Tag = interactive ? "button" : "div";
+              return (
+                <Tag key={i}
+                  type={interactive ? "button" : undefined}
+                  onClick={interactive ? toggle : undefined}
+                  aria-pressed={interactive ? active : undefined}
+                  style={{
+                    textAlign: "left",
+                    background: active ? accentBg : "var(--paper2)",
+                    border: "1px solid " + (active ? "var(--ox-line)" : "var(--line)"),
+                    borderLeft: "3px solid " + (active ? accent : "transparent"),
+                    borderRadius: 7,
+                    padding: "8px 10px 8px 9px",
+                    display:"flex", flexDirection:"column", gap:4,
+                    cursor: interactive ? "pointer" : "default",
+                    transition: "background .12s, border-color .12s",
+                    boxShadow: active ? "inset 0 0 0 1px var(--ox-line)" : "none",
                   }}>
-                    {b.days}{/^\d+$/.test(b.days) ? " d" : ""}
-                  </span>
-                </div>
-                {b.detail && (
-                  <div style={{ fontSize: 11, color: "var(--ink2)", lineHeight: 1.45 }}>
-                    <RichText text={b.detail} accentColor={accent} accentBg={accentBg} />
+                  <div style={{ display:"flex", alignItems:"baseline", gap:8, justifyContent:"space-between" }}>
+                    <span style={{ fontSize:11.5, fontWeight: active ? 700 : 600, color:"var(--ink)", lineHeight:1.35 }}>
+                      {b.label}
+                    </span>
+                    <span style={{
+                      fontFamily:"var(--mono)", fontSize:14, fontWeight:700,
+                      color: accent, background: accentBg,
+                      padding: "1px 7px", borderRadius: 5, whiteSpace:"nowrap",
+                      border: "1px solid var(--ox-line)",
+                    }}>
+                      {b.days}
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
+                  {b.detail && (
+                    <div style={{ fontSize: 11, color: "var(--ink2)", lineHeight: 1.45 }}>
+                      <RichText text={b.detail} accentColor={accent} accentBg={accentBg} />
+                    </div>
+                  )}
+                </Tag>
+              );
+            })}
           </div>
         </div>
       )}

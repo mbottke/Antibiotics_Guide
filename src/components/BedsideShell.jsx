@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { CaseBar } from "./CaseBar.jsx";
 import { AnswerCanvas } from "./AnswerCanvas.jsx";
+import { FontSizeControl } from "./FontSizeControl.jsx";
 import { SYNDROMES } from "../data/syndromes.js";
 
 function _synName(id) {
@@ -47,8 +48,18 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
 
   return (
     <div className="rx-root rx-bedside">
-      <div style={{ maxWidth: 780, margin: "0 auto" }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
+      {/* Phase D2 responsive container: stays narrow on mobile/tablet
+          (max 780 px below 1100 px viewport for typography comfort);
+          expands smoothly on wide desktops up to 1480 px so the regimen
+          options grid, duration branches grid, and monitoring blocks
+          all get the side-by-side real estate they were designed for.
+          The `min(96vw, 1480px)` caps the page on ultra-wide displays
+          where line lengths would otherwise become unreadable. */}
+      <div className="rx-bedside-container" style={{
+        maxWidth: "min(96vw, 1480px)",
+        margin: "0 auto",
+      }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18, gap: 12, flexWrap: "wrap" }}>
           <button
             type="button"
             onClick={onExit}
@@ -61,8 +72,11 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
             }}>
             <ArrowLeft size={12} /> Reference
           </button>
-          <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".18em", textTransform:"uppercase", color:"var(--ox)", fontWeight:600 }}>
-            Bedside — Phase A
+          <div style={{ display:"flex", alignItems:"center", gap: 10 }}>
+            <FontSizeControl />
+            <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".18em", textTransform:"uppercase", color:"var(--ox)", fontWeight:600 }}>
+              Bedside — Phase A
+            </div>
           </div>
         </div>
 

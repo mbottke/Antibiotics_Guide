@@ -22,8 +22,14 @@
        branches: [
          {
            label: "string — the clinical state branch label",
-           days:  "string — number / range / 'indefinite'",
+           days:  "string — MUST carry explicit units ('5 d', '1 dose',
+                  '4–6 wk', 'Indefinite'); units are a safety contract,
+                  never render a bare number",
            detail:"string — what counts as day 1 + extension rules",
+           matchAgent?: RegExp,  // when picked agent matches, branch
+                                 // highlights as the "active" duration
+                                 // (cystitis Nitrofurantoin branch lights
+                                 // when nitrofurantoin card is picked)
          },
        ],
        stopWhen: [ "criterion 1", "criterion 2", ... ],
@@ -34,10 +40,27 @@
        items: [
          { sev: "required" | "trigger" | "consider",
            what: "string — the check / order / threshold",
-           why:  "string — clinical rationale, ≤ 18 words" },
+           why:  "string — clinical rationale, ≤ 18 words",
+           matchAgent?:  RegExp,    // optional agent filter
+           matchBranch?: ["label"], // optional duration-branch filter
+         },
        ],
      },
    };
+
+   CROSS-SECTION HIGHLIGHTING
+   --------------------------
+   When the clinician picks a regimen card (sets pickedAgent) or
+   clicks a duration branch (sets pickedBranch), monitoring items
+   carrying a `matchAgent` regex or `matchBranch` list that matches
+   light up with an accent left-border + "MATCHES" chip. Items
+   WITHOUT filter tags are agent/branch-agnostic and render at
+   default emphasis regardless of selection.
+
+   Items are never HIDDEN by filtering — safety contract. Hiding
+   important checks because the user happened to pick a different
+   card would let critical monitoring slip through the cracks.
+   Filtering only EMPHASIZES; everything stays visible.
 
    WRITING THE CONTENT
    -------------------
@@ -102,13 +125,18 @@ const SYNDROME_DECISION = {
      simple monitoring. IDSA 2010 (Gupta). ========================= */
   cystitis: {
     duration: {
-      headline: "Match the agent — 3 d TMP-SMX, 5 d nitrofurantoin, 1 dose fosfomycin.",
+      headline: "Match the agent — 3 d TMP-SMX, 5 d nitrofurantoin, single dose fosfomycin.",
       evidence: "IDSA 2010 — agent-specific short courses; no advantage to extension in uncomplicated cystitis",
       branches: [
-        { label: "Nitrofurantoin",  days: "5",         detail: "Full 5-day course; do **not** extend even if late response" },
-        { label: "TMP-SMX",         days: "3",         detail: "Shortest first-line; covers early pyelo if dx wrong" },
-        { label: "Fosfomycin",      days: "1",         detail: "Single 3 g sachet; repeat dosing **does not** improve cure" },
-        { label: "β-lactam (cefpodoxime, cefdinir)", days: "5–7", detail: "Lower cure than first-line; do not extend beyond 7 d" },
+        { label: "Nitrofurantoin",  days: "5 d",      matchAgent: /nitrofurantoin/i,
+          detail: "Full 5-day course; do **not** extend even if late response" },
+        { label: "TMP-SMX",         days: "3 d",      matchAgent: /TMP-?\s?SMX|trimethoprim/i,
+          detail: "Shortest first-line; covers early pyelo if dx wrong" },
+        { label: "Fosfomycin",      days: "1 dose",   matchAgent: /fosfomycin/i,
+          detail: "Single 3 g sachet; repeat dosing **does not** improve cure" },
+        { label: "β-lactam (cefpodoxime, cefdinir)", days: "5–7 d",
+          matchAgent: /cefpodoxime|cefdinir|β-?lactam|amoxicillin-?clavulanate/i,
+          detail: "Lower cure than first-line; do not extend beyond 7 d" },
       ],
       stopWhen: [
         "Symptoms resolved (dysuria, urgency, frequency, suprapubic pain)",
@@ -124,10 +152,15 @@ const SYNDROME_DECISION = {
     monitoring: {
       headline: "Symptoms-only follow-up in most; reculture for recurrence within 4 weeks.",
       items: [
-        { sev: "required", what: "Symptom check at 48–72 h", why: "Persistent symptoms → reculture + alternative agent" },
-        { sev: "trigger",  what: "Reculture **if** symptoms persist or recur within 4 wk", why: "Identifies resistant organism or upper-tract progression" },
-        { sev: "trigger",  what: "Workup pyelonephritis **if** fever / flank / vomiting", why: "Lower-tract drug fails; needs IV β-lactam + 7+ d" },
-        { sev: "consider", what: "Post-treatment urine culture in pregnancy", why: "ASB clearance documentation; reduces preterm birth risk" },
+        { sev: "required", what: "Symptom check at 48–72 h",
+          why: "Persistent symptoms → reculture + alternative agent" },
+        { sev: "trigger",  what: "Reculture **if** symptoms persist or recur within 4 wk",
+          why: "Identifies resistant organism or upper-tract progression" },
+        { sev: "trigger",  what: "Workup pyelonephritis **if** fever / flank / vomiting",
+          why: "Lower-tract drug fails; needs IV β-lactam + 7+ d",
+          matchBranch: ["Nitrofurantoin", "Fosfomycin"] },
+        { sev: "consider", what: "Post-treatment urine culture in pregnancy",
+          why: "ASB clearance documentation; reduces preterm birth risk" },
       ],
     },
   },
@@ -142,11 +175,16 @@ const SYNDROME_DECISION = {
       headline: "14 d uncomplicated; 4–6 wk if endocarditis, metastatic foci, or hardware.",
       evidence: "IDSA 2011 + 2024 — 14 d minimum for any S. aureus bacteremia; longer per complication",
       branches: [
-        { label: "Uncomplicated, source controlled",  days: "14", detail: "From **first negative** blood culture; minimum for any S. aureus bacteremia" },
-        { label: "Complicated (metastatic foci, persistent BCx)", days: "28–42", detail: "From first negative BCx; ID + ECHO drive the call" },
-        { label: "Endocarditis confirmed (native)",   days: "42", detail: "Full 6 weeks IV (4 wk for selected viridans-like cases, but not S. aureus)" },
-        { label: "Endocarditis (prosthetic valve)",   days: "≥ 42", detail: "≥ 6 weeks + rifampin + gent (first 2 wk for synergy)" },
-        { label: "Retained hardware",                 days: "indefinite", detail: "IV course → lifelong oral suppression if hardware cannot be removed" },
+        { label: "Uncomplicated, source controlled", days: "14 d",
+          detail: "From **first negative** blood culture; minimum for any S. aureus bacteremia" },
+        { label: "Complicated (metastatic foci, persistent BCx)", days: "28–42 d",
+          detail: "From first negative BCx; ID + ECHO drive the call" },
+        { label: "Endocarditis confirmed (native)", days: "42 d",
+          detail: "Full 6 weeks IV (4 wk for selected viridans-like cases, but not S. aureus)" },
+        { label: "Endocarditis (prosthetic valve)", days: "≥ 42 d",
+          detail: "≥ 6 weeks + rifampin + gent (first 2 wk for synergy)" },
+        { label: "Retained hardware", days: "Indefinite",
+          detail: "IV course → lifelong oral suppression if hardware cannot be removed" },
       ],
       stopWhen: [
         "All blood cultures negative ≥ 48 h",
@@ -168,16 +206,34 @@ const SYNDROME_DECISION = {
     monitoring: {
       headline: "Repeat BCx q48h, TEE within 5–7 d, AUC-guide vanco, search source.",
       items: [
-        { sev: "required", what: "Repeat blood cultures **q48h until clearance**", why: "Documents sterilization; positive at 48 h triggers TEE + source hunt" },
-        { sev: "required", what: "**TTE → TEE** within 5–7 days for any S. aureus bacteremia", why: "Endocarditis in ~15–25%; changes duration to 4–6 wk + may need surgery" },
-        { sev: "required", what: "**ID consult** for all S. aureus bacteremia", why: "Mortality benefit (~20% absolute) — society guideline mandate" },
-        { sev: "required", what: "Vancomycin **AUC 400–600** (Bayesian)", why: "Both under- and over-target linked to worse outcomes + AKI" },
-        { sev: "required", what: "Source workup: skin/SSTI, line, joint, spine, lung", why: "Untreated source = persistent bacteremia + late metastatic disease" },
-        { sev: "trigger",  what: "**PET-CT or whole-body MRI if BCx positive > 72 h** on appropriate therapy", why: "Identifies occult endovascular / visceral source not seen initially" },
-        { sev: "trigger",  what: "**CK weekly on daptomycin**; hold statin if possible", why: "Rhabdomyolysis risk; reversible if caught early" },
-        { sev: "trigger",  what: "MRI spine if back pain or any neurologic finding", why: "Vertebral osteomyelitis / epidural abscess in 5–10% of SAB" },
-        { sev: "consider", what: "MRSA nares PCR if not already done", why: "Negative result enables narrowing / early stop of empiric vanco" },
-        { sev: "consider", what: "Ophthalmology for endogenous endophthalmitis if visual symptoms", why: "Vision-threatening; classic in hypervirulent K. pneumoniae but also S. aureus" },
+        { sev: "required", what: "Repeat blood cultures **q48h until clearance**",
+          why: "Documents sterilization; positive at 48 h triggers TEE + source hunt" },
+        { sev: "required", what: "**TTE → TEE** within 5–7 days for any S. aureus bacteremia",
+          why: "Endocarditis in ~15–25%; changes duration to 4–6 wk + may need surgery" },
+        { sev: "required", what: "**ID consult** for all S. aureus bacteremia",
+          why: "Mortality benefit (~20% absolute) — society guideline mandate" },
+        { sev: "required", what: "Vancomycin **AUC 400–600** (Bayesian)",
+          why: "Both under- and over-target linked to worse outcomes + AKI",
+          matchAgent: /vancomycin/i },
+        { sev: "required", what: "Source workup: skin/SSTI, line, joint, spine, lung",
+          why: "Untreated source = persistent bacteremia + late metastatic disease" },
+        { sev: "trigger",  what: "**PET-CT or whole-body MRI** if BCx positive > 72 h on appropriate therapy",
+          why: "Identifies occult endovascular / visceral source not seen initially",
+          matchBranch: ["Complicated (metastatic foci, persistent BCx)", "Endocarditis confirmed (native)", "Endocarditis (prosthetic valve)"] },
+        { sev: "trigger",  what: "**CK weekly on daptomycin**; hold statin if possible",
+          why: "Rhabdomyolysis risk; reversible if caught early",
+          matchAgent: /daptomycin/i },
+        { sev: "trigger",  what: "**MRI spine** if back pain or any neurologic finding",
+          why: "Vertebral osteomyelitis / epidural abscess in 5–10% of SAB",
+          matchBranch: ["Complicated (metastatic foci, persistent BCx)"] },
+        { sev: "trigger",  what: "**Rifampin combination** for retained hardware (after BCx clear)",
+          why: "Biofilm penetration; never start until cultures positive to avoid resistance",
+          matchBranch: ["Retained hardware", "Endocarditis (prosthetic valve)"] },
+        { sev: "consider", what: "MRSA nares PCR if not already done",
+          why: "Negative result enables narrowing / early stop of empiric vanco",
+          matchAgent: /vancomycin/i },
+        { sev: "consider", what: "Ophthalmology for endogenous endophthalmitis if visual symptoms",
+          why: "Vision-threatening; classic in hypervirulent K. pneumoniae but also S. aureus" },
       ],
     },
   },
