@@ -323,12 +323,13 @@ test.describe("bedside reassessment panel", () => {
 
   test("research evidence block renders for syndromes with authored panel (Phase F)", async ({ page }) => {
     /* HAP carries a Phase F research panel (PneumA 2003, IDSA 2016,
-       DALI 2014, ZEPHyR). The ResearchBlock should mount below the
-       MonitoringBlock and surface the kicker + at least one trial
-       name. Syndromes without an authored research panel skip this
-       section entirely — the optional shape allows incremental
-       rollout. */
+       DALI 2014, ZEPHyR). Since Tranche 5 UX restructure, ResearchBlock
+       lives inside the "More depth" collapsed <details> expander —
+       expand it before asserting visibility. */
     await openHapAnswer(page);
+    // Open the "More depth" expander that wraps F/L (and non-tier-1 K/J).
+    const moreDepth = page.locator("summary").filter({ hasText: /more depth/i }).first();
+    await moreDepth.click();
     await expect(page.getByTestId("research-block")).toBeVisible();
     // Kicker text from Section chrome
     await expect(page.getByText(/evidence behind the recommendation/i)).toBeVisible();

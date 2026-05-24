@@ -433,6 +433,32 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
     } catch(e){ done(); }
   };
 
+  /* Phase L+ UX optimization (multi-agent triage): count populated
+     depth layers + decide which collapse by default. PedsPreg gated
+     on ctx pregnancy or pediatric age — adults don't need it on
+     screen. SurgeProtocols tier-1 always-visible; non-tier-1
+     collapsed with the reference layers (Research, SitePenetration). */
+  const _research = getSyndromeResearch(s.id);
+  const _regional = getRegionalForSyndrome(s.id);
+  const _novel = getNovelForSyndrome(s.id);
+  const _surge = getSurgeForSyndrome(s.id);
+  const _surgeTier1 = _surge.filter(p => p.severity === "tier-1");
+  const _surgeOther = _surge.filter(p => p.severity !== "tier-1");
+  const _siteP = getPenetrationForSyndrome(s.id);
+  const _pedsPreg = getPedsPregForSyndrome(s.id);
+  const _ctxPedsPreg = ans.ctx.pregnancy === true || (typeof ans.ctx.age === "number" && ans.ctx.age < 18);
+  const _pedsPregShow = _ctxPedsPreg ? _pedsPreg : [];
+  const _depthCount = [
+    getSyndromeDuration(s.id) ? 1 : 0,
+    getSyndromeMonitoring(s.id) ? 1 : 0,
+    _research ? 1 : 0,
+    _regional.length ? 1 : 0,
+    _novel.length ? 1 : 0,
+    _surge.length ? 1 : 0,
+    _siteP.length ? 1 : 0,
+    _pedsPreg.length ? 1 : 0,
+  ].reduce((a, b) => a + b, 0);
+
   return (
     <div style={{ marginTop: 6 }}>
       {/* Header strip — syndrome name, risks, edit-case affordance */}
@@ -459,6 +485,20 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               </>
             )}
           </div>
+          {_depthCount >= 6 && (
+            <div style={{ marginTop: 8 }}>
+              <span style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
+                fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600,
+                color: "var(--ox)", background: "rgba(15, 76, 129, 0.08)",
+                padding: "3px 8px", borderRadius: 4,
+                border: "1px solid var(--ox-line)",
+                letterSpacing: ".06em", textTransform: "uppercase",
+              }}>
+                <BookOpen size={10} aria-hidden /> {_depthCount} depth layers · scroll + expand for full detail
+              </span>
+            </div>
+          )}
         </div>
         {onEditCase && (
           <button type="button" onClick={onEditCase} title="Edit the case"
@@ -685,23 +725,44 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         pickedBranch={effectiveBranch}
         ctx={{ ...ans.ctx, ...ans.d }}
       />
-      {/* RESEARCH · evidence depth (Phase F). Renders only when the
-          syndrome carries an authored `research:` panel — landmark
-          trials + society guidelines + open questions. Optional layer:
-          syndromes without a research panel skip this section entirely,
-          which is the safe default during incremental rollout. */}
-      <ResearchBlock research={getSyndromeResearch(s.id)} />
-      {/* REGIONAL RESISTANCE · antibiogram alerts (Phase H). Renders
-          only when patterns affecting this syndrome exist. */}
-      <RegionalResistanceBlock patterns={getRegionalForSyndrome(s.id)} />
-      {/* NOVEL AGENTS · newer drug profiles (Phase I). */}
-      <NovelAgentsBlock agents={getNovelForSyndrome(s.id)} />
-      {/* SURGE + OUTBREAK · emerging pathogen alerts (Phase K). */}
-      <SurgeProtocolsBlock protocols={getSurgeForSyndrome(s.id)} />
-      {/* SITE PENETRATION · drug PK by anatomic compartment (Phase L). */}
-      <SitePenetrationBlock entries={getPenetrationForSyndrome(s.id)} />
-      {/* PEDS + PREGNANCY · weight-based dosing + safety (Phase J). */}
-      <PedsPregBlock entries={getPedsPregForSyndrome(s.id)} />
+      {/* PROMOTED depth layers (Phase H + I) — drive the empiric choice
+          when resistance / novel-agent context applies, so they render
+          above Research + reference layers. */}
+      <RegionalResistanceBlock patterns={_regional} />
+      <NovelAgentsBlock agents={_novel} />
+      {/* SURGE TIER-1 always-visible — bioterror / Ebola / Marburg
+          recognition is life-saving + cannot be hidden. Non-tier-1
+          surge entries collapse with reference layers below. */}
+      {_surgeTier1.length > 0 && <SurgeProtocolsBlock protocols={_surgeTier1} />}
+      {/* PEDS + PREGNANCY (Phase J) — gated on ctx pregnancy or
+          pediatric age. Adults don't need this layer on screen. */}
+      {_pedsPregShow.length > 0 && <PedsPregBlock entries={_pedsPregShow} />}
+      {/* "MORE DEPTH" expander — Research (F) + non-tier-1 Surge (K) +
+          SitePenetration (L) + ctx-irrelevant PedsPreg (J) collapse by
+          default. Native <details> for accessibility + zero-JS toggle. */}
+      {(_research || _surgeOther.length > 0 || _siteP.length > 0 || (!_ctxPedsPreg && _pedsPreg.length > 0)) && (
+        <details style={{
+          marginTop: 8, padding: 0,
+          border: "1px solid var(--line)", borderRadius: 8,
+          background: "var(--paper2)",
+        }}>
+          <summary style={{
+            cursor: "pointer", padding: "10px 14px",
+            fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
+            color: "var(--ox)", letterSpacing: ".08em", textTransform: "uppercase",
+            listStyle: "none", borderRadius: 8,
+            display: "flex", alignItems: "center", gap: 8,
+          }}>
+            <ChevronRight size={12} /> More depth · evidence + reference
+          </summary>
+          <div style={{ padding: "0 14px 14px" }}>
+            <ResearchBlock research={_research} />
+            {_surgeOther.length > 0 && <SurgeProtocolsBlock protocols={_surgeOther} />}
+            <SitePenetrationBlock entries={_siteP} />
+            {!_ctxPedsPreg && _pedsPreg.length > 0 && <PedsPregBlock entries={_pedsPreg} />}
+          </div>
+        </details>
+      )}
 
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file
