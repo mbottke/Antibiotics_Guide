@@ -17,7 +17,9 @@ import { ClassChip, TermChip, renderRx, renderGloss, renderRich } from "./compon
 import { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer } from "./components/primitives";
 import { BedsideShell } from "./components/BedsideShell";
 import { SurfaceBar } from "./components/SurfaceBar";
+import { SectionNav } from "./components/SectionNav";
 import { OutpatientShell } from "./components/OutpatientShell";
+import { SECTIONS, SECTION_BY_ID, sectionForTab, firstTabOfSection } from "./data/sections";
 import { penChips, allergyGuidance, interactionsForAgent, regimenInteractions, synEvidence, classData, glossData } from "./engines/clinical";
 import { buildRegimen, regimenAgents, refineAgents, refineOptionGroups, refineRegimen, deescalationPlan } from "./engines/regimen";
 import { _looseFind, drugLookup, orgLookup, _spxFor, drugCoversOrg, drugRoute } from "./engines/lookup";
@@ -49,6 +51,11 @@ export default function InpatientAbxGuide() {
       const out = {};
       const t = h.get("t");
       if(t && TABS.some(x => x.id === t)) out.tab = t;
+      const sec = h.get("sec");
+      if(sec && SECTION_BY_ID[sec]) out.section = sec;
+      // Legacy bookmark redirect: when the user has a #t=... but no #sec=...,
+      // derive section from the tab so old links land in the right section.
+      if(!out.section && out.tab) out.section = sectionForTab(out.tab);
       const syn = h.get("syn");
       if(syn && SYNDROMES.some(x => x.id === syn)) out.openSyn = syn;
       const c = h.get("ctx");
@@ -103,6 +110,11 @@ export default function InpatientAbxGuide() {
   const [surface, setSurface] = useState(_navFromUrl.surface);
   const [mode, setMode]       = useState(_navFromUrl.mode);
   const [tab, setTab] = useState(_hashState.tab || "approach");
+  /* Phase B1 — section state. The 5-section nav sits above the 11-tab nav
+     so the user picks the question class first. Selecting a section auto-
+     switches the tab to the section's first tab; the tab nav below
+     filters to show only tabs belonging to the current section. */
+  const [section, setSection] = useState(_hashState.section || sectionForTab(_hashState.tab || "approach"));
   const [cmdOpen, setCmdOpen] = useState(false);
   const [cmdQ, setCmdQ] = useState("");
   const [cmdIdx, setCmdIdx] = useState(0);
@@ -260,6 +272,7 @@ export default function InpatientAbxGuide() {
   useEffect(() => {
     try {
       const p = new URLSearchParams();
+      if(section && section !== "principles") p.set("sec", section);
       if(tab && tab !== "approach") p.set("t", tab);
       if(tab === "empiric" && openSyn) p.set("syn", openSyn);
       if(ctx.on) p.set("ctx", [Math.round(+ctx.age)||"", Math.round(+ctx.weightKg)||"",
@@ -277,7 +290,18 @@ export default function InpatientAbxGuide() {
       const cur = (window.location.hash || "").replace(/^#/, "");
       if(next !== cur) window.history.replaceState(null, "", next ? "#"+next : window.location.pathname + window.location.search);
     } catch(e){ /* hash sync is best-effort */ }
-  }, [tab, openSyn, ctx, caseState.cultures, caseState.dayOfTx, caseState.startDate, caseState.clinical]);
+  }, [section, tab, openSyn, ctx, caseState.cultures, caseState.dayOfTx, caseState.startDate, caseState.clinical]);
+
+  /* Keep section synced with tab. Callers that switch the tab directly
+     (the ⌘K palette, "Open as case" / "Open spectrum" deep-links from
+     drawer cards, etc.) don't know about section — but the section nav
+     should still highlight the correct group. Whenever the active tab
+     belongs to a different section than the current `section` state,
+     update section. Safe because sectionForTab is pure. */
+  useEffect(() => {
+    const expected = sectionForTab(tab);
+    if(expected !== section) setSection(expected);
+  }, [tab]);
 
   /* dose(name): renally-adjusted dose for THIS patient, or null when context is
      off / agent has no structured rule → caller renders the static string. */
@@ -1759,12 +1783,21 @@ export default function InpatientAbxGuide() {
 
       {bar}
 
+      <SectionNav section={section} onSection={(s) => {
+        setSection(s);
+        // Auto-switch to the section's first tab when the current tab
+        // doesn't belong to the picked section. Preserves the active tab
+        // when the user re-selects their current section.
+        const sec = SECTION_BY_ID[s];
+        if(sec && !sec.tabs.includes(tab)) setTab(firstTabOfSection(s));
+      }} />
+
       <header className="rx-header">
         <div className="rx-wrap">
           <div className="rx-headrow">
             <div className="rx-mark"><Microscope size={20} /></div>
             <div className="rx-brand">
-              <div className="rx-kicker">Inpatient · Antibacterial</div>
+              <div className="rx-kicker">Inpatient · Antibacterial · {(SECTION_BY_ID[section] || {}).label}</div>
               <h1 className="rx-title">Antibacterial Reference & Selection Engine</h1>
               <p className="rx-sub">Adult hospital medicine · empiric → directed → reference · generic agents only</p>
             </div>
@@ -1773,8 +1806,14 @@ export default function InpatientAbxGuide() {
               <input className="rx-search" placeholder="Search  ⌘K" onFocus={()=>{setCmdOpen(true);setCmdQ("");setCmdIdx(0);}} readOnly />
             </div>
           </div>
-          <nav className="rx-nav" role="tablist">
-            {TABS.map(t => {
+          {/* Section-scoped tab sub-nav. Phase B1: filters the 11-tab bar
+              to only the tabs that belong to the active section. Click a
+              section above (SectionNav) and this sub-nav re-paints with
+              that section's tabs. When a section has only one tab, the
+              sub-nav hides itself (single-tab nav is visual noise). */}
+          {(SECTION_BY_ID[section]?.tabs?.length || 0) > 1 && (
+          <nav className="rx-nav" role="tablist" aria-label={`${(SECTION_BY_ID[section] || {}).label} sub-sections`}>
+            {TABS.filter(t => (SECTION_BY_ID[section]?.tabs || []).includes(t.id)).map(t => {
               const TI = t.icon;
               return (
                 <button key={t.id} className="rx-tab" aria-current={tab===t.id} role="tab" onClick={()=>setTab(t.id)}>
@@ -1783,6 +1822,7 @@ export default function InpatientAbxGuide() {
               );
             })}
           </nav>
+          )}
         </div>
       </header>
 
