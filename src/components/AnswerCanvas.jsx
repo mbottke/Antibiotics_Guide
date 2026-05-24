@@ -31,6 +31,8 @@ import { ReassessmentPanel } from "./ReassessmentPanel.jsx";
 import { DurationBlock } from "./DurationBlock.jsx";
 import { MonitoringBlock } from "./MonitoringBlock.jsx";
 import { ResearchBlock } from "./ResearchBlock.jsx";
+import { RegionalResistanceBlock } from "./RegionalResistanceBlock.jsx";
+import { getRegionalForSyndrome } from "../data/regionalResistance.js";
 import { CombinedRisksBlock } from "./CombinedRisksBlock.jsx";
 import { Section } from "./Section.jsx";
 import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch } from "../data/syndromeDecision.js";
@@ -681,6 +683,12 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           syndromes without a research panel skip this section entirely,
           which is the safe default during incremental rollout. */}
       <ResearchBlock research={getSyndromeResearch(s.id)} />
+      {/* REGIONAL RESISTANCE · antibiogram alerts (Phase H). Renders
+          only when patterns affecting this syndrome exist. Surfaces
+          regional / institutional resistance shifts that change the
+          empiric strategy beyond what's baked into the syndrome
+          decision blocks above. */}
+      <RegionalResistanceBlock patterns={getRegionalForSyndrome(s.id)} />
 
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file
