@@ -1034,6 +1034,513 @@ const SYNDROME_DECISION = {
     },
   },
 
+  /* ===========================================================
+     SSTI · CELLULITIS — IDSA 2014 (Stevens). 5 d standard for
+     non-purulent if responding; longer for purulent + MRSA. ====== */
+  cellulitis: {
+    duration: {
+      headline: "5 d standard for uncomplicated; 7–10 d if slow response, purulent, or MRSA-confirmed.",
+      evidence: "IDSA 2014 — 5 d standard; Tansarli 2018 meta-analysis supports short course",
+      branches: [
+        { label: "Uncomplicated, clinical response", days: "5 d",
+          detail: "Cefazolin / cephalexin; counts from first effective dose; AND-joined stop criteria",
+          matchAgent: /cefazolin|cephalexin|dicloxacillin/i },
+        { label: "Slow response or extensive", days: "7–10 d",
+          detail: "Extend per clinical trajectory; reassess source + workup unusual organisms" },
+        { label: "Purulent + MRSA-confirmed", days: "7–14 d",
+          detail: "Vancomycin or TMP-SMX/doxy; longer if bacteremic or deep extension",
+          matchAgent: /vancomycin|TMP-?SMX|doxycycline|clindamycin/i },
+        { label: "Lymphangitic / erysipelas type", days: "5 d",
+          detail: "Penicillin / cefazolin; strep-dominant disease responds quickly" },
+      ],
+      stopWhen: [
+        "Erythema borders receding (mark + monitor)",
+        "Afebrile ≥ 24–48 h",
+        "WBC normalizing",
+        "Pain decreasing",
+        "Tolerating oral therapy",
+        "Minimum 5 d completed",
+      ],
+      extendIf: [
+        { text: "**Slow response by 48–72 h** — workup deeper infection / wrong organism",
+          matchCtx: { severe: true } },
+        "Purulent component / abscess → I&D + MRSA cover",
+        "Bacteremia confirmed — extend per source",
+        "Lymphedema / venous stasis substrate — prophylaxis consideration after resolution",
+      ],
+    },
+    monitoring: {
+      headline: "Mark erythema borders; reassess at 48–72 h; MRSA cover only for purulent component.",
+      items: [
+        { sev: "required", what: "**Mark erythema borders** + date — daily progression check",
+          why: "Objective measure of response; spread despite antibiotic triggers re-workup" },
+        { sev: "required", what: "**Reassess at 48–72 h** — fever, pain, oral tolerance",
+          why: "Non-response by 72 h triggers MRSA cover, imaging for deep infection, or workup for atypical organism" },
+        { sev: "trigger", what: "**Add MRSA cover** if purulent component, IVDU, or no response at 72 h",
+          why: "Non-purulent cellulitis is strep-dominant; reflexive MRSA cover overused (IDSA 2014)",
+          matchCtx: { mrsaRisk: true } },
+        { sev: "trigger", what: "**Image (US / MRI)** if deep infection suspected",
+          why: "Necrotizing fasciitis, abscess, osteomyelitis — surgical decision drivers" },
+        { sev: "trigger", what: "**Treat predisposing tinea pedis** — interdigital fissures are entry portal",
+          why: "Topical antifungal prevents recurrent leg cellulitis" },
+        { sev: "consider", what: "**Prophylactic penicillin** for recurrent erysipelas (PATCH trials)",
+          why: "Reduces time-to-next episode in lymphedema / venous stasis substrate" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SSTI · NECROTIZING FASCIITIS — surgical emergency; antibiotics
+     adjunct. Clindamycin until toxin-producing strep excluded. ===  */
+  necfasc: {
+    duration: {
+      headline: "Continue IV until clinically clear; clindamycin until toxin-producing organism excluded.",
+      evidence: "IDSA 2014 + society consensus — no fixed duration; surgical adequacy drives course",
+      branches: [
+        { label: "Polymicrobial type I (gut/perineal)", days: "Until clear",
+          detail: "Pip-tazo or carbapenem + vancomycin + clindamycin; continue until clinical + surgical resolution",
+          matchAgent: /piperacillin|meropenem|vancomycin|clindamycin/i },
+        { label: "Group A strep type II (limb)", days: "10–14 d post-surgical",
+          detail: "Penicillin + clindamycin; IVIG for streptococcal TSS",
+          matchAgent: /penicillin|clindamycin/i },
+        { label: "Vibrio / Aeromonas (water exposure)", days: "10–14 d",
+          detail: "Doxycycline + ceftriaxone; salt water (Vibrio) vs fresh (Aeromonas) drives speciation" },
+      ],
+      stopWhen: [
+        "Surgical margins clean on serial debridement",
+        "Afebrile ≥ 48 h",
+        "Off vasopressors; clinical stability",
+        "Wound closing / negative-pressure dressing working",
+        "Cultures cleared / appropriate narrowing complete",
+      ],
+      extendIf: [
+        { text: "**Persistent surgical disease** — continue until margins are clean",
+          matchCtx: { severe: true } },
+        "Streptococcal TSS — extend clindamycin + IVIG per response",
+        "Bacteremia — duration drives per pathogen",
+        "Immunocompromised host — extended course typical",
+      ],
+    },
+    monitoring: {
+      headline: "Surgical re-look q24h until margins clean; clindamycin until toxin-producer excluded; IVIG for strep TSS.",
+      items: [
+        { sev: "required", what: "**Surgical re-look every 24 h** until margins are clean",
+          why: "Necrosis extends silently under antibiotic cover; surgical adequacy is the bedside metric" },
+        { sev: "required", what: "**Continue clindamycin** until toxin-producing strep / Clostridium excluded by culture",
+          why: "Ribosomal block suppresses exotoxin production; cidal antibiotic alone insufficient in TSS" },
+        { sev: "required", what: "**IVIG 1 g/kg day 1, 0.5 g/kg days 2–3** for streptococcal TSS",
+          why: "Mortality benefit (observational + small RCTs); time-sensitive within 24–48 h" },
+        { sev: "trigger", what: "**Anti-MRSA agent** (vancomycin or linezolid) if MRSA-risk substrate",
+          why: "Community MRSA can present as necrotizing infection; standard part of empiric in U.S.",
+          matchCtx: { mrsaRisk: true } },
+        { sev: "trigger", what: "**Hyperbaric oxygen** for clostridial myonecrosis if available",
+          why: "Adjunctive only; never delay surgical debridement; survival benefit unclear" },
+        { sev: "consider", what: "Reconstructive surgery referral for closure after debridement complete",
+          why: "Flap / graft / negative-pressure dressing — multi-stage closure planning" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SSTI · DIABETIC FOOT INFECTION — IDSA 2023. Tissue depth drives
+     duration; bone involvement → osteo duration. ==================== */
+  dfi: {
+    duration: {
+      headline: "1–2 wk mild, 2–4 wk moderate, 4–6 wk if osteo; vascular + offloading drive outcomes.",
+      evidence: "IDSA 2023 — tissue-depth-stratified duration; osteo handled per bone-infection bands",
+      branches: [
+        { label: "Mild (no systemic, no deep tissue)", days: "1–2 wk",
+          detail: "Oral cephalexin / amox-clav; outpatient management feasible",
+          matchAgent: /cephalexin|amoxicillin-?clavulanate|TMP-?SMX|doxycycline/i },
+        { label: "Moderate / severe (deep tissue, systemic)", days: "2–4 wk",
+          detail: "Pip-tazo + vancomycin; vascular + surgical consult",
+          matchAgent: /piperacillin|cefepime|vancomycin|meropenem/i },
+        { label: "Osteomyelitis present (probe-to-bone +)", days: "4–6 wk",
+          detail: "From last surgical debridement / amputation; oral step-down per OVIVA in selected",
+          matchAgent: /cefazolin|nafcillin|vancomycin|cefepime|ciprofloxacin|TMP-?SMX/i },
+        { label: "Limb-threatening / sepsis", days: "Per source",
+          detail: "Emergent vascular + surgical management; antibiotic duration secondary to revascularization" },
+      ],
+      stopWhen: [
+        "Clinical resolution of cellulitis / drainage",
+        "Bone biopsy negative (if osteo treated)",
+        "Wound healing trajectory established",
+        "Vascular status assessed / optimized",
+        "Offloading + glycemic control in place",
+        "Minimum tissue-depth duration completed",
+      ],
+      extendIf: [
+        { text: "**Limb-threatening or systemic toxicity** — extend per source + vascular consult",
+          matchCtx: { severe: true } },
+        "Bone involvement (probe-to-bone + or MRI positive) — extend to osteo duration",
+        "Recurrent infection at same site — workup retained foreign body / inadequate prior debridement",
+        "Charcot neuroarthropathy + active infection — complex multi-team management",
+      ],
+    },
+    monitoring: {
+      headline: "Probe-to-bone test, vascular assessment, offloading, multidisciplinary team coordination.",
+      items: [
+        { sev: "required", what: "**Probe-to-bone test** at presentation + bone biopsy if positive",
+          why: "Probe-to-bone has 87% PPV for osteomyelitis; biopsy + culture drives directed therapy" },
+        { sev: "required", what: "**Vascular assessment** — ABI, pulses, perfusion; revascularization if indicated",
+          why: "Inadequate perfusion prevents healing regardless of antibiotic" },
+        { sev: "required", what: "**Offloading** — total contact cast, removable boot, surgical offloading",
+          why: "Continued pressure prevents healing; non-negotiable for plantar wounds" },
+        { sev: "required", what: "**Multidisciplinary team** — podiatry, vascular, ID, endocrinology, wound care",
+          why: "Team-based care has documented mortality + limb-salvage benefit" },
+        { sev: "trigger", what: "**MRI foot** if osteo suspected on probe-to-bone or plain film",
+          why: "Sensitive for bone marrow edema, joint involvement, abscess drainage targets" },
+        { sev: "trigger", what: "**Surgical debridement** for moderate-severe + necrotic tissue",
+          why: "Source control essential; antibiotics alone fail with necrosis present",
+          matchCtx: { severe: true } },
+        { sev: "consider", what: "**Glycemic control** — HbA1c trend, basal-bolus optimization",
+          why: "Hyperglycemia impairs healing + immune function; adjunctive to all other measures" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SSTI · SURGICAL SITE INFECTION — IDSA 2014. STOP-IT for deep
+     organ-space; superficial may need only drainage. =============== */
+  ssi: {
+    duration: {
+      headline: "Drainage + 4 d for organ-space (STOP-IT); 3–7 d superficial; longer if hardware retained.",
+      evidence: "STOP-IT 2015 — 4 d post-drainage non-inferior in complicated IAI; SSI follows same principle",
+      branches: [
+        { label: "Superficial / incisional", days: "3–7 d",
+          detail: "Cefazolin or MRSA agent by local flora; often drainage alone suffices",
+          matchAgent: /cefazolin|cephalexin|vancomycin|TMP-?SMX/i },
+        { label: "Deep / organ-space, drained", days: "4 d post-drainage",
+          detail: "STOP-IT bands; ceftriaxone + metronidazole or pip-tazo",
+          matchAgent: /ceftriaxone|piperacillin|metronidazole|ertapenem/i },
+        { label: "Hardware-associated SSI", days: "≥ 6 wk + rifampin",
+          detail: "Per ortho / vascular / cardiothoracic protocol; rifampin for staph + retained hardware",
+          matchAgent: /rifampin|vancomycin|cefazolin/i },
+        { label: "Necrotizing post-op", days: "Per necfasc",
+          detail: "Treat per necrotizing fasciitis bands; surgical re-look essential" },
+      ],
+      stopWhen: [
+        "Source controlled (drainage, surgical revision)",
+        "Afebrile ≥ 24 h",
+        "Wound healing or appropriate negative-pressure dressing",
+        "WBC normalizing",
+        "Minimum tissue-depth duration completed",
+      ],
+      extendIf: [
+        "Hardware retained — extend per ortho / vascular / cardio protocol",
+        { text: "**Septic at presentation** — extend per sepsis bands",
+          matchCtx: { severe: true } },
+        "Inadequate source control — extend until controlled",
+        "Recurrent infection at same site — workup retained foreign body",
+      ],
+    },
+    monitoring: {
+      headline: "Open the incision early; cultures of deep tissue (not surface); hardware decision driven.",
+      items: [
+        { sev: "required", what: "**Open the incision early** for superficial SSI — drainage > antibiotics",
+          why: "Source control is the inflection point; antibiotics adjunct" },
+        { sev: "required", what: "**Deep-tissue cultures**, not surface swabs",
+          why: "Surface swabs reflect colonization; deep cultures drive directed therapy" },
+        { sev: "required", what: "**Surgical consult** for organ-space SSI or hardware retention",
+          why: "Re-exploration vs hardware removal decisions are surgical" },
+        { sev: "trigger", what: "**Image (US / CT)** for organ-space or fluid collection workup",
+          why: "Undrained collections drive antibiotic failure; imaging targets drainage" },
+        { sev: "trigger", what: "**Add rifampin** for staph + retained hardware",
+          why: "Biofilm penetration; never start until cultures positive to prevent resistance",
+          matchAgent: /rifampin/i },
+        { sev: "consider", what: "Negative-pressure dressing for large or organ-space wounds",
+          why: "Improves healing rates + reduces secondary procedures" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SSTI · FOURNIER'S GANGRENE — perineal necrotizing emergency. == */
+  fournier: {
+    duration: {
+      headline: "Continue IV until surgical clearance; clindamycin throughout for toxin suppression.",
+      evidence: "Society consensus — surgical-driven; no fixed duration; mortality 20–40% with delay",
+      branches: [
+        { label: "Standard polymicrobial", days: "Until clear",
+          detail: "Pip-tazo + vancomycin + clindamycin; serial debridement to clean margins",
+          matchAgent: /piperacillin|vancomycin|clindamycin/i },
+        { label: "Clostridial confirmed", days: "10–14 d post-clearance",
+          detail: "Penicillin + clindamycin + broad coverage; hyperbaric oxygen if available",
+          matchAgent: /penicillin|clindamycin|carbapenem/i },
+        { label: "Severe sepsis / shock at presentation", days: "Extended",
+          detail: "Per ICU + ID + surgery; long-course typical given mortality" },
+      ],
+      stopWhen: [
+        "Surgical margins clean on serial debridement",
+        "Afebrile ≥ 48 h",
+        "Off vasopressors; clinical recovery",
+        "Wound closing or negative-pressure dressing controlling",
+        "Diverting colostomy / urinary diversion in place if needed",
+      ],
+      extendIf: [
+        { text: "**Persistent surgical disease** — continue until margins clean",
+          matchCtx: { severe: true } },
+        "Bacteremia confirmed — extend per source",
+        "Streptococcal TSS — clindamycin + IVIG for full course",
+        "Reconstructive surgery planning — extend per multi-stage closure",
+      ],
+    },
+    monitoring: {
+      headline: "Surgery within hours; serial debridement q24h; ICU + ID + urology + general surgery team.",
+      items: [
+        { sev: "required", what: "**Emergent surgical debridement within hours** of presentation",
+          why: "Mortality climbs 10% per hour of delay; clinical suspicion alone justifies OR" },
+        { sev: "required", what: "**Serial debridement q24h** until margins are clean",
+          why: "Necrosis extends through fascial planes silently under antibiotic cover" },
+        { sev: "required", what: "**ICU + multi-team coordination** — urology, general surgery, ID",
+          why: "Multi-organ failure common; team-based care drives outcomes" },
+        { sev: "trigger", what: "**Diverting colostomy** for perineal involvement",
+          why: "Fecal contamination perpetuates infection + impairs wound healing",
+          matchCtx: { severe: true } },
+        { sev: "trigger", what: "**Suprapubic catheter** for urinary diversion",
+          why: "Indwelling urethral catheter risk in penile / scrotal involvement" },
+        { sev: "consider", what: "Hyperbaric oxygen for clostridial component",
+          why: "Adjunctive only; never delay surgery; institutional availability varies" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     OSTEOMYELITIS — IDSA 2015. 6 weeks IV standard; OVIVA enables
+     oral step-down at 1-2 weeks in selected. ======================== */
+  osteo: {
+    duration: {
+      headline: "6 wk total minimum; OVIVA enables oral step-down at 1–2 wk in selected hosts.",
+      evidence: "IDSA 2015 + OVIVA 2019 — oral step-down non-inferior in selected; total duration unchanged",
+      branches: [
+        { label: "Acute hematogenous, organism known", days: "6 wk total",
+          detail: "Pathogen-directed IV for 2 wk minimum + oral step-down per OVIVA criteria",
+          matchAgent: /cefazolin|nafcillin|vancomycin|daptomycin|ciprofloxacin|TMP-?SMX/i },
+        { label: "Chronic / refractory", days: "Extended + surgery",
+          detail: "Surgical debridement essential; antibiotics adjunctive; sequestrectomy",
+          matchAgent: /vancomycin|cefepime|ceftriaxone/i },
+        { label: "Hardware-retained MSSA/MRSA", days: "≥ 6 wk + rifampin",
+          detail: "Add rifampin once cultures positive; never empirically (resistance)",
+          matchAgent: /rifampin/i },
+        { label: "Vertebral osteo with deficit", days: "Per vertosteo",
+          detail: "Emergent MRI + spine surgery if neuro deficit; treat per vertosteo bands" },
+      ],
+      stopWhen: [
+        "Bone biopsy negative on completion (selected cases)",
+        "ESR + CRP normalizing",
+        "Clinical resolution — pain, function returning",
+        "Imaging stable or improving (radiographic lag normal)",
+        "Hardware decision finalized (retain vs explant)",
+        "Minimum 6 wk completed",
+      ],
+      extendIf: [
+        "Inadequate source control — retained sequestrum, hardware infection",
+        "Recurrent symptoms during oral step-down — return to IV",
+        { text: "**Immunocompromised host** — extend per response",
+          matchCtx: { severe: true } },
+        "MRSA + persistent symptoms — switch to dapto or linezolid salvage",
+      ],
+    },
+    monitoring: {
+      headline: "Bone biopsy first when stable; OVIVA oral step-down; ESR/CRP weekly; image only if non-response.",
+      items: [
+        { sev: "required", what: "**Bone biopsy + culture BEFORE empirics** when patient stable",
+          why: "Empiric therapy halves culture yield; targeted therapy drives outcomes" },
+        { sev: "required", what: "**Weekly ESR + CRP trend**",
+          why: "Inflammatory marker decline correlates with response; imaging lags clinically" },
+        { sev: "required", what: "**Oral step-down via OVIVA criteria** — non-inferior in selected",
+          why: "Reduces line complications + length of stay; criteria include compliance + susceptibility" },
+        { sev: "trigger", what: "**Repeat imaging at 4–6 wk** only if no clinical response",
+          why: "Radiographic lag normal; image-driven extension without clinical change rarely helpful" },
+        { sev: "trigger", what: "**Rifampin combination** for staph + retained hardware",
+          why: "Biofilm penetration; never empiric; monitor LFTs + drug interactions",
+          matchAgent: /rifampin/i },
+        { sev: "trigger", what: "**Surgical debridement** if sequestrum / abscess / hardware infection",
+          why: "Source control accelerates response; antibiotic alone fails in chronic disease" },
+        { sev: "consider", what: "Hyperbaric oxygen for refractory chronic osteo",
+          why: "Adjunctive evidence; institutional availability varies" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     VERTEBRAL OSTEOMYELITIS — IDSA 2015 (Berbari). 6 weeks IV;
+     neurologic deficit changes everything. =========================== */
+  vertosteo: {
+    duration: {
+      headline: "6 wk IV minimum; emergent surgery + extend if cord compression or epidural abscess.",
+      evidence: "IDSA 2015 — biopsy-first + 6 wk targeted IV; OVIVA-style step-down in selected",
+      branches: [
+        { label: "S. aureus, no deficit", days: "6 wk",
+          detail: "Cefazolin / nafcillin (MSSA) or vancomycin (MRSA) × 6 wk; oral step-down via OVIVA",
+          matchAgent: /cefazolin|nafcillin|vancomycin|daptomycin/i },
+        { label: "Gram-negative / Pseudomonas", days: "6 wk",
+          detail: "Ceftriaxone, cefepime, or ciprofloxacin per susceptibilities + bone penetration",
+          matchAgent: /ceftriaxone|cefepime|ciprofloxacin/i },
+        { label: "TB / brucella / fungal", days: "9–12 mo+",
+          detail: "Long-course per specific pathogen; ID + culture-driven; multidrug regimens" },
+        { label: "Epidural abscess + neuro deficit", days: "≥ 6 wk + surgery",
+          detail: "Emergent MRI + decompression + targeted therapy",
+          matchAgent: /vancomycin|cefepime/i },
+      ],
+      stopWhen: [
+        "Pain resolved, function returning",
+        "ESR + CRP normalizing",
+        "Imaging stable or improving",
+        "No new neurologic deficit",
+        "Minimum 6 wk targeted IV (or appropriate step-down) completed",
+      ],
+      extendIf: [
+        { text: "**Epidural abscess or cord compression** — emergent surgery + extend",
+          matchCtx: { severe: true } },
+        "TB / brucella / fungal — extend per pathogen-specific guideline",
+        "Bacteremia + osteo together — extend per longest applicable duration",
+        "Immunocompromised host — extend per response",
+        "Inadequate source control on imaging at 4–6 wk",
+      ],
+    },
+    monitoring: {
+      headline: "MRI before biopsy; biopsy yield-first; ESR/CRP weekly; daily neuro exam if deficit at risk.",
+      items: [
+        { sev: "required", what: "**MRI spine** at presentation — defines abscess, cord involvement, extent",
+          why: "Drives surgical decision + biopsy targeting" },
+        { sev: "required", what: "**Image-guided bone biopsy** when stable, BEFORE empiric antibiotics",
+          why: "Empiric therapy halves yield; biopsy enables targeted long-course" },
+        { sev: "required", what: "**Daily neuro exam** if epidural abscess or cord-compromise risk",
+          why: "Progression of deficit triggers emergent surgical decompression",
+          matchCtx: { severe: true } },
+        { sev: "required", what: "**Weekly ESR + CRP** during course",
+          why: "Inflammatory marker decline drives confidence in completing course at 6 wk" },
+        { sev: "trigger", what: "**Spine surgery consult** for instability, deficit, or non-response",
+          why: "Surgical fusion / decompression for selected cases",
+          matchCtx: { severe: true } },
+        { sev: "trigger", what: "**TB / brucella / fungal workup** if epidemiologic risk",
+          why: "Pyogenic-mimicking organisms need different regimen + duration" },
+        { sev: "consider", what: "Oral step-down at 2 wk per OVIVA in compliant patients",
+          why: "Non-inferior in selected; reduces line burden" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SEPTIC ARTHRITIS — IDSA 2010. Drainage essential; 2-4 wk
+     IV typical; gonococcal narrow band. ============================== */
+  "septic-arthritis": {
+    duration: {
+      headline: "2–4 wk targeted; drainage essential; gonococcal narrows to 7 d.",
+      evidence: "Society consensus — pathogen + drainage adequacy drive duration; gonococcal is the short outlier",
+      branches: [
+        { label: "S. aureus / gram-positive, drained", days: "2–4 wk",
+          detail: "Cefazolin (MSSA) or vancomycin (MRSA) × 2–4 wk per response + joint involvement",
+          matchAgent: /cefazolin|nafcillin|vancomycin|daptomycin/i },
+        { label: "Gram-negative, drained", days: "2–3 wk",
+          detail: "Ceftriaxone or cefepime per susceptibilities + joint penetration",
+          matchAgent: /ceftriaxone|cefepime|ciprofloxacin/i },
+        { label: "Gonococcal arthritis", days: "7 d",
+          detail: "Ceftriaxone × 7 d (IV → IM); drainage rarely needed; partner treatment + STI screen",
+          matchAgent: /ceftriaxone/i },
+        { label: "Prosthetic-joint infection", days: "Per PJI",
+          detail: "Treat per PJI protocol; surgical strategy drives medical management" },
+      ],
+      stopWhen: [
+        "Joint inflammation resolving",
+        "Synovial WBC declining on repeat tap",
+        "Cultures cleared",
+        "Range of motion returning",
+        "Functional milestones met (PT progressing)",
+        "Minimum 2 wk completed (longer for staph)",
+      ],
+      extendIf: [
+        { text: "**Inadequate drainage** — repeat arthrotomy / arthroscopic washout",
+          matchCtx: { severe: true } },
+        "Bacteremia + arthritis together — extend per longest applicable duration",
+        "Prosthetic joint involvement — treat per PJI protocol",
+        "Recurrent effusion + cell-count rise — return to drainage + extension",
+        "Immunocompromised host — extend per response",
+      ],
+    },
+    monitoring: {
+      headline: "Joint aspiration + drainage; serial cell counts; PT early; partner treatment for GC.",
+      items: [
+        { sev: "required", what: "**Joint aspiration + drainage** is the treatment",
+          why: "Antibiotics alone insufficient; arthroscopic or open drainage drives outcome" },
+        { sev: "required", what: "**Synovial fluid culture + Gram stain** at presentation",
+          why: "Pathogen-directed therapy critical; cell count > 50,000 supports infection" },
+        { sev: "required", what: "**Repeat aspiration / drainage** if effusion re-accumulates",
+          why: "Serial drainage controls infection; persistent collection is treatment failure" },
+        { sev: "trigger", what: "**Treat partner + STI screen** if gonococcal",
+          why: "Standard public-health practice; reporting + contact tracing",
+          matchBranch: ["Gonococcal arthritis"] },
+        { sev: "trigger", what: "**Imaging (MRI)** if osteomyelitis or abscess suspected",
+          why: "Adjacent osteomyelitis extends duration to bone-infection bands" },
+        { sev: "trigger", what: "**Physical therapy early** — passive range first, active as tolerated",
+          why: "Joint stiffness sequela is common; early PT preserves function" },
+        { sev: "consider", what: "Hip / shoulder involvement — surgical drainage > arthroscopy",
+          why: "Anatomy + complete drainage drive surgical approach" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     PROSTHETIC JOINT INFECTION — IDSA 2013 + 2024 update. DAIR vs
+     1-stage vs 2-stage; rifampin for retained hardware. =========== */
+  pji: {
+    duration: {
+      headline: "3 mo total (hip) / 6 mo total (knee) for DAIR + retained hardware; 4–6 wk for 2-stage exchange.",
+      evidence: "IDSA 2013 + 2024 update — strategy-specific durations; rifampin combination central to DAIR",
+      branches: [
+        { label: "DAIR — retained hardware", days: "3 mo hip / 6 mo knee",
+          detail: "Pathogen-directed IV × 2–6 wk + oral step-down with rifampin combo for total duration",
+          matchAgent: /rifampin|ciprofloxacin|TMP-?SMX|doxycycline|levofloxacin/i },
+        { label: "2-stage exchange (explant + spacer + re-implant)", days: "4–6 wk between stages",
+          detail: "IV during stage 1 → 4–6 wk minimum → reimplant when cleared",
+          matchAgent: /vancomycin|cefazolin|cefepime/i },
+        { label: "1-stage exchange", days: "3 mo total",
+          detail: "Less common; reserved for selected susceptible organisms + intact soft tissue" },
+        { label: "Suppressive (irretrievable hardware)", days: "Lifelong oral",
+          detail: "TMP-SMX, doxycycline, or pathogen-directed; ID + ortho ongoing follow-up",
+          matchAgent: /TMP-?SMX|doxycycline|cephalexin|amoxicillin-?clavulanate/i },
+      ],
+      stopWhen: [
+        "Pathogen cleared on cultures",
+        "ESR + CRP normalizing",
+        "Joint pain resolved, function returning",
+        "Imaging shows stable or improving findings",
+        "Multidisciplinary team agreement on stop",
+        "Minimum strategy-specific duration completed",
+      ],
+      extendIf: [
+        "DAIR failure (persistent symptoms / re-collection) — convert to 2-stage exchange",
+        { text: "**Severe systemic illness** at presentation — extend per response",
+          matchCtx: { severe: true } },
+        "Immunocompromised host — extended course or suppression",
+        "Multiple organisms / resistant flora — ID-driven extension",
+        "Hardware abandonment + chronic infection — lifelong suppression",
+      ],
+    },
+    monitoring: {
+      headline: "Pathogen sampling before empirics; rifampin for retained hardware; ESR/CRP trend; multidisciplinary team.",
+      items: [
+        { sev: "required", what: "**3–5 deep tissue cultures + sonication of explanted hardware**",
+          why: "Polymicrobial + biofilm flora; multiple cultures + sonication maximizes yield" },
+        { sev: "required", what: "**Multidisciplinary team** — ortho, ID, plastics, anesthesia",
+          why: "Surgical strategy + antibiotic plan must be co-decided" },
+        { sev: "required", what: "**Rifampin combination** for retained hardware + staph",
+          why: "Biofilm penetration; never start until cultures positive; never as monotherapy",
+          matchAgent: /rifampin/i },
+        { sev: "required", what: "**ESR + CRP at baseline + weekly** during course",
+          why: "Decline correlates with response; rising values trigger imaging + surgical re-eval" },
+        { sev: "trigger", what: "**Imaging (X-ray + MRI)** at 6 wk + 3 mo intervals",
+          why: "Bone-prosthesis interface changes drive surgical re-decisions" },
+        { sev: "trigger", what: "**Rifampin LFT + drug-interaction screen**",
+          why: "Hepatotoxic + induces CYP3A4 (warfarin, OCPs, statins, immunosuppressants)",
+          matchAgent: /rifampin/i },
+        { sev: "consider", what: "Patient education on lifelong follow-up",
+          why: "PJI recurrence risk persists; symptoms must trigger early presentation" },
+      ],
+    },
+  },
+
 };
 
 /* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
