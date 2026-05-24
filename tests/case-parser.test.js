@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { parseCase } from "../src/engines/case-parser.js";
+import { parseCase, SYN_KEYWORDS } from "../src/engines/case-parser.js";
+import { SYNDROMES } from "../src/data/syndromes.js";
 
 /* Phase A.1 acceptance — the case parser must round-trip the
    representative bedside case shorthands into a partial caseState that
@@ -137,5 +138,28 @@ describe("parseCase — bedside shorthand", () => {
 
   it("does not match a syndrome when none is present", () => {
     expect(parseCase("72M with general malaise").syndrome).toBeNull();
+  });
+});
+
+/* Phase C1 audit — the SYN_KEYWORDS catalog must cover every syndrome id in
+   data/syndromes.js. Each syndrome's own `name` string is the cheapest
+   ground-truth probe: if the parser cannot recognize the syndrome's own
+   name, the free-text "decide mode" cannot route a user to it either. */
+describe("parseCase — SYN_KEYWORDS coverage audit", () => {
+  // First-match-wins routing, mirroring parseCase's loop.
+  function matchSyn(text) {
+    for (const [rx, id] of SYN_KEYWORDS) {
+      if (rx.test(text)) return id;
+    }
+    return null;
+  }
+
+  it("recognizes the canonical name of every syndrome id", () => {
+    const failures = [];
+    for (const syn of SYNDROMES) {
+      const hit = matchSyn(syn.name);
+      if (hit !== syn.id) failures.push(`${syn.id} (got ${hit}) — "${syn.name}"`);
+    }
+    expect(failures).toEqual([]);
   });
 });
