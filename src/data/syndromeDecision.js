@@ -4045,6 +4045,16 @@ const SYNDROME_DECISION = {
           why: "Address entry portal" },
       ],
     },
+    objections: [
+      { q: "Why early surgery — antibiotics will sterilize the vegetation?",
+        a: "EASE (NEJM 2012 Kang, n=76) [cite:ease] showed early surgery (< 48 h) in IE with large vegetations reduced the composite of in-hospital death + embolic events by 79% vs delayed; AHA 2015 + ESC 2023 [cite:ie] make early surgery Class I for heart failure, perivalvular abscess, persistent BCx > 5 d on appropriate therapy, or large vegetations > 10 mm with embolic event. Antibiotics cannot sterilize a paravalvular abscess or eradicate a large vegetation reliably; delay worsens mortality." },
+      { q: "Why add rifampin for native-valve staph IE?",
+        a: "We deliberately do NOT add rifampin to native-valve SAB or IE — ARREST (Lancet 2018, n=770) [cite:arrest] showed no mortality benefit and increased AEs (hepatitis, GI) plus major CYP3A4 interactions including warfarin INR collapse. Rifampin retains its role only in PVE staphylococcal disease where biofilm penetration on prosthetic material matters per AHA 2015 [cite:ie]. Adding it to native-valve disease exposes the patient to harm without offsetting benefit; the cost-benefit flips entirely between native and prosthetic substrate." },
+      { q: "Why ampicillin + ceftriaxone — not the historic amp + gent?",
+        a: "Fernandez-Hidalgo (CID 2013, n=246) [cite:ie] established ampicillin + ceftriaxone equivalent cure to amp + gent for E. faecalis IE with substantially less nephrotoxicity, and AHA 2015 endorses amp-CTX as preferred. The 2-wk gentamicin synergy that historically defined enterococcal IE drove AKI in a renal-fragile substrate; replacing the aminoglycoside with a second β-lactam keeps cure rates while removing the renal cost. HLAR status is irrelevant to amp-CTX — the regimen works regardless." },
+      { q: "Why oral step-down — IE has always been 6 wk IV?",
+        a: "POET (NEJM 2019 Iversen, n=400) [cite:poet] showed oral step-down non-inferior to continued IV in stabilized left-sided IE on the composite primary endpoint, durable at extended follow-up. Select for: stable course, susceptible organism, bioavailable oral regimen, structured ID-led follow-up, and ≥ 10 d initial IV stabilization. NOT for early-phase bacteremia, ongoing surgical decision, or right-sided IE with unstable substrate. ESC 2023 [cite:ie] now formally endorses; the OPAT alternative is well-validated for the back half." },
+    ],
     research: {
       headline: "AHA 2015 + ESC 2023 align on pathogen-driven 4–6 wk; viridans short course (2 wk + gent) for selected low-risk.",
       trials: [
@@ -4134,6 +4144,16 @@ const SYNDROME_DECISION = {
           why: "Lifelong oral per ID + cardiac surgery" },
       ],
     },
+    objections: [
+      { q: "Why rifampin for PVE but not native-valve staph?",
+        a: "The cost-benefit flips between native and prosthetic substrate. ARREST (Lancet 2018, n=770) [cite:arrest] showed adjunctive rifampin in native-valve SAB had no mortality benefit and added AEs (hepatitis, GI, major CYP3A4 interactions). Rifampin retains its PVE role for biofilm penetration on prosthetic material — sterilizing biofilm-embedded staphylococci that vancomycin or β-lactam alone cannot reach per Karchmer (JAMA 1993) and AHA 2015 [cite:ie]. Native-valve has no biofilm substrate where the drug-interaction cost is worth paying." },
+      { q: "Why 2 wk gentamicin synergy — adds nephrotoxicity risk?",
+        a: "Gentamicin × 2 wk synergy is restricted to staphylococcal PVE per AHA 2015 + ESC 2023 [cite:ie] — bactericidal killing of biofilm-embedded organisms benefits from the synergistic effect during the high-burden first 2 wk, after which the renal / oto cost outweighs benefit. Strict trough monitoring + audiometry are mandated. We do NOT extend gent beyond 2 wk, and we omit it entirely if baseline renal dysfunction makes the risk-benefit unfavorable; the principle is restricted, not reflexive." },
+      { q: "Why surgery threshold lower — can't antibiotics finish the job?",
+        a: "Early-PVE (< 1 year) almost always requires valve replacement per AHA 2015 + ESC 2023 [cite:ie] — paravalvular extension, valve dehiscence, and persistent bacteremia are surgical Class I indications, and antibiotic-only management is futile when the foreign body is the source. Wang (JACC 2007) and Lalani (CID 2014) showed early surgery for these complications halved mortality. The native-valve threshold of waiting for clear surgical indication does not apply to early-PVE; surgical evaluation is mandatory at presentation." },
+      { q: "Why empiric vanco + cefepime + rifampin for culture-negative?",
+        a: "Culture-negative PVE empiric coverage targets the realistic substrate per AHA 2015 [cite:ie]: vancomycin for MRSA + CoNS biofilm, cefepime for Gram-negative + AmpC inducers, and rifampin for biofilm-embedded staph if prosthetic material involved. Atypical pathogens (HACEK, Bartonella, Coxiella) must be worked up in parallel — they change agents fundamentally. The triple regimen narrows quickly once organism + susceptibilities return; reflexive ceftriaxone alone misses the staphylococcal majority in PVE." },
+    ],
     research: {
       headline: "Rifampin combination central to PVE staph; aminoglycoside synergy first 2 wk; surgery indicated for paravalvular extension.",
       trials: [
@@ -4229,6 +4249,16 @@ const SYNDROME_DECISION = {
           matchBranch: ["Line retained (lock therapy)"] },
       ],
     },
+    objections: [
+      { q: "Why pull the line — can we trial lock therapy first?",
+        a: "Line removal is mandatory for S. aureus, Pseudomonas, Candida, and any persistent bacteremia per IDSA / Mermel 2009 [cite:crbsi_g] — biofilm + virulence drive systemic-only failure, and salvage attempts in this substrate predict relapse + metastatic seeding. Lock therapy retains a narrow role for CoNS + clinically stable + long-term-line-essential patients (Raad CID 2013 — ~70% salvage for CoNS only). The decision is pathogen-specific, not patient-preference; the line stays in only when the organism allows." },
+      { q: "Why TEE if S. aureus — TTE was already negative?",
+        a: "S. aureus bacteremia carries 15–25% endocarditis risk even from a line source, and TTE has only ~70% sensitivity for vegetations — TEE is mandated for any line-related SAB per IDSA 2009 [cite:crbsi_g] and IDSA / AHA IE guidance [cite:ie]. Missed IE here means a 14-d course where 4–6 wk + surgery were needed; the missed-IE relapse mortality is 30–50%. The TEE cost is trivial relative to the consequences of stopping at the 14-d floor in an undiagnosed endovascular focus." },
+      { q: "Why 14 d minimum for S. aureus — line is out, BCx cleared?",
+        a: "The 14-d floor for S. aureus bacteremia runs from the FIRST negative blood culture post-line-removal, not from day of presentation — Fowler (CID 2003) and IDSA 2011 [cite:crbsi_g] establish that endovascular seeding occurs even in apparently uncomplicated line-source SAB, and shorter courses double relapse + metastatic seeding rates. SABATO (2023) opened oral step-down for the back half but kept the 14-d floor intact. Walk the 14 d; reserve any shortening for ID-driven specific scenarios." },
+      { q: "Why ophthalmology consult for candidemia — vision intact?",
+        a: "Endogenous endophthalmitis complicates ~5–15% of candidemia and is vision-threatening if missed — Pappas / IDSA candidiasis guidance and Mermel 2009 [cite:crbsi_g] mandate dilated fundoscopy in every candidemic patient regardless of visual symptoms. Treatment changes from systemic-only to intravitreal + extended systemic when found, and progression to chorioretinitis is rapid. The cost of a fundoscopy exam is trivial relative to permanent vision loss; this is one of the highest-yield routine consults in CRBSI." },
+    ],
     research: {
       headline: "Line removal drives outcome; pathogen-specific duration (S. aureus 14 d min, CoNS 7 d); echo for S. aureus.",
       trials: [
@@ -4493,6 +4523,16 @@ const SYNDROME_DECISION = {
           why: "Falling PCT supports BALANCE-style early stop" },
       ],
     },
+    objections: [
+      { q: "Why 7 d for GNR bacteremia — legacy says 14 d?",
+        a: "BALANCE (NEJM 2025, n=3,608) [cite:balance] established 7 d non-inferior to 14 d for 90-d mortality (14.5% vs 14.4%) in source-controlled bloodstream infection, including most GNR substrates; Yahav (CID 2019) earlier showed the same in a 604-patient cohort. The 7-d clock starts at the first negative blood culture and requires source control. Reserve 14+ d only for endovascular focus, undrained source, S. aureus, or immunocompromise — populations BALANCE excluded. The reflexive 14 d adds AKI + C. difficile + resistance with no survival benefit." },
+      { q: "Why carbapenem for ESBL — pip-tazo is susceptible in vitro?",
+        a: "MERINO (JAMA 2018 Harris, n=378) [cite:merino] showed pip-tazo mortality 12.3% vs meropenem 3.7% in ceftriaxone-resistant E. coli / K. pneumoniae bacteremia despite documented in-vitro susceptibility — the β-lactamase inhibitor fails at bacteremic inoculum. IDSA AMR-GN 2024 [cite:amrgn] mandates a carbapenem (ertapenem outpatient, meropenem severe) for bacteremic ESBL Enterobacterales. MIC does not predict in-vivo outcome at high-burden bloodstream substrate; the susceptibility report misleads in this specific scenario." },
+      { q: "Why cefepime for AmpC — guidance used to say carbapenem?",
+        a: "IDSA AMR-GN 2024 [cite:amrgn] withdrew the old caution against cefepime at MIC 4–8 for Enterobacter, K. aerogenes, and C. freundii — cefepime is stable to AmpC and now preferred over a carbapenem for moderate-risk inducers, sparing carbapenem pressure. The decades-old principle that AmpC inducers required carbapenem was based on in-vitro hyperexpression concerns that did not translate to clinical outcomes when cefepime PK targets were met. Reserve carbapenem for severe sepsis or shock with AmpC-positive isolates." },
+      { q: "Why narrow at 48-72 h — patient stable on empirics?",
+        a: "Stewardship-mandated narrowing at 48–72 h on culture data is one of the strongest mortality-neutral interventions per IDSA / SHEA 2016 [cite:stew] — continued broad coverage in a stable patient drives AKI, C. difficile, and resistance selection without survival benefit. The empiric breadth bought time during diagnostic uncertainty; once organism + susceptibilities define the substrate, the bargain ends. The default is narrow; reflexive continuation of broad therapy is an audit failure even when the patient looks fine." },
+    ],
     research: {
       headline: "BALANCE established 7 d non-inferior to 14 d in source-controlled GNR bacteremia; MERINO showed pip-tazo inferior for ESBL.",
       trials: [
@@ -4577,6 +4617,16 @@ const SYNDROME_DECISION = {
           why: "CoNS biofilm on hardware drives recurrence" },
       ],
     },
+    objections: [
+      { q: "Why not treat every positive CoNS culture — feels safer?",
+        a: "Single-set CoNS positivity is contamination in over 50% of practice — Beekmann (CID 2005) and Mermel / IDSA 2009 [cite:crbsi_g] require ≥ 2 positive sets plus a plausible source (line, hardware, prosthetic material) plus clinical signs before committing to therapy. Reflexive treatment of every positive set drives unnecessary vancomycin exposure, AKI, line dwell time, and resistance pressure on what was a skin-flora contaminant. The diagnostic rigor is the stewardship intervention; the bar is justified." },
+      { q: "Why identify S. lugdunensis — it's still a CoNS species?",
+        a: "S. lugdunensis is hypervirulent CoNS that behaves clinically like S. aureus — Anguera (Heart 2005) and IDSA 2011 / 2014 [cite:ssti] establish it as a CoNS species that mandates SAB-style management: 14-d minimum duration, TEE workup, endocarditis surveillance regardless of phenotype. Missed identification predicts treatment failure because the 5–7-d CoNS course under-treats lugdunensis. The microbiology lab must report species, not just 'CoNS' — and the receiver must act on lugdunensis as if it were S. aureus." },
+      { q: "Why 5-7 d for true CoNS — should match SAB at 14 d?",
+        a: "True CoNS bacteremia with line removal completes 5–7 d of vancomycin (most CoNS are methicillin-resistant) per IDSA 2009 [cite:crbsi_g] — the lower-virulence substrate of typical CoNS (S. epidermidis, S. hominis, S. haemolyticus) does not carry the 15–25% endocarditis risk of S. aureus, and shorter courses match clinical outcomes without the toxicity cost. Extending to 14 d adds vancomycin exposure + AKI without benefit; the species-by-species risk stratification is the principled approach." },
+      { q: "Why pull a working tunneled line for CoNS — patient relies on it?",
+        a: "Line removal is preferred even for CoNS per Mermel / IDSA 2009 [cite:crbsi_g] — biofilm on hardware drives relapse + persistent positivity, and salvage with lock therapy retains only ~70% success even in the favorable CoNS substrate (Raad CID 2013). Lock therapy is acceptable for clinically stable + long-term-line-essential patients (oncology, hemodialysis), but persistent positivity on lock therapy triggers explant. The default is line out; lock therapy is the exception with documented failure rates." },
+    ],
     research: {
       headline: "Distinguish contaminant from true infection (≥ 2 cultures + hardware + clinical); line out is the inflection point.",
       trials: [
@@ -4657,6 +4707,16 @@ const SYNDROME_DECISION = {
           why: "Enterococcal seeding from GI/GU tract" },
       ],
     },
+    objections: [
+      { q: "Why amp + ceftriaxone — historic regimen is amp + gent?",
+        a: "Fernandez-Hidalgo (CID 2013, n=246) [cite:ie] established amp + ceftriaxone equivalent cure to amp + gent for E. faecalis IE with substantially less nephrotoxicity — the renal cost of 2-wk synergistic gentamicin in a typically elderly, renal-fragile cohort outweighed any incremental killing benefit. AHA 2015 + ESC 2023 [cite:ie] now endorse amp-CTX as preferred regardless of HLAR status because the dual β-lactam mechanism does not depend on aminoglycoside synergy. The principle is established; amp + gent is now reserved for amp + ceftriaxone failure or specific resistance scenarios." },
+      { q: "Why TEE in all enterococcal bacteremia — routine fishing?",
+        a: "Enterococcal IE complicates 20–30% of enterococcal bacteremia per AHA 2015 [cite:ie] — substantially higher than streptococcal or coliform bacteremia, and TEE finds vegetations that TTE misses in approximately one-third of cases. The yield justifies routine TEE in community-onset or persistent enterococcal bacteremia, especially with prosthetic valves or hardware. Missed IE here means a 7–14-d course where 6 wk + potential surgery were needed; the false-negative cost is high relative to the procedural risk." },
+      { q: "Why daptomycin HD 10-12 mg/kg for VRE — standard is 6 mg/kg?",
+        a: "Britt (CID 2017) [cite:ie] and IDSA 2011 require high-dose daptomycin (10–12 mg/kg) for VRE bacteremia — the 4–6 mg/kg used for SSTI and uncomplicated bacteremia under-treats higher VRE MICs (1–2 mg/L baseline range) and selects dapto-non-susceptible E. faecium subpopulations. CK weekly + statin hold are mandatory at high dose, but the mortality + microbiologic failure reduction is well-documented. Standard-dose dapto for VRE is an audit failure even when MIC reports as 'susceptible'." },
+      { q: "Why combination salvage for persistent VRE — adds toxicity?",
+        a: "Persistent VRE bacteremia on monotherapy ≥ 5–7 d triggers combination salvage with ampicillin or ceftaroline + daptomycin per IDSA 2011 [cite:ie] — synergistic killing bypasses dapto resistance mechanisms (cell-wall remodeling) and addresses the high-burden substrate. Sakoulas (2013) and Smith / Justo cohorts documented mortality + clearance benefit. The toxicity cost (CK rise, hepatotoxicity) is real but lower than letting the bacteremia smolder; ID-driven combination is the inflection point when monotherapy fails." },
+    ],
     research: {
       headline: "Fernandez-Hidalgo 2013 validated ampicillin + ceftriaxone for E. faecalis IE; daptomycin-HD for VRE bacteremia.",
       trials: [
@@ -4733,6 +4793,16 @@ const SYNDROME_DECISION = {
           why: "Rhabdomyolysis risk; reversible if caught early" },
       ],
     },
+    objections: [
+      { q: "Why dapto + ceftaroline — can we push vanco AUC higher?",
+        a: "Geriak (AAC 2019) [cite:arrest] documented daptomycin + ceftaroline mortality 0% (0/17) vs vancomycin-only 26% (6/23) in persistent MRSA bacteremia salvage — the failure mechanism in vanco-persistence is not dose-responsive (heteroresistance, AUC ceiling, biofilm + intracellular persistence), and pushing vanco AUC > 600 simply increases AKI without solving the killing problem. The β-lactam + dapto combination opens membrane permeability that dapto alone cannot overcome at the typical vanco-failing MIC range. Switch, don't escalate." },
+      { q: "Why PET-CT at day 7 — TEE was already negative?",
+        a: "Holland (CID 2019) [cite:arrest] documented that PET-CT identifies an occult metastatic focus in 30–50% of persistent MRSA bacteremia even when TEE is negative — vertebral osteomyelitis, paraspinal abscess, splenic foci, and lung emboli are the highest-yield finds. Each occult focus changes management (duration extension, surgical drainage, regimen choice). TEE addresses the endocardium; PET-CT addresses everything else metabolically. Both are required in persistent SAB, not either-or." },
+      { q: "Why add rifampin for persistent MRSA — extends ARREST verdict?",
+        a: "ARREST (Lancet 2018, n=770) [cite:arrest] showed no mortality benefit from adjunctive rifampin in SAB and increased AEs (hepatitis, GI, CYP3A4 interactions including warfarin) — the verdict extends to persistent MRSA bacteremia in the native-valve / non-hardware substrate. Rifampin retains its role only in PVE staph + retained hardware for biofilm penetration on prosthetic material per IDSA 2011 / AHA 2015 [cite:ie]. Adding it reflexively to persistent SAB exposes the patient to harm without offsetting benefit." },
+      { q: "Why ID consult mandatory — we're already on guideline-driven regimen?",
+        a: "ID consultation for SAB and persistent MRSA bacteremia carries roughly half-mortality benefit replicated across registry analyses (Vogel 2016, Lopez-Cortes 2013) [cite:ie] — the benefit is from systematic source workup, regimen optimization (PK-driven AUC, salvage timing), surgical input, and follow-up echo / imaging windows that protocol-only management misses. Skipping ID in persistent disease is an audit failure even when the empiric regimen is correct on paper; the consult is part of the bundle." },
+    ],
     research: {
       headline: "Vanco failure → daptomycin + ceftaroline salvage; PET-CT for occult source; persistent ≥ 7 d triggers protocol.",
       trials: [
@@ -4812,6 +4882,16 @@ const SYNDROME_DECISION = {
           why: "Identify + control source for cure" },
       ],
     },
+    objections: [
+      { q: "Why single antipseudomonal — combination feels safer?",
+        a: "Paul (BMJ 2014 meta) [cite:amrgn] showed combination β-lactam + aminoglycoside did NOT reduce mortality vs monotherapy in Gram-negative bacteremia, including the Pseudomonas subgroup, while doubling AKI from aminoglycoside exposure. IDSA 2024 AMR-GN [cite:amrgn] supports single anti-pseudomonal β-lactam (cefepime, pip-tazo, meropenem, or ceftazidime) for susceptible disease; reserve empiric combination for neutropenic / septic-shock substrate where coverage probability matters at the empiric window. De-escalate at 48–72 h on susceptibility data even if started empirically." },
+      { q: "Why ceftolozane-tazo for DTR-Pseudomonas — meropenem worked before?",
+        a: "IDSA AMR-GN 2024 [cite:amrgn] matches the agent to the resistance mechanism, not the legacy MIC alone — DTR-Pseudomonas (carbapenem-resistant + ceftaz-resistant + cefepime-resistant) typically reflects efflux + porin loss + AmpC hyperexpression, where ceftolozane-tazobactam or ceftazidime-avibactam retain activity that older β-lactams have lost. Cefiderocol is the choice for metallo-β-lactamase or pan-resistant strains. Reflexive meropenem in DTR fails clinically because the resistance mechanism encompasses all classic β-lactams; mechanism-typing changes the agent." },
+      { q: "Why 7 d for Pseudomonas — BALANCE excluded it?",
+        a: "BALANCE (NEJM 2025) [cite:balance] explicitly excluded non-fermenters, so the 7-d signal in source-controlled GNR bacteremia is extrapolated rather than proven for Pseudomonas — 7–14 d is the accepted band per IDSA 2024 [cite:amrgn]. Yahav (CID 2019) included a Pseudomonas subgroup at 7 d non-inferior. Reserve 14 d for endovascular focus, persistent bacteremia, immunocompromise (BALANCE excluded these too), or DTR substrate where MIC ceiling makes longer exposure prudent. The default is short with a defined stop." },
+      { q: "Why no inhaled colistin or tobramycin for Pseudomonas pneumonia?",
+        a: "Adjunctive inhaled antibiotics for Pseudomonas pneumonia were rejected — IASIS and INHALE trials [cite:hapvap] both negative for survival or clinical cure in MDR Pseudomonas VAP. Aerosolized colistin or aminoglycoside has nephrotoxicity and bronchospasm risk without offsetting benefit when systemic therapy is adequately dosed (extended-infusion β-lactam to PK target). Reserve inhaled adjuncts for extreme-resistance scenarios with ID input — not as routine for Pseudomonas pneumonia or bacteremia." },
+    ],
     research: {
       headline: "Anti-pseudomonal β-lactam ± aminoglycoside synergy; ID consult mandatory; novel β-lactams for MDR strains.",
       trials: [
@@ -4898,6 +4978,16 @@ const SYNDROME_DECISION = {
           why: "Enterococcal translocation from gut common" },
       ],
     },
+    objections: [
+      { q: "Why daptomycin 10-12 mg/kg HD — standard is 6 mg/kg?",
+        a: "Britt (CID 2017) [cite:ie] documented mortality + microbiologic failure reduction with high-dose daptomycin (10–12 mg/kg) vs standard 4–6 mg/kg in VRE bacteremia — VRE MICs run higher than MSSA / MRSA (1–2 mg/L baseline range) and standard dosing under-treats, selecting dapto-non-susceptible E. faecium. IDSA 2011 [cite:ie] mandates high-dose for bacteremic disease. Standard 6 mg/kg dapto for VRE bacteremia is an audit failure even when MIC reports as susceptible; the dose-response is mechanism-driven." },
+      { q: "Why not linezolid first — equally effective and oral?",
+        a: "Linezolid 600 mg q12h is an acceptable alternative per IDSA 2011 [cite:ie] with bacteriostatic mechanism, 100% oral bioavailability, and the OPAT advantage — but cytopenias + peripheral neuropathy + lactic acidosis + MAOI interactions limit courses > 14 d and complicate the post-discharge plan. Daptomycin HD is preferred for severe bacteremia, IE, and longer planned courses. The choice is patient-specific: linezolid wins for oral step-down + short course; daptomycin HD wins for endovascular substrate + longer duration." },
+      { q: "Why combination ceftaroline + dapto for persistent VRE?",
+        a: "Persistent VRE bacteremia on daptomycin monotherapy ≥ 5–7 d triggers combination salvage with ampicillin or ceftaroline per IDSA 2011 [cite:ie] — β-lactam-mediated cell-wall remodeling opens membrane permeability that allows dapto re-entry against dapto-resistant subpopulations. Sakoulas (2014) and Smith / Justo cohorts documented mortality + clearance benefit. The toxicity is real but lower than letting persistent bacteremia smolder; ID-driven combination is the inflection point when monotherapy fails." },
+      { q: "Why CK weekly + statin hold on high-dose dapto?",
+        a: "Daptomycin causes dose-dependent skeletal muscle injury (rhabdomyolysis) — the risk roughly doubles at 10–12 mg/kg vs 4–6 mg/kg, and concomitant statin therapy multiplies the risk per FDA labeling and IDSA 2011 [cite:ie]. CK weekly + statin hold are mandatory at high dose; CK > 5× ULN or symptomatic myalgia triggers drug discontinuation. The toxicity is reversible if caught early; missing it predicts AKI from rhabdomyolysis + permanent muscle injury." },
+    ],
     research: {
       headline: "Daptomycin high-dose (10-12 mg/kg) primary; linezolid alternative; combination salvage for persistent.",
       trials: [
@@ -4969,6 +5059,16 @@ const SYNDROME_DECISION = {
           why: "Polymicrobial IE rare but reported" },
       ],
     },
+    objections: [
+      { q: "Why image early — patient is responding to empirics?",
+        a: "Polymicrobial bacteremia almost always reflects an uncontrolled deep source — gut translocation from abdominal abscess, ischemic bowel, or biliary obstruction drives the majority. STOP-IT (NEJM 2015 Sawyer) [cite:stopit] and SIS / IDSA 2017 establish source control as the outcome inflection point; antibiotics alone in an undrained polymicrobial focus predict relapse. Imaging within 24 h identifies the drainable target before the patient deteriorates; a deceptively stable patient on broad coverage with an undrained focus is the high-mortality scenario." },
+      { q: "Why 4 d post-source-control — polymicrobial feels more serious?",
+        a: "STOP-IT (NEJM 2015, n=518) [cite:stopit] established 4-d fixed course non-inferior to symptom-guided 8+ d in complicated IAI with adequate source control — same surgical-site infection, recurrence, and death rates regardless of polymicrobial substrate. The principle generalizes to gut-translocated polymicrobial bacteremia once source is controlled. Reserve longer courses for persistent collections, anastomotic leak, undrained focus, or fungal IAI — those are source-control problems, not antibiotic-dose problems." },
+      { q: "Why echinocandin in upper-GI perf — Candida coverage routine?",
+        a: "Upper-GI perforation, post-operative leak, recurrent peritonitis, and immunocompromised polymicrobial substrate carry meaningful Candida prevalence (15–25%) with mortality penalty if missed — IDSA 2017 [cite:stopit] endorses empiric echinocandin in this substrate pending culture. Fluconazole reserved for stable host + low-azole-pressure unit; species-driven narrowing later. Routine echinocandin is NOT for community-acquired polymicrobial bacteremia from a colonic source where Candida prevalence is < 5%; substrate-specific only." },
+      { q: "Why narrow on cultures — broad coverage is working?",
+        a: "Persistent broad coverage past 72 h in polymicrobial bacteremia drives AKI, C. difficile, and resistance selection without survival benefit per IDSA / SHEA 2016 [cite:stew] — by the time speciation returns, polymicrobial sets typically simplify to one or two dominant pathogens (E. coli + Bacteroides, S. aureus + GNR, etc.) that allow targeted therapy. The empiric breadth bought time during diagnostic uncertainty; once the substrate is defined, the bargain ends. Daily de-escalation review is the stewardship contract." },
+    ],
     research: {
       headline: "Surgical source control drives outcome; broad initial → narrow on cultures; echinocandin for upper-GI perf.",
       trials: [
@@ -5043,6 +5143,16 @@ const SYNDROME_DECISION = {
           why: "Identify entry portal for prevention" },
       ],
     },
+    objections: [
+      { q: "Why colonoscopy after S. gallolyticus — patient has no GI symptoms?",
+        a: "Klein (JAMA Surg 2019) [cite:ssti] and decades of cohort data establish a 25–80% association between S. gallolyticus (formerly S. bovis biotype I) bacteremia and colon cancer or advanced polyps — the bacteremia is often the first clinical signal of an occult malignancy. IDSA 2014 [cite:ssti] mandates colonoscopy at bacteremia diagnosis regardless of age or GI symptoms; deferring workup to a screening interval misses the window when intervention is highest-yield. The cost of the colonoscopy is trivial relative to the missed-cancer consequence." },
+      { q: "Why add clindamycin for severe GAS — penicillin kills it?",
+        a: "Severe invasive GAS adds clindamycin for ribosomal toxin suppression — Linnér (CID 2014) [cite:ssti] and IDSA 2014 [cite:ssti] showed combination + IVIG associated with improved survival in streptococcal TSS. Toxin-mediated tissue destruction continues even when the organism is being killed by penicillin (Eagle effect at high inoculum), and clindamycin's ribosomal block is the only mechanism that halts exotoxin production. Continue clindamycin 5+ d past clinical stability; penicillin alone is inadequate for the toxin-driven substrate." },
+      { q: "Why 10-14 d when BALANCE supports 7 d for bacteremia?",
+        a: "BALANCE (NEJM 2025) [cite:balance] established 7 d non-inferior in source-controlled GNR bacteremia and most Gram-positive sets, but the streptococcal IE risk and slower clearance kinetics in invasive strep substrate justify the 10–14 d band per IDSA 2014 [cite:ssti]. PCN-susceptible viridans / anginosus / gallolyticus complete 10–14 d; S. gallolyticus often runs longer if IE is documented. Reserve 7 d only for source-controlled, low-risk substrate with confirmed organism clearance — most invasive strep substrate warrants the 10–14 d default." },
+      { q: "Why TEE in routine strep bacteremia — IE is uncommon?",
+        a: "Streptococcal IE complicates approximately 15–25% of viridans / S. gallolyticus / anginosus group bacteremia per AHA 2015 [cite:ie] — substantially higher than coliform bacteremia, and TEE finds vegetations TTE misses in roughly one-third of cases. IDSA 2014 [cite:ssti] supports TEE workup for community-onset strep bacteremia, persistent positivity, or any prosthetic material. Missed IE here means a 10–14-d course where 4–6 wk + potential surgery were needed; the false-negative cost is high." },
+    ],
     research: {
       headline: "10–14 d for PCN-susceptible; S. gallolyticus → colonoscopy; clindamycin + IVIG for GAS-TSS.",
       trials: [
@@ -5130,6 +5240,16 @@ const SYNDROME_DECISION = {
           why: "Hardware seeding from endocarditis vs vice-versa" },
       ],
     },
+    objections: [
+      { q: "Why explant the device — antibiotics alone might work?",
+        a: "Vascular graft, CIED, LVAD, and pacemaker infection is a hardware-biofilm disease — explant is the curative path per AHA / HRS scientific statements and IDSA 2018 [cite:ie]. Antibiotic-only management fails when the device stays in because biofilm renders systemic-alone dosing inadequate, and the relapse rate is substantial. Vascular / cardiac surgery consultation is mandatory at presentation; delayed explant in retrievable devices worsens outcomes. Reserve antibiotic-only with lifelong suppression for genuinely irretrievable hardware (high surgical risk, anatomically inaccessible)." },
+      { q: "Why rifampin for retained staph hardware — ARREST said no?",
+        a: "The ARREST verdict (Lancet 2018, n=770) [cite:arrest] applies to native-valve SAB without hardware — rifampin retains its role in staphylococcal infection with retained prosthetic material per Zimmerli's biofilm principle and IDSA / AHA 2015 [cite:ie]. The drug penetrates biofilm-embedded staphylococci that vancomycin or β-lactam alone cannot reach. The cost-benefit flips when foreign material is the source: the drug-interaction + AE cost is justified by the biofilm-penetration benefit that does not exist in native-valve disease." },
+      { q: "Why lifelong oral suppression — patient dependence concerns?",
+        a: "Lifelong oral suppression is reserved for genuinely irretrievable hardware where surgical removal risk outweighs the suppression risk — a case-by-case ID + vascular surgery + cardiac surgery decision per IDSA 2018 [cite:ie]. Without continued antibiotics, relapse + recurrent rupture occur reliably from biofilm-resident organisms; with suppression, stability is achievable for years. Goals-of-care alignment, monitoring for drug toxicity (LFTs, renal), and quarterly ID follow-up are mandatory; suppression is a structured commitment, not a casual prescription." },
+      { q: "Why TEE for any device + bacteremia — yield seems low?",
+        a: "Device-associated bacteremia carries substantial endocarditis + lead-vegetation prevalence per AHA 2015 [cite:ie] — TEE finds vegetations that TTE misses in roughly one-third of cases, and identifies lead infection vs pocket infection vs endocarditis, each of which changes management. The procedural risk is low; the false-negative cost (missed IE → inadequate duration → relapse with hardware seeding) is high. TEE is standard at presentation, not selective; lead-extraction decisions depend on it." },
+    ],
     research: {
       headline: "Explant drives outcomes; rifampin for retained staph hardware; lifelong suppression for irretrievable.",
       trials: [
@@ -8174,6 +8294,16 @@ const SYNDROME_DECISION = {
           why: "Peritonsillar abscess or chronic pharyngitis may need surgical drainage" },
       ],
     },
+    objections: [
+      { q: "Why 4-6 wk — septic thrombophlebitis needs that long?",
+        a: "Lemierre syndrome runs 4–6 wk because the IJ thrombus + typical pulmonary septic emboli clear slowly even with appropriate antibiotics — Karkos (Laryngoscope 2009) [cite:ssti] and Phua (Eur J Clin Microbiol 2013) [cite:ssti] cohort reviews document this kinetic. Standard 7–14 d bacteremia management risks relapse + persistent metastatic seeding in this substrate. ID consult at presentation; the duration reflects the slow biological clearance of septic emboli + organized thrombus, not antibiotic potency." },
+      { q: "Why pip-tazo when Fusobacterium responds to penicillin?",
+        a: "Pip-tazo or ampicillin-sulbactam IV is the standard empiric choice per IDSA 2014 [cite:ssti] because F. necrophorum is increasingly β-lactamase-positive (Brook 2007 + successor data), and pure penicillin G can fail microbiologically. The β-lactamase inhibitor coverage matters at the empiric window; transition to PO amox-clav or metronidazole is acceptable when stable + organism susceptibility confirmed. Oral metronidazole alone is reserved for the back half once IV stabilization is complete; reflexive PCN monotherapy is no longer the audit-defensible default." },
+      { q: "Why anticoagulation case-by-case — shouldn't all IJ thrombi get it?",
+        a: "Phua (Eur J Clin Microbiol 2013) [cite:ssti] and successor reviews documented heterogeneous practice without clear mortality benefit from routine anticoagulation in Lemierre IJ thrombus — no RCT, observational signal limited. IDSA 2014 [cite:ssti] reserves anticoagulation for propagation, persistent bacteremia despite appropriate therapy, or cavernous sinus involvement; the bleeding risk in a frequently young patient with septic emboli is real. Decision is patient-specific with hematology / ID coordination; routine anticoagulation is not the default." },
+      { q: "Why drain accessible septic foci — antibiotics should clear them?",
+        a: "Septic emboli to lung (empyema, abscess), joint, or soft tissue represent closed-space infections that antibiotics cannot reliably clear without source control — IDSA 2014 [cite:ssti] mandates drainage of accessible foci to accelerate clearance + reduce mortality. The principle generalizes from STOP-IT [cite:stopit] source-control logic. Chest tube for empyema, IR drainage for organized lung abscess, or arthroscopic washout for septic arthritis each shortens the antibiotic course needed and prevents relapse. Antibiotics + drainage is bundled, not optional." },
+    ],
     research: {
       headline: "F. necrophorum dominant; 4–6 wk pathogen-directed; anticoagulation case-by-case for IJ thrombus.",
       trials: [
@@ -8259,6 +8389,16 @@ const SYNDROME_DECISION = {
           why: "Not standard; may benefit non-fungal severe disease; ophtho-driven decision" },
       ],
     },
+    objections: [
+      { q: "Why intravitreal antibiotics — IV vancomycin should work?",
+        a: "Endophthalmitis treatment is fundamentally a vitreous-penetration problem — systemic antibiotics fail because the blood–retinal barrier limits intravitreal drug levels below therapeutic concentrations for most pathogens. EVS (Arch Ophthalmol 1995, n=420) [cite:ie] established intravitreal vancomycin 1 mg + ceftazidime 2.25 mg as primary therapy delivered as tap-and-inject within hours of suspicion. Systemic adds for endogenous source treatment but cannot substitute. Ophthalmology emergency consult is mandatory; the intravitreal window closes fast." },
+      { q: "Why vitrectomy only for LP-vision — vision matters at every stage?",
+        a: "EVS (Arch Ophthalmol 1995) [cite:ie] specifically established that vitrectomy benefit is limited to the light-perception-only subgroup at presentation — patients with hand-motion or better vision did equally well with tap-and-inject + intravitreal antibiotics, and the surgical exposure + complication risk of vitrectomy outweighed benefit at higher visual acuity. AAO 2023 endorses the EVS-defined threshold. Reserve vitrectomy for the LP-vision presentation; less severe disease does not benefit." },
+      { q: "Why work up endogenous source — even with no recent procedure?",
+        a: "Endogenous endophthalmitis represents hematogenous seeding from an underlying source — blood cultures + echocardiogram + abdominal imaging + UA + IV access review per AAO 2023 [cite:ie] identify the source (endocarditis, candidemia, biliary, urinary, IVDU access) that drives both ocular outcome and systemic survival. Candida + hypervirulent K. pneumoniae are the highest-yield finds; treatment changes from ocular-focused to systemic-source-directed (14–21 d minimum systemic). Missing the source predicts recurrence." },
+      { q: "Why ophthalmology consult for candidemia — vision intact?",
+        a: "Endogenous Candida endophthalmitis complicates ~5–15% of candidemia and is vision-threatening if missed — IDSA / Pappas candidiasis guidance and AAO 2023 [cite:ie] mandate dilated fundoscopy in every candidemic patient regardless of visual symptoms. Treatment changes from systemic-only echinocandin to systemic voriconazole or amphotericin + intravitreal when chorioretinitis or vitritis is found. Progression to vitreous involvement is rapid; the cost of a fundoscopy exam is trivial relative to permanent vision loss." },
+    ],
     research: {
       headline: "EVS 1995 — intravitreal antibiotics PRIMARY; vitrectomy for LP vision; systemic alone fails (poor vitreous penetration).",
       trials: [
@@ -8438,6 +8578,16 @@ const SYNDROME_DECISION = {
           why: "Coordinated care drives suppression compliance + early detection of recurrence" },
       ],
     },
+    objections: [
+      { q: "Why surgery emergent — extended antibiotics could stabilize it?",
+        a: "Mycotic aneurysm is a surgical emergency — Lee (J Vasc Surg 2010) and SVS / AHA 2020 [cite:ie] establish that rupture risk dominates the natural history, and antibiotic-only management uniformly fails to prevent it. Even prolonged appropriate antibiotics cannot stabilize an infected aneurysm without surgical or endovascular repair. Vascular surgery + CT angio at presentation define the aneurysm + surgical approach; delay loses the planned-repair window and concedes to emergency rupture surgery with substantially worse outcomes." },
+      { q: "Why 6 wk IV — surgery removed the infected segment?",
+        a: "Even after successful surgical or endovascular repair, the perivascular substrate + foreign material burden warrant 6 wk IV minimum per IDSA / SVS guidance [cite:ie] — the BALANCE 7-d band explicitly excludes endovascular substrate [cite:balance], and shorter courses risk graft re-infection + recurrent rupture. Pathogen-directed therapy (Salmonella → cipro or ceftriaxone, S. aureus → cefazolin / vanco) for the full 6 wk minimum; surgical clearance does not shorten the antibiotic clock when foreign material was placed." },
+      { q: "Why lifelong suppression for retained graft — drug toxicity over years?",
+        a: "Lifelong oral suppression is standard for retained foreign material (EVAR stent-graft, synthetic interposition graft) per SVS / AHA 2020 [cite:ie] — biofilm-resident organisms predict relapse + recurrent rupture without continued antibiotics, and the surgical risk of explant-and-replace often exceeds the suppression risk. Monitor LFTs, renal, drug interactions quarterly; goals-of-care alignment with vascular surgery + ID. Discontinuation can be considered after years of stability with re-imaging surveillance, but is rarely first-line." },
+      { q: "Why CT angio for NTS bacteremia in age > 50 — yield seems low?",
+        a: "Non-typhoidal Salmonella seeds vascular endothelium preferentially in adults > 50 with atherosclerosis — Hsu (Ann Vasc Surg 2008) [cite:ie] and successor cohorts document substantial mycotic aortic aneurysm prevalence in this substrate, often presenting before rupture as occult focal pain. The yield justifies CT angio at NTS bacteremia diagnosis in age > 50; missing the diagnosis predicts catastrophic rupture. S. aureus bacteremia + back pain is the parallel trigger for staphylococcal aortic + vertebral seeding." },
+    ],
     research: {
       headline: "Surgical repair + 6 wk IV; lifelong suppression for retained graft; Salmonella + age > 50 → CT angio.",
       trials: [
