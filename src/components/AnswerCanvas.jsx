@@ -28,6 +28,9 @@ import { RegimenOptions } from "./RegimenOptions.jsx";
 import { tierHasContent } from "../data/regimenContent.js";
 import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { ReassessmentPanel } from "./ReassessmentPanel.jsx";
+import { DurationBlock } from "./DurationBlock.jsx";
+import { MonitoringBlock } from "./MonitoringBlock.jsx";
+import { getSyndromeDuration, getSyndromeMonitoring } from "../data/syndromeDecision.js";
 
 /* ---------- refinement → footnote mapping ----------
    For each refinement step in composeAnswer.refinement.steps, decide
@@ -561,6 +564,15 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         )}
       </Section>
 
+      {/* DURATION + MONITORING (Phase D2) — structured decision content
+          authored in syndromeDecision.js. Render only when content exists;
+          falls back to the legacy narrative Duration section below
+          (which is suppressed in that case to avoid duplication). The
+          regimen cards say what to start; these blocks say when to stop
+          and what to check. */}
+      <DurationBlock duration={getSyndromeDuration(s.id)} />
+      <MonitoringBlock monitoring={getSyndromeMonitoring(s.id)} />
+
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file
           name, this is not a longitudinal reassessment workflow — it is a
@@ -574,18 +586,24 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         onOrg={onOrg}
       />
 
-      {/* DURATION + EVIDENCE */}
-      <Section kicker="Duration" icon={Clock}>
-        <div style={{ fontSize:13.5, color:"var(--ink)", lineHeight:1.55 }}>
-          {s.duration}
-          {ans.evidence && (
-            <span style={{ marginLeft:8 }}>
-              {ans.evidence.ev && <Ev kind={ans.evidence.ev} />}{" "}
-              <Cite id={ans.evidence.ref} onClick={(cid) => onCite && onCite(cid)} />
-            </span>
-          )}
-        </div>
-      </Section>
+      {/* DURATION + EVIDENCE — legacy narrative duration section. Suppressed
+          when the syndrome has authored structured DurationBlock content
+          (rendered above ReassessmentPanel), to avoid duplicating the same
+          fact in two places. The structured block carries the same string
+          inside its headline + branches with richer affordances. */}
+      {!getSyndromeDuration(s.id) && (
+        <Section kicker="Duration" icon={Clock}>
+          <div style={{ fontSize:13.5, color:"var(--ink)", lineHeight:1.55 }}>
+            {s.duration}
+            {ans.evidence && (
+              <span style={{ marginLeft:8 }}>
+                {ans.evidence.ev && <Ev kind={ans.evidence.ev} />}{" "}
+                <Cite id={ans.evidence.ref} onClick={(cid) => onCite && onCite(cid)} />
+              </span>
+            )}
+          </div>
+        </Section>
+      )}
 
       {/* PEARLS — short, scannable. */}
       {ans.pearls.length > 0 && (
