@@ -184,6 +184,10 @@ const SYNDROME_DECISION = {
           why: "ASB clearance documentation; reduces preterm birth risk" },
       ],
     },
+    rationale: {
+      driver: "Uncomplicated cystitis is overwhelmingly E. coli — Gupta (IDSA 2010) anchors agent-specific short courses that exploit pharmacokinetics: nitrofurantoin 5 d (urinary concentration), TMP-SMX 3 d (rapid bactericidal at empiric MICs < 20% local resistance), fosfomycin single 3 g dose (bladder reservoir effect). Fluoroquinolones are deliberately not first-line — collateral resistance damage to enteric flora plus tendon/aortic/QT toxicity outweigh modest cure-rate advantages. β-lactams (cefpodoxime, cefdinir) achieve lower cure rates and never extend past 7 d. Symptomatic improvement at 48–72 h confirms the choice; recurrence within 4 wk triggers reculture and pyelonephritis re-eval, not reflexive extension.",
+      guideline: "balance",
+      rejected: "Reflexive 7–10 d β-lactam courses were deliberately rejected — Huttner (JAMA 2018) and Gupta both demonstrate nitrofurantoin 5 d and TMP-SMX 3 d non-inferior to longer regimens with lower AE rates. Empiric fluoroquinolone was tempered: Nicolle (IDSA 2019) and Gupta restrict FQ to second-line because of tendon, aortic, and CNS toxicity plus collateral C. difficile and ESBL selection pressure that outlasts the patient's prescription." },
     research: {
       headline: "Short courses anchored by agent-specific kinetics + trial-grade evidence; longer courses give no benefit.",
       trials: [
@@ -2579,6 +2583,10 @@ const SYNDROME_DECISION = {
           why: "Reduces ongoing infection risk + improves quality of life" },
       ],
     },
+    rationale: {
+      driver: "CAUTI is a device-driven biofilm infection — Hooton (IDSA 2010 / 2024) anchors catheter removal or exchange as the dominant outcome lever because antibiotics alone are only partially effective against catheter biofilm, and the antibiotic clock should start from the change day. Empirics cover Enterobacterales + Pseudomonas + enterococci with broadening for resistant flora in prolonged-catheter hosts; 7 d if responding promptly, 10–14 d if delayed response or catheter retained, and 10–14 d for ESBL / Pseudomonas / MDR per susceptibility. Cultures must be drawn from a new catheter — old-catheter samples reflect biofilm colonization, not bladder infection.",
+      guideline: "balance",
+      rejected: "Reflexive treatment of asymptomatic catheter-associated bacteriuria was deliberately rejected — Trautner (CID 2014) + Nicolle (IDSA 2019) show treatment drives resistance, AKI, and C. difficile without preventing symptomatic CAUTI; only pregnancy and pre-urologic-procedure are validated exceptions. Standard 14-d courses for prompt responders were tempered: IDSA 2010 + the BALANCE short-course principle now support 7 d when source control (catheter change) is achieved and the patient responds." },
     research: {
       headline: "Catheter removal/exchange drives outcome; 7 d if responding, 10–14 d if delayed; do NOT treat ASB in catheterized patients.",
       trials: [
@@ -2659,6 +2667,10 @@ const SYNDROME_DECISION = {
           why: "Often non-bacterial; PT + alpha-blockers help when antibiotics inadequate" },
       ],
     },
+    rationale: {
+      driver: "Acute bacterial prostatitis demands a tissue-penetrating long course because the inflamed prostate transiently admits agents that the chronic gland excludes — fluoroquinolone (ciprofloxacin or levofloxacin) or TMP-SMX for 4 weeks is the AUA / EAU 2024 standard, with IV ceftriaxone initially when bacteremic. β-lactams have poor prostatic penetration once inflammation subsides and are inadequate for step-down (Naber 2008). Chronic disease extends to 6 weeks (Lipsky CID 2010); rising FQ-resistance in community E. coli (> 30% in many U.S. centers) increasingly pushes toward susceptibility-driven TMP-SMX. Prostatic abscess on TRUS triggers drainage plus extended duration; massage in acute disease seeds bacteremia and is contraindicated.",
+      guideline: "balance",
+      rejected: "Short-course β-lactam regimens were deliberately rejected — cephalexin and amox-clav do not penetrate the chronic prostate, and Lipsky + AUA 2024 anchor FQ or TMP-SMX as the only adequate step-down options. Reflexive empiric FQ without local-antibiogram review was tempered: > 30% FQ-resistance in many U.S. community E. coli isolates now mandates pre-treatment susceptibility-driven choice, and stewardship favors a documented sensitivity before committing to a 4-to-6-week course." },
     research: {
       headline: "4 wk acute / 6 wk chronic; FQ + TMP-SMX preferred for prostatic penetration; rising resistance drives empiric pivot.",
       trials: [
@@ -2742,6 +2754,10 @@ const SYNDROME_DECISION = {
           why: "Empiric broadening in HCAQ patients; narrow on cultures" },
       ],
     },
+    rationale: {
+      driver: "Urosepsis with obstruction is a urology emergency — Wagenlehner (Lancet 2015) and SSC 2021 anchor emergent decompression (ureteral stent or percutaneous nephrostomy) within 6 h of sepsis recognition as the dominant mortality lever, because antibiotics fail with an obstructed kidney. Empirics cover Enterobacterales + Pseudomonas + enterococci broadly until cultures return; ESBL risk (recent broad antibiotics, healthcare exposure, prior ESBL isolate) shifts to ertapenem or meropenem. Once source control is achieved, BALANCE 2024 supports 7 d post-clearance for controlled-source bacteremic UTI — non-inferior to 14 d at the 4% margin. Persistent bacteremia > 72 h triggers endovascular and abscess re-evaluation.",
+      guideline: "balance",
+      rejected: "Empiric piperacillin-tazobactam for serious ESBL bloodstream UTI was deliberately rejected — MERINO (JAMA 2018) showed 30-d mortality 12.3% vs 3.7% on meropenem and was stopped early, so in-vitro pip-tazo susceptibility does not equal carbapenem-grade adequacy in this context. Reflexive 14-d duration after source control was tempered: BALANCE established 7 d non-inferior in controlled-source GNR bacteremia, and extending therapy without an undrained focus or endovascular substrate drives resistance and AKI without survival benefit." },
     research: {
       headline: "7 d controlled-source bacteremic UTI (BALANCE); decompression of obstruction is critical; sepsis bundle drives outcome.",
       trials: [
@@ -2827,6 +2843,10 @@ const SYNDROME_DECISION = {
           why: "Reduces edema + pain; adjunctive to antibiotics" },
       ],
     },
+    rationale: {
+      driver: "Epididymo-orchitis etiology is age- and exposure-stratified — Workowski (CDC MMWR 2021) anchors ceftriaxone 500 mg IM × 1 + doxycycline 100 mg PO BID × 10 d for the STI-driven substrate (age < 35, sexually active), targeting N. gonorrhoeae + C. trachomatis with partner notification and HIV/STI screen built in. The enteric substrate (age ≥ 35, insertive anal sex, instrumentation, BPH) drives toward fluoroquinolone × 10–14 d with urology workup for predisposing pathology. Testicular torsion is a surgical emergency that must be excluded by Doppler ultrasound before committing to an antibiotic narrative — missing torsion costs the testicle.",
+      guideline: "cdc_sti",
+      rejected: "Single-agent fluoroquinolone for the under-35 sexually-active patient was deliberately rejected — Workowski + CDC anchor ceftriaxone + doxycycline because rising FQ-resistant gonococci make FQ monotherapy inadequate, and concurrent chlamydial coverage is mandatory. Skipping torsion workup before antibiotics was rejected — Doppler ultrasound for acute scrotal pain is non-negotiable because torsion presents identically and missed diagnosis is uniformly limb-loss (testicular)." },
     research: {
       headline: "Etiology by age — STI (< 35 yr) vs enteric GNR (≥ 35 yr); CDC 2021 STI guidance + EAU urology align.",
       trials: [
@@ -2902,6 +2922,10 @@ const SYNDROME_DECISION = {
           why: "Long IV courses → line complications; oral step-down at 2 wk standard" },
       ],
     },
+    rationale: {
+      driver: "Renal and perinephric abscess is a drainage-first disease — Lin (Mayo Clin Proc 2008) anchors percutaneous catheter drainage for collections ≥ 3–5 cm with surgical management reserved for multiloculated or PCD-failure lesions. Total course is 4–6 weeks (≈ 2 wk IV + 2–4 wk oral step-down) from the drainage day, with serial imaging at 2–4 wk driving extension decisions. Empirics target Enterobacterales (E. coli, Klebsiella) and shift toward S. aureus when hematogenous seeding is suspected — TEE plus endocarditis workup becomes mandatory because endovascular source missed = treatment failure. Diabetic substrate raises the threshold for emergent surgical decompression given emphysematous evolution risk.",
+      guideline: "balance",
+      rejected: "Antibiotic-only management of an abscess ≥ 3–5 cm was deliberately rejected — Lin + EAU 2024 anchor PCD because medical-only management has higher failure rates and longer total durations, and drainage yields culture data that drives targeted narrowing. Reflexive treatment as ascending pyelonephritis was tempered: hematogenous S. aureus seeding to the kidney requires TEE plus 4–6-wk endocarditis bands, and skipping endovascular workup in S. aureus seeding drives recurrence at the original valvular focus." },
     research: {
       headline: "Drainage drives outcome; > 3-5 cm collections percutaneously drained; 4-6 wk total with oral step-down.",
       trials: [
@@ -2972,6 +2996,10 @@ const SYNDROME_DECISION = {
           why: "Recurrence prevention; HbA1c < 7 reduces re-infection risk" },
       ],
     },
+    rationale: {
+      driver: "Emphysematous pyelonephritis is a diabetic urology emergency with class-stratified mortality — Huang (Kidney Int 2007) anchors emergent CT for type stratification: Class I (collecting system gas only) is drainage-treatable, Class II (parenchymal) usually requires PCD + broad antibiotics, Class III–IV (extension to perinephric or systemic involvement) carries 25–50% mortality and most often requires emergent nephrectomy. Empiric pip-tazo or carbapenem covers the dominant Enterobacterales (E. coli, Klebsiella) substrate, with antibiotic course of 2–4 weeks following surgical adequacy. DKA / hyperosmolar correction and tight glycemic control run in parallel with the surgical pathway — the metabolic substrate drives outcomes.",
+      guideline: "balance",
+      rejected: "Antibiotic-only management of parenchymal (Class III–IV) emphysematous pyelonephritis was deliberately rejected — Huang + AUA 2024 show medical-only management has near-uniform failure at this class, and emergent nephrectomy is the rescue intervention with measurable survival benefit. Conservative trial of severe disease was tempered: each hour of delay in surgical decompression compounds mortality, and the diabetic metabolic substrate cannot be corrected fast enough to obviate the surgical decision." },
     research: {
       headline: "Mortality 25-50% with parenchymal involvement; emergent surgical decompression + urology; diabetic control critical.",
       trials: [
@@ -3772,6 +3800,10 @@ const SYNDROME_DECISION = {
           matchCtx: { severe: true } },
       ],
     },
+    rationale: {
+      driver: "Abdominal sepsis is a source-control disease — STOP-IT (NEJM 2015) anchors a fixed ~4-day post-source-control course as non-inferior to symptom-guided extension when drainage, surgery, or leak repair is adequate. Empirics cover enteric GNR + anaerobes: community → pip-tazo or ceftriaxone + metronidazole or ertapenem; HCAQ / shock / recent broad antibiotics → carbapenem with broader Pseudomonas + Enterococcus + Candida coverage as risk-stratified. Daily source-control reassessment at 48–72 h is the contract — antibiotic failure most often reflects an undrained or expanding focus, not a wrong drug. Candida overgrowth in upper-GI perforation, postoperative leak, or recurrent IAI triggers empiric echinocandin.",
+      guideline: "stopit",
+      rejected: "Reflexive 10–14 d courses after adequate source control were deliberately rejected — STOP-IT established 4 d post-source-control non-inferior, and Solomkin (IDSA / SIS 2017) endorses the short-course standard. Extending therapy without an undrained focus drives resistance, C. difficile, and Candida overgrowth without changing outcomes. Routine empiric anti-pseudomonal + anti-enterococcal coverage was tempered for community IAI: Solomkin reserves it for HCAQ, postoperative, or immunocompromised hosts, and reflexive carbapenem in community disease wastes spectrum." },
     research: {
       headline: "STOP-IT — 4 d post-source-control non-inferior; broad antifungal coverage for HCAQ peritonitis with persistent fever.",
       trials: [
@@ -5115,6 +5147,10 @@ const SYNDROME_DECISION = {
           why: "BK reactivation common in transplant + dysuria" },
       ],
     },
+    rationale: {
+      driver: "Renal transplant UTI is calibrated by post-transplant interval and immunosuppression — AST IDCOP 2019 (Fishman) anchors a treat-the-asymptomatic stance only in the first 3 months post-tx (when graft tolerance, ureteric stent, and immunosuppression converge), and an explicit do-not-treat stance for ASB beyond that window. Empirics broaden empirically to cover prior MDR isolates and ESBL substrate (carbapenem when prior history positive), with 10–14 d for symptomatic early disease and 7–14 d later. Drug-interaction screen for calcineurin-inhibitor levels (FQ + macrolide raise tacrolimus; rifampin drops it) runs in parallel — transplant ID coordination is mandatory.",
+      guideline: "balance",
+      rejected: "Reflexive ASB treatment beyond the early post-transplant window was deliberately rejected — AST 2019 + Nicolle (IDSA 2019) anchor stewardship: antibiotic exposure drives resistance, AKI, and C. difficile without preventing symptomatic UTI. Empiric narrow ceftriaxone in patients with prior MDR isolates was tempered: transplant cohort UTI carries a high ESBL / carbapenem-resistant baseline, and broader empiric coverage with rapid de-escalation is preferred over a narrow start that risks under-treatment in a high-acuity host." },
     research: {
       headline: "AST 2019 — early post-tx ASB treated; later asymptomatic NOT treated; drug interactions complex.",
       trials: [
@@ -8422,6 +8458,10 @@ const SYNDROME_DECISION = {
           why: "Re-infection common; routine re-screening per CDC" },
       ],
     },
+    rationale: {
+      driver: "PID is a polymicrobial pelvic infection treated by triple coverage — Workowski (CDC MMWR 2021) + ACOG 2022 anchor ceftriaxone 500 mg IM × 1 + doxycycline 100 mg PO BID + metronidazole 500 mg PO BID × 14 d for outpatient management, covering N. gonorrhoeae, C. trachomatis, anaerobes, and enteric flora. Inpatient pathways (severe disease, pregnancy, failed outpatient, TOA) shift to IV cefoxitin or cefotetan + doxycycline with PO step-down once stable. Tubo-ovarian abscess > 8 cm or non-response by 72 h triggers drainage (Wiesenfeld AJOG 2017). Partner notification, expedited partner therapy where permitted, and HIV / syphilis / hepatitis co-screen run in parallel — long-term sequelae (infertility, ectopic, chronic pain) are reduced but not eliminated by adequate treatment (PEACH JAMA 2002).",
+      guideline: "cdc_sti",
+      rejected: "Dropping metronidazole from the outpatient regimen was deliberately rejected — anaerobic coverage is preserved in the CDC 2021 update because anaerobes contribute to upper-tract disease and chronic sequelae, and bacterial-vaginosis co-infection drives recurrence. Reflexive IUD removal at PID diagnosis was tempered: ACOG 2022 supports IUD retention if the patient is responding at 48–72 h, because removal does not change outcomes and complicates contraception management." },
     research: {
       headline: "CDC 2021 — CTX + doxy + metro × 14 d for outpatient; TOA needs IV + drainage if > 8 cm or non-response.",
       trials: [
@@ -8888,6 +8928,10 @@ const SYNDROME_DECISION = {
           why: "Shared decision-making; reduces requests for unnecessary urine cultures + treatment" },
       ],
     },
+    rationale: {
+      driver: "Asymptomatic bacteriuria is a stewardship entry — Nicolle (IDSA 2019) anchors do-not-treat in the elderly, catheterized, diabetic, spinal-cord-injured, and functionally disabled because antibiotic exposure drives resistance, AKI, and C. difficile without preventing symptomatic UTI. The validated exceptions are narrow: pregnancy (any trimester, 5–7 d nitrofurantoin or amoxicillin or cephalexin to reduce preterm-birth and pyelonephritis risk) and pre-urologic-instrumentation (single targeted dose ~30 min pre-procedure to prevent bacteremia at TURP or ureteroscopy). Early renal-transplant ASB (< 1 month) is also treated. Cloudy urine, odor, and isolated mental-status change are NOT indications — Trautner (CID 2014) anchors broader workup before reflexive treatment in delirium.",
+      guideline: "balance",
+      rejected: "Reflexive treatment of catheter-associated, diabetic, or elderly ASB was deliberately rejected — Trautner + Nicolle anchor stewardship: antibiotics drive resistance and collateral damage with zero benefit on symptomatic UTI prevention. Treating mental-status change in the elderly with positive urine culture as default was tempered: IDSA + AGS now recommend broader workup (dehydration, drug effect, infection elsewhere) before committing to antibiotics, because ASB is rarely the delirium cause and reflexive treatment delays the real diagnosis." },
     research: {
       headline: "IDSA 2019 — do NOT treat asymptomatic bacteriuria; treat ONLY pregnancy + pre-procedural urologic instrumentation.",
       trials: [
@@ -8970,6 +9014,10 @@ const SYNDROME_DECISION = {
           why: "Multi-stage closure planning; flap or graft typical for extensive defects" },
       ],
     },
+    rationale: {
+      driver: "Scrotal abscess management splits on physical exam — Sorensen (J Urol 2009) + Eke (Br J Surg 2000) anchor the differentiation of simple drained abscess (I&D + 7-d course per cellulitis bands, MRSA coverage by local prevalence) from Fournier's necrotizing fasciitis, where severe pain out of proportion, crepitus, and skin necrosis demand emergent CT plus serial surgical debridement plus polymicrobial coverage (pip-tazo + vancomycin + clindamycin for toxin suppression). Mortality is 20–40% in Fournier and tracks time-to-OR, extent of disease, and diabetic substrate; serial re-look every 24 h and ICU resuscitation are non-negotiable. Diverting colostomy is considered when perineal involvement is extensive.",
+      guideline: "stopit",
+      rejected: "Antibiotic-only management of Fournier's gangrene was deliberately rejected — Sorensen + Eke show medical-only management has near-uniform failure, and the dominant outcome lever is emergent serial debridement within hours of recognition. Dropping clindamycin from Fournier coverage was tempered: WSES 2018 retains clindamycin specifically for toxin suppression (Streptococcus pyogenes + Clostridium) even when individual susceptibilities suggest β-lactam adequacy, because protein-synthesis inhibition is the mechanistic anchor for limiting tissue damage during the debridement window." },
     research: {
       headline: "Mortality 20–40% in Fournier; emergent serial debridement; broad polymicrobial + clindamycin for toxin suppression.",
       trials: [
@@ -9227,6 +9275,10 @@ const SYNDROME_DECISION = {
           why: "Reduces recurrence in fulminant CDI survivors; per CDI bands" },
       ],
     },
+    rationale: {
+      driver: "Toxic megacolon is a surgical-readiness ICU problem — Sayedy (World J Gastrointest Surg 2010) + Ananthakrishnan (Gut 2008) anchor a 48–72 h medical trial with explicit surgical reassessment thereafter, because mortality climbs > 30% with delayed colectomy. Fulminant CDI substrate gets oral vancomycin 500 mg q6h + IV metronidazole + rectal vancomycin (per IDSA / SHEA 2021); severe IBD flare gets IV steroids plus rescue infliximab or cyclosporine with GI + colorectal coordination. Refractory disease or perforation triggers emergent subtotal colectomy + end ileostomy, preserving the rectum for future reconstruction. Antimotility agents, opiates, and anticholinergics are absolutely contraindicated — they worsen dilation and delay perforation diagnosis.",
+      guideline: "cdi",
+      rejected: "Extended medical trial beyond 72 h without surgical reassessment was deliberately rejected — Ananthakrishnan + ACG 2021 anchor surgical timing on lactate, WBC, and radiographic dilation rather than a fixed clock, because each hour of delay compounds mortality. Antimotility agents for symptom control were absolutely rejected: loperamide, opiates, and anticholinergics mask the dilation trajectory and delay the perforation alarm, so the avoidance is non-negotiable regardless of patient discomfort." },
     research: {
       headline: "Medical 48–72 h trial then colectomy; avoid antimotility + opiates; mortality > 30% without timely surgery.",
       trials: [
@@ -9310,6 +9362,10 @@ const SYNDROME_DECISION = {
           why: "AF + intracardiac thrombus + thrombophilia drive recurrence; addressable" },
       ],
     },
+    rationale: {
+      driver: "Acute mesenteric ischemia is a vascular emergency where antibiotics are adjunctive — Kassahun (World J Surg 2008) anchors emergent CT angiography and revascularization (endovascular thrombectomy / thrombolysis for embolic or thrombotic SMA per Bjorck 2017, open surgery for failure) within 6 h to preserve bowel viability, with mortality 50–70% once delay sets in. Broad pip-tazo or carbapenem coverage runs 5–10 d to address translocation-driven sepsis as bowel infarcts, and second-look laparotomy at 24 h re-assesses viability and resects newly necrotic segments. Venous thrombosis (SMV) adds anticoagulation; non-occlusive ischemia (NOMI) responds to splanchnic vasodilators (papaverine) and shock reversal. Bowel perforation escalates to intra-abdominal sepsis bands.",
+      guideline: "stopit",
+      rejected: "Antibiotic-only management without vascular intervention was deliberately rejected — Kassahun + ACR / SVS 2024 anchor revascularization within 6 h as the dominant outcome lever, and medical-only management has near-uniform failure with bowel infarction. Waiting for metabolic acidosis or peritonitis as the trigger to operate was tempered: acidosis is a late sign and the diagnostic window (CT angiography at presentation, emergent vascular consult) precedes laboratory derangement, so the surgical alarm is symptom + imaging-based rather than lab-driven." },
     research: {
       headline: "Revascularization within 6 h preserves bowel; antibiotics adjunctive; metabolic acidosis is a late sign.",
       trials: [
