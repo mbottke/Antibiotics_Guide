@@ -305,6 +305,10 @@ const SYNDROME_DECISION = {
           why: "Vision-threatening; classic in hypervirulent K. pneumoniae but also S. aureus" },
       ],
     },
+    rationale: {
+      driver: "S. aureus bacteremia carries 15–25% endocarditis risk and ~20% baseline mortality — the bundle is built to document clearance (q48h BCx), exclude endovascular seeding (TEE), and obtain ID consult (halves mortality). MSSA → cefazolin or nafcillin (bactericidal, narrow); MRSA → vancomycin (AUC 400–600) or daptomycin 8–10 mg/kg if vanco MIC > 1. The 14-d floor applies only to uncomplicated disease — persistence, hardware, or metastatic focus extends to 4–6 wk.",
+      guideline: "ie",
+      rejected: "Adjunctive rifampin was deliberately rejected for native-valve SAB — ARREST (Lancet 2018, n=770) showed no mortality benefit and increased AEs/drug interactions. Cefazolin is preferred over nafcillin for MSSA when both available: equal efficacy with substantially less AKI and interstitial nephritis." },
     research: {
       headline: "ID consult + repeat BCx + echo are the three pillars; mortality benefit replicated across registries.",
       trials: [
@@ -422,6 +426,10 @@ const SYNDROME_DECISION = {
           matchAgent: /vancomycin/i },
       ],
     },
+    rationale: {
+      driver: "Sepsis mortality is driven by speed + adequacy of early therapy plus source control — every hour delay raises mortality, and inadequate empiric coverage doubles it. The empiric backbone covers the substrate (community → broad β-lactam; HCAQ → anti-pseudomonal + MRSA); duration follows BALANCE — 7 d for source-controlled GNR bacteremia, longer only if endovascular, undrained, or immunocompromised. Daily reassessment with mandated de-escalation at 48–72 h is the stewardship contract.",
+      guideline: "ssc",
+      rejected: "Empiric vancomycin + pip-tazo is deliberately tempered when alternatives fit — the combination roughly doubles AKI risk vs cefepime + vancomycin without survival benefit. Reflexive 14-d duration was rejected by BALANCE: 7 d non-inferior in controlled-source GNR bacteremia, so the default is now short with a defined stop date." },
     research: {
       headline: "BALANCE 2024 established 7-day non-inferiority in controlled-source GNR bacteremia; source control remains paramount.",
       trials: [
@@ -626,6 +634,10 @@ const SYNDROME_DECISION = {
           why: "Viral co-infection drives antibiotic non-response; antivirals change course" },
       ],
     },
+    rationale: {
+      driver: "Most CAP is pneumococcus, H. influenzae, or atypicals — empiric ceftriaxone + azithromycin (or a respiratory FQ) cover this substrate for ward patients; severe / ICU adds MRSA + Pseudomonas only when risk factors are present (recent abx, prior MRSA/Pseudo isolate, structural lung disease). Severe non-influenza CAP also gets hydrocortisone 200 mg/d × 4–8 d (CAPE-COD). The 5-day floor holds when the patient is afebrile + stable + tolerating oral by 48–72 h; complications (cavitation, MRSA, Pseudo) extend duration.",
+      guideline: "cap",
+      rejected: "Empiric vancomycin is deliberately NOT added in stable CAP — baseline MRSA-pneumonia incidence is < 10% absent recent abx exposure, severe COPD, or known colonization; reflexive vanco invites AKI from the pip-tazo combination without clinical benefit. Routine macrolide combination in non-severe ward CAP was tempered by Postma (NEJM 2015) showing β-lactam alone non-inferior." },
     research: {
       headline: "5-day short course is non-inferior in stable patients; severe CAP carries CAPE-COD steroid signal.",
       trials: [
@@ -731,6 +743,10 @@ const SYNDROME_DECISION = {
           why: "Invasive fungal pneumonia in immunocompromised drives empiric β-lactam failure" },
       ],
     },
+    rationale: {
+      driver: "HAP / VAP empirics target the nosocomial substrate: anti-pseudomonal β-lactam (cefepime, pip-tazo, or meropenem if recent broad exposure) + MRSA cover (vancomycin or linezolid) when risk factors are present. Pathogen-directed narrowing at 48–72 h is mandated. 7 d holds for most pathogens including Pseudomonas in non-immunocompromised hosts — PneumA established this 20+ years ago and Kalil 2016 confirmed across pathogens. Extended-infusion β-lactams improve PK target attainment in critical illness.",
+      guideline: "hapvap",
+      rejected: "The legacy ≥ 14-d course for non-fermenting GNR was deliberately rejected — PneumA (JAMA 2003) and the IDSA 2016 meta-analysis both showed 8–7 d non-inferior to 15 d, including the Pseudomonas subgroup in non-immunocompromised patients. Routine inhaled adjunctive antibiotics for MDR VAP were rejected: IASIS and INHALE trials both negative." },
     research: {
       headline: "Fixed 7-day course non-inferior to clinical-guided in most HAP/VAP — PneumA established it 20+ years ago.",
       trials: [
@@ -9366,4 +9382,13 @@ function getSyndromeResearch(synId) {
   return SYNDROME_DECISION[synId]?.research || null;
 }
 
-export { SYNDROME_DECISION, getSyndromeDecision, getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch };
+/* Phase D1 — reasoning-trace accessor. Mirrors the duration / monitoring /
+   research helpers above: returns the syndrome's `rationale` object
+   (driver / guideline / rejected) when authored, null otherwise. The
+   ReasoningTraceBlock renders nothing on null, so the partial Phase D1
+   rollout coexists gracefully with the rest of the canvas. */
+function getReasoningForSyndrome(synId) {
+  return SYNDROME_DECISION[synId]?.rationale || null;
+}
+
+export { SYNDROME_DECISION, getSyndromeDecision, getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch, getReasoningForSyndrome };

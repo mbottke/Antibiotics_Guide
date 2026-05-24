@@ -42,8 +42,9 @@ import { getPenetrationForSyndrome } from "../data/sitePenetration.js";
 import { PedsPregBlock } from "./PedsPregBlock.jsx";
 import { getPedsPregForSyndrome } from "../data/pedsPregDosing.js";
 import { CombinedRisksBlock } from "./CombinedRisksBlock.jsx";
+import { ReasoningTraceBlock } from "./ReasoningTraceBlock.jsx";
 import { Section } from "./Section.jsx";
-import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch } from "../data/syndromeDecision.js";
+import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch, getReasoningForSyndrome } from "../data/syndromeDecision.js";
 
 /* ---------- refinement → footnote mapping ----------
    For each refinement step in composeAnswer.refinement.steps, decide
@@ -439,6 +440,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
      screen. SurgeProtocols tier-1 always-visible; non-tier-1
      collapsed with the reference layers (Research, SitePenetration). */
   const _research = getSyndromeResearch(s.id);
+  const _rationale = getReasoningForSyndrome(s.id);
   const _regional = getRegionalForSyndrome(s.id);
   const _novel = getNovelForSyndrome(s.id);
   const _surge = getSurgeForSyndrome(s.id);
@@ -471,6 +473,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
     { id: "ans-covers",     label: "Covers" },
     { id: "ans-deesc",      label: "48–72 h" },
     pickedAgents.length > 0 && { id: "ans-risks", label: "Risks" },
+    _rationale && { id: "ans-rationale", label: "Why" },
     getSyndromeDuration(s.id) && { id: "ans-duration",   label: "Duration" },
     getSyndromeMonitoring(s.id) && { id: "ans-monitoring", label: "Monitor" },
     _regional.length > 0      && { id: "ans-regional",   label: "Regional" },
@@ -782,6 +785,15 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           unchanged for safe combinations. */}
       <div id="ans-risks" style={{ scrollMarginTop: 96 }}>
         <CombinedRisksBlock pickedAgents={pickedAgents} />
+      </div>
+
+      {/* WHY · REASONING TRACE (Phase D1) — driver / guideline / rejected.
+          Sits between combined-risks and duration so the user reads
+          "what + why + why not" before they see "how long". Renders
+          nothing when the syndrome has no authored rationale, matching
+          every other depth layer's graceful-fallback contract. */}
+      <div id="ans-rationale" style={{ scrollMarginTop: 96 }}>
+        <ReasoningTraceBlock rationale={_rationale} onCite={onCite} />
       </div>
 
       <div id="ans-duration" style={{ scrollMarginTop: 96 }}>
