@@ -840,6 +840,10 @@ const SYNDROME_DECISION = {
           why: "Pneumococcal meningitis hearing loss in ~10%; early detection enables aid fitting" },
       ],
     },
+    rationale: {
+      driver: "Empiric ceftriaxone 2 g q12h + vancomycin (CNS dosing, AUC 400–600) covers pneumococcus + meningococcus; ampicillin is added in age > 50, pregnancy, alcoholism, or immunocompromise to cover Listeria. Dexamethasone 0.15 mg/kg q6h × 4 d MUST be given WITH or BEFORE the first antibiotic dose — de Gans (NEJM 2002) showed unfavourable outcomes 25 → 15% with pneumococcal disease as the driver. Antibiotics within 1 h of suspicion; do not delay for CT.",
+      guideline: "degans",
+      rejected: "Dexamethasone given AFTER the first antibiotic dose is deliberately NOT recommended — the cytokine cascade has already fired, and the mortality / neurologic-outcome benefit is lost. Empiric coverage without ampicillin in age > 50 or impaired cell-mediated immunity was rejected: Listeria has no β-lactam susceptibility to ceftriaxone, and missed coverage is uniformly fatal." },
     research: {
       headline: "Hour-1 antibiotics + dexamethasone for pneumococcal — both established mortality + neuro-outcome benefit.",
       trials: [
@@ -945,6 +949,10 @@ const SYNDROME_DECISION = {
           why: "C. diff spores survive standard hand sanitizer; hand-washing + bleach essential" },
       ],
     },
+    rationale: {
+      driver: "Fidaxomicin 200 mg BID × 10 d is preferred over oral vancomycin for initial episode and first recurrence — Louie / Cornely RCTs showed equivalent cure with recurrence cut from 25% → 13% (IDSA / SHEA 2021 elevated fidaxomicin to first-line). Fulminant disease (ileus, megacolon, shock) requires PO/NG vancomycin 500 mg QID + IV metronidazole ± rectal vancomycin and early surgical consult. The single most impactful adjunct is stopping the offending inciting antibiotic when clinically feasible.",
+      guideline: "cdi",
+      rejected: "Metronidazole as first-line was deliberately rejected in the 2021 IDSA/SHEA focused update — it has lower cure and higher recurrence than fidaxomicin or vancomycin and is now reserved for when neither preferred oral agent is available. Routine probiotics for primary prevention were tempered: PROPATRIA (Lancet 2008) showed increased mortality with Lactobacillus prophylaxis in severe pancreatitis, and signals across other settings are heterogeneous." },
     research: {
       headline: "Fidaxomicin reduces recurrence vs vancomycin; FMT is the recurrence breaker; bezlotoxumab adjunct for high-risk.",
       trials: [
@@ -1048,6 +1056,10 @@ const SYNDROME_DECISION = {
           why: "Falling PCT supports STOP-IT-style early stop" },
       ],
     },
+    rationale: {
+      driver: "Intra-abdominal infection is a source-control disease — antibiotic adequacy is necessary but not sufficient; drainage, surgery, or leak repair drive outcome. Empirics cover enteric GNR + anaerobes (ceftriaxone + metronidazole or pip-tazo for moderate; carbapenem for severe / HCAQ). Source control achieved → fixed 4-d course (STOP-IT, NEJM 2015) is non-inferior to longer symptom-guided regimens. Persistent source extends duration until drainage is adequate.",
+      guideline: "stopit",
+      rejected: "Routine empiric anti-pseudomonal coverage was deliberately rejected for community-acquired non-severe IAI — Davenport (CID 2014) and IDSA 2017 reserve it for HCAQ or recent broad-antibiotic exposure. Routine empiric enterococcal coverage was also restricted: IDSA reserves it for high-risk (postoperative, immunocompromised, prosthetic), and reflexive ampicillin pairing in community IAI is unwarranted." },
     research: {
       headline: "STOP-IT established 4-day post-source-control standard; source control + de-escalation drive outcomes.",
       trials: [
@@ -1672,6 +1684,10 @@ const SYNDROME_DECISION = {
           why: "Reduces time-to-next episode in lymphedema / venous stasis substrate" },
       ],
     },
+    rationale: {
+      driver: "Non-purulent cellulitis is overwhelmingly streptococcal — empiric cefazolin (IV) or cephalexin (PO) is appropriate; 5 d standard course is non-inferior to 10 d in those improving (Hepburn 2004, Tansarli 2018 meta). MRSA cover (vancomycin or TMP-SMX/doxycycline) is added only when purulent component, IVDU, prior MRSA isolate, or no response by 72 h. Mark erythema borders + date: spread despite antibiotic triggers re-workup for abscess, necrotizing infection, or wrong organism.",
+      guideline: "ssti",
+      rejected: "Reflexive MRSA cover in non-purulent cellulitis was deliberately rejected — Pallin (CID 2013, n=153) showed adding TMP-SMX to cephalexin did NOT improve cure, and the IDSA 2014 guideline reserves MRSA cover for purulent / risk-positive cases. Routine prolonged 10-d courses are unwarranted in those improving at 5 d, per Hepburn and the IDSA short-course standard." },
     research: {
       headline: "Non-purulent cellulitis is strep-dominant — MRSA cover routinely unnecessary; 5-day course adequate.",
       trials: [
@@ -2455,6 +2471,10 @@ const SYNDROME_DECISION = {
           why: "Recurrence prevention; urology follow-up for ongoing risk" },
       ],
     },
+    rationale: {
+      driver: "Pyelonephritis is E. coli–dominant — empiric ceftriaxone IV (or oral ciprofloxacin / levofloxacin if FQ resistance < 10% locally and outpatient eligible) covers > 90% of community isolates. Bacteremic GNR pyelo treats for 7 d post-clearance (BALANCE 2024). ESBL risk (recent broad antibiotics, healthcare exposure, prior ESBL isolate) shifts to ertapenem (outpatient) or meropenem (severe). Obstruction + sepsis = urology emergency; decompression (stent or nephrostomy) is the inflection point.",
+      guideline: "balance",
+      rejected: "Routine 14-d β-lactam was deliberately tempered — Talan (JAMA 2000) and Sandberg (Lancet 2012) established 5–7 d FQ non-inferior in uncomplicated pyelo, and BALANCE extended the 7-d principle to bacteremic GNR UTI. Empiric pip-tazo for ESBL pyelonephritis was rejected by MERINO (JAMA 2018): mortality 12.3% vs 3.7% on meropenem — use a carbapenem for serious ESBL bloodstream UTI." },
     research: {
       headline: "FQ 5–7 d non-inferior to 10–14 d in uncomplicated; resistance + collateral damage drive alternatives.",
       trials: [
@@ -3800,6 +3820,10 @@ const SYNDROME_DECISION = {
           why: "Identify entry portal; address underlying source" },
       ],
     },
+    rationale: {
+      driver: "IE management hinges on pathogen + valve + complications — a multidisciplinary IE team (ID, cardiology, cardiac surgery) is guideline-mandated and reduces mortality from 27% → 13% (RHEA registry). Native viridans / S. gallolyticus: penicillin G or ceftriaxone × 4 wk. Native staph or enterococcus: 6 wk; PVE: ≥ 6 wk + rifampin for staphylococcal + gentamicin × 2 wk synergy. Early surgery for HF, abscess, large vegetation + embolus, or persistent BCx (Class I, AHA 2015 + ESC 2023) — delaying surgery worsens mortality.",
+      guideline: "ie",
+      rejected: "Adjunctive rifampin for native-valve staph IE was deliberately rejected — ARREST (Lancet 2018, n=770) showed no mortality benefit and increased AEs/drug interactions; rifampin retains its role only in PVE staph. Adjunctive routine aminoglycoside synergy for native-valve viridans IE was tempered: 2-wk PCN + gent regimen is restricted to strictly uncomplicated low-risk per Sexton 1998 — most patients get the standard 4-wk monotherapy without the renal/ototoxicity cost." },
     research: {
       headline: "Early surgery improves outcomes in high-risk lesions; POET trial opened oral step-down door for stable patients.",
       trials: [
