@@ -2738,6 +2738,529 @@ const SYNDROME_DECISION = {
     },
   },
 
+  /* ===========================================================
+     GRAM-NEGATIVE BACTEREMIA — BALANCE 7 d if source controlled. = */
+  gnbact: {
+    duration: {
+      headline: "7 d for source-controlled GNR bacteremia (BALANCE); 10-14 d for ESBL/CRE or uncontrolled.",
+      evidence: "BALANCE 2024 (NEJM) — 7 vs 14 d non-inferior in source-controlled bacteremia",
+      branches: [
+        { label: "Source controlled, susceptible", days: "7 d",
+          detail: "From first negative BCx; BALANCE bands apply" },
+        { label: "ESBL / AmpC / KPC", days: "10–14 d",
+          detail: "Carbapenem or novel β-lactam; ID input mandatory",
+          matchAgent: /ertapenem|ceftolozane|ceftazidime-?avibactam|imipenem-?relebactam/i },
+        { label: "Persistent bacteremia / inadequate source", days: "14–28 d",
+          detail: "From first negative BCx after source control achieved" },
+        { label: "Endovascular / hardware seeding", days: "≥ 4 wk",
+          detail: "Endocarditis workup; TEE; hardware management drives total" },
+      ],
+      stopWhen: [
+        "Source controlled",
+        "Blood cultures negative ≥ 48 h",
+        "Afebrile ≥ 48 h",
+        "Speciation + susceptibility narrowing complete",
+        "No new metastatic foci",
+        "Minimum 7 d (BALANCE) completed",
+      ],
+      extendIf: [
+        { text: "**ESBL / CRE / DTR-Pseudomonas** — extend per ID",
+          matchCtx: { esblRisk: true } },
+        "Persistent bacteremia > 72 h",
+        "Endovascular seeding / hardware retained",
+        { text: "**Septic shock + MDR substrate** — extend per response",
+          matchCtx: { severe: true } },
+      ],
+    },
+    monitoring: {
+      headline: "BALANCE 7 d for controlled-source; narrow on culture data; ID for resistant flora.",
+      items: [
+        { sev: "required", what: "**Blood cultures q48h until clearance**",
+          why: "Persistent BCx triggers source hunt + endovascular workup" },
+        { sev: "required", what: "**Narrow on culture data** at 48-72 h",
+          why: "Continued broad therapy drives resistance + collateral damage" },
+        { sev: "required", what: "**Source control workup** — line, urinary, abdominal, lung",
+          why: "Source identification + control is the inflection point" },
+        { sev: "trigger", what: "**Add carbapenem or novel β-lactam** for ESBL / CRE",
+          why: "MERINO 2018: pip-tazo inferior to meropenem for ESBL bacteremia",
+          matchCtx: { esblRisk: true } },
+        { sev: "trigger", what: "**TEE if endovascular foci suspected**",
+          why: "GNR endocarditis rare but consequential; workup persistent bacteremia" },
+        { sev: "consider", what: "**Procalcitonin trend** for duration debate at day 5",
+          why: "Falling PCT supports BALANCE-style early stop" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     COAGULASE-NEGATIVE STAPHYLOCOCCAL BACTEREMIA — distinguish
+     true infection from contaminant. ================================ */
+  cons: {
+    duration: {
+      headline: "7 d if true infection + line out; longer if hardware retained or endovascular.",
+      evidence: "IDSA 2009 — pathogen-specific bands; multiple positive cultures + line/hardware = true infection",
+      branches: [
+        { label: "True infection, line removed", days: "7 d",
+          detail: "Vancomycin (most CoNS are methicillin-resistant) post-line removal",
+          matchAgent: /vancomycin/i },
+        { label: "Oxacillin-susceptible CoNS, line out", days: "5–7 d",
+          detail: "Cefazolin or nafcillin; same MSSA principles" },
+        { label: "Hardware retained (lock therapy)", days: "10–14 d + lock",
+          detail: "Only for selected stable patients; salvage rate ~50–70%" },
+        { label: "S. lugdunensis (treat as S. aureus)", days: "14 d minimum",
+          detail: "Hypervirulent CoNS; TEE + endocarditis workup; 14 d like SAB" },
+      ],
+      stopWhen: [
+        "Multiple cultures cleared",
+        "Line removed or successfully locked",
+        "Clinical improvement",
+        "Echo negative if appropriate",
+        "Minimum 5-7 d completed",
+      ],
+      extendIf: [
+        { text: "**S. lugdunensis** — treat as S. aureus regardless of phenotype",
+          matchCtx: { mrsaRisk: true } },
+        "Hardware retained — extend per lock + clinical",
+        "Endocarditis or endovascular seeding",
+        "Persistent positivity on lock therapy — explant",
+      ],
+    },
+    monitoring: {
+      headline: "Distinguish contamination from infection; multiple cultures; line removal preferred.",
+      items: [
+        { sev: "required", what: "**Multiple positive cultures + symptoms** = true infection",
+          why: "Single positive CoNS culture often contamination; >50% in practice" },
+        { sev: "required", what: "**Remove the line / device** when feasible",
+          why: "Biofilm renders systemic-only therapy inadequate" },
+        { sev: "required", what: "**Identify S. lugdunensis** if isolated — treat as S. aureus",
+          why: "Hypervirulent; missed = treatment failure" },
+        { sev: "trigger", what: "**TEE if persistent bacteremia or device-related**",
+          why: "Endocarditis workup; CoNS PVE common with prosthetic valves" },
+        { sev: "trigger", what: "**Lock therapy attempt** only for CoNS + stable + lock-amenable",
+          why: "Documented salvage success; limited indication",
+          matchBranch: ["Hardware retained (lock therapy)"] },
+        { sev: "consider", what: "Workup for prosthetic-material infection (valves, leads, grafts)",
+          why: "CoNS biofilm on hardware drives recurrence" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     ENTEROCOCCAL BACTEREMIA — IDSA + AHA. Ampicillin for amp-S;
+     daptomycin or linezolid for VRE; long course for IE. =========== */
+  entbact: {
+    duration: {
+      headline: "7-14 d uncomplicated; 6 wk if endocarditis; daptomycin high-dose for VRE bacteremia.",
+      evidence: "IDSA / AHA — pathogen-specific; ampicillin still preferred for amp-S; VRE = dapto-HD or linezolid",
+      branches: [
+        { label: "E. faecalis (amp-S), line out", days: "7–14 d",
+          detail: "Ampicillin or penicillin G; from first negative BCx" },
+        { label: "Enterococcal endocarditis", days: "6 wk",
+          detail: "Amp + ceftriaxone (preferred over amp+gent); per IE bands" },
+        { label: "E. faecium / VRE", days: "7–14 d",
+          detail: "Daptomycin 10–12 mg/kg HD or linezolid; ID consult",
+          matchAgent: /daptomycin|linezolid/i },
+        { label: "Persistent VRE bacteremia", days: "Extended + combo",
+          detail: "Add β-lactam (ceftaroline or ampicillin) for synergy; salvage" },
+      ],
+      stopWhen: [
+        "Blood cultures cleared ≥ 48 h",
+        "Afebrile ≥ 48 h",
+        "Line / source controlled",
+        "Echo negative (or per IE bands if positive)",
+        "Minimum 7-14 d completed",
+      ],
+      extendIf: [
+        { text: "**Endocarditis** — extend to IE bands",
+          matchCtx: { severe: true } },
+        "Persistent bacteremia > 72 h on appropriate therapy",
+        "Hardware retained",
+        "HLAR isolate — adjust regimen but duration unchanged",
+      ],
+    },
+    monitoring: {
+      headline: "Susceptibility-driven; HLAR check; dapto HD for VRE; TEE if persistent.",
+      items: [
+        { sev: "required", what: "**Susceptibility testing** — amp, vanc, HLAR, dapto MIC",
+          why: "Pathogen-specific therapy critical; HLAR drives gent vs ceftriaxone choice" },
+        { sev: "required", what: "**Repeat blood cultures** at 48 h",
+          why: "Persistent positivity = endocarditis / source workup" },
+        { sev: "trigger", what: "**TEE if persistent bacteremia or community-acquired**",
+          why: "Enterococcal IE in 20-30% of bacteremic; changes duration" },
+        { sev: "trigger", what: "**Daptomycin high-dose (10-12 mg/kg)** for VRE bacteremia",
+          why: "Standard band; CK weekly + statin hold",
+          matchBranch: ["E. faecium / VRE"] },
+        { sev: "trigger", what: "**Add ceftaroline or ampicillin** for persistent VRE",
+          why: "Synergy salvage; ID-driven combination",
+          matchBranch: ["Persistent VRE bacteremia"] },
+        { sev: "consider", what: "Source workup — colon, urinary, biliary",
+          why: "Enterococcal seeding from GI/GU tract" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     PERSISTENT MRSA BACTEREMIA — salvage protocols. ================ */
+  "persistent-mrsa": {
+    duration: {
+      headline: "Extend per source + endovascular workup; salvage with dapto+ceftaroline if vanco-failing.",
+      evidence: "Society consensus — persistent ≥ 7 d on vanco triggers salvage; surgical source control",
+      branches: [
+        { label: "Vanco-failing, source control achievable", days: "≥ 4 wk salvage",
+          detail: "Switch to daptomycin 10 mg/kg ± ceftaroline; from first negative BCx",
+          matchAgent: /daptomycin|ceftaroline/i },
+        { label: "Endocarditis confirmed", days: "≥ 6 wk + surgery",
+          detail: "Per IE bands; surgery threshold low for persistent" },
+        { label: "Endovascular foci / mycotic aneurysm", days: "Extended + repair",
+          detail: "Surgical repair + 6+ wk; ID + vascular surgery" },
+      ],
+      stopWhen: [
+        "Blood cultures cleared ≥ 48 h",
+        "Source identified + controlled",
+        "Endovascular workup complete (TEE / PET-CT)",
+        "Surgery completed if indicated",
+        "Minimum 4-6 wk completed",
+      ],
+      extendIf: [
+        { text: "**Endocarditis** — per IE bands",
+          matchCtx: { severe: true } },
+        "Mycotic aneurysm — surgical repair + extended",
+        "Hardware retained — suppression or removal",
+        "Persistent BCx on salvage — ID emergency",
+      ],
+    },
+    monitoring: {
+      headline: "Salvage with dapto+ceftaroline; PET-CT for occult source; surgery for endovascular.",
+      items: [
+        { sev: "required", what: "**Daptomycin 10 mg/kg + ceftaroline** for vanco failure",
+          why: "Synergistic killing; mortality benefit in observational salvage data",
+          matchBranch: ["Vanco-failing, source control achievable"] },
+        { sev: "required", what: "**TEE + PET-CT** for occult source workup",
+          why: "Persistent MRSA bacteremia has occult source in 30–50%" },
+        { sev: "required", what: "**ID consult mandatory**",
+          why: "Salvage protocols complex; mortality benefit with specialty input" },
+        { sev: "trigger", what: "**Surgical consult for endovascular / abscess**",
+          why: "Source control essential for cure" },
+        { sev: "trigger", what: "**MRI spine + brain** for metastatic foci",
+          why: "Vertebral osteo + brain abscess common; changes duration" },
+        { sev: "consider", what: "**CK weekly + statin hold** on daptomycin",
+          why: "Rhabdomyolysis risk; reversible if caught early" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     PSEUDOMONAS BACTEREMIA — single antipseudomonal sufficient. == */
+  "pseudo-bact": {
+    duration: {
+      headline: "7-14 d single antipseudomonal; novel β-lactams for DTR-Pseudomonas.",
+      evidence: "Yahav 2019 — 7 d acceptable for uncomplicated; DTR-Pseudo per IDSA 2024 update",
+      branches: [
+        { label: "Susceptible, source controlled", days: "7-14 d",
+          detail: "Cefepime, pip-tazo, meropenem, or ceftazidime; extended infusion if MIC ≥ 4" },
+        { label: "DTR-Pseudomonas (CRPa)", days: "10–14 d",
+          detail: "Ceftolozane-tazo, ceftaz-avi, or imipenem-relebactam per mechanism",
+          matchAgent: /ceftolozane|ceftazidime-?avibactam|imipenem-?relebactam/i },
+        { label: "Endocarditis / endovascular", days: "≥ 6 wk",
+          detail: "Per IE bands; surgery often needed for Pseudomonas IE" },
+        { label: "Cystic fibrosis exacerbation", days: "10–14 d",
+          detail: "Often combination therapy; tobramycin / colistin adjunct" },
+      ],
+      stopWhen: [
+        "Blood cultures cleared ≥ 48 h",
+        "Source controlled",
+        "Afebrile ≥ 48 h",
+        "Clinical recovery (off pressors, lactate normal)",
+        "Minimum 7 d (BALANCE-style) completed",
+      ],
+      extendIf: [
+        { text: "**DTR / CRPa** — extend per ID",
+          matchCtx: { esblRisk: true } },
+        "Persistent bacteremia > 72 h",
+        { text: "**Endocarditis / mycotic aneurysm** — extend per IE",
+          matchCtx: { severe: true } },
+        "Cystic fibrosis chronic colonization — long course typical",
+      ],
+    },
+    monitoring: {
+      headline: "Susceptibility-driven choice; combination unnecessary in most; ID for DTR.",
+      items: [
+        { sev: "required", what: "**Susceptibility testing** — cefepime, pip-tazo, meropenem, ceftazidime + novels",
+          why: "Mechanism-driven novel β-lactam choice for DTR" },
+        { sev: "required", what: "**Single antipseudomonal sufficient** in most",
+          why: "Combination therapy lacks mortality benefit; drives toxicity" },
+        { sev: "trigger", what: "**Novel β-lactam selection** per resistance mechanism",
+          why: "KPC → ceftaz-avi or imipenem-rele; MBL → cefiderocol; OXA → cefiderocol or polymyxin",
+          matchBranch: ["DTR-Pseudomonas (CRPa)"] },
+        { sev: "trigger", what: "**ID consult mandatory** for DTR-Pseudomonas",
+          why: "Mechanism-matched drug + dosing critical" },
+        { sev: "trigger", what: "**TEE + endocarditis workup** if persistent bacteremia",
+          why: "Pseudomonas IE rare but high-mortality" },
+        { sev: "consider", what: "**Source workup** — line, lung, urinary, abdominal",
+          why: "Identify + control source for cure" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     VRE BACTEREMIA — daptomycin high-dose vs linezolid. ============ */
+  "vre-bact": {
+    duration: {
+      headline: "7-14 d daptomycin HD or linezolid; longer for endocarditis or persistent.",
+      evidence: "IDSA / society consensus — dapto-HD preferred; linezolid alternative",
+      branches: [
+        { label: "Uncomplicated, source controlled", days: "7-14 d",
+          detail: "Daptomycin 10-12 mg/kg HD or linezolid 600 mg q12h",
+          matchAgent: /daptomycin|linezolid/i },
+        { label: "Persistent on monotherapy", days: "Extended + combo",
+          detail: "Add ampicillin or ceftaroline for synergy; salvage" },
+        { label: "VRE endocarditis", days: "≥ 6 wk",
+          detail: "Per IE bands; surgery often needed; combination therapy" },
+      ],
+      stopWhen: [
+        "Blood cultures cleared ≥ 48 h",
+        "Source controlled",
+        "Afebrile",
+        "Echo negative (or per IE bands)",
+        "Minimum 7-14 d completed",
+      ],
+      extendIf: [
+        { text: "**Endocarditis** — per IE bands",
+          matchCtx: { severe: true } },
+        "Persistent bacteremia — combo salvage",
+        "Hardware retained — suppression or removal",
+        "Immunocompromised host — extend per response",
+      ],
+    },
+    monitoring: {
+      headline: "Dapto HD vs linezolid; combo for refractory; CK + cytopenia surveillance.",
+      items: [
+        { sev: "required", what: "**Daptomycin 10-12 mg/kg HD** for bacteremia (NOT 4-6 mg/kg)",
+          why: "High-dose required for VRE; standard dose under-treats",
+          matchBranch: ["Uncomplicated, source controlled"] },
+        { sev: "required", what: "**CK weekly + statin hold** on daptomycin",
+          why: "Rhabdomyolysis risk increases with HD dosing + statin combo" },
+        { sev: "required", what: "**CBC weekly** on linezolid > 14 d",
+          why: "Cytopenias + peripheral neuropathy + lactic acidosis with prolonged use" },
+        { sev: "trigger", what: "**TEE + endocarditis workup**",
+          why: "VRE IE seeds prosthetic + native valves" },
+        { sev: "trigger", what: "**Combination salvage** (dapto + amp or ceftaroline)",
+          why: "Synergy for persistent / refractory; ID-driven",
+          matchBranch: ["Persistent on monotherapy"] },
+        { sev: "consider", what: "**Source workup** — GI, GU, line",
+          why: "Enterococcal translocation from gut common" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     POLYMICROBIAL BACTEREMIA — gut/abdominal source typical. ====== */
+  "polymicrobial-bact": {
+    duration: {
+      headline: "7-14 d per dominant organism + source control; abdominal source most common.",
+      evidence: "Society consensus — pathogen + source-specific; STOP-IT bands when abdominal",
+      branches: [
+        { label: "Abdominal source + source controlled", days: "4-7 d post-control",
+          detail: "Pip-tazo or carbapenem; STOP-IT bands apply" },
+        { label: "GU source", days: "7-14 d",
+          detail: "Per urosepsis bands + susceptibilities" },
+        { label: "Skin/SSTI source", days: "Per SSTI bands",
+          detail: "Often Group A strep + S. aureus; treat per source" },
+        { label: "Inadequate source / unknown", days: "14 d minimum",
+          detail: "Empiric broad spectrum; ID + surgical workup" },
+      ],
+      stopWhen: [
+        "Source controlled",
+        "Blood cultures cleared ≥ 48 h",
+        "Afebrile",
+        "Speciation + narrowing complete",
+        "Imaging shows resolution",
+        "Minimum 7 d completed",
+      ],
+      extendIf: [
+        "Inadequate source control",
+        { text: "**Septic shock** — extend per ICU course",
+          matchCtx: { severe: true } },
+        "Resistant organisms — extend per ID",
+        "Recurrent / chronic source — workup",
+      ],
+    },
+    monitoring: {
+      headline: "Source-control imaging early; broad coverage initially; narrow per cultures.",
+      items: [
+        { sev: "required", what: "**Source workup imaging** within 24 h",
+          why: "Source control is the inflection point" },
+        { sev: "required", what: "**Broad coverage initially** — pip-tazo + vanco typical",
+          why: "Polymicrobial implies multiple pathogen classes" },
+        { sev: "required", what: "**Narrow on culture data** at 48-72 h",
+          why: "Multiple organisms simplify on speciation; stewardship-critical" },
+        { sev: "trigger", what: "**Surgical consult** for abdominal / abscess source",
+          why: "Definitive drainage / debridement" },
+        { sev: "trigger", what: "**Echinocandin** if upper-GI perf / postop / immunocompromised",
+          why: "Candida co-infection drives mortality if missed" },
+        { sev: "consider", what: "**Workup endocarditis** if persistent BCx",
+          why: "Polymicrobial IE rare but reported" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     STREPTOCOCCAL BACTEREMIA — penicillin-susceptible vs toxic. == */
+  "strep-bact": {
+    duration: {
+      headline: "10-14 d for PCN-susceptible; per IE / TSS / necfasc bands for complications.",
+      evidence: "Society consensus — penicillin G or ceftriaxone first-line; longer for IE",
+      branches: [
+        { label: "PCN-susceptible, no complications", days: "10-14 d",
+          detail: "Penicillin G or ceftriaxone; viridans/anginosus/gallolyticus" },
+        { label: "S. gallolyticus + colonoscopy workup", days: "14 d + workup",
+          detail: "Treat + colonoscopy for colon cancer (25-80% association)" },
+        { label: "Severe / toxic GAS", days: "10-14 d + clinda",
+          detail: "Penicillin + clindamycin; per TSS bands if shock",
+          matchAgent: /clindamycin/i },
+        { label: "Streptococcal IE", days: "4-6 wk per IE",
+          detail: "Per IE bands; 2 wk regimen + gent for uncomplicated low-risk" },
+      ],
+      stopWhen: [
+        "Blood cultures cleared ≥ 48 h",
+        "Afebrile",
+        "Clinical recovery",
+        "Echo negative (or per IE bands)",
+        "Source workup complete",
+        "Minimum 10-14 d completed",
+      ],
+      extendIf: [
+        { text: "**Endocarditis** — per IE bands",
+          matchCtx: { severe: true } },
+        { text: "**Streptococcal TSS** — per TSS bands + IVIG",
+          matchCtx: { severe: true } },
+        "Necrotizing infection — per necfasc bands",
+        "Mycotic aneurysm",
+      ],
+    },
+    monitoring: {
+      headline: "TEE for IE workup; colonoscopy for S. gallolyticus; necrotizing workup for GAS.",
+      items: [
+        { sev: "required", what: "**TEE for IE workup**",
+          why: "Strep IE common; veg + duration drivers" },
+        { sev: "required", what: "**Colonoscopy** if S. gallolyticus",
+          why: "25-80% associated with colon cancer / polyps" },
+        { sev: "trigger", what: "**Necrotizing infection workup** if GAS",
+          why: "GAS + TSS + necrotizing infection common cluster" },
+        { sev: "trigger", what: "**IVIG for streptococcal TSS confirmed**",
+          why: "Mortality benefit specific to GAS-TSS",
+          matchBranch: ["Severe / toxic GAS"] },
+        { sev: "trigger", what: "**Clindamycin for toxin suppression** if GAS/TSS",
+          why: "Ribosomal block reduces exotoxin; continue 5+ d after stable" },
+        { sev: "consider", what: "**Source workup** — skin, abscess, sinus, dental",
+          why: "Identify entry portal for prevention" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     VASCULAR DEVICE INFECTION — port, line, graft, AVF. =========== */
+  "device-vascular": {
+    duration: {
+      headline: "Per device + pathogen; explant typical; rifampin for retained hardware.",
+      evidence: "Society consensus — explant drives outcomes; suppression for irretrievable",
+      branches: [
+        { label: "Port / line removed + targeted", days: "Per pathogen",
+          detail: "Per CRBSI / SAB / CoNS bands depending on organism" },
+        { label: "Graft / AVF / pacer-lead retained", days: "≥ 6 wk + rifampin",
+          detail: "Add rifampin for staph; surgical removal preferred",
+          matchAgent: /rifampin/i },
+        { label: "Endocarditis-related device", days: "Per IE bands",
+          detail: "TEE; surgery; per IE protocols" },
+        { label: "Lifelong suppressive (irretrievable)", days: "Indefinite",
+          detail: "Per ID + vascular surgery; oral monotherapy" },
+      ],
+      stopWhen: [
+        "Device removed or stabilized on suppression",
+        "Blood cultures cleared",
+        "Afebrile",
+        "Imaging shows resolution",
+        "Minimum pathogen-specific duration completed",
+      ],
+      extendIf: [
+        { text: "**Hardware retained** — extend per ID + vascular",
+          matchCtx: { severe: true } },
+        "Endocarditis — per IE bands",
+        "Mycotic aneurysm — repair + extend",
+        "Persistent BCx post-removal — endovascular workup",
+      ],
+    },
+    monitoring: {
+      headline: "Remove device when possible; rifampin for retained staph hardware; TEE.",
+      items: [
+        { sev: "required", what: "**Remove device** when feasible",
+          why: "Biofilm + virulence drive failure with hardware in place" },
+        { sev: "required", what: "**Vascular surgery consult** for graft / AVF / lead infection",
+          why: "Surgical removal often necessary; complex revisions" },
+        { sev: "required", what: "**TEE** for endocarditis / endovascular workup",
+          why: "Standard for line + device-associated bacteremia" },
+        { sev: "trigger", what: "**Rifampin combination** for staph + retained hardware",
+          why: "Biofilm penetration; never empiric; LFT + interactions",
+          matchAgent: /rifampin/i },
+        { sev: "trigger", what: "**Lifelong suppression** if device irretrievable",
+          why: "ID + vascular surgery decision; oral monotherapy" },
+        { sev: "consider", what: "**Workup endocarditis source** for any device + bacteremia",
+          why: "Hardware seeding from endocarditis vs vice-versa" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     TRANSPLANT UTI — recurrent, atypical pathogens, drug interactions. */
+  "transplant-uti": {
+    duration: {
+      headline: "7-14 d per pathogen + immunosuppression; treat asymptomatic in first 3 months post-tx.",
+      evidence: "AST 2019 — early post-tx ASB treated; later asymptomatic not treated; longer course for resistant",
+      branches: [
+        { label: "Early post-tx (< 3 mo), symptomatic", days: "10-14 d",
+          detail: "Treat aggressively; broad empiric until cultures back; carbapenem if prior MDR" },
+        { label: "Late post-tx, symptomatic", days: "7-14 d",
+          detail: "Per non-transplant UTI bands; tailor to local antibiogram + prior cultures" },
+        { label: "ESBL / MDR (common in recurrent)", days: "10-14 d",
+          detail: "Carbapenem or novel β-lactam; ID consult",
+          matchAgent: /ertapenem|meropenem/i },
+        { label: "Asymptomatic bacteriuria (early post-tx)", days: "5-7 d",
+          detail: "Treat in first 3 mo post-tx; do NOT treat later asymptomatic" },
+      ],
+      stopWhen: [
+        "Cultures cleared",
+        "Symptoms resolved",
+        "Renal function stable",
+        "Immunosuppression unchanged or addressed",
+        "Minimum 7-14 d completed",
+      ],
+      extendIf: [
+        { text: "**Resistant organism / MDR** — extend per ID",
+          matchCtx: { esblRisk: true } },
+        "Inadequate source control (obstruction, abscess)",
+        "Bacteremia — extend per source",
+        "Recurrent infection — workup anatomic/immune",
+      ],
+    },
+    monitoring: {
+      headline: "Coordinate with transplant ID; check drug interactions; early-post-tx ASB treated.",
+      items: [
+        { sev: "required", what: "**Coordinate with transplant ID** at presentation",
+          why: "Drug-immunosuppressant interactions complex; specialty input critical" },
+        { sev: "required", what: "**Drug interaction screen** — cyclosporine, tacrolimus, sirolimus levels",
+          why: "FQ ↑ tacrolimus levels; rifampin ↓; many critical interactions" },
+        { sev: "required", what: "**Treat asymptomatic bacteriuria** in first 3 mo post-tx",
+          why: "AST 2019 — early post-tx period high-risk; later asymptomatic not treated" },
+        { sev: "trigger", what: "**Imaging if no response by 72 h**",
+          why: "Obstruction, abscess, graft involvement" },
+        { sev: "trigger", what: "**Workup graft pyelonephritis** — graft tenderness, fever, dysuria",
+          why: "Renal-transplant pyelonephritis presents differently; image early" },
+        { sev: "consider", what: "**BK virus workup** if culture-negative pyuria",
+          why: "BK reactivation common in transplant + dysuria" },
+      ],
+    },
+  },
+
 };
 
 /* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
