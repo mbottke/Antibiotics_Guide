@@ -186,6 +186,92 @@ describe("content-audit · coverage report", () => {
   });
 });
 
+describe("content-audit · branch matchAgent disambiguation", () => {
+  /* When multiple branches in the same syndrome share a matchAgent
+     regex that fires for the same agent string, the effectiveBranch
+     resolver picks the FIRST matching branch (.find() semantics) —
+     which silently picks the wrong default for the other clinical
+     states. This audit enumerates a wide panel of drug names and
+     verifies that no two branches in a syndrome both match the
+     same agent string. Branches without matchAgent are exempt
+     (they rely on explicit click or chip bridge for activation).
+
+     Surfaced via PR #12 review: appendicitis had all 4 branches
+     with the same regex, always auto-lighting "Uncomplicated"
+     regardless of clinical state. */
+
+  const PROBE_AGENTS = [
+    // β-lactams
+    "Cefazolin 2 g IV q8h", "nafcillin/oxacillin 2 g IV q4h",
+    "Cephalexin 500 mg PO QID", "Dicloxacillin 500 mg PO QID",
+    "Ceftriaxone 2 g IV q24h", "Ceftazidime 2 g IV q8h",
+    "Cefepime 2 g IV q8h", "Cefpodoxime 200 mg PO BID",
+    "Cefdinir 300 mg PO BID", "Cefuroxime 500 mg PO BID",
+    "Piperacillin-tazobactam 4.5 g q6h", "piperacillin-tazobactam 4.5 g q6h",
+    "Amoxicillin-clavulanate 875 mg PO BID", "amoxicillin-clavulanate",
+    "Ampicillin-sulbactam 3 g IV q6h",
+    "Amoxicillin 1 g PO TID", "Ampicillin 2 g IV q4h", "Penicillin G 4 MU IV q4h",
+    // Carbapenems
+    "Meropenem 1 g IV q8h", "Imipenem 500 mg IV q6h",
+    "Ertapenem 1 g IV q24h", "Doripenem 500 mg IV q8h",
+    // Anti-MRSA
+    "Vancomycin (AUC 400-600)", "Daptomycin 8 mg/kg IV q24h",
+    "Linezolid 600 mg q12h",
+    // Macrolides
+    "Azithromycin 500 mg PO q24h", "Clarithromycin 500 mg PO BID",
+    // FQ
+    "Ciprofloxacin 400 mg IV q12h", "Levofloxacin 750 mg PO daily",
+    "Moxifloxacin 400 mg PO daily",
+    // Tetracyclines
+    "Doxycycline 100 mg PO BID", "Minocycline 100 mg PO BID",
+    // Others
+    "TMP-SMX DS BID", "trimethoprim-sulfamethoxazole",
+    "Metronidazole 500 mg IV q8h", "Clindamycin 600 mg IV q8h",
+    "Gentamicin 1 mg/kg IV q8h", "Tobramycin 5 mg/kg IV q24h",
+    "Amikacin 15 mg/kg IV q24h", "Streptomycin 1 g IM daily",
+    "Nitrofurantoin 100 mg PO BID", "Fosfomycin 3 g PO ×1",
+    "Rifampin 600 mg PO daily", "Fidaxomicin 200 mg PO BID",
+    "Aztreonam 2 g IV q8h",
+    "Fluconazole 400 mg PO daily", "Caspofungin 70 mg IV ×1",
+    "Micafungin 100 mg IV q24h", "Anidulafungin 200 mg IV ×1",
+    // Novel β-lactams
+    "Ceftolozane-tazobactam 1.5 g IV q8h", "Ceftazidime-avibactam 2.5 g IV q8h",
+    "Imipenem-relebactam 1.25 g IV q6h", "Cefiderocol 2 g IV q8h",
+    "Bezlotoxumab 10 mg/kg IV ×1",
+    "Echinocandin",
+  ];
+
+  for(const synId of Object.keys(SYNDROME_DECISION)) {
+    const dur = SYNDROME_DECISION[synId].duration;
+    if(!dur || !dur.branches) continue;
+    const taggedBranches = dur.branches.filter(b => b.matchAgent);
+    if(taggedBranches.length < 2) continue;
+
+    test(`[${synId} | duration] branches with matchAgent are mutually disambiguating`, () => {
+      const collisions = [];
+      for(const agent of PROBE_AGENTS) {
+        const hits = taggedBranches.filter(b => b.matchAgent.test(agent));
+        if(hits.length > 1) {
+          collisions.push({
+            agent,
+            branches: hits.map(b => b.label),
+          });
+        }
+      }
+      if(collisions.length > 0) {
+        const detail = collisions.slice(0, 5).map(c =>
+          `  · "${c.agent}" matches branches: ${c.branches.join(" + ")}`
+        ).join("\n");
+        throw new Error(
+          `[${synId}] matchAgent collision: ${collisions.length} probe agents match multiple branches.\n` +
+          `First-match-wins resolver will silently pick the FIRST listed branch, ignoring clinical state.\n` +
+          `Remove matchAgent from non-disambiguating branches, or refine regexes to be mutually exclusive.\n${detail}`
+        );
+      }
+    });
+  }
+});
+
 describe("content-audit · regimenContent.js entries", () => {
   for(const synId of Object.keys(REGIMEN_CONTENT)) {
     const tiers = REGIMEN_CONTENT[synId];
