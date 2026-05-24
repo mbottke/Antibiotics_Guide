@@ -627,6 +627,57 @@ describe("content-audit · syndromeDecision.research panels (optional)", () => {
   }
 });
 
+/* ============================================================
+   Phase D1.1 · rationale panel shape validation. The optional
+   `rationale:` sibling on syndromeDecision entries carries
+   the reasoning-trace moat content: driver (why this regimen),
+   guideline (anchor in GUIDELINES registry), rejected (the
+   deliberately-excluded alternative). When present, ALL three
+   fields are required and the guideline id MUST resolve. ===== */
+
+const LIMITS_RATIONALE = {
+  driverMaxWords:   140,
+  rejectedMaxWords: 120,
+  driverMinWords:    25,
+  rejectedMinWords:  18,
+};
+
+describe("content-audit · syndromeDecision.rationale panels (optional)", () => {
+  const decisionIds = Object.keys(SYNDROME_DECISION);
+  for(const id of decisionIds) {
+    const e = SYNDROME_DECISION[id];
+    if(!e.rationale) continue;
+    const label = `[${id} | rationale]`;
+
+    test(`${label} — has well-formed shape + guideline resolves`, () => {
+      expect(typeof e.rationale.driver, `${label}.driver must be string`).toBe("string");
+      expect(e.rationale.driver.length, `${label}.driver non-empty`).toBeGreaterThan(0);
+      const wcDriver = wordCount(e.rationale.driver);
+      expect(wcDriver,
+        `${label}.driver word count ${wcDriver} should be ≥ ${LIMITS_RATIONALE.driverMinWords}`)
+        .toBeGreaterThanOrEqual(LIMITS_RATIONALE.driverMinWords);
+      expect(wcDriver,
+        `${label}.driver word count ${wcDriver} should be ≤ ${LIMITS_RATIONALE.driverMaxWords}`)
+        .toBeLessThanOrEqual(LIMITS_RATIONALE.driverMaxWords);
+
+      expect(typeof e.rationale.guideline, `${label}.guideline must be string`).toBe("string");
+      expect(e.rationale.guideline.length, `${label}.guideline non-empty`).toBeGreaterThan(0);
+      expect(Object.keys(GUIDELINES).includes(e.rationale.guideline),
+        `${label}.guideline "${e.rationale.guideline}" must resolve in GUIDELINES registry`).toBe(true);
+
+      expect(typeof e.rationale.rejected, `${label}.rejected must be string`).toBe("string");
+      expect(e.rationale.rejected.length, `${label}.rejected non-empty`).toBeGreaterThan(0);
+      const wcRejected = wordCount(e.rationale.rejected);
+      expect(wcRejected,
+        `${label}.rejected word count ${wcRejected} should be ≥ ${LIMITS_RATIONALE.rejectedMinWords}`)
+        .toBeGreaterThanOrEqual(LIMITS_RATIONALE.rejectedMinWords);
+      expect(wcRejected,
+        `${label}.rejected word count ${wcRejected} should be ≤ ${LIMITS_RATIONALE.rejectedMaxWords}`)
+        .toBeLessThanOrEqual(LIMITS_RATIONALE.rejectedMaxWords);
+    });
+  }
+});
+
 describe("content-audit · combinedRisks.js entries", () => {
   test("ids are unique", () => {
     const seen = new Set();
