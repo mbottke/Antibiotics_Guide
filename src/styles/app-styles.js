@@ -966,6 +966,37 @@ const CSS5 = `
   .rx-bedside [data-bedside-header-strip]{ flex-wrap: wrap; }
 }
 
+/* Phase A5 — split-editor side-rail. When the user clicks Edit on an
+   established case, the Case Bar slides in as a fixed-width rail on the
+   left while the Answer Canvas keeps the rest of the screen. On narrow
+   viewports (< 880 px) the layout stacks so the rail and answer don't
+   crush each other; the rail is then a sticky strip above the canvas.
+   This replaces the prior modal-flip behaviour, where editing hid the
+   answer entirely and the user lost their reference point. */
+.rx-bedside-split{
+  display: grid;
+  grid-template-columns: minmax(320px, 360px) 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.rx-bedside-split .rx-bedside-rail{
+  position: sticky;
+  top: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+@media (max-width: 880px){
+  .rx-bedside-split{ grid-template-columns: 1fr; }
+  .rx-bedside-split .rx-bedside-rail{
+    position: static;
+    max-height: none;
+  }
+}
+
 /* Honour reduced motion (the global rx-root rule applies inside this scope
    already via inheritance). */
 @media (prefers-reduced-motion: reduce){

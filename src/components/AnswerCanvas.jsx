@@ -181,18 +181,18 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId, onAgentSelect 
   const tierBg = kind === "add" ? "var(--amber-soft)" : "var(--ox-soft)";
   const tierLine = kind === "add" ? "var(--amber-line)" : "var(--ox-line)";
   return (
-    <div style={{ marginBottom: kind === "add" ? 12 : 10 }}>
-      <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom: 6 }}>
+    <div style={{ marginBottom: kind === "add" ? 14 : 12 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom: 8 }}>
         <span style={{
-          fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em",
+          fontFamily:"var(--mono)", fontSize:10, letterSpacing:".1em",
           textTransform:"uppercase", fontWeight:700, color: tierColor,
           background: tierBg, border:`1px solid ${tierLine}`, borderRadius:5,
-          padding:"2px 8px",
+          padding:"3px 9px",
         }}>
-          {kind === "add" ? <><Plus size={9} style={{verticalAlign:"-1px", marginRight:3}}/>{tierLabel}</> : tierLabel}
+          {kind === "add" ? <><Plus size={10} style={{verticalAlign:"-1px", marginRight:3}}/>{tierLabel}</> : tierLabel}
         </span>
-        <span style={{ fontSize:13, fontWeight:600, color:"var(--ink)" }}>{tier.k}</span>
-        {tier.why && <span style={{ fontSize:11.5, color:"var(--muted)" }}>· added because {tier.why}</span>}
+        <span style={{ fontSize:14.5, fontWeight:700, color:"var(--ink)", letterSpacing:"-.005em" }}>{tier.k}</span>
+        {tier.why && <span style={{ fontSize:12, color:"var(--muted)" }}>· added because {tier.why}</span>}
       </div>
       {/* Phase D1.5 — multi-option presentation with per-card decision
           content + selection-narrowed dose adjustments. The tier's rx
@@ -459,6 +459,36 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
     _pedsPreg.length ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
+  /* Phase A3 — Canvas spine. A horizontally-scrollable sticky chip
+     strip listing the visible major sections of the answer, each one
+     scrolls its target into view on click. Chips are computed from the
+     same predicates that gate section rendering below, so an entry only
+     appears when the corresponding section actually rendered. Without
+     this, a 9-layer answer becomes 5+ screens of scroll on a phone and
+     the user loses their place in the middle of a syndrome card. */
+  const _spineItems = [
+    { id: "ans-start",      label: "Start" },
+    { id: "ans-covers",     label: "Covers" },
+    { id: "ans-deesc",      label: "48–72 h" },
+    pickedAgents.length > 0 && { id: "ans-risks", label: "Risks" },
+    getSyndromeDuration(s.id) && { id: "ans-duration",   label: "Duration" },
+    getSyndromeMonitoring(s.id) && { id: "ans-monitoring", label: "Monitor" },
+    _regional.length > 0      && { id: "ans-regional",   label: "Regional" },
+    _novel.length > 0         && { id: "ans-novel",      label: "Novel" },
+    _surgeTier1.length > 0    && { id: "ans-surge",      label: "Surge" },
+    _pedsPregShow.length > 0  && { id: "ans-pedspreg",   label: ans.ctx.pregnancy ? "Pregnancy" : "Pediatrics" },
+    (_research || _surgeOther.length > 0 || _siteP.length > 0 || (!_ctxPedsPreg && _pedsPreg.length > 0)) && { id: "ans-depth", label: "Depth" },
+    { id: "ans-state",      label: "State" },
+    !getSyndromeDuration(s.id) && { id: "ans-duration", label: "Duration" },
+    ans.pearls.length > 0      && { id: "ans-pearls",     label: "Pearls" },
+  ].filter(Boolean);
+  const _onSpineClick = (id) => {
+    const el = typeof document !== "undefined" ? document.getElementById(id) : null;
+    if(!el) return;
+    if(el.tagName === "DETAILS" && !el.open) el.open = true;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div style={{ marginTop: 6 }}>
       {/* Header strip — syndrome name, risks, edit-case affordance */}
@@ -513,6 +543,48 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         )}
       </div>
 
+      {/* Canvas spine — sticky table-of-contents chip strip. The list
+          mirrors the visible sections below and lets users jump straight
+          to Duration, Monitor, Risks, etc., on long answers (some have
+          9+ layers). Backdrop-blur keeps it readable when content
+          scrolls underneath. */}
+      {_spineItems.length > 3 && (
+        <nav
+          aria-label="Answer sections"
+          data-bedside-spine="true"
+          style={{
+            position: "sticky", top: 0, zIndex: 5,
+            margin: "-2px -2px 12px",
+            padding: "6px 6px",
+            background: "color-mix(in srgb, var(--paper) 88%, transparent)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            borderBottom: "1px solid var(--line)",
+          }}>
+          <div style={{
+            display: "flex", gap: 6, overflowX: "auto",
+            scrollbarWidth: "thin",
+          }}>
+            {_spineItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => _onSpineClick(item.id)}
+                style={{
+                  flex: "0 0 auto",
+                  fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".04em",
+                  color: "var(--ink2)",
+                  background: "var(--panel)", border: "1px solid var(--line)",
+                  borderRadius: 999, padding: "4px 10px", cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+      )}
+
       {/* Source control banner — when applicable, leads the answer. */}
       {ans.sourceControl && (
         <div style={{
@@ -533,7 +605,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           aggregation foundation: combined-risk detection (D3.2) reads
           across all tiers so pairs like pip-tazo + vancomycin fire
           even when the user picked them from separate tiers. */}
-      <Section kicker="Start now" icon={Crosshair} sticky>
+      <Section kicker="Start now" icon={Crosshair} sticky id="ans-start">
         <RxLine kind="core" tier={ans.core} refinements={coreRefinements} onDrug={onDrug}
           ctx={ans.ctx} d={ans.d} synId={s.id}
           onAgentSelect={setTierPick(ans.core.k)} />
@@ -594,7 +666,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
       </Section>
 
       {/* COVERS & DELIBERATE OMISSIONS */}
-      <Section kicker="Covers" icon={Check}>
+      <Section kicker="Covers" icon={Check} id="ans-covers">
         <div style={{ fontSize:13, color:"var(--ink2)", lineHeight:1.6 }}>
           <div style={{ marginBottom:6 }}>
             <span style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--green)", fontWeight:700, marginRight:6 }}>Cover</span>
@@ -627,7 +699,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
       </Section>
 
       {/* STOP AT 48-72 H */}
-      <Section kicker="Stop at 48–72 h" icon={TrendingDown}>
+      <Section kicker="Stop at 48–72 h" icon={TrendingDown} id="ans-deesc">
         <div style={{ fontSize:13, color:"var(--ink2)", lineHeight:1.6, marginBottom: ans.deesc.length ? 12 : 0 }}>
           {renderGloss(s.deesc, onDrug)}
         </div>
@@ -708,43 +780,62 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           detected across the union of picks from every tier above.
           Renders nothing when no risks fire, so the page baseline is
           unchanged for safe combinations. */}
-      <CombinedRisksBlock pickedAgents={pickedAgents} />
+      <div id="ans-risks" style={{ scrollMarginTop: 96 }}>
+        <CombinedRisksBlock pickedAgents={pickedAgents} />
+      </div>
 
-      <DurationBlock
-        duration={getSyndromeDuration(s.id)}
-        pickedAgents={pickedAgents}
-        pickedBranch={effectiveBranch}
-        onBranchSelect={handleBranchSelect}
-        startDate={startDate}
-        onStartDateChange={setStartDate}
-        ctx={{ ...ans.ctx, ...ans.d }}
-      />
-      <MonitoringBlock
-        monitoring={getSyndromeMonitoring(s.id)}
-        pickedAgents={pickedAgents}
-        pickedBranch={effectiveBranch}
-        ctx={{ ...ans.ctx, ...ans.d }}
-      />
+      <div id="ans-duration" style={{ scrollMarginTop: 96 }}>
+        <DurationBlock
+          duration={getSyndromeDuration(s.id)}
+          pickedAgents={pickedAgents}
+          pickedBranch={effectiveBranch}
+          onBranchSelect={handleBranchSelect}
+          startDate={startDate}
+          onStartDateChange={setStartDate}
+          ctx={{ ...ans.ctx, ...ans.d }}
+        />
+      </div>
+      <div id="ans-monitoring" style={{ scrollMarginTop: 96 }}>
+        <MonitoringBlock
+          monitoring={getSyndromeMonitoring(s.id)}
+          pickedAgents={pickedAgents}
+          pickedBranch={effectiveBranch}
+          ctx={{ ...ans.ctx, ...ans.d }}
+        />
+      </div>
       {/* PROMOTED depth layers (Phase H + I) — drive the empiric choice
           when resistance / novel-agent context applies, so they render
           above Research + reference layers. */}
-      <RegionalResistanceBlock patterns={_regional} />
-      <NovelAgentsBlock agents={_novel} />
+      <div id="ans-regional" style={{ scrollMarginTop: 96 }}>
+        <RegionalResistanceBlock patterns={_regional} />
+      </div>
+      <div id="ans-novel" style={{ scrollMarginTop: 96 }}>
+        <NovelAgentsBlock agents={_novel} />
+      </div>
       {/* SURGE TIER-1 always-visible — bioterror / Ebola / Marburg
           recognition is life-saving + cannot be hidden. Non-tier-1
           surge entries collapse with reference layers below. */}
-      {_surgeTier1.length > 0 && <SurgeProtocolsBlock protocols={_surgeTier1} />}
+      {_surgeTier1.length > 0 && (
+        <div id="ans-surge" style={{ scrollMarginTop: 96 }}>
+          <SurgeProtocolsBlock protocols={_surgeTier1} />
+        </div>
+      )}
       {/* PEDS + PREGNANCY (Phase J) — gated on ctx pregnancy or
           pediatric age. Adults don't need this layer on screen. */}
-      {_pedsPregShow.length > 0 && <PedsPregBlock entries={_pedsPregShow} />}
+      {_pedsPregShow.length > 0 && (
+        <div id="ans-pedspreg" style={{ scrollMarginTop: 96 }}>
+          <PedsPregBlock entries={_pedsPregShow} />
+        </div>
+      )}
       {/* "MORE DEPTH" expander — Research (F) + non-tier-1 Surge (K) +
           SitePenetration (L) + ctx-irrelevant PedsPreg (J) collapse by
           default. Native <details> for accessibility + zero-JS toggle. */}
       {(_research || _surgeOther.length > 0 || _siteP.length > 0 || (!_ctxPedsPreg && _pedsPreg.length > 0)) && (
-        <details style={{
+        <details id="ans-depth" style={{
           marginTop: 8, padding: 0,
           border: "1px solid var(--line)", borderRadius: 8,
           background: "var(--paper2)",
+          scrollMarginTop: 96,
         }}>
           <summary style={{
             cursor: "pointer", padding: "10px 14px",
@@ -769,14 +860,16 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           name, this is not a longitudinal reassessment workflow — it is a
           set of optional state toggles that further narrow the snapshot
           answer when the clinician knows them. */}
-      <ReassessmentPanel
-        caseState={caseState}
-        setCaseState={setCaseState}
-        empiric={ans}
-        onDrug={onDrug}
-        onOrg={onOrg}
-        hasStructuredDuration={!!getSyndromeDuration(s.id)}
-      />
+      <div id="ans-state" style={{ scrollMarginTop: 96 }}>
+        <ReassessmentPanel
+          caseState={caseState}
+          setCaseState={setCaseState}
+          empiric={ans}
+          onDrug={onDrug}
+          onOrg={onOrg}
+          hasStructuredDuration={!!getSyndromeDuration(s.id)}
+        />
+      </div>
 
       {/* DURATION + EVIDENCE — legacy narrative duration section. Suppressed
           when the syndrome has authored structured DurationBlock content
@@ -784,7 +877,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           fact in two places. The structured block carries the same string
           inside its headline + branches with richer affordances. */}
       {!getSyndromeDuration(s.id) && (
-        <Section kicker="Duration" icon={Clock}>
+        <Section kicker="Duration" icon={Clock} id="ans-duration">
           <div style={{ fontSize:13.5, color:"var(--ink)", lineHeight:1.55 }}>
             {s.duration}
             {ans.evidence && (
@@ -799,7 +892,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
 
       {/* PEARLS — short, scannable. */}
       {ans.pearls.length > 0 && (
-        <Section kicker="Pearls" icon={Activity}>
+        <Section kicker="Pearls" icon={Activity} id="ans-pearls">
           <ul style={{ margin:0, padding:"0 0 0 18px", fontSize:12.5, color:"var(--ink2)", lineHeight:1.6 }}>
             {ans.pearls.map((p, i) => (
               <li key={i} style={{ marginBottom:5 }} dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>") }} />

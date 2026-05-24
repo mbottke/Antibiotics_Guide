@@ -16,7 +16,7 @@ const TABS = [
   { id:"approach", label:"Approach", icon:ListChecks },
   { id:"empiric", label:"Empiric", icon:Stethoscope },
   { id:"directed", label:"Directed", icon:Crosshair },
-  { id:"reference", label:"Reference", icon:LayoutGrid },
+  { id:"reference", label:"Formulary", icon:LayoutGrid },
   { id:"spectrum", label:"Spectrum", icon:Microscope },
   { id:"penetration", label:"Penetration", icon:Droplets },
   { id:"mechanisms", label:"Mechanisms", icon:Network },

@@ -174,14 +174,20 @@ export default function InpatientAbxGuide() {
   const openOrgDrawer = (id) => setDrawer({ kind:"org", key:id });
   const openTrial = (id)   => setDrawer({ kind:"trial", key:id });
 
-  /* ---- command palette index ---- */
+  /* ---- command palette index ----
+     Navigation items (View / Empiric / Directed) flip surface to reference
+     mode before applying the tab/syndrome target, so the palette routes
+     correctly whether the user invoked it from decide mode or reference
+     mode. Drug + Organism items just open the Drawer, which is mounted
+     in both modes (see drawerEl above) and needs no mode flip. */
+  const _navToRef = (fn) => () => { setMode("reference"); fn(); };
   const index = useMemo(() => {
     const items = [];
-    TABS.forEach(t => items.push({ kind:"View", name:t.label, sub:"Section", icon:t.icon, go:() => setTab(t.id) }));
-    SYNDROMES.forEach(s => items.push({ kind:"Empiric", name:s.name, sub:(SYN_CATS.find(c=>c.id===s.cat)||{}).label||"Syndrome", icon:(SYN_ICON[s.icon]||Stethoscope), go:() => { setTab("empiric"); setSynCat("all"); setOpenSyn(s.id); } }));
+    TABS.forEach(t => items.push({ kind:"View", name:t.label, sub:"Section", icon:t.icon, go: _navToRef(() => setTab(t.id)) }));
+    SYNDROMES.forEach(s => items.push({ kind:"Empiric", name:s.name, sub:(SYN_CATS.find(c=>c.id===s.cat)||{}).label||"Syndrome", icon:(SYN_ICON[s.icon]||Stethoscope), go: _navToRef(() => { setTab("empiric"); setSynCat("all"); setOpenSyn(s.id); }) }));
     FORMULARY.forEach(cl => cl.drugs.forEach(dr => items.push({ kind:"Drug", name:dr.name, sub:cl.cls, icon:Pill, go:() => setDrawer({ kind:"drug", key:dr.name }) })));
     ORGS.forEach(o => items.push({ kind:"Organism", name:o.label, sub:"Organism card", icon:Bug, go:() => setDrawer({ kind:"org", key:o.id }) }));
-    DIRECTED.forEach(g => g.items.forEach(o => items.push({ kind:"Directed", name:o.org, sub:"Directed-therapy row", icon:Crosshair, go:() => { setTab("directed"); setOpenOrg(slug(o.org)); } })));
+    DIRECTED.forEach(g => g.items.forEach(o => items.push({ kind:"Directed", name:o.org, sub:"Directed-therapy row", icon:Crosshair, go: _navToRef(() => { setTab("directed"); setOpenOrg(slug(o.org)); }) })));
     return items;
   }, []);
   const cmdResults = useMemo(() => {
@@ -514,7 +520,19 @@ export default function InpatientAbxGuide() {
                           {s.pearls.map((p,pi) => <li key={pi} dangerouslySetInnerHTML={{__html:p.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}} />)}
                         </ul>
 
-                        <div className="rx-cardfoot">
+                        <div className="rx-cardfoot" style={{ gap: 10 }}>
+                          <button
+                            type="button"
+                            className="rx-tag t-ox clk"
+                            onClick={() => {
+                              setCaseState(cs => ({ ...cs, syndrome: s.id }));
+                              setMode("decide");
+                            }}
+                            title="Open this syndrome in decide mode with the current patient context"
+                            style={{ marginRight: "auto" }}>
+                            <Crosshair size={12} style={{ verticalAlign: "-1px", marginRight: 4 }} />
+                            Open as case
+                          </button>
                           <CardCopyButton syn={s} />
                         </div>
                       </div>
@@ -617,8 +635,8 @@ export default function InpatientAbxGuide() {
     const fmActive = fmRoute !== "all" || !!fmCover;
     return (
       <>
-        <h2 className="rx-h2">Reference</h2>
-        <p className="rx-lede">The spectrum matrix, the formulary, the β-lactamase resistance ladder, and the allergy cross-reactivity map — the look-up layer beneath the syndrome and organism views.</p>
+        <h2 className="rx-h2">Formulary</h2>
+        <p className="rx-lede">The spectrum matrix, the drug formulary, the β-lactamase resistance ladder, and the allergy cross-reactivity map — the look-up layer beneath the syndrome and organism views.</p>
 
         <h3 className="rx-h3"><span className="ic"><LayoutGrid size={18}/></span>Spectrum of activity</h3>
         <div className="rx-card" style={{display:"flex",gap:"14px",alignItems:"flex-start"}}>
@@ -1634,6 +1652,76 @@ export default function InpatientAbxGuide() {
     />
   );
 
+  /* Command palette overlay — hoisted out of the reference-mode return so
+     it mounts in both decide and reference modes. The global ⌘K keydown
+     listener (line ~195) already fires across the whole app; previously
+     the *overlay* JSX only rendered in reference mode, so pressing ⌘K in
+     decide mode flipped state but rendered nothing visible. Now the same
+     palette opens regardless of mode and navigation items flip to
+     reference mode automatically (see `_navToRef` above). */
+  const cmdPaletteEl = cmdOpen ? (
+    <div className="rx-cmd-overlay" onClick={()=>setCmdOpen(false)}>
+      <div className="rx-cmd" onClick={e=>e.stopPropagation()}>
+        <div className="rx-cmd-head">
+          <Search size={18} color="var(--muted)" />
+          <input autoFocus value={cmdQ} onChange={e=>{setCmdQ(e.target.value);setCmdIdx(0);}} placeholder="Jump to a syndrome, drug, organism, or section…" />
+          <span className="rx-cmd-esc">ESC</span>
+        </div>
+        <div className="rx-cmd-list">
+          {cmdResults.length === 0 && <div className="rx-cmd-empty">No matches for “{cmdQ}”</div>}
+          {cmdResults.map((r,i) => {
+            const RI = r.icon || ChevronRight;
+            return (
+              <button key={i} className="rx-cmd-item" data-active={i===cmdIdx} onMouseEnter={()=>setCmdIdx(i)} onClick={()=>go(r.go)}>
+                <span className="rx-cmd-ic"><RI size={15} /></span>
+                <span className="rx-cmd-tx"><span className="nm">{r.name}</span><span className="ct">{r.kind} · {r.sub}</span></span>
+                <ChevronRight size={15} color="var(--faint)" />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  /* Knowledge-graph drawer — hoisted out of the reference-mode return so it
+     mounts in both decide and reference modes. Chip clicks in BedsideShell
+     (drug names, organism tokens, trial citations) now resolve to the same
+     monograph/organism/trial cards that the reference UI uses. When the user
+     opens a drawer in decide mode and then activates a navigation link
+     ("View spectrum", "Open syndrome card"), we switch back to reference
+     mode and route to the requested tab so the deep link works seamlessly. */
+  const _toRef = (fn) => (...args) => { setMode("reference"); fn(...args); };
+  const drawerEl = (
+    <Drawer
+      open={!!drawer}
+      onClose={()=>setDrawer(null)}
+      kicker={drawer ? (drawer.kind === "drug" ? "Drug monograph" : drawer.kind === "org" ? "Organism card" : drawer.kind === "regimen" ? "Assembled empiric regimen" : drawer.kind === "trial" ? "Evidence" : "") : ""}
+      icon={drawer ? (drawer.kind === "drug" ? Pill : drawer.kind === "regimen" ? Crosshair : drawer.kind === "trial" ? BookOpen : Bug) : undefined}
+      title={drawer ? (drawer.kind === "org" ? ((ORG_BY_ID[drawer.key]||{}).label || drawer.key) : drawer.kind === "regimen" ? ((SYNDROMES.find(s=>s.id===drawer.key)||{}).name || drawer.key) : drawer.kind === "trial" ? ((TRIAL_DETAIL[drawer.key]||{}).short || (GUIDELINES[drawer.key]||{}).body || drawer.key) : drawer.key) : ""}>
+      {drawer && drawer.kind === "drug" && (
+        <DrugCard name={drawer.key} doseFn={dose}
+          onSpectrum={_toRef((n)=>{ setTab("spectrum"); setPickDrug(n); setPickOrg(null); setDrawer(null); })}
+          onSyndrome={_toRef((id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); })}
+          onOrg={(id)=>openOrgDrawer(id)} />
+      )}
+      {drawer && drawer.kind === "org" && (
+        <OrgCard id={drawer.key}
+          onSpectrum={_toRef((id)=>{ setTab("spectrum"); setPickOrg(id); setPickDrug(null); setDrawer(null); })}
+          onSyndrome={_toRef((id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); })}
+          onDrug={(n)=>openDrug(n)} />
+      )}
+      {drawer && drawer.kind === "regimen" && (
+        <RegimenCard synId={drawer.key} ctx={{ ...ctx, crcl:d.crcl }} doseFn={dose}
+          onDrug={(n)=>openDrug(n)}
+          onOrg={(id)=>openOrgDrawer(id)}
+          onCite={(id)=>openTrial(id)}
+          onFull={_toRef((id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); })} />
+      )}
+      {drawer && drawer.kind === "trial" && <TrialCard id={drawer.key} />}
+    </Drawer>
+  );
+
   if(surface === "outpatient") {
     return (
       <>
@@ -1649,7 +1737,17 @@ export default function InpatientAbxGuide() {
       <>
         {styleTag}
         {bar}
-        <BedsideShell caseState={caseState} setCaseState={setCaseState} onExit={() => setMode("reference")} />
+        <BedsideShell
+          caseState={caseState}
+          setCaseState={setCaseState}
+          onExit={() => setMode("reference")}
+          onDrug={openDrug}
+          onOrg={openOrgDrawer}
+          onCite={openTrial}
+          onOpenPalette={() => { setCmdOpen(true); setCmdQ(""); setCmdIdx(0); }}
+        />
+        {cmdPaletteEl}
+        {drawerEl}
       </>
     );
   }
@@ -1692,58 +1790,9 @@ export default function InpatientAbxGuide() {
         onClear={()=>setCtxField("on", false)}
         onJump={()=>setTab("dose")} />
 
-      {cmdOpen && (
-        <div className="rx-cmd-overlay" onClick={()=>setCmdOpen(false)}>
-          <div className="rx-cmd" onClick={e=>e.stopPropagation()}>
-            <div className="rx-cmd-head">
-              <Search size={18} color="var(--muted)" />
-              <input autoFocus value={cmdQ} onChange={e=>{setCmdQ(e.target.value);setCmdIdx(0);}} placeholder="Jump to a syndrome, drug, organism, or section…" />
-              <span className="rx-cmd-esc">ESC</span>
-            </div>
-            <div className="rx-cmd-list">
-              {cmdResults.length === 0 && <div className="rx-cmd-empty">No matches for “{cmdQ}”</div>}
-              {cmdResults.map((r,i) => {
-                const RI = r.icon || ChevronRight;
-                return (
-                  <button key={i} className="rx-cmd-item" data-active={i===cmdIdx} onMouseEnter={()=>setCmdIdx(i)} onClick={()=>go(r.go)}>
-                    <span className="rx-cmd-ic"><RI size={15} /></span>
-                    <span className="rx-cmd-tx"><span className="nm">{r.name}</span><span className="ct">{r.kind} · {r.sub}</span></span>
-                    <ChevronRight size={15} color="var(--faint)" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      {cmdPaletteEl}
 
-      <Drawer
-        open={!!drawer}
-        onClose={()=>setDrawer(null)}
-        kicker={drawer ? (drawer.kind === "drug" ? "Drug monograph" : drawer.kind === "org" ? "Organism card" : drawer.kind === "regimen" ? "Assembled empiric regimen" : drawer.kind === "trial" ? "Evidence" : "") : ""}
-        icon={drawer ? (drawer.kind === "drug" ? Pill : drawer.kind === "regimen" ? Crosshair : drawer.kind === "trial" ? BookOpen : Bug) : undefined}
-        title={drawer ? (drawer.kind === "org" ? ((ORG_BY_ID[drawer.key]||{}).label || drawer.key) : drawer.kind === "regimen" ? ((SYNDROMES.find(s=>s.id===drawer.key)||{}).name || drawer.key) : drawer.kind === "trial" ? ((TRIAL_DETAIL[drawer.key]||{}).short || (GUIDELINES[drawer.key]||{}).body || drawer.key) : drawer.key) : ""}>
-        {drawer && drawer.kind === "drug" && (
-          <DrugCard name={drawer.key} doseFn={dose}
-            onSpectrum={(n)=>{ setTab("spectrum"); setPickDrug(n); setPickOrg(null); setDrawer(null); }}
-            onSyndrome={(id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); }}
-            onOrg={(id)=>openOrgDrawer(id)} />
-        )}
-        {drawer && drawer.kind === "org" && (
-          <OrgCard id={drawer.key}
-            onSpectrum={(id)=>{ setTab("spectrum"); setPickOrg(id); setPickDrug(null); setDrawer(null); }}
-            onSyndrome={(id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); }}
-            onDrug={(n)=>openDrug(n)} />
-        )}
-        {drawer && drawer.kind === "regimen" && (
-          <RegimenCard synId={drawer.key} ctx={{ ...ctx, crcl:d.crcl }} doseFn={dose}
-            onDrug={(n)=>openDrug(n)}
-            onOrg={(id)=>openOrgDrawer(id)}
-            onCite={(id)=>openTrial(id)}
-            onFull={(id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); }} />
-        )}
-        {drawer && drawer.kind === "trial" && <TrialCard id={drawer.key} />}
-      </Drawer>
+      {drawerEl}
 
       <main className="rx-main">
         <div className="rx-wrap">

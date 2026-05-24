@@ -6,7 +6,7 @@
    the full vertical real estate. The user can re-expand by clicking Edit.
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useState } from "react";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil, Search } from "lucide-react";
 import { CaseBar } from "./CaseBar.jsx";
 import { AnswerCanvas } from "./AnswerCanvas.jsx";
 import { FontSizeControl } from "./FontSizeControl.jsx";
@@ -18,7 +18,7 @@ function _synName(id) {
   return s ? s.name : id;
 }
 
-function BedsideShell({ caseState, setCaseState, onExit }) {
+function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, onOpenPalette }) {
   /* Edit / view mode. Once a syndrome is set, default to view; the user can
      re-open the Case Bar by clicking Edit. While the Case Bar is open, the
      Answer Canvas stays hidden so the screen has one job at a time. */
@@ -35,14 +35,14 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
     if(update.syndrome ?? caseState.syndrome) setEditing(false);
   };
 
-  /* Drug / organism / trial open callbacks. The Bedside Answer Canvas does
-     not have its own Drawer wired up yet (the existing Drawer lives in App.jsx
-     and is tied to the classic UI). For Phase A.2 we no-op these so the
-     monograph buttons in the answer are inert; Phase B will introduce a
-     bedside-scoped drawer. */
-  const onDrug = () => {};
-  const onOrg = () => {};
-  const onCite = () => {};
+  /* Drug / organism / trial chip handlers — provided by App.jsx so the
+     decide-mode Answer Canvas can open the same Drawer monograph/organism/
+     trial cards that the reference UI uses. The Drawer itself lives in
+     App.jsx (hoisted out of the reference-only return) and is mounted in
+     both decide and reference branches. */
+  const _onDrug = onDrug || (() => {});
+  const _onOrg = onOrg || (() => {});
+  const _onCite = onCite || (() => {});
 
   const synName = _synName(caseState.syndrome);
 
@@ -73,6 +73,27 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
             <ArrowLeft size={12} /> Reference
           </button>
           <div style={{ display:"flex", alignItems:"center", gap: 10 }}>
+            {onOpenPalette && (
+              <button
+                type="button"
+                onClick={onOpenPalette}
+                aria-label="Search the catalog — drugs, organisms, syndromes (⌘K)"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
+                  color: "var(--muted)",
+                  background: "var(--card)", border: "1px solid var(--line)", borderRadius: 8,
+                  padding: "5px 10px", cursor: "pointer",
+                }}>
+                <Search size={12} />
+                <span>Search</span>
+                <span style={{
+                  marginLeft: 4, padding: "1px 6px", borderRadius: 4,
+                  background: "var(--surface)", border: "1px solid var(--line)",
+                  fontSize: 10, color: "var(--ink2)",
+                }}>⌘K</span>
+              </button>
+            )}
             <FontSizeControl />
             <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".18em", textTransform:"uppercase", color:"var(--ox)", fontWeight:600 }}>
               Bedside — Phase A
@@ -80,9 +101,15 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
           </div>
         </div>
 
-        {/* When in edit mode: show the headline + Case Bar. When in view mode:
-            show a compact summary strip with an Edit affordance. */}
-        {editing ? (
+        {/* Three states:
+            INITIAL — no syndrome yet → full-width "Build the case" intro
+              with the Case Bar (onboarding flow).
+            EDIT — syndrome set + editing toggled → split layout with the
+              Case Bar pinned as a side rail and the Answer Canvas
+              continuing to render on the right, so the user never loses
+              their reference point while adjusting context.
+            VIEW — syndrome set, not editing → Answer Canvas full width. */}
+        {editing && !caseState.syndrome && (
           <>
             <h1 style={{ fontFamily: "var(--serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-.014em", margin: "8px 0 6px" }}>
               Build the case
@@ -92,26 +119,52 @@ function BedsideShell({ caseState, setCaseState, onExit }) {
               composes the empiric regimen, refinements, and de-escalation plan once a syndrome is set.
             </p>
             <CaseBar caseState={caseState} onApply={applyCase} onSkip={onExit} />
-            {caseState.syndrome && (
-              <button type="button" onClick={() => setEditing(false)}
-                style={{
-                  display:"inline-flex", alignItems:"center", gap:6,
-                  fontFamily:"var(--mono)", fontSize:11, letterSpacing:".08em", textTransform:"uppercase",
-                  color:"var(--muted)", background:"none", border:"none", padding:"6px 8px", cursor:"pointer",
-                  marginTop:-4,
-                }}>
-                ↩ Back to the answer
-              </button>
-            )}
           </>
-        ) : (
+        )}
+        {editing && caseState.syndrome && (
+          <div className="rx-bedside-split">
+            <aside className="rx-bedside-rail" aria-label="Edit case">
+              <div style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                marginBottom: 10, paddingBottom: 8, borderBottom: "1px solid var(--line2)",
+              }}>
+                <div style={{
+                  fontFamily: "var(--mono)", fontSize: 10, letterSpacing: ".14em",
+                  textTransform: "uppercase", color: "var(--ox)", fontWeight: 700,
+                }}>
+                  Edit case
+                </div>
+                <button type="button" onClick={() => setEditing(false)}
+                  aria-label="Close edit panel and return to answer"
+                  style={{
+                    fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".08em",
+                    textTransform: "uppercase", color: "var(--muted)",
+                    background: "none", border: "1px solid var(--line)", borderRadius: 999,
+                    padding: "3px 9px", cursor: "pointer",
+                  }}>
+                  ✕ Done
+                </button>
+              </div>
+              <CaseBar caseState={caseState} onApply={applyCase} onSkip={() => setEditing(false)} />
+            </aside>
+            <AnswerCanvas
+              caseState={caseState}
+              setCaseState={setCaseState}
+              onEditCase={() => setEditing(true)}
+              onDrug={_onDrug}
+              onOrg={_onOrg}
+              onCite={_onCite}
+            />
+          </div>
+        )}
+        {!editing && (
           <AnswerCanvas
             caseState={caseState}
             setCaseState={setCaseState}
             onEditCase={() => setEditing(true)}
-            onDrug={onDrug}
-            onOrg={onOrg}
-            onCite={onCite}
+            onDrug={_onDrug}
+            onOrg={_onOrg}
+            onCite={_onCite}
           />
         )}
       </div>

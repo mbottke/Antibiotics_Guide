@@ -14,9 +14,9 @@
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
 
-function Section({ kicker, title, icon: Icon, children, sticky, testId }) {
+function Section({ kicker, title, icon: Icon, children, sticky, testId, id }) {
   return (
-    <section data-testid={testId} style={{ marginBottom: 18 }}>
+    <section data-testid={testId} id={id} style={{ marginBottom: 18, scrollMarginTop: 96 }}>
       <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom: 10 }}>
         {kicker && (
           <span style={{
@@ -35,7 +35,11 @@ function Section({ kicker, title, icon: Icon, children, sticky, testId }) {
       </div>
       <div style={{
         background:"var(--panel)", border:"1px solid var(--line)", borderRadius:12,
-        padding:16, ...(sticky ? { borderTop:"3px solid var(--ox)" } : {}),
+        padding: sticky ? "18px 18px 16px" : 16,
+        ...(sticky ? {
+          borderTop:"3px solid var(--ox)",
+          boxShadow: "0 1px 0 var(--line2), 0 2px 12px -8px rgba(15,76,129,0.18)",
+        } : {}),
       }}>
         {children}
       </div>
