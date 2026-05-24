@@ -320,4 +320,19 @@ test.describe("bedside reassessment panel", () => {
     await expect(panel.getByRole("button", { name: /source controlled/i }))
       .toHaveAttribute("aria-pressed", "true");
   });
+
+  test("research evidence block renders for syndromes with authored panel (Phase F)", async ({ page }) => {
+    /* HAP carries a Phase F research panel (PneumA 2003, IDSA 2016,
+       DALI 2014, ZEPHyR). The ResearchBlock should mount below the
+       MonitoringBlock and surface the kicker + at least one trial
+       name. Syndromes without an authored research panel skip this
+       section entirely — the optional shape allows incremental
+       rollout. */
+    await openHapAnswer(page);
+    await expect(page.getByTestId("research-block")).toBeVisible();
+    // Kicker text from Section chrome
+    await expect(page.getByText(/evidence behind the recommendation/i)).toBeVisible();
+    // At least one Phase F trial name should render
+    await expect(page.getByText(/PneumA/i).first()).toBeVisible();
+  });
 });

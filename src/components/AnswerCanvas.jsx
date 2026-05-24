@@ -30,9 +30,10 @@ import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { ReassessmentPanel } from "./ReassessmentPanel.jsx";
 import { DurationBlock } from "./DurationBlock.jsx";
 import { MonitoringBlock } from "./MonitoringBlock.jsx";
+import { ResearchBlock } from "./ResearchBlock.jsx";
 import { CombinedRisksBlock } from "./CombinedRisksBlock.jsx";
 import { Section } from "./Section.jsx";
-import { getSyndromeDuration, getSyndromeMonitoring } from "../data/syndromeDecision.js";
+import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch } from "../data/syndromeDecision.js";
 
 /* ---------- refinement → footnote mapping ----------
    For each refinement step in composeAnswer.refinement.steps, decide
@@ -674,6 +675,12 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         pickedBranch={effectiveBranch}
         ctx={{ ...ans.ctx, ...ans.d }}
       />
+      {/* RESEARCH · evidence depth (Phase F). Renders only when the
+          syndrome carries an authored `research:` panel — landmark
+          trials + society guidelines + open questions. Optional layer:
+          syndromes without a research panel skip this section entirely,
+          which is the safe default during incremental rollout. */}
+      <ResearchBlock research={getSyndromeResearch(s.id)} />
 
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file
