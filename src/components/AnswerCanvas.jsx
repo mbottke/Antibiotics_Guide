@@ -35,6 +35,8 @@ import { RegionalResistanceBlock } from "./RegionalResistanceBlock.jsx";
 import { getRegionalForSyndrome } from "../data/regionalResistance.js";
 import { NovelAgentsBlock } from "./NovelAgentsBlock.jsx";
 import { getNovelForSyndrome } from "../data/novelAgents.js";
+import { SurgeProtocolsBlock } from "./SurgeProtocolsBlock.jsx";
+import { getSurgeForSyndrome } from "../data/surgeProtocols.js";
 import { CombinedRisksBlock } from "./CombinedRisksBlock.jsx";
 import { Section } from "./Section.jsx";
 import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch } from "../data/syndromeDecision.js";
@@ -693,6 +695,11 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           tazo for DTR-Pseudomonas, ceftaz-avi for KPC-CRE, cefiderocol
           for metallo / CRAB, dalbavancin / oritavancin for OPAT MRSA). */}
       <NovelAgentsBlock agents={getNovelForSyndrome(s.id)} />
+      {/* SURGE + OUTBREAK · emerging pathogen alerts (Phase K).
+          Bioterror Tier-1, emerging viral, regional outbreaks,
+          novel resistance phenotypes that demand recognition +
+          reporting + specific empiric strategy. */}
+      <SurgeProtocolsBlock protocols={getSurgeForSyndrome(s.id)} />
 
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file
