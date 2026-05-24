@@ -40,6 +40,7 @@ const SITE_PENETRATION = [
       { agent: "Meropenem", penetration: "excellent", note: "2 g IV q8h CNS dose; ESBL + Pseudomonas CNS coverage" },
       { agent: "Vancomycin", penetration: "modest", note: "AUC-targeted; CSF / serum ratio ~10-30% inflamed meninges; intraventricular for refractory" },
       { agent: "Ampicillin", penetration: "excellent", note: "Listeria meningitis 2 g IV q4h — cephalosporins inactive against Listeria" },
+      { agent: "Nafcillin / oxacillin", penetration: "excellent", note: "MSSA CNS infection (meningitis, brain abscess) — preferred over cefazolin for CNS coverage; 2 g IV q4h" },
       { agent: "Metronidazole", penetration: "excellent", note: "Brain abscess + subdural empyema anaerobic coverage" },
       { agent: "TMP-SMX", penetration: "good", note: "Nocardia + Listeria + PJP CNS disease; high-dose for nocardia" },
       { agent: "Linezolid", penetration: "good", note: "Excellent oral bioavailability; PCN-allergic alternative for nocardia + MRSA CNS salvage" },
@@ -97,7 +98,7 @@ const SITE_PENETRATION = [
     site: "Urine / urinary tract",
     description: "Renal excretion concentrates urinary levels; bladder vs upper tract penetration differs",
     drugs: [
-      { agent: "Nitrofurantoin", penetration: "excellent (urine only)", note: "Concentrates in urine; NOT for upper-tract pyelonephritis or bacteremia" },
+      { agent: "Nitrofurantoin", penetration: "excellent", note: "Concentrates in urine; NOT for upper-tract pyelonephritis or bacteremia (urine-only activity)" },
       { agent: "Fosfomycin", penetration: "excellent", note: "Single dose 3 g sachet for uncomplicated cystitis; concentrates in urine" },
       { agent: "Fluoroquinolones (cipro, levo)", penetration: "excellent", note: "Bladder + upper tract + prostate; standard pyelo treatment" },
       { agent: "Ceftriaxone / cefepime", penetration: "good", note: "Pyelonephritis + complicated UTI; renal excretion" },
