@@ -9,6 +9,9 @@ test-results/
 playwright-report/
 /coverage/
 
+# Claude Code agent worktrees + transient session state
+.claude/
+
 # editor / OS
 .DS_Store
 .vscode/
