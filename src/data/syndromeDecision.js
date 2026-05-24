@@ -9415,4 +9415,17 @@ function getReasoningForSyndrome(synId) {
   return SYNDROME_DECISION[synId]?.rationale || null;
 }
 
-export { SYNDROME_DECISION, getSyndromeDecision, getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch, getReasoningForSyndrome };
+/* Phase D2 — pharmacist's-challenge accessor. Returns the authored
+   `objections` array on a syndrome (predictable pushback + pre-authored
+   answers as `{ q, a }` pairs) or `[]` when the syndrome has no
+   objections authored yet. Always returns an array so the
+   ObjectionsBlock can call `.length` safely; the block itself decides
+   whether to render based on the array length. The graceful-fallback
+   contract matches getReasoningForSyndrome + the rest of the depth
+   helpers. */
+function getObjectionsForSyndrome(synId) {
+  const o = SYNDROME_DECISION[synId]?.objections;
+  return Array.isArray(o) ? o : [];
+}
+
+export { SYNDROME_DECISION, getSyndromeDecision, getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch, getReasoningForSyndrome, getObjectionsForSyndrome };
