@@ -159,6 +159,50 @@ describe("content-audit · days-field unit-string contract (regression)", () => 
   });
 });
 
+describe("content-audit · days-field integer-trap (regression)", () => {
+  /* Surfaced via PR #16 review: `days: "Until ANC > 500"` parsed as
+     500 calendar days for the stop-date calc because parseDurationDays
+     extracts the FIRST integer. Any integer in the days field that is
+     NOT immediately (within 8 chars) followed by a duration unit
+     keyword is a trap: the parser will treat it as a day count even
+     though it's a clinical threshold (ANC > 500, MIC > 4, etc.).
+
+     The rule: every integer in days MUST have a duration-unit token
+     within 8 chars after it. */
+  const UNIT_NEAR_INT = /\b(d|day|days|wk|week|weeks|mo|month|months|h|hr|hrs|hour|hours|dose|doses)\b/i;
+  function hasIntegerTrap(s) {
+    if(typeof s !== "string") return false;
+    const re = /\d+/g;
+    let m;
+    while((m = re.exec(s)) !== null) {
+      const tail = s.slice(m.index + m[0].length, m.index + m[0].length + 10);
+      if(!UNIT_NEAR_INT.test(tail)) return true;
+    }
+    return false;
+  }
+
+  test("accepts properly-unitted integers", () => {
+    for(const s of ["5 d", "1 dose", "5–7 d", "4–6 wk", "≥ 42 d", "FMT + 10 d bridge",
+                    "10–14 d + OR", "3 mo hip / 6 mo knee", "24 h", "≥ 6 wk + screen"]) {
+      expect(hasIntegerTrap(s), `should accept "${s}"`).toBe(false);
+    }
+  });
+
+  test("rejects integers without nearby unit (clinical threshold trap)", () => {
+    for(const s of ["Until ANC > 500", "7 d or to ANC > 500", "MIC > 4 strain",
+                    "Treat × 500", "PMN > 250"]) {
+      expect(hasIntegerTrap(s), `should reject "${s}" (integer without nearby unit = parser trap)`).toBe(true);
+    }
+  });
+
+  test("accepts digit-free labels", () => {
+    for(const s of ["Indefinite", "Per source", "Until clear", "Per PJI",
+                    "Per pathogen", "Until ANC recovers", "Extended"]) {
+      expect(hasIntegerTrap(s), `should accept digit-free label "${s}"`).toBe(false);
+    }
+  });
+});
+
 describe("content-audit · coverage report", () => {
   const allSynIds = SYNDROMES.map(s => s.id);
   const regimenIds = Object.keys(REGIMEN_CONTENT);
@@ -378,6 +422,21 @@ describe("content-audit · syndromeDecision.js entries", () => {
             `${label} branch[${i}].days "${b.days}" is missing a unit / descriptive label — add "d", "dose", "wk", "mo", "Indefinite", etc. (bare numbers AND bare ranges are both forbidden)`)
             .toBe(false);
           expect(b.days.length, `${label} branch[${i}].days too long for chip`).toBeLessThanOrEqual(LIMITS.branchDaysMaxLen);
+
+          /* Integer-trap rule: every integer in days MUST have a
+             duration unit within 8 chars after it. Catches the
+             "Until ANC > 500" / "MIC > 4 strain" pattern where the
+             first-integer-wins parser would compute a stop date in
+             the hundreds of calendar days. */
+          const intTrapRe = /\d+/g;
+          let intMatch;
+          const unitNear = /\b(d|day|days|wk|week|weeks|mo|month|months|h|hr|hrs|hour|hours|dose|doses)\b/i;
+          while((intMatch = intTrapRe.exec(b.days)) !== null) {
+            const tail = b.days.slice(intMatch.index + intMatch[0].length, intMatch.index + intMatch[0].length + 10);
+            expect(unitNear.test(tail),
+              `${label} branch[${i}].days "${b.days}" — integer "${intMatch[0]}" has no duration unit within 8 chars; parseDurationDays will misinterpret as calendar days. Move clinical thresholds (ANC > 500, MIC > 4) to detail field; use digit-free days labels (Indefinite, "Until ANC recovers", "Per source") for non-numeric durations.`)
+              .toBe(true);
+          }
 
           expect(typeof b.detail, `${label} branch[${i}].detail must be a string`).toBe("string");
 
