@@ -181,19 +181,70 @@ export default function InpatientAbxGuide() {
      mode. Drug + Organism items just open the Drawer, which is mounted
      in both modes (see drawerEl above) and needs no mode flip. */
   const _navToRef = (fn) => () => { setMode("reference"); fn(); };
+  /* Phase B7 — wide ⌘K search index. Each entry carries a hidden `hay`
+     field (haystack) of secondary text — bugs, pearls, cover prose,
+     drug spec/penetration/toxicity, guideline titles — that the filter
+     searches but the result row does not display. The result list
+     stays compact (~300 rows) while the searchable surface widens to
+     several thousand strings; "fluoroquinolone" finds every drug whose
+     class or spec text mentions it, "MERINO" finds the syndrome whose
+     research panel cites the trial, etc. */
   const index = useMemo(() => {
     const items = [];
-    TABS.forEach(t => items.push({ kind:"View", name:t.label, sub:"Section", icon:t.icon, go: _navToRef(() => setTab(t.id)) }));
-    SYNDROMES.forEach(s => items.push({ kind:"Empiric", name:s.name, sub:(SYN_CATS.find(c=>c.id===s.cat)||{}).label||"Syndrome", icon:(SYN_ICON[s.icon]||Stethoscope), go: _navToRef(() => { setTab("empiric"); setSynCat("all"); setOpenSyn(s.id); }) }));
-    FORMULARY.forEach(cl => cl.drugs.forEach(dr => items.push({ kind:"Drug", name:dr.name, sub:cl.cls, icon:Pill, go:() => setDrawer({ kind:"drug", key:dr.name }) })));
-    ORGS.forEach(o => items.push({ kind:"Organism", name:o.label, sub:"Organism card", icon:Bug, go:() => setDrawer({ kind:"org", key:o.id }) }));
-    DIRECTED.forEach(g => g.items.forEach(o => items.push({ kind:"Directed", name:o.org, sub:"Directed-therapy row", icon:Crosshair, go: _navToRef(() => { setTab("directed"); setOpenOrg(slug(o.org)); }) })));
+    // Tabs (section labels live in SectionNav above the palette, not here).
+    TABS.forEach(t => items.push({
+      kind:"View", name:t.label, sub:"Section", icon:t.icon, hay:"",
+      go: _navToRef(() => setTab(t.id)),
+    }));
+    // Syndromes — searchable across category, bugs, pearls, and cover prose.
+    SYNDROMES.forEach(s => {
+      const bugLabels = (s.bugs || []).map(b => (ORG_BY_ID[b] || {}).label || b).join(" ");
+      const pearlsText = (s.pearls || []).join(" ").replace(/<[^>]+>/g, "").replace(/\*\*/g, "");
+      const coverText = ((s.cover && s.cover.empiric) || "") + " " + ((s.cover && s.cover.drop) || "");
+      items.push({
+        kind:"Empiric", name:s.name,
+        sub:(SYN_CATS.find(c=>c.id===s.cat)||{}).label||"Syndrome",
+        icon:(SYN_ICON[s.icon]||Stethoscope),
+        hay: bugLabels + " " + pearlsText + " " + coverText + " " + (s.line || ""),
+        go: _navToRef(() => { setTab("empiric"); setSynCat("all"); setOpenSyn(s.id); }),
+      });
+    });
+    // Drugs — searchable across spectrum, penetration, toxicity, class.
+    FORMULARY.forEach(cl => cl.drugs.forEach(dr => items.push({
+      kind:"Drug", name:dr.name, sub:cl.cls, icon:Pill,
+      hay: (dr.spec || "") + " " + (dr.pen || "") + " " + (dr.tox || "") + " " + (dr.pearl || "") + " " + cl.cls,
+      go:() => setDrawer({ kind:"drug", key:dr.name }),
+    })));
+    // Organisms — searchable across resistance trend.
+    ORGS.forEach(o => items.push({
+      kind:"Organism", name:o.label, sub:"Organism card", icon:Bug,
+      hay: (o.trend || "") + " " + (o.note || ""),
+      go:() => setDrawer({ kind:"org", key:o.id }),
+    }));
+    // Directed rows (already indexed by organism name).
+    DIRECTED.forEach(g => g.items.forEach(o => items.push({
+      kind:"Directed", name:o.org, sub:"Directed-therapy row", icon:Crosshair, hay:"",
+      go: _navToRef(() => { setTab("directed"); setOpenOrg(slug(o.org)); }),
+    })));
+    // Guidelines (Phase B7 addition) — each registered primary source is
+    // now its own palette row. Picking one opens the trial drawer with
+    // the full title + body + year. Lets the user jump to "MERINO" or
+    // "IDSA 2016 HAP/VAP" by title without knowing which syndrome
+    // references it.
+    Object.entries(GUIDELINES).forEach(([id, g]) => items.push({
+      kind:"Guideline",
+      name: (g.title || g.body || id).slice(0, 80),
+      sub: (g.body || "") + (g.year ? " · " + g.year : ""),
+      icon: BookOpen,
+      hay: (g.title || "") + " " + (g.body || "") + " " + (g.year || ""),
+      go: () => setDrawer({ kind:"trial", key:id }),
+    }));
     return items;
   }, []);
   const cmdResults = useMemo(() => {
     const q = cmdQ.trim().toLowerCase();
     if (!q) return index.slice(0, 8);
-    return index.filter(i => (i.name + " " + i.sub + " " + i.kind).toLowerCase().includes(q)).slice(0, 24);
+    return index.filter(i => (i.name + " " + i.sub + " " + i.kind + " " + (i.hay || "")).toLowerCase().includes(q)).slice(0, 24);
   }, [cmdQ, index]);
 
   useEffect(() => {
