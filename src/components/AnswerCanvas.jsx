@@ -34,7 +34,6 @@ import { ResearchBlock } from "./ResearchBlock.jsx";
 import { RegionalResistanceBlock } from "./RegionalResistanceBlock.jsx";
 import { getRegionalForSyndrome } from "../data/regionalResistance.js";
 import { AntibiogramBlock } from "./AntibiogramBlock.jsx";
-import { SYNDROMES } from "../data/syndromes.js";
 import { NovelAgentsBlock } from "./NovelAgentsBlock.jsx";
 import { getNovelForSyndrome } from "../data/novelAgents.js";
 import { SurgeProtocolsBlock } from "./SurgeProtocolsBlock.jsx";
