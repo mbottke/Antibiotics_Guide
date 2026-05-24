@@ -1887,6 +1887,311 @@ const SYNDROME_DECISION = {
     },
   },
 
+  /* ===========================================================
+     BRAIN ABSCESS — IDSA / SHEA + neurosurgery consensus. 6–8 wk
+     IV with aspiration/drainage; immunocompromised needs broader. ====  */
+  brainabscess: {
+    duration: {
+      headline: "6–8 wk IV typical; longer if hardware, immunocompromised, or Nocardia / Listeria.",
+      evidence: "Society consensus — pathogen-directed long IV course + aspiration / surgical drainage",
+      branches: [
+        { label: "Bacterial, aspirated + sensitive", days: "6–8 wk",
+          detail: "Ceftriaxone + metronidazole ± vancomycin; CNS dosing throughout" },
+        { label: "Immunocompromised host (Listeria / Nocardia)", days: "6 wk – 12 mo",
+          detail: "Listeria ≥ 6 wk; Nocardia 6–12 mo; add ampicillin (Listeria) or high-dose TMP-SMX (Nocardia)",
+          matchAgent: /ampicillin|TMP-?SMX/i },
+        { label: "Hardware-associated / postneurosurgical", days: "8 wk minimum",
+          detail: "Hardware removal preferred; if retained, suppression considered" },
+        { label: "Fungal abscess", days: "Months",
+          detail: "Voriconazole / liposomal amphotericin; surgical drainage; ID + neurosurgery" },
+      ],
+      stopWhen: [
+        "Imaging shows abscess resolution or stable scar",
+        "Clinical resolution — no new neuro deficits",
+        "Inflammatory markers normalizing",
+        "Source controlled (sinus / ear / dental / endocarditis)",
+        "Minimum 6–8 wk (bacterial) / longer per pathogen completed",
+      ],
+      extendIf: [
+        "Persistent or new abscess on imaging",
+        /* "Immunocompromised host" — left without matchCtx because the
+           case parser does not yet capture an immune-status field
+           (neutropenia, transplant, biologic, chronic steroid). Using
+           mrsaRisk / esblRisk as proxies would be clinically misleading
+           (resistance-history flags ≠ immune status). Bullet stays
+           visible at default emphasis; a future `immunocompromised`
+           ctx field would enable proper elevation without text change. */
+        "**Immunocompromised host** — extend per pathogen + response",
+        "Nocardia / Listeria / fungal pathogen — extend per organism",
+        "Hardware retained — suppression considered",
+      ],
+    },
+    monitoring: {
+      headline: "Aspiration / drainage early; CNS-dose antibiotics; serial MRI; source workup.",
+      items: [
+        { sev: "required", what: "**Aspiration / drainage by neurosurgery** — diagnostic + therapeutic",
+          why: "Pathogen identification + source control; antibiotic-only fails for most" },
+        { sev: "required", what: "**CNS-strength dosing** — never dose-reduce for site",
+          why: "Brain abscess penetration requires full-strength + frequent dosing" },
+        { sev: "required", what: "**Source workup** — sinus, ear, dental, endocarditis, pulmonary",
+          why: "Treating source prevents recurrence; otogenic / sinogenic sources very common" },
+        { sev: "trigger", what: "**MRI at 1, 2, 4, 8 weeks** — track resolution",
+          why: "Imaging-driven duration; expanding abscess triggers re-aspiration + extended therapy" },
+        { sev: "trigger", what: "**Workup HIV / transplant / steroid** for Listeria / Nocardia risk",
+          why: "Immunocompromise substrate drives empiric expansion + extended duration; ask explicitly — substrate not captured by ctx" },
+        { sev: "trigger", what: "**Anticonvulsant prophylaxis** for cortical / large abscess",
+          why: "~30% develop seizures; levetiracetam typical" },
+        { sev: "consider", what: "Steroids only for mass effect / herniation",
+          why: "Routine steroids worsen abscess pus accumulation; reserve for impending herniation" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     EPIDURAL ABSCESS — emergent surgical decompression for deficit. = */
+  epidural: {
+    duration: {
+      headline: "6 wk IV minimum; emergent surgery for deficit; pathogen-directed long course.",
+      evidence: "Society consensus — surgical decompression + 6 wk IV; longer if vertebral osteo involved",
+      branches: [
+        { label: "S. aureus, drained + targeted", days: "6 wk",
+          detail: "MSSA: cefazolin/nafcillin; MRSA: vancomycin or daptomycin; from drainage" },
+        { label: "GNR (rare)", days: "6 wk",
+          detail: "Ceftriaxone / cefepime per susceptibilities" },
+        { label: "Concurrent vertebral osteomyelitis", days: "6–8 wk + surgery",
+          detail: "Combined epidural + osteo treatment; longer per response" },
+      ],
+      stopWhen: [
+        "Imaging shows abscess resolution",
+        "Neurologic exam stable or improving",
+        "Inflammatory markers normalizing",
+        "Cultures cleared",
+        "Minimum 6 wk completed",
+      ],
+      extendIf: [
+        { text: "**Concurrent vertebral osteomyelitis** — extend to longest applicable duration",
+          matchCtx: { severe: true } },
+        "Persistent / recurrent abscess on serial MRI",
+        "Incomplete surgical drainage — re-explore",
+        "Immunocompromised host — extend per response",
+      ],
+    },
+    monitoring: {
+      headline: "Emergent surgical decompression for deficit; whole-spine MRI for skip lesions; long IV course.",
+      items: [
+        { sev: "required", what: "**Emergent surgical decompression** for neurologic deficit",
+          why: "Time to decompression is the inflection point; minutes-to-hours determine outcome",
+          matchCtx: { severe: true } },
+        { sev: "required", what: "**Whole-spine MRI** at presentation — skip lesions in 15–30%",
+          why: "Missing skip lesions causes treatment failure + late deficit" },
+        { sev: "required", what: "**Daily neuro exam** — sensory level, motor strength, sphincter function",
+          why: "Progressing deficit drives emergent re-imaging + surgical re-look" },
+        { sev: "required", what: "**Repeat blood cultures at 48 h** — confirm clearance",
+          why: "Persistent bacteremia triggers endocarditis + endovascular workup" },
+        { sev: "trigger", what: "**ESR + CRP weekly** during course",
+          why: "Decline confirms response; rising values trigger re-imaging" },
+        { sev: "consider", what: "Steroids — controversial; reserve for cord edema with deficit",
+          why: "Anti-inflammatory benefit unproven; case-by-case neurosurgery decision" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SUBDURAL EMPYEMA — surgical emergency from sinus/otitis spread. */
+  "subdural-empyema": {
+    duration: {
+      headline: "4–6 wk IV after surgical drainage; source control of sinus / ear / dental.",
+      evidence: "Society consensus — neurosurgical drainage essential; pathogen-directed long IV course",
+      branches: [
+        { label: "Bacterial, drained + targeted", days: "4–6 wk",
+          detail: "Vancomycin + ceftriaxone (or cefepime) + metronidazole; CNS dosing" },
+        { label: "Post-neurosurgical / penetrating", days: "6–8 wk",
+          detail: "Cover nosocomial GNR + Staph; hardware decision per neurosurgery" },
+        { label: "Streptococcus anginosus / milleri group", days: "6+ wk",
+          detail: "Especially destructive; extended course even after sterilization" },
+      ],
+      stopWhen: [
+        "Imaging shows empyema resolution",
+        "Neurologic exam at baseline / improving",
+        "Inflammatory markers normalizing",
+        "Source controlled (sinus / ear / dental)",
+        "Minimum 4–6 wk completed",
+      ],
+      extendIf: [
+        { text: "**Streptococcus anginosus group** — extend by ≥ 2 wk regardless of clearance",
+          matchCtx: { severe: true } },
+        "Recurrent collection on imaging — re-drainage + extend",
+        "Cortical venous thrombosis complication — anticoagulation decision",
+        "Hardware retained — suppression considered",
+      ],
+    },
+    monitoring: {
+      headline: "Emergent neurosurgery; sinus/ear/dental source control; seizure prophylaxis.",
+      items: [
+        { sev: "required", what: "**Emergent neurosurgical drainage** — within hours",
+          why: "Mass effect + herniation risk; antibiotic-only fails universally" },
+        { sev: "required", what: "**Source workup + control** — sinus / ear / dental",
+          why: "Untreated source = recurrence; ENT + dental consults" },
+        { sev: "required", what: "**Daily neuro exam** + seizure surveillance",
+          why: "~30% develop seizures; cortical irritation common" },
+        { sev: "trigger", what: "**Levetiracetam prophylaxis** for cortical involvement",
+          why: "Seizure prevention; standard for at-risk presentations" },
+        { sev: "trigger", what: "**MRI venogram** if cortical-vein thrombosis suspected",
+          why: "Complication of subdural empyema; anticoagulation decision-driver" },
+        { sev: "consider", what: "Repeat MRI at 2 + 4 + 8 wk intervals",
+          why: "Image-driven duration; persistent collection drives re-drainage + extension" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     CAVERNOUS SINUS THROMBOSIS — facial/sinus infection + cranial
+     nerve deficits. Anticoagulation controversial. ================== */
+  "cavernous-thromb": {
+    duration: {
+      headline: "4–6 wk IV; source control of sinus / facial / dental; consider anticoagulation case-by-case.",
+      evidence: "Society consensus — long IV course + source control; anticoagulation evidence mixed",
+      branches: [
+        { label: "S. aureus dominant", days: "4–6 wk",
+          detail: "Vancomycin + ceftriaxone + metronidazole; CNS dosing" },
+        { label: "Mucormycosis (diabetic / immunocompromised)", days: "Extended + amphotericin",
+          detail: "Emergent debridement; liposomal amphotericin B; ID + ENT + ophthalmology",
+          matchAgent: /amphotericin/i },
+        { label: "Anaerobic / polymicrobial", days: "4–6 wk",
+          detail: "Cover oral / dental flora; include metronidazole" },
+      ],
+      stopWhen: [
+        "Cranial nerve deficits resolving or stable",
+        "Imaging shows thrombus resolution / stable",
+        "Source controlled (sinus / dental drainage)",
+        "Cultures cleared",
+        "Minimum 4–6 wk completed",
+      ],
+      extendIf: [
+        { text: "**Mucormycosis** confirmed — months of antifungal + serial debridement",
+          matchCtx: { severe: true } },
+        "Progressive cranial nerve involvement — image + re-eval",
+        "Septic embolic foci — extend per metastatic site",
+        "Immunocompromised host — extend per response",
+      ],
+    },
+    monitoring: {
+      headline: "Cranial-nerve sweep q4h; ENT/ophth/neurosurgery consults; rule out mucormycosis in diabetic.",
+      items: [
+        { sev: "required", what: "**Cranial-nerve sweep (III, IV, V1, V2, VI) every 4 h**",
+          why: "Progression triggers emergent re-imaging + surgical re-look" },
+        { sev: "required", what: "**ENT + ophthalmology + neurosurgery** consults",
+          why: "Multi-team coordination essential for source control + complication management" },
+        { sev: "required", what: "**Source workup** — sinusitis, facial cellulitis, dental",
+          why: "Treating source prevents recurrence; address infraorbital triangle infections" },
+        { sev: "trigger", what: "**Emergent mucormycosis workup** in diabetic / immunocompromised",
+          why: "Mortality 50%+ if missed; biopsy + amphotericin + debridement",
+          matchCtx: { severe: true } },
+        { sev: "trigger", what: "**Anticoagulation discussion** case-by-case",
+          why: "Mixed evidence; weigh thrombus extension vs bleed risk" },
+        { sev: "consider", what: "Septic embolic workup — brain MRI, lung CT, echo",
+          why: "Disseminated foci change duration + need additional drainage" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     VENTRICULITIS — CSF shunt / drain associated; intraventricular
+     antibiotics for refractory. ===================================== */
+  ventriculitis: {
+    duration: {
+      headline: "2–3 wk after CSF sterilization; shunt removal preferred; intraventricular for refractory.",
+      evidence: "IDSA 2017 — CSF-confirmed duration post-clearance; explant drives outcomes",
+      branches: [
+        { label: "Standard bacterial, shunt removed", days: "2–3 wk post-clearance",
+          detail: "Vancomycin + cefepime / meropenem; CSF cultures daily until sterile" },
+        { label: "Hardware retained", days: "3–4 wk + IVT",
+          detail: "Add intraventricular vancomycin or aminoglycoside; longer course; IVT = intraventricular" },
+        { label: "Gram-negative ventriculitis", days: "3 wk minimum",
+          detail: "Cefepime / meropenem; check CSF penetration; intraventricular if refractory" },
+      ],
+      stopWhen: [
+        "CSF cultures negative ≥ 48 h",
+        "CSF cell count + glucose normalizing on repeat LP / drain sample",
+        "Neurologic exam stable / improving",
+        "Hardware decision finalized (removed vs retained)",
+        "Minimum 2–3 wk post-clearance completed",
+      ],
+      extendIf: [
+        "Persistent CSF positivity — switch to intraventricular + extend",
+        { text: "**Hardware retained** — extend per ID + neurosurgery",
+          matchCtx: { severe: true } },
+        "Concurrent abscess / cerebritis — extend per source",
+        "Multidrug-resistant GNR — extend per ID input",
+      ],
+    },
+    monitoring: {
+      headline: "Daily CSF cultures + cell count; explant shunt preferred; intraventricular for refractory.",
+      items: [
+        { sev: "required", what: "**Daily CSF Gram stain + culture + cell count** until clearance",
+          why: "Persistent positivity triggers intraventricular addition + extended course" },
+        { sev: "required", what: "**Explant / externalize shunt** if possible",
+          why: "Biofilm renders systemic-only therapy inadequate; salvage rarely succeeds" },
+        { sev: "required", what: "**CNS-strength dosing** + neurosurgery partnership",
+          why: "Standard systemic doses inadequate; coordinate intraventricular delivery" },
+        { sev: "trigger", what: "**Intraventricular vancomycin / aminoglycoside** for refractory",
+          why: "Preservative-free formulations; CSF level guides; neurosurgery delivers" },
+        { sev: "trigger", what: "**MRI** for cerebritis / abscess / extension",
+          why: "Complications drive extended course + drainage decisions" },
+        { sev: "consider", what: "Lock-therapy attempts for stable patient + CoNS + lock-amenable hardware",
+          why: "Rarely successful but considered case-by-case for explant-contraindicated patients" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SHUNT INFECTION — CSF / VP / VA. Explant + reimplant standard. = */
+  "shunt-infection": {
+    duration: {
+      headline: "10–14 d post-CSF-clearance after explant; reimplantation 7–14 d post-sterilization.",
+      evidence: "IDSA 2017 — explant-driven; reimplant when CSF sterile + clinically stable",
+      branches: [
+        { label: "Explant + EVD, CSF clearing", days: "10–14 d post-clearance",
+          detail: "From first negative CSF after explant; reimplant after clearance + stability" },
+        { label: "Hardware retained (rare)", days: "Indefinite",
+          detail: "Suppressive oral therapy + ID + neurosurgery; lock therapy rarely succeeds" },
+        { label: "S. aureus / gram-negative", days: "14 d + IVT if refractory",
+          detail: "More aggressive than CoNS; consider intraventricular addition (IVT)" },
+      ],
+      stopWhen: [
+        "CSF cultures negative ≥ 48 h",
+        "CSF cell count normalizing",
+        "Neurologic exam stable",
+        "Hardware re-implanted (if applicable)",
+        "Minimum 10–14 d post-clearance completed",
+      ],
+      extendIf: [
+        "Persistent CSF positivity — intraventricular addition + extend",
+        { text: "**S. aureus / gram-negative / mixed** — more aggressive course",
+          matchCtx: { severe: true } },
+        "Hardware retention impossible to explant — suppressive therapy",
+        "Concurrent abscess / cerebritis — extend per source",
+      ],
+    },
+    monitoring: {
+      headline: "Explant preferred; CSF sampling daily; reimplant when sterile + stable.",
+      items: [
+        { sev: "required", what: "**Explant / externalize** at presentation when possible",
+          why: "Biofilm + foreign-body kinetics; systemic antibiotics rarely cure with hardware in place" },
+        { sev: "required", what: "**Daily CSF sampling** until sterilization",
+          why: "Drives reimplantation timing + duration calc" },
+        { sev: "required", what: "**Neurosurgery + ID partnership** for reimplant decision",
+          why: "Timing balance: clearance vs hydrocephalus risk during EVD period" },
+        { sev: "trigger", what: "**Intraventricular antibiotic** for refractory CSF positivity",
+          why: "Preservative-free vanco / aminoglycoside; neurosurgery delivery + monitoring" },
+        { sev: "trigger", what: "**MRI** for cerebritis / abscess complication",
+          why: "Drives extended-course decision + additional drainage" },
+        { sev: "consider", what: "**Suppressive oral therapy** if explant impossible",
+          why: "Lifelong; ID + neurosurgery + patient counseling on recurrence risk" },
+      ],
+    },
+  },
+
 };
 
 /* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
