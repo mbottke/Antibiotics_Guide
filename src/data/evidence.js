@@ -113,7 +113,7 @@ const CLOCK = [
 /* ===================== DATA: REFERENCES ===================== */
 /* ===================== BUILD / VERSION STAMP ===================== */
 /* Single source of truth for the version + review date rendered in the footer. */
-const VERSION  = "3.0";
+const VERSION  = "3.1";
 
 const REVIEWED = "2026-05";
 
@@ -148,6 +148,45 @@ const GUIDELINES = {
   vosteo:   { body:"Lancet",        year:2015, kind:"rct",   title:"6 vs 12 weeks of antibiotic therapy for pyogenic vertebral osteomyelitis", cite:"Bernard et al. · 385:875" },
   mono:     { body:"NCBI / NLM",    year:null, kind:"guide", title:"PubMed, Bookshelf, and StatPearls antimicrobial monographs (open-access)", cite:"ncbi.nlm.nih.gov" },
   stew:     { body:"IDSA / SHEA",   year:2016, kind:"guide", title:"Implementing an Antibiotic Stewardship Program — de-escalation and avoidance of redundant coverage", cite:"Clin Infect Dis · Barlam et al." },
+
+  /* ===== Phase F additions — landmark trials & guidelines cited in
+     the per-syndrome research panels (research.trials + research.guidelines
+     across syndromeDecision.js). Indexed by stable id for <Cite> use. ===== */
+  capecod:  { body:"NEJM",          year:2023, kind:"rct",   title:"CAPE-COD: Hydrocortisone in Severe Community-Acquired Pneumonia", cite:"Dequin et al. · 388:1931" },
+  mist2:    { body:"NEJM",          year:2011, kind:"rct",   title:"MIST-2: Intrapleural tPA + DNase for Pleural Infection", cite:"Rahman et al. · 365:518" },
+  pneuma:   { body:"JAMA",          year:2003, kind:"rct",   title:"PneumA: 8 vs 15 Days of Antibiotic Therapy for Ventilator-Associated Pneumonia", cite:"Chastre et al. · 290:2588" },
+  diabolo:  { body:"Br J Surg",     year:2017, kind:"rct",   title:"DIABOLO: Observation vs Antibiotic Treatment for Uncomplicated Acute Diverticulitis", cite:"Daniels et al. · 104:52" },
+  coda:     { body:"NEJM",          year:2020, kind:"rct",   title:"CODA: Antibiotics versus Appendectomy for Acute Appendicitis", cite:"Flum / CODA Collaborative · 383:1907" },
+  datipo:   { body:"NEJM",          year:2021, kind:"rct",   title:"DATIPO: 6 vs 12 Weeks of Antibiotic Therapy After Prosthetic Joint Infection Surgery", cite:"Bernard et al. · 384:1991" },
+  fmt:      { body:"NEJM",          year:2013, kind:"rct",   title:"Duodenal Infusion of Donor Feces for Recurrent C. difficile (Stopped early for efficacy)", cite:"van Nood et al. · 368:407" },
+  modify:   { body:"NEJM",          year:2017, kind:"rct",   title:"MODIFY I/II: Bezlotoxumab for the Prevention of Recurrent C. difficile Infection", cite:"Wilcox et al. · 376:305" },
+  ser109:   { body:"NEJM",          year:2022, kind:"rct",   title:"ECOSPOR III (SER-109 / Vowst): Oral Microbiome Therapeutic for Recurrent C. difficile", cite:"Feuerstadt et al. · 386:220" },
+  degans:   { body:"NEJM",          year:2002, kind:"rct",   title:"Adjunctive Dexamethasone in Adults with Bacterial Meningitis", cite:"de Gans + van de Beek · 347:1549" },
+  talan:    { body:"JAMA",          year:2000, kind:"rct",   title:"Ciprofloxacin 7-day vs TMP-SMX 14-day for Pyelonephritis in Women", cite:"Talan et al. · 283:1583" },
+  patch:    { body:"BMJ",           year:2018, kind:"rct",   title:"PATCH I/II: Penicillin Prophylaxis for Recurrent Cellulitis", cite:"Thomas et al. · cellulitis prophylaxis" },
+  pallin:   { body:"Clin Infect Dis", year:2013, kind:"rct", title:"Cephalexin alone vs Cephalexin + TMP-SMX for Uncomplicated Cellulitis", cite:"Pallin et al. · 56:1754" },
+  dutchstepup: { body:"NEJM",       year:2010, kind:"rct",   title:"Dutch Step-Up Approach (PANTER): Minimally Invasive Step-Up vs Open Necrosectomy for Pancreatic Necrosis", cite:"van Santvoort et al. · 362:1491" },
+  propatria: { body:"Lancet",       year:2008, kind:"rct",   title:"PROPATRIA: Probiotic Prophylaxis in Predicted Severe Acute Pancreatitis (increased mortality)", cite:"Besselink et al. · 371:651" },
+  reduce:   { body:"JAMA",          year:2013, kind:"rct",   title:"REDUCE: 5-day vs 14-day Prednisone in COPD Exacerbations", cite:"Leuppi et al. · 309:2223" },
+  ease:     { body:"NEJM",          year:2012, kind:"rct",   title:"EASE: Early Surgery in Infective Endocarditis with Large Vegetations", cite:"Kang et al. · 366:2466" },
+  arrest:   { body:"Lancet",        year:2018, kind:"rct",   title:"ARREST: Adjunctive Rifampicin for S. aureus Bacteremia (no mortality benefit)", cite:"Thwaites et al. · 391:668" },
+  tokyo:    { body:"J Hepatobiliary Pancreat Sci", year:2018, kind:"guide", title:"Tokyo Guidelines (TG18) for Diagnosis and Severity Grading of Acute Cholangitis", cite:"Kiriyama / Yokoe et al." },
+  hoffman:  { body:"NEJM",          year:1984, kind:"rct",   title:"High-Dose Dexamethasone (Hoffman regimen) in Severe Typhoid Fever", cite:"Hoffman + Punjabi et al. · 310:82" },
+  wongehec: { body:"NEJM",          year:2000, kind:"obs",   title:"Antibiotic Treatment of Children with E. coli O157:H7 and Hemolytic-Uremic Syndrome Risk", cite:"Wong et al. · 342:1930" },
+  taplitzfn: { body:"J Clin Oncol", year:2018, kind:"guide", title:"Outpatient Management of Fever and Neutropenia (ASCO / IDSA Joint Update)", cite:"Taplitz et al. · 36:1443" },
+  mascc:    { body:"J Clin Oncol",  year:2000, kind:"guide", title:"MASCC Risk Score for Stratifying Febrile Neutropenia", cite:"Klastersky et al. · 18:3038" },
+  vfneo:    { body:"NEJM",          year:2018, kind:"rct",   title:"SECURE: Isavuconazole vs Voriconazole for Invasive Aspergillosis", cite:"Maertens et al. · 387:760" },
+  mermel:   { body:"Clin Infect Dis", year:2009, kind:"guide", title:"IDSA Catheter-Related Bloodstream Infection Management Algorithm", cite:"Mermel et al." },
+  cdc_abx:  { body:"CDC",           year:2024, kind:"guide", title:"Tier-1 Select Agents (Anthrax, Plague, Tularemia, Q fever) Treatment + Public Health Reporting", cite:"cdc.gov/anthrax" },
+  brouwerba: { body:"NEJM",         year:2014, kind:"obs",   title:"Modern Brain Abscess Epidemiology + Outcomes", cite:"Brouwer + Tunkel · 371:447" },
+  darouicheea: { body:"NEJM",       year:2006, kind:"obs",   title:"Spinal Epidural Abscess: Modern Management Review", cite:"Darouiche · 355:2012" },
+  fishman:  { body:"NEJM",          year:2007, kind:"obs",   title:"Infection in Solid-Organ Transplant Recipients", cite:"Fishman · 357:2601" },
+  cdc_acip: { body:"CDC ACIP",      year:2024, kind:"guide", title:"Adult + Asplenia Immunization Schedule", cite:"cdc.gov/vaccines/schedules/hcp/imz/adult" },
+  davies_bsh: { body:"Br J Haematol", year:2011, kind:"guide", title:"BSH Asplenia / Hyposplenia Management Guidance", cite:"Davies et al. · 155:308" },
+  bisharat: { body:"Lancet Infect Dis", year:2001, kind:"obs", title:"OPSI Epidemiology + Outcomes Cohort Review", cite:"Bisharat et al. · 1:230" },
+  acg_pancreatitis: { body:"ACG",   year:2024, kind:"guide", title:"Acute Pancreatitis Clinical Practice Guideline Update", cite:"Crockett et al. (ACG)" },
+  iwgdf_idsa: { body:"IWGDF / IDSA", year:2023, kind:"guide", title:"International Diabetes-Related Foot Infection Joint Guidance", cite:"Senneville + Lipsky" },
+  cdc_sti:  { body:"CDC",           year:2021, kind:"guide", title:"CDC STI Treatment Guidelines (incl. PID)", cite:"Workowski et al. · MMWR" },
 };
 
 /* Visible source list is derived from the registry — never hand-maintained. */
@@ -170,6 +209,24 @@ const EVOLVING = [
   { h:"Durations keep shortening", ref:"balance",
     b:"Seven days equalled 14 for bloodstream infection (BALANCE), ~4 days suffices after intra-abdominal source control (STOP-IT), and oral step-down is non-inferior for bone/joint (OVIVA) and left-sided endocarditis (POET). The default is now short with a defined stop date.",
     dir:"Trend \u2014 fix the stop date upfront" },
+  { h:"Steroids in severe CAP \u2014 practice-changing", ref:"capecod",
+    b:"CAPE-COD (NEJM 2023, n=800) showed hydrocortisone 200 mg/d \u00d7 4\u20138 d reduces 28-day mortality in severe non-shock CAP (6.2% vs 11.9%). Excluded influenza + immunocompromised. Where steroid was historically debated, severe non-influenza CAP now has a defined survival benefit.",
+    dir:"Settled \u2014 dose for severe CAP without influenza" },
+  { h:"Antibiotic-free observation for selected uncomplicated infection", ref:"diabolo",
+    b:"DIABOLO (Br J Surg 2017) and AVOD (2012) established that uncomplicated diverticulitis often resolves without antibiotics. CODA (NEJM 2020) showed antibiotic-only management non-inferior at 90 d for acute appendicitis (\u224830% required appendectomy at 5 y). Stewardship displaces reflex prescription.",
+    dir:"Established \u2014 shared decision-making for selected" },
+  { h:"Oral step-down expanding beyond bone\u00b7joint", ref:"poet",
+    b:"OVIVA proved oral is non-inferior for bone\u00b7joint; POET extended this to stabilized left-sided endocarditis. Outpatient parenteral therapy (OPAT) pathways increasingly substitute for inpatient IV completion. SABATO (2023) suggests the principle applies even to uncomplicated S. aureus bacteremia after initial IV.",
+    dir:"Expanding \u2014 select for stable, bioavailable, reliable follow-up" },
+  { h:"Microbiome therapeutics for recurrent CDI", ref:"ser109",
+    b:"After van Nood (2013, stopped early for FMT efficacy), SER-109 (NEJM 2022; FDA-approved as Vowst 2023) and Rebyota establish standardized oral / per-rectal microbiome products as alternatives to FMT for recurrent C. difficile. Bezlotoxumab (MODIFY) adjunct for high-risk recurrence.",
+    dir:"New \u2014 standardized products replacing traditional FMT" },
+  { h:"EHEC: antibiotic contraindication holds firm", ref:"wongehec",
+    b:"Wong (NEJM 2000) showed \u224810x HUS risk in pediatric EHEC + antibiotic exposure; adult signal consistent. Bloody diarrhea workup must exclude EHEC before any antibiotic decision. Stewardship displaces empiric treatment of acute bloody diarrhea.",
+    dir:"Settled \u2014 confirm EHEC status before treating" },
+  { h:"Severe pancreatitis: no antibiotic prophylaxis", ref:"propatria",
+    b:"PROPATRIA (Lancet 2008) showed probiotic prophylaxis increased mortality in severe pancreatitis. Villatoro (Cochrane 2010) confirmed no benefit of prophylactic antibiotics in sterile necrosis. Treatment is reserved for documented infected necrosis (FNA or gas-on-imaging); step-up drainage (Dutch step-up, NEJM 2010) is the modern intervention.",
+    dir:"Settled \u2014 no prophylaxis in sterile necrosis" },
 ];
 
 /* ============================================================================
