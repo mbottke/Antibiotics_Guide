@@ -278,6 +278,15 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                   <> · <span style={{ color:"var(--muted)" }}>{activeBranch.days} from start, branch "{activeBranch.label}"</span></>
                 )}
               </span>
+            ) : activeBranch ? (
+              // A branch is selected but the days value isn't a fixed
+              // calendar duration (e.g. "Per source", "Per pathogen",
+              // "Until clear", "Per PJI"). The branch defers to the
+              // referenced upstream syndrome / clinical decision; no
+              // single-syndrome stop date can be computed here.
+              <span>
+                <b style={{ color: accent }}>{activeBranch.days}</b> · <span style={{ color:"var(--muted)" }}>variable course; treat per "{activeBranch.label}"</span>
+              </span>
             ) : (
               <span style={{ fontStyle: "italic" }}>
                 Click a branch above to bind the duration; range branches use the lower bound.
