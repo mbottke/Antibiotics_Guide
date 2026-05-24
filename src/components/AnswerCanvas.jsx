@@ -39,6 +39,8 @@ import { SurgeProtocolsBlock } from "./SurgeProtocolsBlock.jsx";
 import { getSurgeForSyndrome } from "../data/surgeProtocols.js";
 import { SitePenetrationBlock } from "./SitePenetrationBlock.jsx";
 import { getPenetrationForSyndrome } from "../data/sitePenetration.js";
+import { PedsPregBlock } from "./PedsPregBlock.jsx";
+import { getPedsPregForSyndrome } from "../data/pedsPregDosing.js";
 import { CombinedRisksBlock } from "./CombinedRisksBlock.jsx";
 import { Section } from "./Section.jsx";
 import { getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch } from "../data/syndromeDecision.js";
@@ -692,16 +694,14 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
       {/* REGIONAL RESISTANCE · antibiogram alerts (Phase H). Renders
           only when patterns affecting this syndrome exist. */}
       <RegionalResistanceBlock patterns={getRegionalForSyndrome(s.id)} />
-      {/* NOVEL AGENTS · newer drug profiles (Phase I). Surfaces
-          recent-approval agents with specific use-cases (ceftolozane-
-          tazo for DTR-Pseudomonas, ceftaz-avi for KPC-CRE, cefiderocol
-          for metallo / CRAB, dalbavancin / oritavancin for OPAT MRSA). */}
+      {/* NOVEL AGENTS · newer drug profiles (Phase I). */}
       <NovelAgentsBlock agents={getNovelForSyndrome(s.id)} />
       {/* SURGE + OUTBREAK · emerging pathogen alerts (Phase K). */}
       <SurgeProtocolsBlock protocols={getSurgeForSyndrome(s.id)} />
-      {/* SITE PENETRATION · drug PK by anatomic compartment (Phase L).
-          Informs oral step-down + agent choice for sequestered sites. */}
+      {/* SITE PENETRATION · drug PK by anatomic compartment (Phase L). */}
       <SitePenetrationBlock entries={getPenetrationForSyndrome(s.id)} />
+      {/* PEDS + PREGNANCY · weight-based dosing + safety (Phase J). */}
+      <PedsPregBlock entries={getPedsPregForSyndrome(s.id)} />
 
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file
