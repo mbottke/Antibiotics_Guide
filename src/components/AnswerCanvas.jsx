@@ -666,11 +666,13 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         onBranchSelect={handleBranchSelect}
         startDate={startDate}
         onStartDateChange={setStartDate}
+        ctx={{ ...ans.ctx, ...ans.d }}
       />
       <MonitoringBlock
         monitoring={getSyndromeMonitoring(s.id)}
         pickedAgents={pickedAgents}
         pickedBranch={effectiveBranch}
+        ctx={{ ...ans.ctx, ...ans.d }}
       />
 
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
