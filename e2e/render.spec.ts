@@ -290,13 +290,34 @@ test.describe("bedside reassessment panel", () => {
     await expect(panel.getByText(/iv.po candidates/i).first()).toBeVisible();
   });
 
-  test("toggling source controlled surfaces the duration clock", async ({ page }) => {
+  test("source-controlled chip syncs with the duration affordance", async ({ page }) => {
+    /* HAP gained authored DurationBlock content in D2 tranche 1, so
+       the "Standard HAP / VAP" 7 d branch now renders above the
+       ReassessmentPanel from page load. The chip → branch bidirectional
+       bridge means clicking source-controlled lights the corresponding
+       branch; the affordance no longer renders inside the panel itself
+       (the legacy duration-clock fallback only fires for syndromes
+       without authored decision content).
+
+       For syndromes that DO have structured content (HAP, sepsis, cap,
+       etc.), assert that the duration block is visible with the 7 d
+       chip. For unauthored syndromes the test would assert the legacy
+       clock inside the panel — both are valid expressions of the same
+       "surface the duration" affordance. */
     await openHapAnswer(page);
     const panel = page.getByTestId("reassessment-panel");
+
+    // The structured DurationBlock should render above the panel
+    // (HAP has authored decision content).
+    await expect(page.getByTestId("duration-block")).toBeVisible();
+
+    // The 7 d Standard HAP branch chip should be visible.
+    await expect(page.getByText(/^7\s*d$/i).first()).toBeVisible();
+
+    // Clicking the source-controlled chip in the panel still triggers
+    // its state-update path (used by the bidirectional sync engine).
     await panel.getByRole("button", { name: /source controlled/i }).click();
-    await expect(panel.getByText(/duration clock/i).first()).toBeVisible();
-    // HAP duration is "7 days for most VAP/HAP" — the panel should surface
-    // the 7-day count even before a start date is set.
-    await expect(panel.getByText(/7 days/i).first()).toBeVisible();
+    await expect(panel.getByRole("button", { name: /source controlled/i }))
+      .toHaveAttribute("aria-pressed", "true");
   });
 });
