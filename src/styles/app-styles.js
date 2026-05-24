@@ -601,7 +601,8 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-builder-field{display:flex; flex-direction:column; gap:5px; min-width:0;}
 .rx-builder-field span{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600;}
 .rx-builder-field select{font-family:var(--sans); font-size:13px; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:9px 11px; cursor:pointer; width:100%; max-width:100%; min-width:0;}
-.rx-builder-field select:focus-visible{outline:2px solid var(--ox); outline-offset:1px;}
+.rx-builder-field input{font-family:var(--sans); font-size:13px; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:9px 11px; width:100%; max-width:100%; min-width:0; box-sizing:border-box;}
+.rx-builder-field select:focus-visible,.rx-builder-field input:focus-visible{outline:2px solid var(--ox); outline-offset:1px;}
 .rx-builder-risks{display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-bottom:14px;}
 .rx-builder-rlab{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-right:2px;}
 .rx-builder-go{display:inline-flex; align-items:center; gap:8px; font-family:var(--sans); font-size:13px; font-weight:600; color:#fff; background:var(--ox); border:1px solid var(--ox); border-radius:9px; padding:10px 16px; cursor:pointer; transition:background .14s;}
