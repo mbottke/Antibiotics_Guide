@@ -5699,7 +5699,481 @@ const SYNDROME_DECISION = {
     },
   },
 
+  /* ===========================================================
+     NEUROBORRELIOSIS / NEUROSYPHILIS — CNS spirochete; CSF
+     confirmation + parenteral therapy; long courses + serial
+     follow-up. ================================================== */
+  "neuro-lyme-syphilis": {
+    duration: {
+      headline: "Neuro-Lyme: ceftriaxone or doxy 14–28 d; neurosyphilis: PCN G 10–14 d; CSF + serology drive diagnosis.",
+      evidence: "IDSA 2020 Lyme + CDC STI 2021 — parenteral for CNS disease in both; doxycycline non-inferior in Lyme (Halperin); serial CSF VDRL for syphilis",
+      branches: [
+        { label: "Neuroborreliosis (meningitis / radiculitis / facial palsy)", days: "14–21 d",
+          detail: "Ceftriaxone 2 g IV q24h × 14–21 d or doxycycline 200 mg PO BID × 14–21 d (IDSA 2020)",
+          matchAgent: /doxycycline/i },
+        { label: "Lyme encephalopathy / late neuroborreliosis", days: "28 d",
+          detail: "Ceftriaxone × 28 d; ID-driven extended course for late / persistent symptoms" },
+        { label: "Neurosyphilis (any stage)", days: "10–14 d IV PCN",
+          detail: "Aqueous PCN G 18–24 MU/d × 10–14 d (3–4 MU IV q4h or continuous infusion)",
+          matchAgent: /penicillin/i },
+        { label: "Ocular / otosyphilis", days: "10–14 d IV PCN",
+          detail: "Same as neurosyphilis — treat as CNS disease; ophtho + ENT coordination" },
+        { label: "PCN allergy + neurosyphilis", days: "10–14 d (desensitize)",
+          detail: "Desensitization preferred; ceftriaxone 2 g IV q24h × 10–14 d as alternative",
+          matchAgent: /ceftriaxone/i },
+      ],
+      stopWhen: [
+        "CSF profile normalizing (cell count, protein)",
+        "Clinical recovery — neurologic exam stable / improving",
+        "Serologic response — RPR titer ≥ 4-fold decline (syphilis)",
+        "Treponemal CSF VDRL trending (if positive initially)",
+        "Pathogen-specific minimum duration met",
+      ],
+      extendIf: [
+        { text: "**Persistent CSF abnormalities** at 6 mo — re-treat",
+          matchCtx: { severe: true } },
+        "HIV co-infection — extend follow-up + monitor RPR closely",
+        "Late or persistent symptoms — extended course per ID",
+        "Inadequate serologic response — repeat treatment",
+      ],
+    },
+    monitoring: {
+      headline: "LP for CSF analysis + VDRL / Lyme PCR; HIV + STI co-screen; serial RPR + CSF; partner notification.",
+      items: [
+        { sev: "required", what: "**LP at presentation** — CSF cell count, protein, VDRL, Lyme PCR / index",
+          why: "CNS confirmation drives treatment intensity + duration + monitoring" },
+        { sev: "required", what: "**HIV + STI co-screen**",
+          why: "Co-infection common — drives extended monitoring + alters management" },
+        { sev: "required", what: "**Serum RPR + treponemal** + Lyme serology (paired acute/convalescent)",
+          why: "Establishes baseline for response monitoring; RPR ≥ 4× decline = treatment success" },
+        { sev: "trigger", what: "**Partner notification** for syphilis",
+          why: "Public health reporting + contact tracing + EPT where permitted" },
+        { sev: "trigger", what: "**Repeat LP at 6 mo** if neurosyphilis or HIV+",
+          why: "Sterilization confirmation; persistent CSF abnormalities → re-treatment" },
+        { sev: "trigger", what: "**Jarisch-Herxheimer prophylaxis counseling** — fever / rigors after first dose",
+          why: "Common in syphilis treatment; supportive measures; not a drug allergy" },
+        { sev: "trigger", what: "**Avoid steroids in Lyme** — no benefit + may prolong",
+          why: "Steroids not standard; ID-driven only if specific indication" },
+        { sev: "consider", what: "**PCN desensitization** for severe PCN allergy + neurosyphilis",
+          why: "PCN preferred; desensitization standard in pregnancy + neurosyphilis" },
+        { sev: "consider", what: "**Lyme post-treatment symptoms counseling**",
+          why: "PTLDS common after treatment; not chronic infection; no benefit from extended antibiotics" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     ASYMPTOMATIC BACTERIURIA — stewardship-only entry; treat
+     pregnancy + pre-uro-instrumentation; do NOT treat elderly /
+     catheter / diabetic / spinal cord injury. ================== */
+  "asymp-bact": {
+    duration: {
+      headline: "Treat ONLY pregnancy + pre-urologic instrumentation; do NOT treat most asymptomatic bacteriuria.",
+      evidence: "IDSA 2019 ASB guidelines — treatment of non-pregnant ASB drives resistance + AKI without benefit; pregnant + pre-procedural exception",
+      branches: [
+        { label: "Pregnancy (any trimester)", days: "5–7 d",
+          detail: "Nitrofurantoin (avoid term + G6PD) or amoxicillin or cephalexin per sensitivity",
+          matchAgent: /nitrofurantoin|amoxicillin|cephalexin/i },
+        { label: "Pre-urologic instrumentation (TURP, ureteroscopy)", days: "Single dose pre-op",
+          detail: "Single targeted dose ~30 min before procedure; pathogen-directed per pre-op culture" },
+        { label: "Elderly / catheter / diabetic / functional disability", days: "0 d antibiotics",
+          detail: "Do NOT treat; antibiotic exposure drives resistance + collateral; treat symptomatic UTI only" },
+        { label: "Renal transplant — first 1 mo post-tx", days: "5–7 d",
+          detail: "Per transplant ID; treat ASB in immediate post-tx period; later ASB NOT treated" },
+        { label: "Post-renal-tx > 1 mo", days: "0 d antibiotics",
+          detail: "AST 2019 — do NOT treat asymptomatic; treat symptomatic UTI per transplant-uti bands" },
+      ],
+      stopWhen: [
+        "Pregnancy treatment course completed",
+        "Pre-procedural single dose given",
+        "Asymptomatic state confirmed (no fever / dysuria / suprapubic pain)",
+        "Symptomatic UTI ruled out by clinical re-eval",
+      ],
+      extendIf: [
+        { text: "**Symptomatic infection** developing — treat per UTI bands",
+          matchCtx: { severe: true } },
+        "Pyelonephritis on imaging — per pyelonephritis bands",
+        "Bacteremia — per source pathogen",
+        "Pre-procedural extended course if delayed procedure",
+      ],
+    },
+    monitoring: {
+      headline: "Stewardship-only entry; treat pregnancy + pre-procedural; do NOT treat the rest; explicit education.",
+      items: [
+        { sev: "required", what: "**Stewardship** — do NOT treat asymptomatic bacteriuria",
+          why: "IDSA 2019 — treatment of non-pregnant non-procedural ASB drives resistance + AKI + CDI without benefit" },
+        { sev: "required", what: "**Symptom assessment** — fever, dysuria, suprapubic pain, flank pain, costovertebral angle tenderness",
+          why: "Symptomatic UTI distinct from ASB; presence of any symptom changes paradigm" },
+        { sev: "required", what: "**Pregnancy test** in childbearing age + bacteriuria",
+          why: "Pregnancy is the indication for treatment; alters all subsequent decisions" },
+        { sev: "trigger", what: "**Pre-procedural single dose** for urologic instrumentation",
+          why: "Reduces bacteremia + UTI post-procedure; single dose adequate" },
+        { sev: "trigger", what: "**Foley removal** if catheter-associated ASB",
+          why: "Catheter is the source; removal alone often resolves; antibiotic adds no benefit" },
+        { sev: "trigger", what: "**Cloudy urine + odor are NOT indications**",
+          why: "Stewardship — common in elderly + dehydrated; misinterpretation drives unnecessary treatment" },
+        { sev: "trigger", what: "**Mental status change alone is NOT an indication** in elderly",
+          why: "Multiple confounders; ASB ≠ delirium cause; broader workup needed before antibiotics" },
+        { sev: "consider", what: "**Patient + family education** on ASB stewardship",
+          why: "Shared decision-making; reduces requests for unnecessary urine cultures + treatment" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SCROTAL ABSCESS / FOURNIER'S — Fournier is surgical emergency;
+     polymicrobial; aggressive debridement + broad antibiotics. == */
+  "scrotal-abscess": {
+    duration: {
+      headline: "Simple abscess — I&D + 7 d; Fournier — emergent surgery + 14–21 d + ICU; urology mandatory.",
+      evidence: "Society consensus — drainage drives outcome; Fournier's gangrene is surgical emergency with mortality 20–40%; broad polymicrobial",
+      branches: [
+        { label: "Simple scrotal abscess (drained)", days: "7 d",
+          detail: "Per cellulitis / purulent SSTI bands; cover MRSA per institutional prevalence",
+          matchAgent: /cephalexin|cefazolin|trimethoprim-?sulfamethoxazole/i },
+        { label: "Fournier's gangrene (necrotizing perineal)", days: "14–21 d + surgery",
+          detail: "Pip-tazo + vancomycin + clindamycin; aggressive serial debridement; urology + GS + ICU",
+          matchAgent: /piperacillin|meropenem/i },
+        { label: "Epididymo-orchitis with abscess", days: "14 d + drainage",
+          detail: "Per epididymo-orchitis bands + drainage; urology consult" },
+        { label: "Immunocompromised / diabetic", days: "14 d + extended workup",
+          detail: "Lower threshold to broad coverage + extended course; ID + urology" },
+      ],
+      stopWhen: [
+        "Abscess drained + wound healing",
+        "Surgical debridement complete (Fournier)",
+        "Afebrile + clinical recovery",
+        "Source / underlying anatomy addressed",
+        "Pathogen-specific minimum duration met",
+      ],
+      extendIf: [
+        { text: "**Fournier's** — extend per surgical adequacy + clinical course",
+          matchCtx: { severe: true } },
+        "Bacteremia — per source pathogen",
+        "Inadequate debridement — re-explore + extend",
+        "Diabetic / immunocompromised — extend per ID",
+      ],
+    },
+    monitoring: {
+      headline: "Urology consult; differentiate simple from Fournier; aggressive resuscitation + surgery for Fournier.",
+      items: [
+        { sev: "required", what: "**Urology consult** at presentation",
+          why: "Source identification + drainage planning + long-term management" },
+        { sev: "required", what: "**Differentiate simple from Fournier's gangrene**",
+          why: "Fournier — severe pain out of proportion, crepitus, skin necrosis; surgical emergency" },
+        { sev: "required", what: "**CT pelvis with contrast** if Fournier suspected",
+          why: "Defines extent + gas + planning surgical approach" },
+        { sev: "trigger", what: "**Emergent surgical debridement** for Fournier",
+          why: "Mortality 20–40% — surgery within hours; serial re-look q24h" },
+        { sev: "trigger", what: "**Cover MRSA + GNR + anaerobes** for Fournier",
+          why: "Polymicrobial substrate; broad coverage + clindamycin for toxin suppression" },
+        { sev: "trigger", what: "**Diabetic workup + management**",
+          why: "Most common substrate for Fournier; glycemic control + ID coordination" },
+        { sev: "trigger", what: "**Diverting colostomy** if perianal extension",
+          why: "Source diversion accelerates healing in extensive Fournier with perineal involvement" },
+        { sev: "consider", what: "**Reconstructive surgery** referral after debridement complete",
+          why: "Multi-stage closure planning; flap or graft typical for extensive defects" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     PD-PERITONITIS — peritoneal dialysis catheter peritonitis;
+     ISPD 2022 guidelines — intraperitoneal antibiotics; catheter
+     removal for refractory. =================================== */
+  "pd-peritonitis": {
+    duration: {
+      headline: "Intraperitoneal antibiotics 14–21 d per pathogen; catheter removal for refractory / relapsing.",
+      evidence: "ISPD 2022 — IP antibiotics first-line; effluent cell count + culture drive diagnosis; catheter removal at day 5 if non-response",
+      branches: [
+        { label: "Gram-positive (S. aureus, CoNS, Strep)", days: "14 d IP",
+          detail: "IP cefazolin or vancomycin per local resistance; convert to IV if bacteremic",
+          matchAgent: /cefazolin|vancomycin/i },
+        { label: "Gram-negative (E. coli, Klebsiella, Pseudomonas)", days: "14–21 d IP",
+          detail: "IP ceftazidime or aminoglycoside + cefazolin combination; per sensitivity",
+          matchAgent: /ceftazidime|gentamicin/i },
+        { label: "Polymicrobial / enteric source (perforation)", days: "21 d + surgical workup",
+          detail: "Broad IP + IV + surgical evaluation for bowel perforation source",
+          matchAgent: /piperacillin|meropenem|metronidazole/i },
+        { label: "Fungal (Candida, mold)", days: "Catheter removal",
+          detail: "Catheter MUST be removed; antifungal × 2–3 wk after; rarely safe to retain",
+          matchAgent: /caspofungin|fluconazole|amphotericin/i },
+        { label: "Refractory (≥ 5 d non-response)", days: "Catheter removal",
+          detail: "Catheter removal + transition to HD + targeted antibiotic per pathogen; biofilm + tunnel infection" },
+      ],
+      stopWhen: [
+        "Effluent cell count < 100/μL with < 50% PMN",
+        "Cultures cleared",
+        "Afebrile + clinical recovery",
+        "Catheter retained or removed per protocol",
+        "Pathogen-specific minimum duration met",
+      ],
+      extendIf: [
+        { text: "**Refractory or relapsing** — catheter removal + extend",
+          matchCtx: { severe: true } },
+        "Tunnel or exit-site infection — extend + surgical",
+        "Fungal pathogen — catheter removal + antifungal",
+        "Polymicrobial / enteric source — workup perforation",
+      ],
+    },
+    monitoring: {
+      headline: "Effluent cell count + culture at presentation; IP antibiotics first-line; remove for fungal or refractory.",
+      items: [
+        { sev: "required", what: "**Effluent cell count + culture + Gram stain** at presentation",
+          why: "Diagnostic — cell count > 100/μL + PMN > 50% = peritonitis; culture drives narrowing" },
+        { sev: "required", what: "**IP antibiotics first-line** per ISPD",
+          why: "Achieves higher local concentrations than IV; standard of care; bag-based dosing" },
+        { sev: "required", what: "**Nephrology + PD nurse coordination**",
+          why: "Dosing complex; PD prescription adjustment during treatment; outpatient transition" },
+        { sev: "trigger", what: "**Catheter removal mandatory for fungal**",
+          why: "Biofilm + recurrence; rare safe retention; transition to HD" },
+        { sev: "trigger", what: "**Catheter removal at day 5 if non-response**",
+          why: "Refractory disease drives biofilm + tunnel infection; transition to HD" },
+        { sev: "trigger", what: "**Workup tunnel / exit-site infection** if recurrent",
+          why: "Underlying tunnel infection drives recurrent peritonitis; surgical revision" },
+        { sev: "trigger", what: "**Surgical evaluation for bowel perforation** if polymicrobial / enteric",
+          why: "Enteric source drives perforation workup; CT + surgical consult" },
+        { sev: "consider", what: "**Patient PD technique review** post-recovery",
+          why: "Touch contamination most common source; education reduces recurrence" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SPLENIC ABSCESS — rare; bacteremic seeding; drainage +
+     splenectomy + broad antibiotics; high mortality. =========== */
+  "splenic-abscess": {
+    duration: {
+      headline: "4–6 wk IV + drainage / splenectomy; broad initial then narrow; high mortality without source control.",
+      evidence: "Society consensus — splenectomy or percutaneous drainage drives outcome; antibiotic alone fails; bacteremic seeding common",
+      branches: [
+        { label: "Bacterial (S. aureus, Strep, enteric GNR)", days: "4–6 wk + drainage",
+          detail: "Per pathogen; vancomycin + ceftriaxone or pip-tazo empiric; surgical or IR drainage",
+          matchAgent: /piperacillin|ceftriaxone|vancomycin/i },
+        { label: "Salmonella (immunocompromised, HIV)", days: "4–6 wk",
+          detail: "Ceftriaxone or cipro per sensitivity; HIV workup + extended course",
+          matchAgent: /ciprofloxacin/i },
+        { label: "Candida (fungemia, immunocompromised)", days: "6 wk + drainage",
+          detail: "Echinocandin then fluconazole per sensitivity; per IFI bands",
+          matchAgent: /caspofungin|fluconazole|micafungin/i },
+        { label: "Endocarditis source", days: "Per IE bands + abscess",
+          detail: "Per IE bands for total duration; drainage + splenectomy" },
+        { label: "Splenectomy required", days: "2 wk post-op",
+          detail: "When IR drainage fails or splenic preservation infeasible; broad coverage post-op per source" },
+      ],
+      stopWhen: [
+        "Drainage / splenectomy complete",
+        "Blood cultures cleared",
+        "Afebrile + clinical recovery",
+        "Imaging shows resolution",
+        "Pathogen-specific minimum 4–6 wk completed",
+      ],
+      extendIf: [
+        { text: "**Inadequate drainage** — surgical splenectomy + extend",
+          matchCtx: { severe: true } },
+        "Endocarditis source — per IE bands",
+        "Immunocompromised host — extend per ID",
+        "Fungal pathogen — per IFI bands",
+      ],
+    },
+    monitoring: {
+      headline: "IR or surgical drainage drives outcome; broad initial then narrow; OPSI ppx after splenectomy.",
+      items: [
+        { sev: "required", what: "**IR or surgical drainage** at presentation",
+          why: "Source control — antibiotic alone fails; percutaneous preferred if amenable" },
+        { sev: "required", what: "**Blood cultures × 2 + abscess culture**",
+          why: "Pathogen identification drives narrowing; bacteremic seeding common" },
+        { sev: "required", what: "**CT abdomen with contrast** at presentation",
+          why: "Defines extent + multiple loci + drainage planning" },
+        { sev: "trigger", what: "**Echo (TEE)** if S. aureus or Strep — rule out endocarditis",
+          why: "Splenic abscess + bacteremic substrate; IE source workup mandatory" },
+        { sev: "trigger", what: "**HIV workup + immune workup** for Salmonella",
+          why: "Salmonella splenic abscess marker for cellular immune compromise" },
+        { sev: "trigger", what: "**Splenectomy** if IR drainage fails or multiloculated",
+          why: "Definitive source control; post-op OPSI prophylaxis required" },
+        { sev: "trigger", what: "**Post-splenectomy vaccination + standby antibiotic** (OPSI ppx)",
+          why: "Per asplenia-prophylaxis bands; pneumococcal + meningococcal + Hib + amoxicillin" },
+        { sev: "consider", what: "**Workup endovascular focus** if persistent bacteremia",
+          why: "Mycotic aneurysm + IE + line infection drive recurrence" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     TOXIC MEGACOLON — severe CDI or IBD; emergent surgery
+     candidate; aggressive medical + ICU + surgical coordination. */
+  "toxic-megacolon": {
+    duration: {
+      headline: "Aggressive medical + emergent surgical consult; per underlying (CDI vs IBD); ICU + colorectal surgery.",
+      evidence: "ACG + IDSA — fulminant CDI or severe IBD complication; medical 48–72 h trial then surgery; mortality > 30% without timely surgery",
+      branches: [
+        { label: "Fulminant CDI", days: "Per CDI bands + surgery",
+          detail: "Oral vancomycin 500 mg q6h + IV metronidazole + rectal vancomycin; emergent surgical consult",
+          matchAgent: /vancomycin|metronidazole/i },
+        { label: "Severe ulcerative colitis flare", days: "Per IBD + surgery",
+          detail: "IV steroids + infliximab or cyclosporine; emergent surgical consult; GI + colorectal" },
+        { label: "Refractory medical management (48–72 h)", days: "Emergent colectomy",
+          detail: "Subtotal colectomy + ileostomy; preserves rectum for future reconstruction" },
+        { label: "Perforation / sepsis", days: "Emergent colectomy",
+          detail: "Emergent surgery + broad-spectrum + ICU; per intra-abdominal + sepsis bands",
+          matchAgent: /piperacillin|meropenem/i },
+      ],
+      stopWhen: [
+        "Surgical or medical resolution",
+        "Colonic dilation resolved on serial imaging",
+        "Afebrile + hemodynamically stable",
+        "Underlying disease controlled (CDI eradicated or IBD in remission)",
+        "Pathogen / disease-specific course completed",
+      ],
+      extendIf: [
+        { text: "**Refractory medical management** — emergent surgery",
+          matchCtx: { severe: true } },
+        "Perforation — emergent surgery + sepsis bands",
+        "Recurrent CDI post-recovery — per CDI recurrence bands",
+        "Underlying IBD — long-term immunomodulation",
+      ],
+    },
+    monitoring: {
+      headline: "Colorectal surgery emergent; serial abdominal imaging; medical trial 48–72 h then surgery if refractory.",
+      items: [
+        { sev: "required", what: "**Colorectal surgery emergent consult**",
+          why: "Surgery is the rescue; delay drives mortality; serial reassessment if non-operative trial" },
+        { sev: "required", what: "**Serial abdominal X-ray or CT** q6–12h",
+          why: "Colonic dilation > 6 cm + clinical deterioration → surgery; tracks medical response" },
+        { sev: "required", what: "**ICU admission** + aggressive fluid resuscitation",
+          why: "Distributive shock + electrolyte derangements; high-acuity substrate" },
+        { sev: "trigger", what: "**Underlying-disease specific therapy** — oral vanco + IV metro (CDI) or IV steroids + biologic (IBD)",
+          why: "Treat the cause; both pathways have evidence-based escalation" },
+        { sev: "trigger", what: "**Avoid antimotility agents + opiates + anticholinergics**",
+          why: "Worsen dilation + delay diagnosis of perforation; absolute avoidance" },
+        { sev: "trigger", what: "**Emergent colectomy** if non-response by 48–72 h",
+          why: "Mortality rises sharply with delay; subtotal colectomy + ileostomy standard" },
+        { sev: "trigger", what: "**Broad-spectrum coverage if perforation suspected**",
+          why: "Per intra-abdominal bands; cover anaerobes + GNR + GPC; pip-tazo or carbapenem" },
+        { sev: "consider", what: "**FMT** for recurrent CDI post-recovery",
+          why: "Reduces recurrence in fulminant CDI survivors; per CDI bands" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     ACUTE MESENTERIC ISCHEMIA — vascular surgical emergency;
+     broad antibiotics adjunctive; revascularization + resection. */
+  "mesenteric-isch": {
+    duration: {
+      headline: "Emergent vascular intervention + bowel resection; antibiotics adjunctive; broad coverage 5–10 d.",
+      evidence: "ACR + vascular surgery — revascularization within 6 h preserves bowel; antibiotic alone fails; high mortality without surgery",
+      branches: [
+        { label: "Acute embolic / thrombotic (SMA)", days: "5–10 d + revasc",
+          detail: "Pip-tazo or carbapenem broad × 5–10 d; emergent vascular + endovascular thrombectomy ± resection",
+          matchAgent: /meropenem/i },
+        { label: "Non-occlusive mesenteric ischemia (NOMI)", days: "5–10 d + supportive",
+          detail: "Treat shock + low CO state; vasodilators (papaverine) + broad antibiotics × 5–10 d" },
+        { label: "Venous thrombosis (SMV)", days: "5–10 d + anticoag",
+          detail: "Anticoagulation + broad antibiotics; long-term per coagulopathy workup",
+          matchAgent: /piperacillin/i },
+        { label: "Bowel infarction with perforation", days: "Per intra-abdom",
+          detail: "Resection + per intra-abdominal sepsis bands; ICU + ID + surgery" },
+      ],
+      stopWhen: [
+        "Revascularization complete or palliated",
+        "Bowel infarction resected",
+        "Hemodynamically stable",
+        "Inflammatory markers normalizing",
+        "Antibiotic course completed (5–10 d)",
+      ],
+      extendIf: [
+        { text: "**Bowel infarction with sepsis** — per intra-abdominal bands",
+          matchCtx: { severe: true } },
+        "Perforation — extend per source",
+        "Persistent ischemia or recurrent thrombosis — vascular + extended antibiotics",
+        "Short-bowel syndrome management — nutrition + per ID",
+      ],
+    },
+    monitoring: {
+      headline: "Vascular surgery emergent; CT angiography; broad antibiotics adjunctive; anticoagulation per pattern.",
+      items: [
+        { sev: "required", what: "**Vascular surgery + general surgery emergent consult**",
+          why: "Revascularization within 6 h preserves bowel; surgery drives outcome" },
+        { sev: "required", what: "**CT angiography** at presentation",
+          why: "Defines vascular anatomy + ischemic extent + thrombus / embolus / NOMI pattern" },
+        { sev: "required", what: "**ICU admission** + aggressive resuscitation",
+          why: "Multi-organ failure common; metabolic acidosis is a late sign" },
+        { sev: "trigger", what: "**Endovascular thrombectomy or thrombolysis** for embolic / thrombotic",
+          why: "Faster + less morbid than open; ideal for SMA embolus or thrombus" },
+        { sev: "trigger", what: "**Anticoagulation for venous thrombosis (SMV)**",
+          why: "Long-term anticoagulation reduces recurrence; coag workup for thrombophilia" },
+        { sev: "trigger", what: "**Vasodilators (papaverine)** for NOMI",
+          why: "Improves splanchnic perfusion in non-occlusive disease" },
+        { sev: "trigger", what: "**Second-look laparotomy** at 24 h",
+          why: "Re-assesses bowel viability; resects newly necrotic segments" },
+        { sev: "consider", what: "**Coagulopathy + cardiac source workup**",
+          why: "AF + intracardiac thrombus + thrombophilia drive recurrence; addressable" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     PERIANAL / PERIRECTAL ABSCESS — surgical drainage; antibiotics
+     for cellulitis / sepsis / immunocompromised. =============== */
+  "perianal-abscess": {
+    duration: {
+      headline: "Surgical drainage + antibiotics for cellulitis / sepsis / immunocompromised; 7–10 d if treated.",
+      evidence: "ASCRS + IDSA — drainage drives outcome; antibiotics adjunct for cellulitis or sepsis; not routinely needed for simple abscess",
+      branches: [
+        { label: "Simple perianal abscess, drained, immunocompetent", days: "0 d antibiotics",
+          detail: "I&D alone; antibiotics not routinely needed; sitz baths + wound care" },
+        { label: "Cellulitis surrounding / systemic signs", days: "7–10 d",
+          detail: "Amox-clav PO or ceftriaxone + metronidazole IV; cover anaerobes + GNR + GPC",
+          matchAgent: /amoxicillin-?clavulanate|ceftriaxone|metronidazole/i },
+        { label: "Complex (deep, ischiorectal, supralevator)", days: "10–14 d + EUA",
+          detail: "Examination under anesthesia + drainage + broad antibiotics; colorectal surgery" },
+        { label: "Diabetic / immunocompromised / IBD", days: "10–14 d",
+          detail: "Lower threshold for IV + extended course + workup for fistula" },
+        { label: "Fournier extension", days: "Per Fournier bands",
+          detail: "Per scrotal-abscess bands for Fournier's gangrene management" },
+      ],
+      stopWhen: [
+        "Drainage complete + cavity healing",
+        "Surrounding cellulitis resolved",
+        "Afebrile + clinical recovery",
+        "Fistula workup planned if applicable",
+        "Pathogen-specific course completed if antibiotics used",
+      ],
+      extendIf: [
+        { text: "**Complex / deep abscess** — extend per colorectal + surgical adequacy",
+          matchCtx: { severe: true } },
+        "Underlying IBD — workup + extend per disease",
+        "Fistula formation — surgical evaluation + extended",
+        "Immunocompromised host — extend per ID",
+      ],
+    },
+    monitoring: {
+      headline: "Drainage drives outcome; colorectal surgery for complex; IBD workup for recurrent; antibiotic stewardship.",
+      items: [
+        { sev: "required", what: "**Surgical drainage** at presentation",
+          why: "Source control; antibiotics alone fail for established abscess" },
+        { sev: "required", what: "**Colorectal surgery consult** for complex / deep / recurrent",
+          why: "Examination under anesthesia + definitive drainage + fistula assessment" },
+        { sev: "required", what: "**Stewardship** — antibiotics not routinely needed after simple drainage",
+          why: "ASCRS — drainage alone sufficient for immunocompetent simple abscess" },
+        { sev: "trigger", what: "**Pelvic MRI** for complex / recurrent disease",
+          why: "Defines anatomy + identifies fistula tract + drives surgical approach" },
+        { sev: "trigger", what: "**IBD workup** for recurrent or atypical disease",
+          why: "Perianal fistulizing Crohn's; alters long-term management + biologic decision" },
+        { sev: "trigger", what: "**Diabetic + immunocompromised workup**",
+          why: "Substrate for severe / Fournier extension; addressable" },
+        { sev: "trigger", what: "**Sitz baths + bowel regimen** for symptom management",
+          why: "Standard wound care + reduces straining + accelerates healing" },
+        { sev: "consider", what: "**Fistula plan after acute resolution**",
+          why: "30–50% of abscesses associated with fistula; planned definitive surgery" },
+      ],
+    },
+  },
+
 };
+
+/* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
 
 /* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
 
