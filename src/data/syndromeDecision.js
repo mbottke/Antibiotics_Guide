@@ -6815,6 +6815,16 @@ const SYNDROME_DECISION = {
           why: "Evidence weak; reserve for clostridial myonecrosis; never delay surgery" },
       ],
     },
+    objections: [
+      { q: "Why clindamycin alongside penicillin — isn't PCN cidal enough?",
+        a: "Penicillin is cidal but does not suppress superantigen (TSST-1, SpeA/C) production — exotoxin drives the cytokine storm and shock. Clindamycin (ribosomal block at the 50S subunit) halts ongoing toxin synthesis independent of inoculum or growth phase per IDSA 2014 [cite:ssti]. Mascini 2001 + Carapetis 2014 cohorts show survival benefit with adjunctive clindamycin in invasive GAS. Continue until toxin-producing organism excluded." },
+      { q: "Why IVIG for streptococcal TSS but not staphylococcal?",
+        a: "IVIG mortality benefit is observational + small RCT-supported for streptococcal TSS only (Linnér CID 2014, Darenberg 2003) — pooled IgG neutralizes circulating GAS superantigens [cite:ssti]. Staphylococcal TSS has no comparable signal, and IDSA 2014 does not endorse routine IVIG outside GAS-TSS. Dose 1 g/kg day 1, then 0.5 g/kg days 2-3 in confirmed GAS-TSS with refractory shock; skip in S. aureus TSS." },
+      { q: "Why source control if antibiotics + IVIG are working?",
+        a: "Antibiotics + IVIG fail without source eradication — retained tampon, packed wound, abscess, or necrotizing focus continues to seed superantigen. IDSA 2014 [cite:ssti] mandates surgical debridement, foreign-body removal, and drainage as the outcome-determining step; mortality benefit is anchored to source control. Low threshold for OR exploration if GAS + extremity involvement (necrotizing fasciitis cluster). Antibiotics alone are not sufficient therapy." },
+      { q: "Why empiric vanco — can't we start narrow with cefazolin?",
+        a: "Empiric cover must include both GAS and S. aureus (including MRSA) until cultures speciate — the two TSS phenotypes are clinically indistinguishable at presentation, and missing MRSA in staphylococcal TSS is uniformly fatal in shock [cite:ssti]. Vancomycin + clindamycin covers both. Narrow to penicillin + clindamycin once GAS confirmed; narrow to cefazolin + clindamycin for MSSA. Reflexive narrow cover at presentation is the unsafe move." },
+    ],
     research: {
       headline: "Source control mandatory; clindamycin for toxin suppression; IVIG mortality benefit limited to GAS-TSS.",
       trials: [
@@ -6902,6 +6912,16 @@ const SYNDROME_DECISION = {
           why: "Evidence weak / contested; NEVER delay surgery for HBO; adjunct only" },
       ],
     },
+    objections: [
+      { q: "Why both penicillin AND clindamycin — isn't penicillin curative?",
+        a: "Clostridium perfringens elaborates alpha-toxin (phospholipase C) and theta-toxin (perfringolysin O) that drive myonecrosis and shock — penicillin is cidal but does not stop ongoing toxin production. Clindamycin blocks bacterial ribosome (50S) and halts toxin synthesis at any inoculum or growth phase per IDSA 2014 [cite:ssti]. Stevens animal models show clindamycin survival benefit over penicillin monotherapy. Combine until clinical resolution + surgical clearance." },
+      { q: "Why surgery first — can't antibiotics buy time?",
+        a: "Mortality without surgical debridement exceeds 90% — alpha-toxin destroys tissue faster than antibiotic distribution can suppress organism load. IDSA 2014 [cite:ssti] mandates emergent OR within hours, with serial re-look q12-24h until margins are clean. Antibiotics are adjunct; the curative step is removal of devitalized tissue. Hyperbaric oxygen never substitutes for or delays surgery — that delay is the killer." },
+      { q: "Why colonoscopy after recovery — patient looks well?",
+        a: "Clostridium septicum bacteremia or myonecrosis carries a 50-80% association with occult colorectal malignancy (Bryant CID 2009) — the malignant mucosal breach is the portal. Mandatory colonoscopy + age-appropriate hematologic workup after clinical recovery per IDSA 2014 [cite:ssti]. Missing the underlying tumor at the index admission means a second clostridial event months later, often fatal. This is non-negotiable for any C. septicum isolate." },
+      { q: "Why not just pip-tazo — it covers Clostridium and more?",
+        a: "Pip-tazo covers Clostridium in vitro but lacks the ribosomal toxin-suppression mechanism that drives the survival benefit in clostridial myonecrosis — the alpha and theta toxin output is what kills, not the inoculum [cite:ssti]. Penicillin G high-dose + clindamycin is the IDSA 2014 standard; pip-tazo monotherapy is appropriate only for polymicrobial gas-forming infection where clostridial component is one of many, and clindamycin should still be added for toxin suppression." },
+    ],
     research: {
       headline: "Surgery is the cure; mortality > 90% without; rapid debridement + penicillin + clindamycin; HBO contested.",
       trials: [
@@ -6984,6 +7004,16 @@ const SYNDROME_DECISION = {
           why: "Stimulus reduction reduces spasm frequency; supportive measure" },
       ],
     },
+    objections: [
+      { q: "Why metronidazole over penicillin — penicillin covers tetani?",
+        a: "Penicillin is a structural GABA-A receptor antagonist — in the setting of tetanospasmin-driven loss of inhibitory glycinergic / GABAergic tone, it can worsen spasms and seizures. Ahmadsyah (BMJ 1985, n=97) showed metronidazole superior to penicillin in tetanus: shorter ICU stay and lower mortality; WHO + CDC endorse metronidazole as first-line antibiotic [cite:cdc_abx]. Penicillin is acceptable only when metronidazole is unavailable, with aggressive benzodiazepine spasm control." },
+      { q: "Why tetanus IG if we're already treating the organism?",
+        a: "Antibiotics eradicate Clostridium tetani but do nothing for circulating tetanospasmin — the toxin binds presynaptic SNARE proteins (synaptobrevin) at inhibitory neurons and is irreversible once internalized. Human tetanus immunoglobulin (TIG) 3000-6000 units IM neutralizes only the unbound, circulating fraction; earlier administration captures more toxin before binding [cite:cdc_abx]. Without TIG, debridement and metronidazole leave the bound toxin to drive spasm + autonomic storm for weeks." },
+      { q: "Why active vaccination if the patient just had the disease?",
+        a: "Tetanus does NOT confer immunity — the lethal dose of toxin is below the threshold needed to mount a protective antibody response. CDC + WHO mandate initiating the active Tdap / Td series at presentation (then 4 wk and 6 mo), independent of TIG administration [cite:cdc_abx]. Patients who recover without vaccination remain fully susceptible to recurrent tetanus on any subsequent wound. Skip this step and the next event is preventable but not prevented." },
+      { q: "Why debride a small wound — it looks clean now?",
+        a: "Clostridium tetani requires the anaerobic micro-environment of devitalized tissue or foreign material to germinate and elaborate toxin — even a small puncture or splinter can harbor ongoing toxin production. WHO guidance [cite:cdc_abx] mandates wound exploration + debridement + foreign-body removal as source control alongside metronidazole and TIG. Cosmetic minimalism here means residual spore germination and continued toxin output despite antibiotic + IG therapy." },
+    ],
     research: {
       headline: "Tetanus IG + metronidazole + wound debridement + ICU; lifetime vaccination required (disease does NOT confer immunity).",
       trials: [
@@ -7070,6 +7100,16 @@ const SYNDROME_DECISION = {
           why: "Toxin-bound nerve terminals require regeneration; supportive care long-haul" },
       ],
     },
+    objections: [
+      { q: "Why no antibiotics for foodborne or infant botulism?",
+        a: "In foodborne and infant botulism, the toxin is already preformed (food) or produced by gut colonization (infant) — bacterial lysis from antibiotic exposure releases additional intracellular toxin and worsens disease. CDC guidance is supportive care + antitoxin (BAT) or BabyBIG only; antibiotics indicated solely for wound botulism after source control [cite:cdc_abx]. Reflexive empiric antibiotic in suspected foodborne / infant botulism is iatrogenic harm." },
+      { q: "Why avoid aminoglycosides and clindamycin specifically?",
+        a: "Aminoglycosides and clindamycin both potentiate neuromuscular blockade — aminoglycosides via presynaptic calcium-channel inhibition, clindamycin via post-synaptic effects. In botulism, where BoNT has already cleaved SNARE proteins (SNAP-25, syntaxin, synaptobrevin) and abolished acetylcholine release, this additional blockade accelerates respiratory failure and prolongs ventilator dependence [cite:cdc_abx]. Contraindicated regardless of other indications; use beta-lactams for any concurrent infection." },
+      { q: "Why antitoxin early — patient already paralyzed?",
+        a: "BAT (heptavalent antitoxin) neutralizes only circulating, unbound BoNT — once toxin internalizes into presynaptic nerve terminals and cleaves SNARE substrates, that nerve ending requires regeneration over weeks-months. Sobel CID 2005 + CDC surveillance show early antitoxin reduces ICU days and ventilator dependence [cite:cdc_abx]; delay locks in additional bound toxin. Give on clinical suspicion via CDC / state health; do not wait for confirmatory toxin assay." },
+      { q: "Why public health reporting before confirmation?",
+        a: "Botulism is a Tier-1 select agent and immediately notifiable per CDC [cite:cdc_abx] — every case is potentially outbreak-sentinel (contaminated food source, bioterrorism, or shared product). State health and CDC coordinate antitoxin release, source investigation, and contact identification within hours; delaying for confirmatory testing forfeits the outbreak-containment window. Report on clinical suspicion at presentation; the assay is days away and outbreak vectors propagate faster than that." },
+    ],
     research: {
       headline: "Antitoxin neutralizes circulating toxin only; aminoglycosides + clindamycin contraindicated (neuromuscular block).",
       trials: [
@@ -7155,6 +7195,16 @@ const SYNDROME_DECISION = {
           why: "Ty21a oral or ViCPS injectable; recommended for endemic-area travel" },
       ],
     },
+    objections: [
+      { q: "Why not ciprofloxacin — it's cheap and oral?",
+        a: "FQ resistance in Salmonella Typhi exceeds 90% across South Asia (Pakistan, India, Bangladesh, Nepal) and is now common in travel-acquired cases globally — Trivedi (Lancet ID 2020) documented the XDR Pakistan outbreak with universal cipro + ampicillin resistance. WHO + CDC reserve ceftriaxone or azithromycin as first-line empirics in any S. Asia exposure [cite:cdc_abx]. Cipro is acceptable only when a fully-susceptible isolate is confirmed from a low-resistance region — never empirically." },
+      { q: "Why dexamethasone in severe typhoid — won't it suppress immunity?",
+        a: "Hoffman (NEJM 1984, n=38) showed high-dose dexamethasone (3 mg/kg load, then 1 mg/kg q6h × 8 doses) cut mortality from 56% to 10% in severe typhoid with shock or encephalopathy [cite:hoffman]. The benefit is mechanistic — dex blunts the TNF-driven cytokine cascade from endotoxin release during bacterial killing. Reserved for severe disease (typhoid encephalopathy, septic shock); not for uncomplicated cases. Steroid does NOT impair bacterial clearance under effective ceftriaxone or azithromycin." },
+      { q: "Why workup a chronic carrier — patient feels fine?",
+        a: "1-4% of treated typhoid patients become chronic gallbladder carriers — colonized biofilm on gallstones sheds organisms in stool indefinitely, driving outbreaks (the Mary Mallon archetype). WHO mandates stool / urine surveillance at 12 mo + counseling on food-handling restrictions [cite:cdc_abx]. Persistent carriers require 4-6 wk cipro (if susceptible) or amox-clav, with cholecystectomy when stones are present. Skipping the workup means a future household, restaurant, or hospital cluster." },
+      { q: "Why no antibiotics for paratyphoid in mild disease?",
+        a: "Paratyphi A / B / C are still treated when symptomatic — the IDSA / WHO threshold is clinical disease, not severity. Untreated enteric fever (typhoid or paratyphoid) carries 10-20% mortality and 1-4% chronic carrier rate; ceftriaxone or azithromycin shortens illness and reduces complications + transmission [cite:cdc_abx]. The 'no antibiotic' stewardship logic from non-typhoid Salmonella gastroenteritis does not transfer — paratyphi is invasive disease, not self-limited gastroenteritis." },
+    ],
     research: {
       headline: "Ceftriaxone + azithro first-line; FQ resistance > 90% in S. Asia; dexamethasone reduces mortality in severe.",
       trials: [
@@ -7253,6 +7303,16 @@ const SYNDROME_DECISION = {
           why: "Prolongs toxin exposure + bacterial contact; supportive in non-invasive only" },
       ],
     },
+    objections: [
+      { q: "Why no empiric antibiotics for bloody diarrhea on admission?",
+        a: "EHEC / STEC must be excluded before any antibiotic decision in bloody diarrhea — Wong (NEJM 2000, n=71) showed antibiotic exposure increased HUS by ~10x in pediatric EHEC, attributed to Shiga toxin release from bacterial lysis [cite:wongehec]. IDSA 2017 mandates stool culture + Shiga toxin EIA / PCR first; empiric antibiotics in bloody diarrhea before EHEC exclusion is a stewardship and patient-safety violation. Hydration and supportive care are the bridge." },
+      { q: "Why treat Shigella but not non-typhoid Salmonella in healthy adults?",
+        a: "Shigella has low infectious dose (~10-100 organisms), high secondary transmission rate, and antibiotic therapy shortens shedding and symptoms — IDSA 2017 [cite:stew] endorses treating all symptomatic cases (3 d azithro, cipro, or ceftriaxone). Non-typhoid Salmonella in immunocompetent adults is self-limited, antibiotics prolong stool carriage by ~weeks, and do not reduce symptom duration — reserved for severe disease, age > 50, bacteremia risk, or immunocompromise. Substrate determines treatment, not the bloody-stool finding alone." },
+      { q: "Why mycotic-aneurysm workup for non-typhoid Salmonella bacteremia?",
+        a: "Non-typhoidal Salmonella has tropism for atherosclerotic endothelium — Salmonella + age > 50 + bacteremia carries 25% risk of endovascular seeding (aorta most common), with > 50% mortality if missed. IDSA 2017 [cite:stew] mandates CT aorta on persistent bacteremia or risk-positive substrate; suppressive therapy if vascular focus identified. The mycotic aneurysm presents weeks-months later with rupture — workup at the index admission is the only window to prevent it." },
+      { q: "Why azithromycin over ciprofloxacin for Campylobacter?",
+        a: "FQ resistance in Campylobacter exceeds 50% globally (Reller CID 2019 meta) and approaches 90% in parts of Southeast Asia from poultry-industry use — empiric cipro is no longer adequate. IDSA 2017 [cite:stew] elevates azithromycin to first-line for severe Campylobacter (3-5 d), with susceptibility-guided cipro reserved for confirmed-susceptible isolates. Macrolide resistance is rising but still well below FQ; default azithro until local antibiogram says otherwise." },
+    ],
     research: {
       headline: "Most acute gastroenteritis is viral or self-limited; EHEC antibiotics CONTRAINDICATED (HUS risk); selective use.",
       trials: [
@@ -7349,6 +7409,16 @@ const SYNDROME_DECISION = {
           why: "High-acuity substrate; pressor support + ventilation common" },
       ],
     },
+    objections: [
+      { q: "Why not surgery up front for severe typhlitis?",
+        a: "Operating on neutropenic bowel (ANC < 500) without perforation has historically worsened outcomes — friable inflamed cecal wall, poor healing, and high anastomotic-leak rates. IDSA febrile neutropenia guidance [cite:fn] reserves emergent laparotomy for perforation, free air, uncontrolled bleed, or clinical deterioration on broad-spectrum therapy. Bowel rest + broad anti-pseudomonal + supportive care + serial reassessment is the bridge to ANC recovery; surgery is the bail-out, not first-line." },
+      { q: "Why pip-tazo plus vanco — can't we narrow up front?",
+        a: "Typhlitis is polymicrobial mucosal translocation in a neutropenic host — enteric GNR (including Pseudomonas), anaerobes, enterococci, and skin / line organisms (including MRSA) all contribute. IDSA 2018 [cite:fn] mandates anti-pseudomonal beta-lactam (pip-tazo, cefepime, or meropenem) plus vancomycin when MRSA risk or line involvement present. Narrowing before culture data + ANC recovery exposes the host to inadequate empiric coverage; the mortality slope from undercoverage in neutropenia is steep." },
+      { q: "Why empiric antifungal at day 5 — patient still on broad?",
+        a: "Persistent fever > 96 h on broad-spectrum antibacterial in profound neutropenia has a 30-40% rate of invasive fungal infection (Candida, Aspergillus, Mucor) — IDSA 2018 [cite:fn] mandates empiric mold-active therapy (echinocandin if Candida-dominant risk, voriconazole or liposomal amphotericin if mold risk). CT chest + abdomen to localize. Waiting for biopsy confirmation in this substrate loses days; empiric coverage at the 96-h trigger is the established standard." },
+      { q: "Why test for C. difficile in every typhlitis admission?",
+        a: "CDI co-infection with typhlitis is common — both occur in heavily-exposed neutropenic hosts, share symptoms (diarrhea, abdominal pain, fever, leukocytosis-of-recovery), and CDI changes therapy + isolation immediately. IDSA / SHEA 2021 [cite:cdi] testing threshold is liberal in this substrate; missed CDI means ongoing toxin-driven colitis under broad antibacterials that select for further C. difficile expansion. Stool PCR or GDH + toxin EIA at admission is standard." },
+    ],
     research: {
       headline: "Broad anti-pseudomonal + ANC recovery + surgical for perforation; CT abdomen first; empiric antifungal for persistent fever.",
       trials: [
