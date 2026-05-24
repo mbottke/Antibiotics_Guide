@@ -527,6 +527,100 @@ describe("content-audit · syndromeDecision.js entries", () => {
   }
 });
 
+/* ============================================================
+   Phase F · research panel shape validation. The optional
+   `research:` sibling on syndromeDecision entries carries
+   structured trial + guideline citations. When present, it
+   MUST conform to the documented shape so the renderer can
+   safely walk it. ============================================ */
+
+const LIMITS_RESEARCH = {
+  headlineMaxWords: 30,
+  trialFindingMaxWords: 35,
+  guidelineKeypointMaxWords: 28,
+  openQuestionMaxWords: 22,
+  maxTrials: 6,
+  maxGuidelines: 5,
+  maxOpenQuestions: 6,
+};
+
+describe("content-audit · syndromeDecision.research panels (optional)", () => {
+  const decisionIds = Object.keys(SYNDROME_DECISION);
+  for(const id of decisionIds) {
+    const e = SYNDROME_DECISION[id];
+    if(!e.research) continue;
+    const label = `[${id} | research]`;
+
+    test(`${label} — has well-formed shape`, () => {
+      expect(typeof e.research.headline, `${label}.headline must be string`).toBe("string");
+      expect(e.research.headline.length, `${label}.headline non-empty`).toBeGreaterThan(0);
+      expect(wordCount(e.research.headline),
+        `${label}.headline word count ≤ ${LIMITS_RESEARCH.headlineMaxWords}`)
+        .toBeLessThanOrEqual(LIMITS_RESEARCH.headlineMaxWords);
+
+      expect(Array.isArray(e.research.trials), `${label}.trials must be array`).toBe(true);
+      expect(e.research.trials.length, `${label}.trials ≥ 1`).toBeGreaterThanOrEqual(1);
+      expect(e.research.trials.length,
+        `${label}.trials ≤ ${LIMITS_RESEARCH.maxTrials}`)
+        .toBeLessThanOrEqual(LIMITS_RESEARCH.maxTrials);
+
+      for(let i = 0; i < e.research.trials.length; i++) {
+        const t = e.research.trials[i];
+        const trialLabel = `${label}.trials[${i}]`;
+        expect(typeof t.name, `${trialLabel}.name must be string`).toBe("string");
+        expect(t.name.length, `${trialLabel}.name non-empty`).toBeGreaterThan(0);
+        expect(["string", "number"].includes(typeof t.n),
+          `${trialLabel}.n must be string|number`).toBe(true);
+        expect(typeof t.question, `${trialLabel}.question must be string`).toBe("string");
+        expect(typeof t.finding, `${trialLabel}.finding must be string`).toBe("string");
+        expect(wordCount(t.finding),
+          `${trialLabel}.finding word count ≤ ${LIMITS_RESEARCH.trialFindingMaxWords}`)
+          .toBeLessThanOrEqual(LIMITS_RESEARCH.trialFindingMaxWords);
+        if(t.bias !== undefined) {
+          expect(typeof t.bias, `${trialLabel}.bias must be string when present`).toBe("string");
+        }
+      }
+
+      expect(Array.isArray(e.research.guidelines), `${label}.guidelines must be array`).toBe(true);
+      expect(e.research.guidelines.length, `${label}.guidelines ≥ 1`).toBeGreaterThanOrEqual(1);
+      expect(e.research.guidelines.length,
+        `${label}.guidelines ≤ ${LIMITS_RESEARCH.maxGuidelines}`)
+        .toBeLessThanOrEqual(LIMITS_RESEARCH.maxGuidelines);
+
+      for(let i = 0; i < e.research.guidelines.length; i++) {
+        const g = e.research.guidelines[i];
+        const glLabel = `${label}.guidelines[${i}]`;
+        expect(typeof g.society, `${glLabel}.society must be string`).toBe("string");
+        expect(g.society.length, `${glLabel}.society non-empty`).toBeGreaterThan(0);
+        expect(typeof g.year, `${glLabel}.year must be number`).toBe("number");
+        expect(g.year, `${glLabel}.year sane range`).toBeGreaterThanOrEqual(1990);
+        expect(g.year, `${glLabel}.year not in future`).toBeLessThanOrEqual(2030);
+        expect(typeof g.topic, `${glLabel}.topic must be string`).toBe("string");
+        expect(typeof g.keypoint, `${glLabel}.keypoint must be string`).toBe("string");
+        expect(wordCount(g.keypoint),
+          `${glLabel}.keypoint word count ≤ ${LIMITS_RESEARCH.guidelineKeypointMaxWords}`)
+          .toBeLessThanOrEqual(LIMITS_RESEARCH.guidelineKeypointMaxWords);
+      }
+
+      if(e.research.openQuestions !== undefined) {
+        expect(Array.isArray(e.research.openQuestions),
+          `${label}.openQuestions must be array when present`).toBe(true);
+        expect(e.research.openQuestions.length,
+          `${label}.openQuestions ≤ ${LIMITS_RESEARCH.maxOpenQuestions}`)
+          .toBeLessThanOrEqual(LIMITS_RESEARCH.maxOpenQuestions);
+        for(let i = 0; i < e.research.openQuestions.length; i++) {
+          const q = e.research.openQuestions[i];
+          const qLabel = `${label}.openQuestions[${i}]`;
+          expect(typeof q, `${qLabel} must be string`).toBe("string");
+          expect(wordCount(q),
+            `${qLabel} word count ≤ ${LIMITS_RESEARCH.openQuestionMaxWords}`)
+            .toBeLessThanOrEqual(LIMITS_RESEARCH.openQuestionMaxWords);
+        }
+      }
+    });
+  }
+});
+
 describe("content-audit · combinedRisks.js entries", () => {
   test("ids are unique", () => {
     const seen = new Set();
