@@ -3052,6 +3052,10 @@ const SYNDROME_DECISION = {
           why: "Routine steroids worsen abscess pus accumulation; reserve for impending herniation" },
       ],
     },
+    rationale: {
+      driver: "Brain abscess is antibiotics PLUS drainage — not antibiotics alone. Brouwer (NEJM 2014, n > 10,000) anchors aspiration or excision for any lesion ≥ 2.5 cm because pus pockets do not sterilize with systemic antibiotics, and aspirate culture is the only path to pathogen-directed narrowing. Empiric coverage tracks the source: streptococci + anaerobes for otogenic / sinogenic / dental (ceftriaxone + metronidazole), with vancomycin added for hematogenous or post-traumatic where S. aureus drives. Immunocompromised hosts trigger Listeria (add ampicillin) and Nocardia (add high-dose TMP-SMX) workup. CNS-strength dosing throughout, 6–8 wk IV with serial MRI at 1 / 2 / 4 / 8 wk; oral step-down acceptable when imaging stabilizes (Helweg-Larsen 2012).",
+      guideline: "brouwerba",
+      rejected: "Antibiotic-only management of a lesion ≥ 2.5 cm was deliberately rejected — Brouwer + ESCMID 2024 both anchor aspiration for both diagnosis (culture is otherwise blind) and decompression, and conservative medical-only management has near-uniform failure at this size. Routine dexamethasone for cortical irritation was tempered: steroids reduce contrast enhancement, worsen abscess pus accumulation, and impair penetration; Mathisen (CID 1997) restricts use to impending herniation. Skipping the immune-status workup in a host with deep-seated abscess was rejected — missed Listeria or Nocardia substrate drives the wrong empiric and is recoverable only by explicit ask." },
     research: {
       headline: "Surgical aspiration + 6–8 wk IV + serial imaging; otogenic + sinus + hematogenous sources drive pathogen choice.",
       trials: [
@@ -3136,6 +3140,10 @@ const SYNDROME_DECISION = {
           why: "Anti-inflammatory benefit unproven; case-by-case neurosurgery decision" },
       ],
     },
+    rationale: {
+      driver: "Spinal epidural abscess is a time-critical neurosurgical problem — Patel (J Neurosurg Spine 2014) shows time-to-decompression and pre-op deficit duration are the dominant outcome predictors, with delay > 24 h after deficit driving permanent loss. Darouiche (NEJM 2006) anchors emergent surgical decompression for any progressing or established neurologic deficit, with medical-only management reserved for stable, deficit-free patients under close MRI + neuro-exam surveillance. Whole-spine MRI is mandatory at presentation — Reihsaus (Neurosurg Rev 2000) documents skip lesions in 15–30%, and missing them is the dominant late-deficit failure. Empiric coverage targets S. aureus (~60% of cases): vancomycin + ceftriaxone or cefepime; pathogen-directed 6 wk IV minimum, extending to 6–8 wk if concurrent vertebral osteomyelitis.",
+      guideline: "darouicheea",
+      rejected: "Medical-only management of an epidural abscess with neurologic deficit was deliberately rejected — Darouiche + Patel both show that delay past the deficit window drives permanent loss, and conservative therapy is reserved for the deficit-free, stable patient under close MRI surveillance. Partial-spine MRI to localize the lesion was tempered: Reihsaus + IDSA Berbari 2015 anchor whole-spine MRI because skip lesions in 15–30% are missed otherwise, and the missed lesion is the dominant cause of late deficit. Empiric coverage without vancomycin was rejected because S. aureus dominates and MRSA cover is the default until species + susceptibility return." },
     research: {
       headline: "Emergent surgical decompression for neurologic deficit; 6 wk IV pathogen-directed; S. aureus dominant.",
       trials: [
@@ -3219,6 +3227,10 @@ const SYNDROME_DECISION = {
           why: "Image-driven duration; persistent collection drives re-drainage + extension" },
       ],
     },
+    rationale: {
+      driver: "Subdural empyema is a neurosurgical emergency that does not sterilize medically — pus in the subdural space causes mass effect, cortical irritation, and herniation, and Brouwer (Lancet Neurol 2014) confirms that emergent drainage within hours is the dominant outcome lever. Source is sinusitis or otitis in the majority, so ENT + dental source workup runs in parallel with neurosurgical evacuation. Empirics cover streptococci (including the destructive S. anginosus / milleri group), anaerobes, and S. aureus: vancomycin + ceftriaxone (or cefepime) + metronidazole at CNS-strength dosing for 4–6 wk after drainage, extending to 6+ wk for anginosus-group disease which is especially destructive even after culture clearance.",
+      guideline: "mono",
+      rejected: "Antibiotic-only management of established subdural empyema was deliberately rejected — Brouwer + IDSA 2017 anchor emergent neurosurgical evacuation because mass effect plus cortical inflammation drives herniation, and medical-only management has near-uniform failure. Standard-dose systemic antibiotics without CNS-strength dosing were tempered: subdural penetration is poor without aggressive dosing, and underdosing risks recurrence after drainage. Stopping at 4 wk in anginosus-group disease was rejected — this organism is destructive enough that empiric extension to ≥ 6 wk regardless of CSF clearance is the standard, with serial MRI driving the actual stop date." },
     research: {
       headline: "Emergent neurosurgical drainage + 4-6 wk IV; source from sinus/otitis spread; mortality < 10% with timely surgery.",
       trials: [
@@ -3290,6 +3302,10 @@ const SYNDROME_DECISION = {
           why: "Disseminated foci change duration + need additional drainage" },
       ],
     },
+    rationale: {
+      driver: "Septic cavernous sinus thrombosis is facial / sinus / dental infection seeded into the cavernous sinus, with mortality having fallen from > 80% pre-antibiotic to 10–30% with broad coverage plus aggressive source control (Bhatia Lancet 2003). Empiric coverage targets S. aureus (often MRSA), streptococci, and oral / sinus anaerobes: vancomycin + ceftriaxone + metronidazole at CNS-strength dosing, with pip-tazo or meropenem for severe presentations. Cranial nerve III–VI sweep every 4 h, MRI / MRV at presentation, and emergent ENT + ophthalmology + neurosurgery coordination are mandatory. Rhino-orbital-cerebral mucormycosis screen (KOH + biopsy + emergent debridement + liposomal amphotericin) is non-negotiable in DKA or neutropenic hosts.",
+      guideline: "ssti",
+      rejected: "Routine anticoagulation in septic cavernous sinus thrombosis was deliberately tempered — Bhatia and society consensus document mixed evidence with both propagation prevention and hemorrhagic-complication signals, so the decision is case-by-case with neurosurgery + neurology and not a reflex. Standard-dose systemic antibiotics without CNS-strength dosing were rejected: cavernous-sinus penetration is poor without aggressive dosing, and underdosing drives extension and progressive cranial-nerve loss. Skipping the mucor workup in a diabetic or post-transplant host was rejected — missed rhino-orbital-cerebral mucormycosis is uniformly fatal without emergent debridement plus amphotericin." },
     research: {
       headline: "Cavernous sinus involvement raises mortality 10-30%; anticoagulation case-by-case; sinusitis dominant source.",
       trials: [
@@ -3359,6 +3375,10 @@ const SYNDROME_DECISION = {
           why: "Rarely successful but considered case-by-case for explant-contraindicated patients" },
       ],
     },
+    rationale: {
+      driver: "Healthcare-associated ventriculitis is a biofilm + hardware problem — Tunkel IDSA 2017 anchors drain or shunt removal as the dominant outcome lever because systemic antibiotics alone do not sterilize foreign-body-associated CSF infection. Empiric coverage at presentation is vancomycin + cefepime or meropenem (broad GNR + staphylococci) at full CNS-strength dosing, with daily CSF Gram stain + culture + cell count driving narrowing. Duration is 2–3 wk after CSF sterilization, extending to 3–4 wk plus intraventricular adjunct (preservative-free vancomycin or aminoglycoside / colistin) when hardware is retained or CSF positivity persists. Re-shunting timing balances confirmed sterilization with hydrocephalus risk during the EVD bridge period.",
+      guideline: "mono",
+      rejected: "Systemic-only therapy with hardware retained was deliberately rejected — IDSA 2017 + Beer (Lancet Neurol 2008) anchor explant or externalization as standard, because biofilm renders systemic antibiotics inadequate and salvage rates with retained hardware are < 30%. Standard-dose systemic antibiotics without CNS-strength dosing were tempered: ventricular penetration is poor without aggressive dosing plus, in MDR or refractory cases, intraventricular adjunct delivered by neurosurgery. Stopping at 2 wk without confirmed CSF sterilization was rejected — the 2–3 wk clock starts at clearance, not at presentation, and persistent positivity always triggers escalation." },
     research: {
       headline: "IDSA 2017 — drain removal mandatory; intraventricular adjunct for MDR / refractory; daily CSF cultures.",
       trials: [
@@ -3427,6 +3447,10 @@ const SYNDROME_DECISION = {
           why: "Lifelong; ID + neurosurgery + patient counseling on recurrence risk" },
       ],
     },
+    rationale: {
+      driver: "CSF shunt / EVD infection is a two-stage explant + reimplant disease — Tunkel IDSA 2017 anchors removal at diagnosis, EVD bridge during CSF sterilization, and reimplantation only after confirmed clearance and clinical stability. CoNS (~50%) and S. aureus (~25%) dominate, so empirics are vancomycin + cefepime or meropenem at CNS-strength dosing, narrowed on CSF + drain-tip culture. Rifampin combination is used for retained staphylococcal hardware where explant is impossible. Duration is 10–14 d post-CSF-clearance after explant, longer for S. aureus or Gram-negative organisms. Lifelong oral suppression is the path for truly irretrievable hardware after multidisciplinary ID + neurosurgery decision-making.",
+      guideline: "mono",
+      rejected: "Salvage therapy with retained shunt was deliberately rejected outside the rare irretrievable substrate — Tunkel 2017 documents salvage rates < 30% with retained hardware versus > 90% cure with two-stage explant + reimplant, and biofilm + foreign-body kinetics make systemic antibiotics alone inadequate. Lock therapy as a routine first-line approach was tempered: it rarely succeeds in CSF hardware and is reserved for explant-contraindicated patients. Counting duration from the day of presentation was rejected — the 10–14 d clock starts at the first negative CSF after explant, not at diagnosis, because the substrate is not under control until hardware is out." },
     research: {
       headline: "Explant + reimplant standard; CoNS / S. aureus dominant; rifampin for retained hardware; lifelong suppression for irretrievable.",
       trials: [
@@ -8494,6 +8518,10 @@ const SYNDROME_DECISION = {
           why: "May reduce inflammation but risks immunosuppression; ophtho + ID decision" },
       ],
     },
+    rationale: {
+      driver: "Orbital (post-septal) cellulitis is sight-threatening: sinusitis is the dominant source via the lamina papyracea, and Chandler staging (1970) drives intervention — subperiosteal abscess > 10 mm, age > 9 yr, or any visual compromise mandates ENT drainage. Empiric coverage is ampicillin-sulbactam or ceftriaxone + metronidazole for community-onset disease (Brook IJPO 2009); vancomycin is added where community-acquired MRSA is prevalent or after trauma. CT orbits with contrast at presentation, ophtho + ENT consult, and q4h visual acuity / color / RAPD are mandatory. Rhino-orbital mucormycosis screening (KOH + biopsy + emergent ENT) is non-negotiable in DKA, neutropenic, or post-transplant hosts — missing it is uniformly fatal.",
+      guideline: "ssti",
+      rejected: "Treating presumed post-septal cellulitis without urgent CT orbits + sinuses was deliberately rejected — pre-septal mimics post-septal at the bedside, and Chandler staging cannot be assigned without imaging that defines the abscess and intracranial extension. Antibiotic-only management of subperiosteal abscess > 10 mm with visual change was tempered: AAO + Brook show non-response inside 24–48 h drives permanent vision loss, and surgical drainage is part of the standard, not an escalation. Routine high-dose steroids for inflammation were rejected — evidence is limited and immunosuppression complicates an undiagnosed mucor / orbital abscess." },
     research: {
       headline: "Chandler staging drives surgery; vision check q4h is core monitoring; MRI for cavernous sinus thrombosis suspicion.",
       trials: [
@@ -8577,6 +8605,10 @@ const SYNDROME_DECISION = {
           why: "May reduce edema but immunosuppression risk; ENT + ID decision" },
       ],
     },
+    rationale: {
+      driver: "Ludwig's angina is an airway emergency first and an antibiotic problem second — Saifeldeen (Emerg Med J 2004) and Reynolds (J Emerg Med 2007) anchor awake fiberoptic intubation with tracheostomy standby over RSI, because muscle relaxation collapses the swollen floor of mouth and loses the airway. Source is dental in 70–90%, so the empiric covers oral polymicrobial flora (streptococci, anaerobes including Prevotella + Fusobacterium, occasional MRSA): ampicillin-sulbactam 3 g IV q6h or clindamycin + ceftriaxone in PCN-allergic, with pip-tazo or meropenem reserved for septic shock or descending mediastinitis. Surgical drainage of any collection plus dental extraction drives duration — 14 d IV → PO per IDSA Stevens.",
+      guideline: "ssti",
+      rejected: "Rapid-sequence intubation in Ludwig's angina was deliberately rejected — paralysis collapses the airway in a patient who is already at edema-induced maximum compliance, and Saifeldeen documents catastrophic loss with RSI versus awake fiberoptic + trach standby. Antibiotic-only management without dental source eradication was tempered: untreated periodontal or apical infection recurs within weeks, and Reynolds shows extraction at index admission prevents 30-day recurrence. Routine empiric MRSA cover with vancomycin was rejected outside septic shock, trauma, or known colonization — IDSA Stevens reserves it for those substrates; reflexive vanco wastes spectrum without changing outcomes." },
     research: {
       headline: "Airway is the priority — awake fiberoptic safer than RSI; broad anaerobic + ENT + ICU; dental source identification.",
       trials: [
@@ -8666,6 +8698,10 @@ const SYNDROME_DECISION = {
           why: "EVD-bundle measures reduce infection incidence" },
       ],
     },
+    rationale: {
+      driver: "Post-neurosurgical / nosocomial meningitis is not community pneumococcal meningitis — Tunkel IDSA 2017 anchors a broader empiric that covers nosocomial GNR (including P. aeruginosa) plus staphylococci because the substrate is post-craniotomy, EVD, or post-trauma rather than hematogenous community spread. Empirics are vancomycin + cefepime or meropenem at full CNS-strength dosing, with carbapenem reserved for ESBL / AmpC risk and ceftazidime-avibactam / ceftolozane-tazobactam for documented MDR Pseudomonas. Drain removal is the dominant outcome lever; intraventricular antibiotic adjunct (preservative-free vancomycin or aminoglycoside / colistin) is added for MDR or persistent CSF positivity. Duration is 10–21 d pathogen-directed after CSF clearance.",
+      guideline: "mono",
+      rejected: "Empiric ceftriaxone + vancomycin (the community-meningitis combination) was deliberately rejected in the post-neurosurgical substrate — ceftriaxone misses Pseudomonas and many nosocomial GNR, and Tunkel 2017 anchors anti-pseudomonal β-lactam (cefepime or meropenem) as the empiric backbone. Adjunctive dexamethasone (de Gans 2002) was tempered: the mortality benefit is specific to community pneumococcal meningitis, and routine steroid use in post-neurosurgical meningitis lacks support and may worsen hardware-associated infection. Skipping drain removal in a retained-hardware infection was rejected — systemic antibiotics alone do not sterilize biofilm-laden devices." },
     research: {
       headline: "IDSA 2017 — drain removal mandatory; intraventricular antibiotics for MDR / persistent positive CSF; broad → narrow on data.",
       trials: [
@@ -8755,6 +8791,10 @@ const SYNDROME_DECISION = {
           why: "PTLDS common after treatment; not chronic infection; no benefit from extended antibiotics" },
       ],
     },
+    rationale: {
+      driver: "Neuro-Lyme and neurosyphilis are CNS spirochete diseases with serology + CSF-confirmed pathways. For neuroborreliosis, IDSA 2020 (Lantos) anchors ceftriaxone 2 g IV q24h × 14–21 d OR oral doxycycline 200 mg PO BID — Halperin (Neurology 2010) confirms doxy non-inferior, simplifying outpatient transitions. For neurosyphilis, CDC 2021 (Workowski) anchors aqueous PCN G 18–24 MU/d × 10–14 d as first-line, with desensitization preferred over ceftriaxone alternative when PCN-allergic; HIV + STI co-screening is mandatory. Repeat LP at 6 mo verifies CSF response (cell count + protein normalizing, RPR ≥ 4× decline); partner notification + Jarisch-Herxheimer counseling are part of the bundle.",
+      guideline: "cdc_sti",
+      rejected: "Extended courses of antibiotics for post-treatment Lyme disease syndrome (PTLDS) were deliberately rejected — Halperin + IDSA 2020 are emphatic that PTLDS is not chronic infection, and Klempner (NEJM 2001) plus subsequent RCTs show no benefit from prolonged antibiotics with measurable harms (line infections, C. difficile). Single-dose benzathine PCN for neurosyphilis was rejected: CSF penetration is inadequate, and Workowski + Marra (CID 2008) anchor aqueous PCN G IV. Skipping HIV co-screen in any syphilis presentation was rejected — co-infection drives extended monitoring and reactive treatment changes." },
     research: {
       headline: "IDSA 2020 Lyme + CDC STI 2021; doxy non-inferior to ceftriaxone in neuroborreliosis; PCN desensitization preferred for neurosyphilis.",
       trials: [
