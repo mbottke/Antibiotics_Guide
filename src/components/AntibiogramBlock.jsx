@@ -146,7 +146,12 @@ function CoverageGrid({ coverage }) {
   }
   const agents = coverage.agentsOfInterest;
   return (
-    <div style={{ overflowX: "auto", marginTop: 8, border: "1px solid var(--line)", borderRadius: 6 }}>
+    <div
+      role="region"
+      aria-label="Local susceptibility grid — organisms × agents"
+      tabIndex={0}
+      style={{ overflowX: "auto", marginTop: 8, border: "1px solid var(--line)", borderRadius: 6 }}
+    >
       <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--mono)" }}>
         <thead>
           <tr style={{ background: "var(--paper2)" }}>
