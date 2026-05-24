@@ -4394,6 +4394,417 @@ const SYNDROME_DECISION = {
     },
   },
 
+  /* ===========================================================
+     TSS — Streptococcal & Staphylococcal toxic shock. Source
+     control + clindamycin + IVIG (GAS); supportive care; rapid
+     escalation. ATS / IDSA + CDC case definitions. ============= */
+  tss: {
+    duration: {
+      headline: "10–14 d after source controlled + shock resolved; clindamycin until toxin-producer excluded.",
+      evidence: "IDSA 2014 + CDC — no fixed duration; source control + clindamycin + IVIG for confirmed GAS-TSS drive outcome",
+      branches: [
+        { label: "Streptococcal TSS (GAS) confirmed", days: "10–14 d",
+          detail: "Penicillin + clindamycin + IVIG; source control critical (debridement, drainage, FB removal)",
+          matchAgent: /penicillin/i },
+        { label: "Staphylococcal TSS (menstrual or non-menstrual)", days: "10–14 d",
+          detail: "Anti-staph + clindamycin; remove tampon / FB / packing; vancomycin until MSSA confirmed",
+          matchAgent: /vancomycin|nafcillin|oxacillin|cefazolin/i },
+        { label: "Severe (refractory shock, multi-organ failure)", days: "≥ 14 d + ICU",
+          detail: "Combination + IVIG + aggressive source control; ECMO if needed; ID + CC consult" },
+        { label: "Probable / culture-negative", days: "10–14 d empiric",
+          detail: "Cover GAS + S. aureus + clinda; treat empirically pending culture data" },
+      ],
+      stopWhen: [
+        "Source controlled — wound debrided, FB removed, drainage adequate",
+        "Off vasopressors ≥ 48 h",
+        "Afebrile + multi-organ dysfunction resolving",
+        "Cultures negative or appropriately treated",
+        "Minimum 10–14 d completed after source control",
+      ],
+      extendIf: [
+        { text: "**Persistent source** — surgical or anatomic — extend until controlled",
+          matchCtx: { severe: true } },
+        "Bacteremia confirmed — per pathogen + source",
+        "Necrotizing infection co-existing — per necfasc bands",
+        "Multi-organ failure persisting — per ICU + ID",
+      ],
+    },
+    monitoring: {
+      headline: "Source control mandatory; clindamycin for toxin suppression; IVIG for confirmed GAS-TSS.",
+      items: [
+        { sev: "required", what: "**Source control** — surgical debridement, FB removal, drainage",
+          why: "Antibiotics alone fail; mortality benefit anchored to source eradication" },
+        { sev: "required", what: "**Clindamycin 900 mg IV q8h** until toxin-producer excluded",
+          why: "Ribosomal block suppresses exotoxin production; cidal agent alone insufficient" },
+        { sev: "required", what: "**Blood cultures × 2 + wound / source cultures**",
+          why: "Identifies pathogen + drives narrowing; differentiates GAS vs S. aureus toxic shock" },
+        { sev: "trigger", what: "**IVIG 1 g/kg day 1, 0.5 g/kg days 2–3** for confirmed streptococcal TSS",
+          why: "Mortality benefit limited to GAS-TSS (observational + small RCTs); not for S. aureus TSS",
+          matchBranch: ["Streptococcal TSS (GAS) confirmed"] },
+        { sev: "trigger", what: "**Remove tampon / vaginal packing** for menstrual TSS",
+          why: "Foreign body harbors toxin-producing organism; removal is source control" },
+        { sev: "trigger", what: "**Aggressive fluid resuscitation + vasopressors**",
+          why: "Distributive shock from superantigen-driven cytokine storm" },
+        { sev: "trigger", what: "**Workup necrotizing fasciitis** if GAS + extremity involvement",
+          why: "GAS-TSS + necrotizing infection common cluster; surgical exploration low threshold" },
+        { sev: "consider", what: "**Hyperbaric oxygen** if clostridial component (rarely indicated)",
+          why: "Evidence weak; reserve for clostridial myonecrosis; never delay surgery" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     CLOSTRIDIAL MYONECROSIS (GAS GANGRENE) — surgical emergency;
+     penicillin + clindamycin; HBO controversial; rapid course. = */
+  "gas-gangrene": {
+    duration: {
+      headline: "10–14 d post-surgical clearance; penicillin + clindamycin; surgical debridement is the treatment.",
+      evidence: "IDSA 2014 — surgery + penicillin + clindamycin; HBO adjunct controversial; rapid lethality without surgery",
+      branches: [
+        { label: "Clostridial myonecrosis confirmed", days: "10–14 d post-op",
+          detail: "Penicillin G 4 MU IV q4h + clindamycin 900 mg IV q8h; aggressive serial debridement",
+          matchAgent: /penicillin|clindamycin/i },
+        { label: "Polymicrobial gas-forming infection", days: "10–14 d",
+          detail: "Pip-tazo or carbapenem + clindamycin; cover anaerobes + GNR + GPC" },
+        { label: "Post-surgical / traumatic with extensive necrosis", days: "Per surgical adequacy",
+          detail: "Continue until debridement complete + clinical resolution; multi-stage surgery typical" },
+        { label: "Immunocompromised / underlying malignancy", days: "≥ 14 d post-op",
+          detail: "Extended course; consider ID consult; rule out C. septicum + GI source" },
+      ],
+      stopWhen: [
+        "Surgical margins clean on serial debridement",
+        "No gas on imaging / re-imaging",
+        "Off vasopressors + clinical stability",
+        "Wound closing / negative-pressure dressing working",
+        "Minimum 10–14 d post final debridement completed",
+      ],
+      extendIf: [
+        { text: "**Persistent surgical disease** — continue until margins clean",
+          matchCtx: { severe: true } },
+        "Bacteremia confirmed — per pathogen",
+        "Underlying malignancy (C. septicum) — colonoscopy workup",
+        "Inadequate source control — re-explore + re-debride",
+      ],
+    },
+    monitoring: {
+      headline: "Surgical debridement is the cure; penicillin + clindamycin; rule out malignancy if C. septicum.",
+      items: [
+        { sev: "required", what: "**Emergent surgical debridement** at presentation",
+          why: "Mortality without surgery > 90%; antibiotics alone insufficient" },
+        { sev: "required", what: "**Serial re-look surgery q12–24h** until margins clean",
+          why: "Necrosis extends silently; surgical adequacy is the bedside metric" },
+        { sev: "required", what: "**Imaging** — CT or plain film for gas in tissues",
+          why: "Diagnostic confirmation; planning surgical extent" },
+        { sev: "trigger", what: "**Colonoscopy** if Clostridium septicum identified",
+          why: "C. septicum bacteremia / myonecrosis strongly associated with occult colon cancer" },
+        { sev: "trigger", what: "**Anti-MRSA agent** if mixed flora suspected",
+          why: "Polymicrobial cases include S. aureus; standard part of empiric in U.S.",
+          matchCtx: { mrsaRisk: true } },
+        { sev: "trigger", what: "**ICU level care** + vasopressor support",
+          why: "Septic shock + multi-organ failure common; high-acuity substrate" },
+        { sev: "trigger", what: "**Reconstructive surgery referral** after debridement complete",
+          why: "Multi-stage closure planning; flap or graft typical" },
+        { sev: "consider", what: "Hyperbaric oxygen where institutionally available + non-delaying",
+          why: "Evidence weak / contested; NEVER delay surgery for HBO; adjunct only" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     TETANUS — wound-acquired; immunoglobulin + spasm control +
+     wound debridement; antibiotics for organism eradication. == */
+  tetanus: {
+    duration: {
+      headline: "Metronidazole 7–10 d + tetanus IG + wound debridement + spasm control + ICU support.",
+      evidence: "WHO + CDC — metronidazole preferred over penicillin (GABA antagonism risk); IG neutralizes circulating toxin only",
+      branches: [
+        { label: "Generalized tetanus (suspected or confirmed)", days: "7–10 d",
+          detail: "Metronidazole 500 mg IV q6h; tetanus IG 3000–6000 units IM; wound debridement",
+          matchAgent: /metronidazole/i },
+        { label: "Neonatal tetanus", days: "10–14 d",
+          detail: "Metronidazole + IG + ICU support; high mortality; resource setting drives prognosis" },
+        { label: "Localized tetanus (limb)", days: "7–10 d",
+          detail: "Same regimen; may progress to generalized; observe closely" },
+        { label: "Cephalic tetanus (head wound, cranial nerve)", days: "7–10 d",
+          detail: "Same regimen + airway management; cranial nerve VII involvement common" },
+      ],
+      stopWhen: [
+        "Spasms resolved + neurologic recovery",
+        "Tetanus IG administered",
+        "Wound debrided + healing",
+        "Active immunization series initiated (disease does NOT confer immunity)",
+        "Minimum 7–10 d completed",
+      ],
+      extendIf: [
+        { text: "**Persistent spasms** or autonomic instability — extend supportive care",
+          matchCtx: { severe: true } },
+        "Inadequate wound debridement — re-explore",
+        "Co-infection — per pathogen + source",
+        "ICU course prolonged — extend per response",
+      ],
+    },
+    monitoring: {
+      headline: "IG neutralizes circulating toxin; metronidazole eradicates organism; ICU for spasm + autonomic control.",
+      items: [
+        { sev: "required", what: "**Tetanus IG 3000–6000 units IM** at presentation",
+          why: "Neutralizes circulating toxin; does NOT affect bound toxin; give early" },
+        { sev: "required", what: "**Wound debridement** — remove devitalized tissue + FB",
+          why: "Eradicates organism + spores; source control alongside antibiotics" },
+        { sev: "required", what: "**ICU admission** + benzodiazepine for spasm control",
+          why: "Autonomic instability + respiratory failure common; airway often needed" },
+        { sev: "required", what: "**Active immunization series** (disease does NOT confer immunity)",
+          why: "Tdap or Td series at presentation + 4 wk + 6 mo; lifelong protection requires vaccination" },
+        { sev: "trigger", what: "**Magnesium infusion** for autonomic instability",
+          why: "Adjunct for sympathetic storm; titrate to clinical effect" },
+        { sev: "trigger", what: "**Airway / mechanical ventilation** for laryngospasm or respiratory failure",
+          why: "Spasms can cause sudden airway obstruction; early intubation safer" },
+        { sev: "trigger", what: "**Avoid penicillin** if benzo-resistant spasms (GABA antagonism)",
+          why: "Metronidazole preferred; penicillin may worsen spasms in severe cases" },
+        { sev: "consider", what: "**Quiet, dark room** to reduce trigger-evoked spasms",
+          why: "Stimulus reduction reduces spasm frequency; supportive measure" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     BOTULISM — neurotoxin-mediated; antitoxin + supportive care;
+     antibiotics for wound only (avoid AGs — neuromuscular block). */
+  botulism: {
+    duration: {
+      headline: "Antitoxin + ICU + ventilator support; antibiotics only for wound botulism (NOT food / infant).",
+      evidence: "CDC + WHO — antitoxin neutralizes circulating toxin; antibiotics worsen toxin release in food / infant; aminoglycosides contraindicated",
+      branches: [
+        { label: "Foodborne botulism", days: "0 d antibiotics",
+          detail: "Antitoxin + ICU; antibiotics not indicated; lysis of organisms releases more toxin" },
+        { label: "Infant botulism (< 1 yr)", days: "0 d antibiotics",
+          detail: "Botulism IG (BabyBIG); antibiotics not indicated; supportive care; resolve over months" },
+        { label: "Wound botulism (IVDU or trauma)", days: "10–14 d + debridement",
+          detail: "Penicillin G or metronidazole + wound debridement + antitoxin; avoid aminoglycosides",
+          matchAgent: /penicillin|metronidazole/i },
+        { label: "Iatrogenic / cosmetic toxin overdose", days: "0 d antibiotics",
+          detail: "Antitoxin + supportive; no antibiotic role" },
+      ],
+      stopWhen: [
+        "Antitoxin administered",
+        "Wound debrided (if wound botulism)",
+        "Respiratory + motor recovery sufficient for extubation",
+        "Public health reporting completed",
+        "Minimum 10–14 d completed (wound botulism only)",
+      ],
+      extendIf: [
+        { text: "**Inadequate wound debridement** — re-explore and extend",
+          matchCtx: { severe: true } },
+        "Co-infection — per pathogen + source",
+        "Prolonged ventilator dependence — supportive care extends",
+        "Outbreak / cluster — extended public health investigation",
+      ],
+    },
+    monitoring: {
+      headline: "Antitoxin early; ICU + ventilator support; avoid aminoglycosides; report to public health.",
+      items: [
+        { sev: "required", what: "**Antitoxin (BAT) early** — contact CDC / state health department",
+          why: "Neutralizes circulating toxin only; earlier = more benefit; cannot reverse bound toxin" },
+        { sev: "required", what: "**ICU admission** + serial respiratory monitoring (VC, NIF)",
+          why: "Descending paralysis → respiratory failure; intubate at VC < 30% or NIF > -25" },
+        { sev: "required", what: "**Avoid aminoglycosides + clindamycin** — neuromuscular blockade",
+          why: "Worsens paralysis; contraindicated regardless of indication" },
+        { sev: "required", what: "**Public health reporting** + CDC notification",
+          why: "Notifiable; outbreak investigation + source identification + contact prophylaxis" },
+        { sev: "trigger", what: "**BabyBIG (botulism IG-IV)** for infant botulism",
+          why: "Reduces ICU + hospital stay; obtain via California Department of Public Health" },
+        { sev: "trigger", what: "**Wound debridement** for wound botulism",
+          why: "Source control eradicates organism + ongoing toxin production" },
+        { sev: "trigger", what: "**Stool / serum / wound for toxin assay** at presentation",
+          why: "Confirms diagnosis + serotype; CDC reference testing" },
+        { sev: "consider", what: "**Prolonged ICU stay** typical — weeks to months for recovery",
+          why: "Toxin-bound nerve terminals require regeneration; supportive care long-haul" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     ENTERIC FEVER (typhoid / paratyphoid) — Salmonella Typhi /
+     Paratyphi; ceftriaxone or azithro; resistance rising. ===== */
+  "enteric-fever": {
+    duration: {
+      headline: "10–14 d for most; longer if complicated (perforation, bacteremia); MDR + XDR strains drive choice.",
+      evidence: "IDSA + WHO — ceftriaxone or azithromycin first-line; FQ resistance common in S. Asia; XDR Pakistan / India outbreaks",
+      branches: [
+        { label: "Uncomplicated, susceptible strain", days: "10–14 d",
+          detail: "Ceftriaxone 2 g IV q24h or azithromycin 1 g PO daily; PO step-down on response",
+          matchAgent: /ceftriaxone|azithromycin/i },
+        { label: "Severe (sepsis / typhoid encephalopathy)", days: "10–14 d + dexamethasone",
+          detail: "Ceftriaxone + dexamethasone (Hoffman regimen — reduces mortality in severe disease)" },
+        { label: "MDR / XDR strain (Pakistan, India)", days: "10–14 d",
+          detail: "Carbapenem (meropenem) + azithro; per local sensitivity; coordinate with travel medicine",
+          matchAgent: /meropenem/i },
+        { label: "Complicated (perforation, GI bleed)", days: "14–21 d + surgery",
+          detail: "Surgical + broad-spectrum + ICU; per intra-abdominal bands" },
+        { label: "Chronic carrier (gallbladder colonization)", days: "4–6 wk + cholecystectomy",
+          detail: "Cipro or amox-clav × 4–6 wk; cholecystectomy for stones + persistent carrier" },
+      ],
+      stopWhen: [
+        "Afebrile ≥ 5 d",
+        "Clinical recovery + tolerating oral",
+        "Stool / blood cultures cleared",
+        "Public health reporting completed",
+        "Minimum 10–14 d completed",
+      ],
+      extendIf: [
+        { text: "**Complicated** — perforation, GI bleed, severe sepsis",
+          matchCtx: { severe: true } },
+        "MDR / XDR strain — extend per pathogen + ID",
+        "Relapse (5–10% incidence) — second 14 d course",
+        "Chronic carrier — cholecystectomy + extended antibiotics",
+      ],
+    },
+    monitoring: {
+      headline: "Travel history; ceftriaxone or azithro empiric; report; serial cultures; cholecystectomy for carriers.",
+      items: [
+        { sev: "required", what: "**Travel history** — South Asia, sub-Saharan Africa, Latin America",
+          why: "Enteric fever almost exclusively imported in U.S.; drives diagnostic + empiric choice" },
+        { sev: "required", what: "**Blood + stool cultures** before antibiotics",
+          why: "Pathogen identification + sensitivity drives therapy; serial cultures track clearance" },
+        { sev: "required", what: "**Public health reporting** — notifiable disease",
+          why: "Outbreak investigation + contact tracing + carrier identification" },
+        { sev: "trigger", what: "**Dexamethasone (Hoffman regimen)** for severe disease",
+          why: "Mortality benefit in typhoid encephalopathy / shock; 3 mg/kg load then 1 mg/kg q6h × 8 doses" },
+        { sev: "trigger", what: "**Surgical consult** if perforation suspected (acute abdomen)",
+          why: "Perforation week 3–4 of illness; surgical emergency + broad-spectrum coverage" },
+        { sev: "trigger", what: "**Avoid FQs empirically** in S. Asia exposure",
+          why: "FQ resistance > 90% in Pakistan / India; ceftriaxone or azithro first-line" },
+        { sev: "trigger", what: "**Workup chronic carrier** at 12 mo if stool / urine positive",
+          why: "1–4% become chronic carriers; gallbladder colonization drives outbreaks" },
+        { sev: "consider", what: "**Vaccination counseling** for future travel",
+          why: "Ty21a oral or ViCPS injectable; recommended for endemic-area travel" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     SEVERE BACTERIAL GASTROENTERITIS — Shigella, Campy, Salmonella,
+     Yersinia, EHEC. Most don't need antibiotics; severe + invasive
+     do; avoid AB in EHEC (HUS risk). =========================== */
+  "severe-gastroenteritis": {
+    duration: {
+      headline: "Most don't need antibiotics; treat severe / invasive / immunocompromised; AVOID in EHEC (HUS risk).",
+      evidence: "IDSA 2017 — selective antibiotic use; benefit modest; EHEC contraindicated; resistance + carriage prolongation",
+      branches: [
+        { label: "Mild-moderate, immunocompetent", days: "0 d antibiotics",
+          detail: "Hydration + supportive care; self-limited; antibiotics rarely change course" },
+        { label: "Shigella (invasive, dysentery)", days: "3 d",
+          detail: "Azithromycin or ceftriaxone or cipro per sensitivity; treat all symptomatic Shigella",
+          matchAgent: /azithromycin/i },
+        { label: "Campylobacter (severe / immunocompromised)", days: "3–5 d",
+          detail: "Azithromycin first-line; FQ resistance ↑ globally" },
+        { label: "Non-typhoidal Salmonella (severe / immunocompromised)", days: "7–14 d",
+          detail: "Ceftriaxone or cipro per sensitivity; longer in HIV / immunocompromised",
+          matchAgent: /ceftriaxone/i },
+        { label: "EHEC / STEC (suspected or confirmed)", days: "0 d antibiotics",
+          detail: "Antibiotics CONTRAINDICATED — increase HUS risk via toxin release; supportive only" },
+        { label: "Cholera (Vibrio cholerae)", days: "Single dose doxy",
+          detail: "Doxycycline 300 mg PO × 1 or azithro 1 g × 1; aggressive ORS / IV hydration",
+          matchAgent: /doxycycline/i },
+      ],
+      stopWhen: [
+        "Diarrhea resolving",
+        "Hydration restored",
+        "Afebrile",
+        "Stool cultures cleared (if invasive)",
+        "Course completed (if treated)",
+      ],
+      extendIf: [
+        { text: "**Bacteremia** confirmed — per pathogen",
+          matchCtx: { severe: true } },
+        "Immunocompromised / HIV — extended Salmonella course",
+        "Endovascular focus (Salmonella + aorta) — per mycotic aneurysm bands",
+        "Inadequate hydration — IV + electrolyte correction",
+      ],
+    },
+    monitoring: {
+      headline: "Selective antibiotic use; EHEC contraindicated; hydration is the core; report outbreaks.",
+      items: [
+        { sev: "required", what: "**Avoid antibiotics in EHEC / STEC** — HUS risk",
+          why: "Antibiotic-induced toxin release; HUS in 10–15% of pediatric STEC + antibiotic exposure" },
+        { sev: "required", what: "**Stool culture + Shiga toxin / EHEC PCR** if bloody diarrhea",
+          why: "EHEC must be excluded before any antibiotic decision in bloody diarrhea" },
+        { sev: "required", what: "**Hydration** — oral or IV — is the core treatment",
+          why: "Most morbidity is volume / electrolyte; antibiotics secondary" },
+        { sev: "trigger", what: "**Treat all symptomatic Shigella**",
+          why: "Reduces transmission + symptom duration; community-acquired resistance rising" },
+        { sev: "trigger", what: "**Extended Salmonella course in HIV / immunocompromised**",
+          why: "Recurrence + bacteremia risk; 14 d standard, longer per response" },
+        { sev: "trigger", what: "**Mycotic aneurysm workup** for non-typhoidal Salmonella + age > 50",
+          why: "Endovascular seeding; CT aorta if persistent bacteremia or risk substrate" },
+        { sev: "trigger", what: "**Public health reporting** — Salmonella, Shigella, Vibrio, EHEC",
+          why: "Notifiable; outbreak investigation + source identification" },
+        { sev: "consider", what: "**Avoid antimotility agents** in invasive disease",
+          why: "Prolongs toxin exposure + bacterial contact; supportive in non-invasive only" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     TYPHLITIS / NEUTROPENIC ENTEROCOLITIS — emergent in ANC < 500;
+     broad-spectrum + supportive; surgery for perforation. ===== */
+  typhlitis: {
+    duration: {
+      headline: "Until ANC recovers + clinical resolution; broad anti-pseudomonal + anaerobic; surgery for perforation.",
+      evidence: "IDSA + oncology consensus — typhlitis in ANC < 500 high-mortality; broad-spectrum + bowel rest + surgery for failure",
+      branches: [
+        { label: "Typhlitis without perforation, responding", days: "Until ANC recovers",
+          detail: "Pip-tazo or meropenem + bowel rest + supportive; reassess at ANC recovery",
+          matchAgent: /piperacillin|meropenem/i },
+        { label: "Persistent fever > 5 d on broad", days: "Add antifungal",
+          detail: "Add empiric mold-active (echinocandin or vori or ampho); CT chest + abdomen" },
+        { label: "Perforation / surgical emergency", days: "10–14 d + surgery",
+          detail: "Emergent laparotomy + ICU; mortality high; ID + surgical oncology" },
+        { label: "C. difficile co-infection (common)", days: "Per CDI bands",
+          detail: "Oral vancomycin or fidaxomicin in addition to IV broad-spectrum typhlitis cover" },
+        { label: "CMV reactivation (post-transplant)", days: "Per CMV bands",
+          detail: "Ganciclovir or foscarnet; coordinate with transplant ID" },
+      ],
+      stopWhen: [
+        "ANC > 500 + sustained for ≥ 48 h",
+        "Afebrile + clinical recovery",
+        "Bowel function returning + tolerating diet",
+        "Imaging shows resolution",
+        "Minimum 10–14 d completed (if perforation / surgery)",
+      ],
+      extendIf: [
+        { text: "**Persistent neutropenia** — extend per recovery + clinical resolution",
+          matchCtx: { severe: true } },
+        "Perforation or abscess — surgical + extended",
+        "Invasive fungal infection — per IFI bands",
+        "GVHD or rejection — coordinate with transplant team",
+      ],
+    },
+    monitoring: {
+      headline: "CT abdomen at presentation; bowel rest; surgery for perforation; empiric antifungal for persistent fever.",
+      items: [
+        { sev: "required", what: "**CT abdomen / pelvis at presentation**",
+          why: "Defines cecal / colonic wall thickening; identifies perforation + abscess + free air" },
+        { sev: "required", what: "**Bowel rest + NG decompression** for severe disease",
+          why: "Reduces bacterial translocation + intraluminal pressure; supportive core" },
+        { sev: "required", what: "**Surgical consult** at presentation if severe / perforated",
+          why: "Mortality high without surgery in perforation; serial reassessment if non-operative" },
+        { sev: "required", what: "**Broad-spectrum coverage** — anti-pseudomonal + anaerobic + GPC",
+          why: "Polymicrobial translocation; pip-tazo or meropenem + vancomycin per MRSA risk" },
+        { sev: "trigger", what: "**C. difficile testing** at presentation",
+          why: "Co-infection common; changes therapy + isolation" },
+        { sev: "trigger", what: "**Empiric antifungal** if persistent fever > 5 d on broad",
+          why: "Mold-active for invasive fungal infection in prolonged neutropenia",
+          matchAgent: /caspofungin|micafungin|voriconazole|amphotericin/i },
+        { sev: "trigger", what: "**G-CSF for ANC recovery acceleration**",
+          why: "Reduces neutropenia duration; coordinate with oncology" },
+        { sev: "trigger", what: "**Avoid colonoscopy / sigmoidoscopy in severe disease**",
+          why: "Perforation risk in inflamed cecal wall; defer until ANC recovery" },
+        { sev: "consider", what: "**ICU level care** for septic shock + multi-organ failure",
+          why: "High-acuity substrate; pressor support + ventilation common" },
+      ],
+    },
+  },
+
 };
 
 /* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
