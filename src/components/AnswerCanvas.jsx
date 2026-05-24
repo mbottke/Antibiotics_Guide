@@ -28,6 +28,10 @@ import { RegimenOptions } from "./RegimenOptions.jsx";
 import { tierHasContent } from "../data/regimenContent.js";
 import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { ReassessmentPanel } from "./ReassessmentPanel.jsx";
+import { DurationBlock } from "./DurationBlock.jsx";
+import { MonitoringBlock } from "./MonitoringBlock.jsx";
+import { Section } from "./Section.jsx";
+import { getSyndromeDuration, getSyndromeMonitoring } from "../data/syndromeDecision.js";
 
 /* ---------- refinement → footnote mapping ----------
    For each refinement step in composeAnswer.refinement.steps, decide
@@ -153,37 +157,11 @@ function renderRichWithFootnotes(text, onDrug, inlineRefinements) {
 }
 
 /* ---------- section primitives ---------- */
-function Section({ kicker, title, icon: Icon, children, sticky }) {
-  return (
-    <section style={{ marginBottom: 18 }}>
-      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom: 10 }}>
-        {kicker && (
-          <span style={{
-            fontFamily: "var(--mono)", fontSize: 10, letterSpacing: ".14em",
-            textTransform: "uppercase", color: "var(--ox)", fontWeight: 700,
-            display:"inline-flex", alignItems:"center", gap:6,
-          }}>
-            {Icon && <Icon size={12} />} {kicker}
-          </span>
-        )}
-        {title && (
-          <h3 style={{ fontFamily:"var(--serif)", fontSize:17, fontWeight:600, margin:0, color:"var(--ink)" }}>
-            {title}
-          </h3>
-        )}
-      </div>
-      <div style={{
-        background:"var(--panel)", border:"1px solid var(--line)", borderRadius:12,
-        padding:16, ...(sticky ? { borderTop:"3px solid var(--ox)" } : {}),
-      }}>
-        {children}
-      </div>
-    </section>
-  );
-}
+/* Section component extracted to ./Section.jsx so DurationBlock +
+   MonitoringBlock can render through the same chrome. */
 
 /* ---------- the rendered rx line + footnote list ---------- */
-function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId }) {
+function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId, onAgentSelect }) {
   // Split refinements into inline-attachable vs leader-display.
   const { inline, leader } = useMemo(() => _attachRefinements(refinements), [refinements]);
   const tierColor = kind === "add" ? "var(--amber)" : "var(--ox)";
@@ -220,6 +198,7 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId }) {
         tierLabel={tier.k}
         ctx={ctx}
         d={d}
+        onSelectionChange={onAgentSelect}
       />
       {/* Suppress the tier-level italic note when per-card content
           exists for this tier — the cards subsume the note's content
@@ -300,6 +279,75 @@ function RefinementRow({ idx, step, onDrug }) {
 function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite }) {
   const ans = useMemo(() => composeAnswer(caseState), [caseState]);
   const [copied, setCopied] = useState(false);
+
+  /* Phase D2 cross-section selection state. Two interlocking signals:
+       pickedAgent  — the agent picked in any RegimenOptions card
+                      (core or add tier; latest pick wins, scoped to
+                      this syndrome render)
+       pickedBranch — the duration branch the clinician clicked in
+                      DurationBlock; null when no manual selection
+
+     DurationBlock + MonitoringBlock both consume these signals;
+     selections in either propagate downstream so monitoring items
+     tagged with matchAgent / matchBranch leap out as MATCHES. The
+     state is intentionally local to AnswerCanvas — it's ephemeral
+     UI exploration, not part of the persisted caseState. */
+  const [pickedAgent, setPickedAgent] = useState(null);
+  const [pickedBranch, setPickedBranch] = useState(null);
+
+  /* Bidirectional bridge: the sourceControlled chip in
+     ReassessmentPanel and the matching duration branch represent
+     the same clinical fact. When either changes, the other syncs.
+
+     Source-of-truth resolution:
+       1. If user manually clicked a duration branch → that wins
+          (pickedBranch state).
+       2. Else if the sourceControlled chip is checked → light the
+          first "uncomplicated / source controlled"-labeled branch.
+       3. Else if a regimen agent has matchAgent matching a branch
+          → light it (the existing auto-derivation).
+     Branches click handler also toggles the chip to keep the two
+     UI surfaces consistent; the bridge is symmetric. */
+  const sourceControlled = !!caseState.clinical?.sourceControlled;
+  const setSourceControlled = (val) => setCaseState(c => ({
+    ...c, clinical: { ...(c.clinical || {}), sourceControlled: !!val }
+  }));
+
+  const effectiveBranch = useMemo(() => {
+    if(pickedBranch) return pickedBranch;
+    if(!ans?.syndrome) return null;
+    const dur = getSyndromeDuration(ans.syndrome.id);
+    if(!dur?.branches) return null;
+    if(sourceControlled) {
+      const b = dur.branches.find(br => /uncomplicated|source[\s-]?controlled/i.test(br.label));
+      if(b) return b.label;
+    }
+    if(pickedAgent) {
+      const match = dur.branches.find(b => b.matchAgent && b.matchAgent.test(pickedAgent));
+      if(match) return match.label;
+    }
+    return null;
+  }, [pickedAgent, pickedBranch, sourceControlled, ans]);
+
+  /* When a branch is clicked, also flip the sourceControlled chip
+     to match (set on the source-controlled branch, clear on others).
+     This is the second leg of the bidirectional bridge. */
+  const handleBranchSelect = (label) => {
+    if(label === null) { setPickedBranch(null); return; }
+    setPickedBranch(prev => (prev === label ? null : label));
+    if(ans?.syndrome) {
+      const dur = getSyndromeDuration(ans.syndrome.id);
+      const branch = dur?.branches?.find(b => b.label === label);
+      const isSourceBranch = branch && /uncomplicated|source[\s-]?controlled/i.test(branch.label);
+      setSourceControlled(!!isSourceBranch);
+    }
+  };
+
+  /* Start date for the duration clock. Was owned by ReassessmentPanel;
+     moved here so it can be threaded into DurationBlock (where the
+     stop-date math lives) without zigzagging through caseState. */
+  const startDate = caseState.startDate || "";
+  const setStartDate = (sd) => setCaseState(c => ({ ...c, startDate: sd || null }));
 
   if(!ans) {
     return (
@@ -404,13 +452,17 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         </div>
       )}
 
-      {/* START NOW — the regimen */}
+      {/* START NOW — the regimen. Latest pick across any tier (core or
+          add) wins as the cross-section pickedAgent; downstream blocks
+          (DurationBlock, MonitoringBlock) light their matchAgent items. */}
       <Section kicker="Start now" icon={Crosshair} sticky>
         <RxLine kind="core" tier={ans.core} refinements={coreRefinements} onDrug={onDrug}
-          ctx={ans.ctx} d={ans.d} synId={s.id} />
+          ctx={ans.ctx} d={ans.d} synId={s.id}
+          onAgentSelect={setPickedAgent} />
         {ans.adds.map((a, i) => (
           <RxLine key={i} kind="add" tier={a} refinements={[]} onDrug={onDrug}
-            ctx={ans.ctx} d={ans.d} synId={s.id} />
+            ctx={ans.ctx} d={ans.d} synId={s.id}
+            onAgentSelect={setPickedAgent} />
         ))}
 
         {/* Allergy guardrail — quick read above the dose calc */}
@@ -561,6 +613,33 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         )}
       </Section>
 
+      {/* DURATION + MONITORING (Phase D2) — structured decision content
+          authored in syndromeDecision.js. Render only when content exists;
+          falls back to the legacy narrative Duration section below
+          (which is suppressed in that case to avoid duplication). The
+          regimen cards say what to start; these blocks say when to stop
+          and what to check.
+
+          Cross-section linking: pickedAgent (from RegimenOptions cards
+          above) implicitly lights the matching duration branch via
+          matchAgent regex; pickedBranch (from clicking a duration
+          branch) propagates to MonitoringBlock so items tagged with
+          matchBranch surface as MATCHES. Both signals also drive the
+          MonitoringBlock matchAgent highlighting. */}
+      <DurationBlock
+        duration={getSyndromeDuration(s.id)}
+        pickedAgent={pickedAgent}
+        pickedBranch={effectiveBranch}
+        onBranchSelect={handleBranchSelect}
+        startDate={startDate}
+        onStartDateChange={setStartDate}
+      />
+      <MonitoringBlock
+        monitoring={getSyndromeMonitoring(s.id)}
+        pickedAgent={pickedAgent}
+        pickedBranch={effectiveBranch}
+      />
+
       {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
           source control) that refine the regimen. Despite the legacy file
           name, this is not a longitudinal reassessment workflow — it is a
@@ -572,20 +651,27 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         empiric={ans}
         onDrug={onDrug}
         onOrg={onOrg}
+        hasStructuredDuration={!!getSyndromeDuration(s.id)}
       />
 
-      {/* DURATION + EVIDENCE */}
-      <Section kicker="Duration" icon={Clock}>
-        <div style={{ fontSize:13.5, color:"var(--ink)", lineHeight:1.55 }}>
-          {s.duration}
-          {ans.evidence && (
-            <span style={{ marginLeft:8 }}>
-              {ans.evidence.ev && <Ev kind={ans.evidence.ev} />}{" "}
-              <Cite id={ans.evidence.ref} onClick={(cid) => onCite && onCite(cid)} />
-            </span>
-          )}
-        </div>
-      </Section>
+      {/* DURATION + EVIDENCE — legacy narrative duration section. Suppressed
+          when the syndrome has authored structured DurationBlock content
+          (rendered above ReassessmentPanel), to avoid duplicating the same
+          fact in two places. The structured block carries the same string
+          inside its headline + branches with richer affordances. */}
+      {!getSyndromeDuration(s.id) && (
+        <Section kicker="Duration" icon={Clock}>
+          <div style={{ fontSize:13.5, color:"var(--ink)", lineHeight:1.55 }}>
+            {s.duration}
+            {ans.evidence && (
+              <span style={{ marginLeft:8 }}>
+                {ans.evidence.ev && <Ev kind={ans.evidence.ev} />}{" "}
+                <Cite id={ans.evidence.ref} onClick={(cid) => onCite && onCite(cid)} />
+              </span>
+            )}
+          </div>
+        </Section>
+      )}
 
       {/* PEARLS — short, scannable. */}
       {ans.pearls.length > 0 && (

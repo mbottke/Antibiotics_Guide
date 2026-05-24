@@ -226,6 +226,18 @@ function PerOptionDoseChips({ optionText, ctx, d, synId }) {
   );
 }
 
+/* Title-case the first ASCII letter of an option's text. The splitter
+   produces "fosfomycin 3 g PO × 1" for the second/third entries in a
+   tier (it just slices after the comma+or), so card titles otherwise
+   render with a lowercase leading drug-name letter. Skips non-ASCII
+   leads (Greek β, etc.) so "β-lactam..." stays as authored. */
+function titleCaseFirst(s) {
+  if(!s) return s;
+  const c = s.charAt(0);
+  if(c >= "a" && c <= "z") return c.toUpperCase() + s.slice(1);
+  return s;
+}
+
 function OptionCard({ option, selected, primary, onSelect, renderText, accent, content, ctx, d, synId }) {
   const accentColor = accent === "add" ? "var(--amber)" : "var(--ox)";
   const accentSoft  = accent === "add" ? "var(--amber-soft)" : "var(--ox-soft)";
@@ -243,21 +255,31 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
         borderRadius:10,
         padding:"11px 12px 12px",
         cursor:"pointer",
-        position:"relative",
         transition:"background .12s, border-color .12s, transform .08s",
         boxShadow: selected ? "inset 0 0 0 1px " + accentLine : "none",
         opacity: selected ? 1 : 0.94,
       }}>
-      {primary && (
-        <div style={{
-          position:"absolute", top:-8, left:10,
-          fontFamily:"var(--mono)", fontSize:9, letterSpacing:".1em",
-          textTransform:"uppercase", fontWeight:700, color:"#fff",
-          background: accentColor, borderRadius:4, padding:"1px 6px",
-        }}>Recommended</div>
-      )}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:8, marginBottom: 4 }}>
-        <RouteBadge route={option.route} />
+      {/* Top metadata strip: route badge(s) on the left, Recommended chip
+          inline next to them (instead of an absolute-positioned tab that
+          overlapped the card border on prior iterations), and the
+          Selected indicator anchored on the right. The Recommended chip
+          renders as a fully-bordered pill so it reads as a deliberate
+          badge rather than a stuck-on label. */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:8, marginBottom: 6 }}>
+        <div style={{ display:"inline-flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
+          <RouteBadge route={option.route} />
+          {primary && (
+            <span style={{
+              display:"inline-flex", alignItems:"center", gap:3,
+              fontFamily:"var(--mono)", fontSize:9, letterSpacing:".08em",
+              textTransform:"uppercase", fontWeight:700,
+              color:"#fff", background: accentColor,
+              border: "1px solid " + accentColor,
+              borderRadius: 4, padding:"2px 6px",
+              whiteSpace:"nowrap",
+            }}>Recommended</span>
+          )}
+        </div>
         {selected && (
           <span style={{
             display:"inline-flex", alignItems:"center", gap:3,
@@ -269,7 +291,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
         )}
       </div>
       <div style={{ fontSize:13.5, lineHeight:1.5, color:"var(--ink)", fontWeight: selected ? 600 : 500 }}>
-        {renderText ? renderText(option.text) : option.text}
+        {renderText ? renderText(titleCaseFirst(option.text)) : titleCaseFirst(option.text)}
       </div>
       <DecisionContent content={content} accent={accent} />
       <PerOptionDoseChips optionText={option.text} ctx={ctx} d={d} synId={synId} />
@@ -283,11 +305,20 @@ function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx
 
   useEffect(() => { setPickedIdx(0); }, [rx]);
 
-  useEffect(() => {
-    if(!onSelectionChange) return;
-    const active = options[pickedIdx];
-    onSelectionChange(active ? active.text : null);
-  }, [pickedIdx, options, onSelectionChange]);
+  /* Fire onSelectionChange only when the USER explicitly clicks a
+     card — not on initial mount. Without this guard, multi-tier
+     syndromes (e.g. SAB with MSSA + MRSA tiers) would race their
+     "default to first card" useEffects and whichever instance
+     mounted last would silently set pickedAgent in AnswerCanvas
+     to a card the clinician never picked, lighting downstream
+     monitoring items as MATCHES under false pretenses. The
+     "selected" visual state of the first card remains as a
+     recommendation cue, but the cross-section signal stays null
+     until a real click. */
+  const userPicked = (i) => {
+    setPickedIdx(i);
+    onSelectionChange?.(options[i]?.text || null);
+  };
 
   const contentFor = (text) => lookupOptionContent(synId, tierLabel, text);
 
@@ -319,7 +350,7 @@ function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx
           selected={i === pickedIdx}
           primary={options.length > 1 && i === 0}
           accent={accent}
-          onSelect={() => setPickedIdx(i)}
+          onSelect={() => userPicked(i)}
           renderText={renderText}
           content={contentFor(opt.text)}
           ctx={ctx}

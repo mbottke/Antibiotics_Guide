@@ -21,6 +21,7 @@ import {
 import { applyReassessment } from "../engines/regimen.js";
 import { ORGS, ORG_BY_ID } from "../data/organisms.js";
 import { renderRich } from "./rich-text.jsx";
+import { Section } from "./Section.jsx";
 
 function _bugChips(empiric) {
   // Quick-pick organisms = the syndrome's empiric `bugs` list. We show
@@ -32,12 +33,12 @@ function _bugChips(empiric) {
   return { synBugs, remaining };
 }
 
-function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg }) {
+function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, hasStructuredDuration = false }) {
   if(!empiric) return null;
 
   const cultures = caseState.cultures || { status: "pending", organism: null };
   const clinical = caseState.clinical || { stable:false, absorbing:false, sourceControlled:false };
-  const startDate = caseState.startDate || "";
+  // startDate moved to DurationBlock; ReassessmentPanel no longer reads it.
 
   const r = applyReassessment(empiric, caseState);
   const { synBugs, remaining } = _bugChips(empiric);
@@ -53,7 +54,6 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg }) 
   const setClinical = (key, val) => setCaseState(c => ({
     ...c, clinical: { ...(c.clinical || {}), [key]: val },
   }));
-  const setStartDate = (sd) => setCaseState(c => ({ ...c, startDate: sd || null }));
 
   const orgChip = (id, selected) => {
     const o = ORG_BY_ID[id];
@@ -92,24 +92,13 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg }) 
   );
 
   return (
-    <section data-testid="reassessment-panel" style={{ marginBottom: 18 }}>
-      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom: 10 }}>
-        <span style={{
-          fontFamily:"var(--mono)", fontSize:10, letterSpacing:".14em",
-          textTransform:"uppercase", color:"var(--ox)", fontWeight:700,
-          display:"inline-flex", alignItems:"center", gap:6,
-        }}>
-          <Stethoscope size={12} /> Current state
-        </span>
-        {r && r.activeTriggers.length > 0 && (
-          <span style={{ fontSize:11, color:"var(--ink2)", fontStyle:"italic" }}>
-            {r.activeTriggers.length} trigger{r.activeTriggers.length === 1 ? "" : "s"} active — regimen has changed
-          </span>
-        )}
-      </div>
-      <div style={{
-        background:"var(--panel)", border:"1px solid var(--line)", borderRadius:12, padding:16,
-      }}>
+    <Section kicker="Current state" icon={Stethoscope} testId="reassessment-panel">
+      {r && r.activeTriggers.length > 0 && (
+        <div style={{ fontSize:11, color:"var(--ink2)", fontStyle:"italic", marginBottom: 10 }}>
+          {r.activeTriggers.length} trigger{r.activeTriggers.length === 1 ? "" : "s"} active — regimen has changed
+        </div>
+      )}
+      <>
         {/* ----- INPUT: cultures ---------------------------------------- */}
         <div style={{ marginBottom: 14 }}>
           <div style={{
@@ -182,24 +171,10 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg }) 
           </div>
         </div>
 
-        {/* ----- INPUT: start date -------------------------------------- */}
-        <div>
-          <div style={{
-            fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em",
-            textTransform:"uppercase", color:"var(--muted)", fontWeight:600,
-            marginBottom:6, display:"flex", alignItems:"center", gap:5,
-          }}>
-            <Calendar size={11}/> Start date <span style={{ textTransform:"none", letterSpacing:0, fontFamily:"var(--sans)", color:"var(--muted)", fontWeight:500 }}>(first effective dose — for the duration clock)</span>
-          </div>
-          <input type="date" value={startDate}
-            onChange={e => setStartDate(e.target.value)}
-            aria-label="Start date for the duration clock"
-            style={{
-              fontFamily:"var(--mono)", fontSize:12.5, color:"var(--ink)",
-              background:"var(--paper)", border:"1px solid var(--line)", borderRadius:7,
-              padding:"5px 9px", cursor:"pointer",
-            }}/>
-        </div>
+        {/* Start date + duration clock moved to DurationBlock in
+            Phase D2 v3 — they're a duration concern, not a current-
+            state one. ReassessmentPanel now focuses on cultures +
+            clinical chips + reassessment output. */}
 
         {/* ----- OUTPUT: structured delta from applyReassessment -------- */}
         {r && (
@@ -305,7 +280,16 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg }) 
               </div>
             )}
 
-            {r.duration && (
+            {/* Duration clock: rendered only as a FALLBACK when the
+                syndrome has no structured DurationBlock content
+                (i.e., not yet authored in syndromeDecision.js). When
+                DurationBlock exists, it owns the duration display
+                + start-date input + computed stop-date, and this
+                panel suppresses its own clock to avoid showing the
+                same fact in two places. Until the remaining ~104
+                syndromes are bulk-authored, this graceful fallback
+                keeps the duration affordance intact everywhere. */}
+            {r.duration && !hasStructuredDuration && (
               <div style={{
                 padding:"10px 12px", background:"var(--paper2)", border:"1px solid var(--line)",
                 borderRadius:8,
@@ -315,17 +299,14 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg }) 
                   <span style={{ fontSize:11.5, fontWeight:700, color:"var(--ink)", letterSpacing:".02em" }}>DURATION CLOCK</span>
                 </div>
                 <div style={{ fontSize:13, color:"var(--ink)", lineHeight:1.55 }}>
-                  <b>{r.duration.days} days</b> from the first effective dose.
-                  {r.stopDate
-                    ? <> Stop on <b style={{ fontFamily:"var(--mono)" }}>{r.stopDate}</b>.</>
-                    : <> Set a start date above to compute the stop date.</>}
+                  <b>{r.duration.days} days</b> from the first effective dose. Once the syndrome's structured duration content is authored, the clock and start date move into the Duration block above.
                 </div>
               </div>
             )}
           </div>
         )}
-      </div>
-    </section>
+      </>
+    </Section>
   );
 }
 
