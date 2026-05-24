@@ -3786,6 +3786,10 @@ const SYNDROME_DECISION = {
           why: "Mandatory reporting + household close-contact prophylaxis per CDC" },
       ],
     },
+    rationale: {
+      driver: "Sepsis with a toxin-mediated pattern — shock out of proportion to apparent local findings — is the high-acuity differential that captures undifferentiated TSS, necrotizing soft-tissue infection, and clostridial myonecrosis BEFORE the pathogen is confirmed. Empiric coverage is a triple combination: a broad β-lactam (pip-tazo or carbapenem) for the GNR/mixed substrate, vancomycin for MRSA, AND clindamycin 900 mg q8h for ribosomal toxin suppression in any toxin-producer (Eagle effect, IDSA SSTI 2014). Source control — urgent surgical exploration if necrotizing infection is plausible, tampon/foreign-body removal in suspected menstrual or post-partum TSS — drives outcome more than any antibiotic decision. IVIG is added in confirmed streptococcal TSS once microbiology returns; duration follows the confirmed source, ≥ 14 d typical.",
+      guideline: "ssti",
+      rejected: "β-lactam monotherapy without clindamycin was deliberately rejected — even bactericidal therapy fails to suppress the superantigen synthesis driving distributive shock (Stevens IDSA 2014), so clindamycin pairs with the cidal agent until a toxin producer is excluded. Routine empiric IVIG before microbiologic confirmation was tempered — Linnér (CID 2014) and Darenberg (CID 2003) anchor the mortality benefit to GAS-TSS specifically, and pre-emptive dosing in undifferentiated toxin-pattern sepsis wastes a scarce product without changing outcome." },
     research: {
       headline: "Source control + clindamycin for toxin suppression; IVIG mortality benefit specific to GAS-TSS, not Staph TSS.",
       trials: [
