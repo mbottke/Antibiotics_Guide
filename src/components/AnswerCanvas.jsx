@@ -181,18 +181,18 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId, onAgentSelect 
   const tierBg = kind === "add" ? "var(--amber-soft)" : "var(--ox-soft)";
   const tierLine = kind === "add" ? "var(--amber-line)" : "var(--ox-line)";
   return (
-    <div style={{ marginBottom: kind === "add" ? 12 : 10 }}>
-      <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom: 6 }}>
+    <div style={{ marginBottom: kind === "add" ? 14 : 12 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", marginBottom: 8 }}>
         <span style={{
-          fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em",
+          fontFamily:"var(--mono)", fontSize:10, letterSpacing:".1em",
           textTransform:"uppercase", fontWeight:700, color: tierColor,
           background: tierBg, border:`1px solid ${tierLine}`, borderRadius:5,
-          padding:"2px 8px",
+          padding:"3px 9px",
         }}>
-          {kind === "add" ? <><Plus size={9} style={{verticalAlign:"-1px", marginRight:3}}/>{tierLabel}</> : tierLabel}
+          {kind === "add" ? <><Plus size={10} style={{verticalAlign:"-1px", marginRight:3}}/>{tierLabel}</> : tierLabel}
         </span>
-        <span style={{ fontSize:13, fontWeight:600, color:"var(--ink)" }}>{tier.k}</span>
-        {tier.why && <span style={{ fontSize:11.5, color:"var(--muted)" }}>· added because {tier.why}</span>}
+        <span style={{ fontSize:14.5, fontWeight:700, color:"var(--ink)", letterSpacing:"-.005em" }}>{tier.k}</span>
+        {tier.why && <span style={{ fontSize:12, color:"var(--muted)" }}>· added because {tier.why}</span>}
       </div>
       {/* Phase D1.5 — multi-option presentation with per-card decision
           content + selection-narrowed dose adjustments. The tier's rx

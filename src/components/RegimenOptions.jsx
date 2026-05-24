@@ -369,7 +369,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
           </span>
         )}
       </div>
-      <div style={{ fontSize:13.5, lineHeight:1.5, color:"var(--ink)", fontWeight: selected ? 600 : 500 }}>
+      <div style={{ fontSize:15, lineHeight:1.45, color:"var(--ink)", fontWeight: selected ? 700 : 600, letterSpacing:"-.005em" }}>
         {renderText ? renderText(titleCaseFirst(option.text)) : titleCaseFirst(option.text)}
       </div>
       <DecisionContent content={content} accent={accent} ctx={ctx} />
