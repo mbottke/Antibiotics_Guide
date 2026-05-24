@@ -538,6 +538,10 @@ const SYNDROME_DECISION = {
           why: "Local data overrides published norms in HCAQ flora" },
       ],
     },
+    rationale: {
+      driver: "Healthcare-associated sepsis carries the patient's prior antibiotic and colonization signature — recent hospitalization, indwelling devices, nursing-facility residence, and dialysis all shift the empiric substrate toward MRSA, ESBL, AmpC, and DTR-Pseudomonas. The empiric backbone is mechanism-matched per IDSA 2024 (Tamma) anchored to the local antibiogram: anti-pseudomonal β-lactam (cefepime or pip-tazo) + vancomycin for severe shock or known MRSA colonization; carbapenem or novel β-lactam (ceftolozane-tazobactam, ceftazidime-avibactam) only when an ESBL / CRE / DTR risk profile is present. Duration follows BALANCE — 7 d for source-controlled GNR bacteremia, 10–14 d for ESBL/CRE — and Hour-1 bundles (SSC 2021) drive survival.",
+      guideline: "ssc",
+      rejected: "Reflexive empiric pip-tazo + vancomycin in every HCAQ host was deliberately tempered — the combination roughly doubles AKI risk vs cefepime + vancomycin without survival benefit, and the substrate often allows a narrower empiric anchored to local antibiogram + prior colonization data. Empiric carbapenem-as-default was rejected: blanket coverage accelerates carbapenem resistance and loses activity for true CRE / DTR cases (IDSA 2024). Continuing 14-d courses past BALANCE was tempered — 7 d non-inferior in controlled-source GNR bacteremia, even in HCAQ subset analyses." },
     research: {
       headline: "Same 7-day BALANCE principle as community sepsis with broader empiric coverage for HCAQ flora.",
       trials: [
@@ -3502,6 +3506,10 @@ const SYNDROME_DECISION = {
           why: "Viral co-infection drives empiric failure; pcr panel + serology" },
       ],
     },
+    rationale: {
+      driver: "Profound neutropenia (ANC < 500) plus septic shock is the highest-acuity neutropenic-fever phenotype — translocation across chemo-injured mucosa seeds Gram-negative bacteremia within hours, and Pseudomonas is the historical mortality driver. IDSA 2018 (Taplitz / Freifeld) mandates monotherapy anti-pseudomonal β-lactam (cefepime, pip-tazo, or meropenem) within an hour, with vancomycin added selectively for septic shock, line-associated infection, skin/soft-tissue source, or MRSA colonization — NOT routinely. Empiric mold-active antifungal (echinocandin or voriconazole) is added at 96 h of persistent fever per Maertens (NEJM 2018) when invasive fungal disease occupies 10–15% of unresolved FUO. ANC recovery is the inflection point — G-CSF / pegfilgrastim per oncology protocol.",
+      guideline: "fn",
+      rejected: "Reflexive empiric vancomycin in every neutropenic-sepsis presentation was deliberately rejected — IDSA 2018 reserves vanco for shock, skin or line source, or known MRSA colonization, and routine inclusion drives AKI on the pip-tazo combination without mortality benefit. Empiric antifungal at admission was tempered — the 96-h trigger is anchored to invasive fungal prevalence rising only with prolonged unresolved fever (EORTC / MSGERC 2020); pre-emptive antifungal at admission selects resistant Candida and increases hepatotoxicity. Stopping empirics on ANC recovery alone, without afebrile criteria, was rejected." },
     research: {
       headline: "IDSA 2018 mandates anti-pseudomonal empiric; antifungal escalation at 96 h drives outcomes in persistent fever.",
       trials: [
@@ -3589,6 +3597,10 @@ const SYNDROME_DECISION = {
           why: "Reduces secondary bacterial infection risk; standard prevention" },
       ],
     },
+    rationale: {
+      driver: "Sepsis in the asplenic or hyposplenic host is OPSI until proven otherwise — minutes-to-antibiotic drive mortality, which sits at 38–69% if delayed (Bisharat Lancet ID 2001), and the spleen's loss of opsonization and clearance of encapsulated organisms makes pneumococcus, meningococcus, and H. influenzae the dominant pathogens. The empiric is ceftriaxone 2 g IV q24h at triage without waiting for cultures; vancomycin is added for septic shock or suspected resistant pneumococcal meningitis; pip-tazo or carbapenem if Capnocytophaga is suspected after dog-bite exposure with DIC kinetics. Functional asplenia (sickle cell, prior splenic XRT, celiac) follows the identical protocol per BSH (Davies 2011) and IDSA/ASH.",
+      guideline: "davies_bsh",
+      rejected: "Waiting on culture data before starting antibiotics was deliberately rejected — OPSI mortality compounds by the minute, and Davies BSH 2011 + Bisharat 2001 both anchor first-dose-at-triage even when the diagnosis is still uncertain. Narrow ceftriaxone alone in the shocked or meningitic presentation was tempered — vancomycin must be added until resistant pneumococcus is excluded, and broader cover (pip-tazo) added if Capnocytophaga is plausible. Skipping the vaccination + standby-antibiotic + medical-alert bundle at discharge was rejected — the BSH and IDSA/ASH guidance show these reduce recurrent OPSI more reliably than any acute regimen change." },
     research: {
       headline: "Encapsulated organisms drive OPSI; mortality > 50%; vaccination + standby antibiotic + medical alert ID prevent.",
       trials: [
@@ -4208,6 +4220,10 @@ const SYNDROME_DECISION = {
           why: "Viral co-infection drives empiric failure; PCR panel" },
       ],
     },
+    rationale: {
+      driver: "Febrile neutropenia (single temp ≥ 38.3 °C or sustained ≥ 38.0 °C with ANC < 500) is treated as bacteremia until proven otherwise — the chemo-injured GI mucosal barrier seeds Gram-negative organisms within hours, and Pseudomonas drives historical mortality. IDSA 2018 (Taplitz) anchors monotherapy anti-pseudomonal β-lactam (cefepime, pip-tazo, or meropenem) within an hour as the empiric backbone; vancomycin is added selectively for shock, line/skin source, or known MRSA. MASCC ≥ 21 + clinical stability + reliable follow-up identifies a low-risk subset eligible for oral outpatient management (Klastersky JCO 2000; Taplitz ASCO 2018). Persistent fever > 96 h triggers fungal workup (galactomannan, β-D-glucan, CT) + empiric mold-active antifungal.",
+      guideline: "fn",
+      rejected: "Routine empiric vancomycin in every febrile-neutropenic admission was deliberately rejected — IDSA 2018 reserves it for septic shock, line/skin source, or known MRSA colonization, and reflexive inclusion drives AKI on the pip-tazo combination without mortality benefit. Hospitalization of every febrile-neutropenic patient was tempered — MASCC ≥ 21 + clinical stability supports outpatient oral fluoroquinolone + amox-clav management (Taplitz ASCO 2018), and indiscriminate admission consumes resources and exposes patients to nosocomial flora. Reflexive antifungal at admission was rejected: the 96-h trigger is anchored to invasive fungal disease prevalence rising only with prolonged unresolved fever." },
     research: {
       headline: "Stop at ANC > 500 + afebrile + cultures negative; oral step-down feasible in low-risk; antifungal at 96 h.",
       trials: [
@@ -4294,6 +4310,10 @@ const SYNDROME_DECISION = {
           why: "Reduces secondary bacterial infection risk" },
       ],
     },
+    rationale: {
+      driver: "OPSI is the lethal late complication of splenectomy or functional asplenia — fulminant pneumococcal, meningococcal, or H. influenzae bacteremia within hours of mild prodromal symptoms, with mortality 38–69% even with treatment (Bisharat Lancet ID 2001) because the spleen's loss of opsonization and clearance of encapsulated organisms removes a critical line of defense. First-dose-at-triage is the survival lever — ceftriaxone 2 g IV before cultures resolve, vancomycin added for shock or meningitis (resistant pneumococcus), pip-tazo or carbapenem for Capnocytophaga after dog-bite exposure with DIC. Lifelong prevention bundle: PCV20 (or PCV15 + PPSV23), MenACWY + MenB, Hib + standby amox-clav + medical alert bracelet (CDC ACIP 2024; IDSA/ASH 2014).",
+      guideline: "bisharat",
+      rejected: "Waiting on culture data before initiating empiric antibiotics was deliberately rejected — Bisharat and successor cohorts show mortality compounds by the minute, and the OPSI guidance is uniform that first-dose-at-triage precedes the diagnostic workup. Reflexive narrow-spectrum monotherapy without considering Capnocytophaga in the dog-bite history was tempered — pip-tazo or carbapenem are required when the bite history + DIC kinetics fit. Skipping the long-term prevention bundle at discharge was rejected: every readmission for OPSI represents a system failure of the vaccination + standby-antibiotic + medical-alert tripod that ASH and BSH both anchor as the durable mortality lever." },
     research: {
       headline: "Vaccination + standby antibiotic + medical alert ID reduce OPSI mortality; minutes matter at presentation.",
       trials: [
@@ -7437,6 +7457,10 @@ const SYNDROME_DECISION = {
           why: "Nocardiosis is a marker for cellular immune compromise" },
       ],
     },
+    rationale: {
+      driver: "Nocardia is a cell-mediated-immunity disease — disseminated nocardiosis is a marker for an underlying T-cell defect (transplant, prolonged steroids, untreated HIV with low CD4, lymphoma) and triggers HIV + immunology workup at presentation. TMP-SMX (or sulfadiazine) is the backbone, dosed at 5–10 mg/kg TMP component; severe / disseminated / CNS disease gets combination IV induction × 6 wk (TMP-SMX + imipenem or amikacin, plus linezolid or ceftriaxone if CNS) per ATS/IDSA 2017. Brain MRI at presentation is mandatory regardless of neurologic symptoms — ~30% have occult CNS involvement (Welsh 2008) that doubles duration to 12 months. N. farcinica carries intrinsic resistance to multiple agents, so species ID + susceptibilities drive choice.",
+      guideline: "mono",
+      rejected: "Empiric short-course TMP-SMX without species ID and CNS imaging was deliberately rejected — Welsh and Lerner both anchor brain MRI at presentation regardless of symptoms, and N. farcinica or other resistant species can fail standard sulfa monotherapy. Skipping HIV + cell-mediated-immunity workup was tempered — nocardiosis is a sentinel for occult immune defects, and finding and treating the substrate (resume ART, reduce IS, treat lymphoma) is as important as the antibacterial. Discontinuing therapy at clinical resolution without imaging follow-up was rejected: long-course (6–12 mo) is anchored to radiographic resolution, not symptom relief." },
     research: {
       headline: "TMP-SMX backbone; CNS workup mandatory (~30% involvement); long course (6–12 mo); cell-mediated immune defect marker.",
       trials: [
@@ -7524,6 +7548,10 @@ const SYNDROME_DECISION = {
           why: "Endocarditis incidence ~7% in listerial bacteremia; drives 4–6 wk + surgery" },
       ],
     },
+    rationale: {
+      driver: "Listeriosis is a host-restricted disease — pregnant women, neonates, age > 50, and impaired cell-mediated immunity (steroids, TNFi, transplant, hematologic malignancy) carry the entire risk profile, and the empiric meningitis regimen of ceftriaxone + vancomycin MISSES Listeria because cephalosporins are intrinsically inactive. Ampicillin 2 g IV q4h is the backbone (or penicillin G); gentamicin × first 7 d for synergy in serious disease (meningitis, rhombencephalitis, endocarditis) per Mylonakis (Medicine 2002). TMP-SMX or meropenem are the only severe-PCN-allergy alternatives with outcome data. Listeriosis is notifiable — public-health reporting, source tracing (deli meats, soft cheese, melons), and food-safety counseling for pregnant + immunocompromised hosts are part of the bundle.",
+      guideline: "mono",
+      rejected: "Standard ceftriaxone-based empiric meningitis coverage in patients > 50 or immunocompromised was deliberately rejected — IDSA bacterial meningitis guidance and Mylonakis 2002 both anchor ampicillin add-on in any host with cell-mediated-immunity risk, because cephalosporin-only empirics miss Listeria with mortality cost. Omitting gentamicin in serious or CNS disease was tempered — animal + observational synergy data support first-week add-on despite nephrotoxicity. Stopping ampicillin at 14 d for meningitis or rhombencephalitis was rejected: 21+ d is the minimum, longer for brain abscess or rhombencephalitis confirmed on imaging." },
     research: {
       headline: "Cephalosporins INACTIVE; ampicillin synergy with gentamicin; outbreak surveillance + food safety counseling.",
       trials: [
@@ -7613,6 +7641,10 @@ const SYNDROME_DECISION = {
           why: "Common substrate; addressable comorbidities" },
       ],
     },
+    rationale: {
+      driver: "Capnocytophaga canimorsus drives fulminant sepsis after dog (or cat) exposure when the host substrate is asplenic, alcoholic, or cirrhotic — Janda (CID 1999) anchors ~75% of cases to dog exposure and mortality > 30% in the asplenic subset because impaired opsonization of encapsulated organisms removes the critical defense. Ceftriaxone or penicillin G is first-line for the immunocompetent host (14 d for uncomplicated bacteremia); pip-tazo or meropenem with ICU-level resuscitation is the severe-host regimen because the DIC + purpura-fulminans phenotype evolves over hours. The organism is fastidious and slow-growing — the lab must be alerted to extend blood-culture incubation past the standard 5-day window.",
+      guideline: "ssti",
+      rejected: "Standard 5-day blood-culture incubation without alerting the lab was deliberately rejected — Capnocytophaga is fastidious and slow-growing, and routine clearance protocols miss the organism in patients with the right substrate and history. Discharging an asplenic patient with a dog-exposure febrile illness without inpatient observation was tempered — Stevens IDSA 2014 and Janda 1999 both anchor low threshold for admission + broad coverage given the fulminant kinetics. Skipping standby amoxicillin + vaccination review at discharge in the asplenic host was rejected: every subsequent dog-bite carries the same OPSI-equivalent risk." },
     research: {
       headline: "Dog-bite + asplenic + cirrhotic substrate drives fulminant sepsis; slow-growing — alert lab for extended incubation.",
       trials: [
@@ -7697,6 +7729,10 @@ const SYNDROME_DECISION = {
           why: "Inactivated vaccines safe; live vaccines avoided; family + household vaccinations important" },
       ],
     },
+    rationale: {
+      driver: "SOT infection follows the Fishman time-from-transplant paradigm (NEJM 2007) — early (< 1 mo) is nosocomial / surgical, intermediate (1–6 mo) is opportunistic (CMV, PJP, invasive fungal, BK), and late (> 6 mo) is community-acquired with reactivation. The single highest-impact intervention is IS reduction, coordinated with the transplant team — antibiotic-only management without adjusting the immunosuppressive burden is consistently less effective (Singh Lancet ID 2020). Drug interactions dominate every choice: FQs and azoles raise tacrolimus / sirolimus levels, rifampin slashes them, and many empiric agents need TDM-driven adjustment. Transplant ID consult at presentation is mandated by AST 2019 and ISHLT 2020.",
+      guideline: "fishman",
+      rejected: "Treating SOT infection identically to immunocompetent infection was deliberately rejected — Fishman 2007 and AST 2019 anchor the differential to time-from-transplant and organ-specific patterns, and empiric coverage must broaden for nosocomial flora early or opportunistic pathogens (CMV, PJP, mold) in the intermediate window. Continuing baseline IS through severe sepsis without transplant-team coordination was tempered — Singh 2020 + AST anchor IS reduction as the single highest-impact intervention. Skipping prophylaxis-adherence review was rejected: breakthrough infection on missed or discontinued PJP / CMV / fungal prophylaxis is common and treatable, but only if recognized." },
     research: {
       headline: "Time-from-tx + organ-specific patterns drive differential; IS reduction is the single highest-impact intervention.",
       trials: [
@@ -7791,6 +7827,10 @@ const SYNDROME_DECISION = {
           why: "Influenza drives bacterial superinfection in asplenic; routine adult immunization" },
       ],
     },
+    rationale: {
+      driver: "Any febrile illness in an asplenic (or functionally asplenic — sickle cell, post-XRT, celiac) host is OPSI until proven otherwise — Davies BSH 2011 and IDSA/ASH 2014 are uniform that the spleen's loss of opsonization and clearance of encapsulated organisms drives fulminant pneumococcal, meningococcal, and H. influenzae bacteremia within hours. Empiric ceftriaxone 2 g IV + vancomycin (for shock or suspected resistant pneumococcal meningitis) is the floor; pip-tazo or carbapenem broadens for Capnocytophaga after dog-bite exposure. The lifelong prevention bundle is the durable mortality lever: PCV20 (or PCV15 + PPSV23), MenACWY + MenB, Hib (CDC ACIP 2024) + standby amoxicillin or amox-clav + medical-alert bracelet + every-fever-equals-ED education.",
+      guideline: "davies_bsh",
+      rejected: "Discharging an asplenic patient with mild febrile illness without inpatient observation and broad empirics was deliberately rejected — Davies BSH 2011 and Bisharat 2001 both anchor admission + empiric coverage given the fulminant kinetics, even when the patient looks well at triage. Skipping the standby antibiotic + medical alert ID at discharge was tempered — Theilacker CID 2016 shows compliance gaps drive most modern OPSI cases, and transitions of care are where the bundle is lost. Reflexive lifelong daily penicillin prophylaxis in every adult asplenic was rejected: IDSA/ASH reserve daily ppx for children and the first 2 y post-splenectomy or immunocompromised subgroups." },
     research: {
       headline: "OPSI mortality > 50% — minutes matter; vaccination + standby antibiotic + medical alert ID drive prevention.",
       trials: [
@@ -7886,6 +7926,10 @@ const SYNDROME_DECISION = {
           why: "Disseminated disease in TNFi-exposed; geographic + occupational history" },
       ],
     },
+    rationale: {
+      driver: "Biologic-associated infection is a mechanism-driven differential — TNF-α inhibitors reactivate granulomatous disease (latent TB, histoplasmosis, coccidioidomycosis), anti-CD20 (rituximab) drives encapsulated bacterial + viral infection through hypogammaglobulinemia, JAK inhibitors reactivate VZV + HBV + HSV, and checkpoint inhibitors produce ICI colitis that mimics CDI but requires steroids + infliximab rather than antibacterials (Winthrop CID 2019). The bundled response is to identify the agent + mechanism, hold the biologic, coordinate with the prescribing rheum / onc / GI team, screen for latent TB and HBV that should have been excluded before initiation, and treat the unmasked infection per pathogen-specific bands.",
+      guideline: "mono",
+      rejected: "Continuing the biologic through active infection was deliberately rejected — Winthrop and the rheum / onc consensus uniformly anchor a hold-and-treat approach because continued mechanism-driven immunosuppression delays recovery and worsens dissemination. Treating ICI colitis as CDI (or vice versa) was tempered — both can coexist, but the toxicity-vs-infection distinction changes the regimen entirely (steroids + infliximab for ICI vs vanco / fidaxomicin for CDI). Skipping pre-treatment latent TB + HBV screening was rejected: TB reactivation on TNFi and HBV reactivation on rituximab or JAKi are both predictable, preventable, and high-mortality." },
     research: {
       headline: "Mechanism drives differential; TNFi → latent TB screen; anti-CD20/JAKi → HBV screen; checkpoint → ICI colitis vs CDI.",
       trials: [
@@ -7965,6 +8009,10 @@ const SYNDROME_DECISION = {
           why: "Coordinated multi-disciplinary care; trial enrollment for emerging therapies" },
       ],
     },
+    rationale: {
+      driver: "Defined immune defects predict their pathogen — chronic granulomatous disease (CGD, NADPH-oxidase loss) cannot kill catalase-positive organisms and develops S. aureus, Burkholderia, Serratia, Nocardia, and invasive Aspergillus; CVID (humoral defect) develops encapsulated bacterial sinopulmonary disease; terminal complement (C5–9) and eculizumab-induced complement defects develop recurrent Neisseria; hyper-IgE (Job) develops S. aureus + Aspergillus; SCID develops everything. The empiric anchored to the defect pattern (rather than the conventional immunocompetent differential) shortens time-to-pathogen-matched therapy, and lifelong prophylaxis (TMP-SMX + itraconazole + IFN-γ for CGD; IVIG replacement for CVID; meningococcal vaccination + standby PCN for complement) reduces incidence by ~50% (Marciano CID 2014).",
+      guideline: "mono",
+      rejected: "Treating a defined-immune-defect host with a conventional empiric was deliberately rejected — the defect-organism patterns are predictable and validated, and missing Aspergillus in CGD or Neisseria in complement defect carries high mortality. Discontinuing lifetime prophylaxis after an infection-free interval was tempered — Marciano 2014 and PIDTC anchor lifelong TMP-SMX + itraconazole + IFN-γ for CGD because the underlying genetic defect is unchanged, and breakthrough infections off ppx are common. Skipping family genetic counseling and transplant / gene-therapy referral was rejected: HSCT or gene therapy is curative for SCID and confirmed CGD in selected patients, and family screening identifies at-risk relatives." },
     research: {
       headline: "Defect-specific organism pattern; CGD → catalase-positive; CVID → encapsulated; complement → Neisseria.",
       trials: [
