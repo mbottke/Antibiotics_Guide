@@ -1523,6 +1523,370 @@ const SYNDROME_DECISION = {
     },
   },
 
+  /* ===========================================================
+     PYELONEPHRITIS — IDSA 2010 (Gupta) + 2024 update. 7 d FQ for
+     uncomplicated; 10–14 d β-lactam; carbapenem path for ESBL. ===  */
+  pyelo: {
+    duration: {
+      headline: "7 d FQ for uncomplicated; 10–14 d β-lactam; carbapenem for ESBL — outpatient feasible in many.",
+      evidence: "IDSA 2010 + Tansarli 2018 meta — 7 d FQ non-inferior to 14 d; β-lactam needs 10–14 d",
+      branches: [
+        { label: "Uncomplicated, FQ-treated", days: "7 d",
+          detail: "Cipro/levo; outpatient acceptable if afebrile + tolerating oral + reliable follow-up",
+          matchAgent: /ciprofloxacin|levofloxacin/i },
+        { label: "β-lactam-treated", days: "10–14 d",
+          detail: "Ceftriaxone → oral cefpodoxime / amox-clav; longer course than FQ" },
+        { label: "Complicated / ESBL", days: "10–14 d carbapenem",
+          detail: "Ertapenem (outpatient) or meropenem (severe); ID for novel β-lactams if resistant",
+          matchAgent: /ertapenem|meropenem/i },
+        { label: "Pregnancy", days: "10–14 d",
+          detail: "Ceftriaxone IV then oral cephalexin / amox-clav; FQ contraindicated",
+          matchAgent: /cephalexin/i },
+      ],
+      stopWhen: [
+        "Afebrile ≥ 48 h",
+        "Flank pain resolving; nausea / vomiting cleared",
+        "WBC normalizing",
+        "Tolerating oral therapy + adequate intake",
+        "Source / obstruction relieved if present",
+        "Minimum 7 d FQ / 10–14 d β-lactam completed",
+      ],
+      extendIf: [
+        { text: "**Urinary obstruction / stone / hydronephrosis** — relieve obstruction + extend",
+          matchCtx: { severe: true } },
+        "Renal / perinephric abscess on imaging — drainage + extend per source",
+        { text: "**ESBL / CRE / MDR organism** confirmed — broaden + extend to 14 d",
+          matchCtx: { esblRisk: true } },
+        "Bacteremia confirmed — extend per organism (7–14 d typical)",
+        "Immunocompromised host — extend per response",
+      ],
+    },
+    monitoring: {
+      headline: "Urine + blood cultures, imaging if no response by 72 h, urologic eval for obstruction.",
+      items: [
+        { sev: "required", what: "**Urine culture + susceptibilities** before empirics",
+          why: "Narrowing on susceptibilities at 48–72 h drives stewardship + outcome" },
+        { sev: "required", what: "**Blood cultures** if febrile + systemic signs",
+          why: "Bacteremia in ~25%; positive culture drives broader workup + duration" },
+        { sev: "required", what: "**Imaging (CT or US)** if no clinical response by 72 h",
+          why: "Obstruction, abscess, emphysematous change — surgical / interventional decisions" },
+        { sev: "trigger", what: "**Urology consult** for obstructed kidney + sepsis",
+          why: "Decompression (stent, nephrostomy) is the inflection point for severe disease",
+          matchCtx: { severe: true } },
+        { sev: "trigger", what: "**Workup ESBL / MDR organism** if recurrent or recent broad antibiotics",
+          why: "Empiric pivot to carbapenem; ID consult for resistant flora",
+          matchCtx: { esblRisk: true } },
+        { sev: "consider", what: "Workup for predisposing factors — stone disease, reflux, neurogenic bladder",
+          why: "Recurrence prevention; urology follow-up for ongoing risk" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     CAUTI — IDSA 2009 + 2010 update. 7 d standard; remove
+     catheter if possible. =========================================== */
+  cauti: {
+    duration: {
+      headline: "7 d if prompt resolution; 10–14 d if delayed response or catheter retained.",
+      evidence: "IDSA 2010 — 7 d for prompt response, 10–14 d for delayed; remove or change catheter if possible",
+      branches: [
+        { label: "Prompt response, catheter removed", days: "7 d",
+          detail: "Removal / change of catheter is essential; antibiotic course from change day",
+          matchAgent: /ceftriaxone|ciprofloxacin/i },
+        { label: "Delayed response or catheter retained", days: "10–14 d",
+          detail: "Catheter biofilm prolongs treatment; switch catheter at start of therapy" },
+        { label: "ESBL / Pseudomonas / MDR", days: "10–14 d",
+          detail: "Cefepime, pip-tazo, or carbapenem per susceptibilities",
+          matchAgent: /cefepime|piperacillin|meropenem/i },
+      ],
+      stopWhen: [
+        "Afebrile ≥ 48 h",
+        "Urinary symptoms resolved (when assessable)",
+        "WBC normalizing",
+        "Catheter removed or changed",
+        "Source controlled (obstruction relieved)",
+        "Minimum 7 d completed",
+      ],
+      extendIf: [
+        "Catheter cannot be removed or changed",
+        { text: "**Pseudomonas / ESBL / MDR** identified — extend per organism",
+          matchCtx: { esblRisk: true } },
+        "Bacteremia confirmed — extend per source",
+        { text: "**Septic shock** at presentation — extend per ICU + response",
+          matchCtx: { severe: true } },
+      ],
+    },
+    monitoring: {
+      headline: "Remove or change catheter; treat ASB only in pregnancy / pre-procedure; minimize catheter days.",
+      items: [
+        { sev: "required", what: "**Remove or change the urinary catheter** if at all possible",
+          why: "Biofilm renders antibiotics partially effective; new catheter = better drainage" },
+        { sev: "required", what: "**Treat asymptomatic bacteriuria only** in pregnancy or pre-urologic procedure",
+          why: "ASB treatment in catheterized patients drives resistance without benefit (IDSA 2019)" },
+        { sev: "required", what: "**Urine culture from new catheter** if cultures needed",
+          why: "Cultures from old catheter reflect biofilm colonization, not bladder infection" },
+        { sev: "trigger", what: "**Imaging** if no response by 72 h or sepsis",
+          why: "Obstruction, abscess, papillary necrosis drive surgical / interventional decisions" },
+        { sev: "trigger", what: "**Catheter-day reduction protocol** — daily review of catheter necessity",
+          why: "Each catheter day adds infection risk; bladder retraining + intermittent cath alternatives" },
+        { sev: "consider", what: "**Bladder scan + intermittent cath** alternatives for chronic catheter patients",
+          why: "Reduces ongoing infection risk + improves quality of life" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     PROSTATITIS — IDSA + AUA. 4 wk acute; 6 wk chronic for
+     bacterial prostatitis. Long courses, tissue penetration matter. */
+  prostatitis: {
+    duration: {
+      headline: "4 wk acute bacterial prostatitis; 6 wk chronic; FQ or TMP-SMX for prostatic penetration.",
+      evidence: "AUA + IDSA — long-course tissue-penetrating agent; FQ resistance rising in community E. coli",
+      branches: [
+        { label: "Acute bacterial prostatitis", days: "4 wk",
+          detail: "Ceftriaxone IV initial → oral FQ or TMP-SMX; long course for prostatic tissue penetration",
+          matchAgent: /ciprofloxacin|levofloxacin|TMP-?SMX/i },
+        { label: "Chronic bacterial prostatitis", days: "6 wk",
+          detail: "Oral FQ or TMP-SMX × 6 wk; recurrence common; ID + urology partnership" },
+        { label: "Acute + bacteremia / prostatic abscess", days: "4–6 wk + drainage",
+          detail: "IV initial + drainage (transurethral or transrectal); duration from drainage day" },
+      ],
+      stopWhen: [
+        "Symptom resolution (urinary, perineal pain, fever)",
+        "Cultures cleared (urine, prostatic secretions)",
+        "PSA + WBC normalizing",
+        "Tolerating oral therapy",
+        "Minimum 4 wk acute / 6 wk chronic completed",
+      ],
+      extendIf: [
+        "Prostatic abscess identified — drainage + extension",
+        "Bacteremia or systemic sepsis — extend per source",
+        { text: "**Resistant organism** identified — ID + susceptibility-driven extension",
+          matchCtx: { esblRisk: true } },
+        "Recurrence at < 6 wk post-completion — chronic bacterial prostatitis suspected",
+      ],
+    },
+    monitoring: {
+      headline: "Avoid prostatic massage in acute; TRUS for abscess workup; long-course tissue-penetrating agent.",
+      items: [
+        { sev: "required", what: "**Avoid prostatic massage / instrumentation** in acute disease — bacteremia risk",
+          why: "Acute inflammation + massage triggers systemic seeding" },
+        { sev: "required", what: "**Tissue-penetrating oral agent** for step-down — FQ or TMP-SMX only",
+          why: "β-lactams have poor prostatic penetration; cephalexin / amox-clav inadequate" },
+        { sev: "trigger", what: "**Transrectal ultrasound** for abscess workup",
+          why: "Prostatic abscess complicates ~10% of acute disease; drainage indication" },
+        { sev: "trigger", what: "**Pre- + post-massage urine cultures** in chronic workup",
+          why: "Meares-Stamey test localizes infection to prostate vs urethra/bladder" },
+        { sev: "trigger", what: "**Urology consult** for chronic, recurrent, or abscess presentations",
+          why: "Surgical drainage, transurethral resection considerations" },
+        { sev: "consider", what: "**Pelvic floor PT** for chronic prostatitis / pelvic pain syndrome",
+          why: "Often non-bacterial; PT + alpha-blockers help when antibiotics inadequate" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     UROSEPSIS — bacteremic UTI; source control + sepsis bands. === */
+  urosepsis: {
+    duration: {
+      headline: "7 d controlled-source bacteremic UTI (BALANCE); longer if abscess, obstruction, or ESBL.",
+      evidence: "BALANCE 2024 — 7 d non-inferior in controlled-source UTI bacteremia; ID for resistant flora",
+      branches: [
+        { label: "Source controlled (drained, obstruction relieved)", days: "7 d",
+          detail: "From first negative BCx; BALANCE bands apply" },
+        { label: "Inadequate source control", days: "10–14 d",
+          detail: "Obstructed kidney, undrained abscess, retained catheter" },
+        { label: "ESBL / MDR organism", days: "10–14 d",
+          detail: "Carbapenem or novel β-lactam; ID input",
+          matchAgent: /ertapenem|meropenem|ceftolozane|ceftazidime-?avibactam/i },
+      ],
+      stopWhen: [
+        "Source controlled (obstruction relieved, abscess drained, catheter changed)",
+        "Blood cultures cleared ≥ 48 h",
+        "Afebrile ≥ 48 h, off vasopressors",
+        "Urinary symptoms resolved (when assessable)",
+        "Renal function stable / improving",
+        "Minimum 7 d from first negative BCx",
+      ],
+      extendIf: [
+        { text: "**Urinary obstruction / stone / hydronephrosis** — relieve + extend",
+          matchCtx: { severe: true } },
+        "Renal or perinephric abscess — drainage + extension",
+        { text: "**ESBL / CRE / MDR organism** — extend per ID input",
+          matchCtx: { esblRisk: true } },
+        "Persistent bacteremia > 72 h on appropriate therapy",
+      ],
+    },
+    monitoring: {
+      headline: "Source-control imaging first 24 h; urology consult for obstruction; broad empirics until cultures back.",
+      items: [
+        { sev: "required", what: "**Imaging (CT or US) within 24 h** to rule out obstruction / abscess",
+          why: "Source control is the inflection point; antibiotics fail with obstruction" },
+        { sev: "required", what: "**Blood + urine cultures** before first dose",
+          why: "Empiric therapy halves yield; targeted therapy at 48 h drives outcomes" },
+        { sev: "required", what: "**Urology consult** for obstructed sepsis — decompression (stent / nephrostomy)",
+          why: "Decompression within hours of sepsis recognition drives mortality reduction",
+          matchCtx: { severe: true } },
+        { sev: "trigger", what: "**Repeat BCx at 48 h** to confirm clearance",
+          why: "Persistent bacteremia triggers endocarditis workup + extended course" },
+        { sev: "trigger", what: "**Daily SCr** + AKI surveillance",
+          why: "Sepsis + obstruction + nephrotoxic antibiotics drive AKI risk",
+          matchCtx: { any: [{ crcl: { lt: 60 } }, { age: { gte: 75 } }] } },
+        { sev: "consider", what: "**MRSA / Enterococcus / Pseudomonas cover** if healthcare exposure",
+          why: "Empiric broadening in HCAQ patients; narrow on cultures" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     EPIDIDYMO-ORCHITIS — CDC 2021 STI + UTI guidelines. ============ */
+  epididymo: {
+    duration: {
+      headline: "10 d ceftriaxone+doxy for STI etiology; 10–14 d FQ for enteric pathogens.",
+      evidence: "CDC 2021 STI + AUA — pathogen-driven; rule out testicular torsion in acute presentation",
+      branches: [
+        { label: "STI etiology (GC/Chlamydia, age < 35)", days: "10 d",
+          detail: "Ceftriaxone IM single dose + doxycycline 100 mg PO BID × 10 d; treat partner",
+          matchAgent: /doxycycline/i },
+        { label: "Enteric etiology (age ≥ 35, insertive anal sex, instrumentation)", days: "10–14 d",
+          detail: "FQ (levofloxacin / ciprofloxacin) × 10–14 d; rule out underlying GU pathology",
+          matchAgent: /levofloxacin|ciprofloxacin/i },
+        { label: "Mixed / unclear etiology", days: "10–14 d",
+          detail: "Cover both STI + enteric: ceftriaxone + doxy + FQ; reassess on cultures" },
+      ],
+      stopWhen: [
+        "Scrotal pain + swelling resolving",
+        "Afebrile ≥ 24 h",
+        "Cultures cleared (urine, urethral if applicable)",
+        "Partner treated (if STI etiology)",
+        "Minimum 10 d (STI) / 10–14 d (enteric) completed",
+      ],
+      extendIf: [
+        "Abscess identified — drainage + extension",
+        { text: "**Necrosis or Fournier's progression** — surgical emergency",
+          matchCtx: { severe: true } },
+        "Underlying GU pathology — extend per workup",
+        "Failed first-line — switch agent + extend",
+      ],
+    },
+    monitoring: {
+      headline: "Rule out testicular torsion first; treat partner for STI; workup GU pathology for enteric.",
+      items: [
+        { sev: "required", what: "**Rule out testicular torsion** — ultrasound with Doppler if acute presentation",
+          why: "Torsion is surgical emergency; missing it costs the testicle" },
+        { sev: "required", what: "**Treat sexual partner(s)** for STI etiology + 7-day abstinence",
+          why: "Standard CDC public-health protocol; reduces reinfection + spread" },
+        { sev: "required", what: "**Test for HIV, syphilis, hepatitis B/C** at presentation",
+          why: "Co-infection screening; sexual-health visit opportunity" },
+        { sev: "trigger", what: "**Urology workup** for enteric etiology — BPH, urethral stricture, neurogenic bladder",
+          why: "Predisposing factors drive recurrence; address underlying" },
+        { sev: "trigger", what: "**Scrotal ultrasound** if abscess suspected or no response by 72 h",
+          why: "Drainage targets + rules out testicular involvement / necrosis" },
+        { sev: "consider", what: "**Scrotal elevation + NSAIDs** for symptom management",
+          why: "Reduces edema + pain; adjunctive to antibiotics" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     RENAL / PERINEPHRIC ABSCESS — drainage + 4–6 wk. ============== */
+  renalabscess: {
+    duration: {
+      headline: "4–6 wk total (2 wk IV + oral step-down) for drained abscess; longer if undrained.",
+      evidence: "Society consensus — drainage essential for > 3–5 cm; antibiotic course from drainage day",
+      branches: [
+        { label: "Drained renal abscess", days: "4–6 wk total",
+          detail: "2 wk IV minimum + 2–4 wk oral step-down; agent per susceptibilities" },
+        { label: "Perinephric abscess", days: "6 wk + drainage",
+          detail: "Often requires surgical or percutaneous drainage; longer course typical" },
+        { label: "Hematogenous S. aureus seeding", days: "4–6 wk + TEE",
+          detail: "TEE + endocarditis workup; treat per S. aureus bacteremia bands" },
+      ],
+      stopWhen: [
+        "Imaging shows abscess resolution",
+        "Cultures cleared",
+        "Afebrile ≥ 1 week + clinical improvement",
+        "WBC + inflammatory markers normalizing",
+        "Minimum 4–6 wk total completed",
+      ],
+      extendIf: [
+        "Undrained abscess > 3 cm",
+        { text: "**Hematogenous S. aureus** seeding — TEE + endocarditis workup",
+          matchCtx: { mrsaRisk: true } },
+        "Diabetic / immunocompromised host — extend per response",
+        "Recurrent abscess — workup for predisposing GU pathology",
+      ],
+    },
+    monitoring: {
+      headline: "Percutaneous drainage ≥ 3 cm; image-driven duration; endocarditis workup if S. aureus.",
+      items: [
+        { sev: "required", what: "**Percutaneous drainage** for abscess ≥ 3–5 cm",
+          why: "Antibiotic-only management adequate only for small abscesses; drainage speeds resolution" },
+        { sev: "required", what: "**Serial imaging at 2–4 wk intervals**",
+          why: "Image-driven duration; persistent collection extends therapy + re-drainage decisions" },
+        { sev: "required", what: "**Urology consult** for predisposing factors — stones, reflux, neurogenic bladder",
+          why: "Underlying pathology drives recurrence prevention" },
+        { sev: "trigger", what: "**TEE + endocarditis workup** if hematogenous S. aureus",
+          why: "Endovascular source seeds kidney; missed = treatment failure",
+          matchCtx: { mrsaRisk: true } },
+        { sev: "trigger", what: "**Diabetic ketoacidosis surveillance** if diabetic + abscess",
+          why: "Emphysematous changes + DKA → emergent surgical decompression" },
+        { sev: "consider", what: "Step-down oral agent: cipro, TMP-SMX per susceptibilities",
+          why: "Long IV courses → line complications; oral step-down at 2 wk standard" },
+      ],
+    },
+  },
+
+  /* ===========================================================
+     EMPHYSEMATOUS UTI — surgical emergency in diabetics. ============ */
+  "emphysematous-uti": {
+    duration: {
+      headline: "Surgical / urologic emergency; nephrectomy + 2–4 wk antibiotics for severe.",
+      evidence: "Society consensus — type-stratified outcomes; type 1 (parenchymal) = nephrectomy frequently",
+      branches: [
+        { label: "Mild gas (collecting system only)", days: "2–3 wk",
+          detail: "Pip-tazo or carbapenem + drainage / stent; nephrectomy if no response",
+          matchAgent: /piperacillin|meropenem/i },
+        { label: "Severe parenchymal involvement", days: "Nephrectomy + 4 wk",
+          detail: "Mortality 25–50%; emergent surgery + extended antibiotic course" },
+        { label: "Bilateral or transplant kidney", days: "Extended",
+          detail: "Renal-preserving approaches; multidisciplinary team essential" },
+      ],
+      stopWhen: [
+        "Imaging shows resolution of gas + parenchymal changes",
+        "Cultures cleared",
+        "Afebrile ≥ 1 week",
+        "Renal function stabilized (or replacement therapy if needed)",
+        "Glycemic control optimized",
+      ],
+      extendIf: [
+        { text: "**Parenchymal extension** (type 1) — surgical emergency",
+          matchCtx: { severe: true } },
+        "Diabetic ketoacidosis or hyperosmolar state — complex co-management",
+        "Bilateral involvement — extend per response + renal preservation",
+        "Persistent gas on imaging at 2 wk — drainage / surgery escalation",
+      ],
+    },
+    monitoring: {
+      headline: "Emergent urology / surgery; glycemic control; DKA surveillance; multidisciplinary team.",
+      items: [
+        { sev: "required", what: "**Emergent urology / surgery consult** at presentation",
+          why: "Type 1 parenchymal involvement → nephrectomy often required" },
+        { sev: "required", what: "**DKA / hyperosmolar surveillance + correction**",
+          why: "Underlying metabolic decompensation drives outcomes; co-management mandatory" },
+        { sev: "required", what: "**Imaging (CT preferred) within hours** of suspicion",
+          why: "Type stratification (parenchymal vs collecting system) drives surgical decision" },
+        { sev: "trigger", what: "**Drainage / stenting** for collecting-system disease",
+          why: "Decompression may preserve kidney if parenchyma intact" },
+        { sev: "trigger", what: "**Nephrectomy** for parenchymal disease + sepsis",
+          why: "Mortality 25–50% with parenchymal involvement; surgical emergency",
+          matchCtx: { severe: true } },
+        { sev: "consider", what: "**Glycemic control protocol** post-acute phase",
+          why: "Recurrence prevention; HbA1c < 7 reduces re-infection risk" },
+      ],
+    },
+  },
+
 };
 
 /* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
