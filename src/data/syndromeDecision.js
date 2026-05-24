@@ -5174,6 +5174,14 @@ const SYNDROME_DECISION = {
           why: "Aspergillus or mucor can mimic bacterial abscess in immunocompromised" },
       ],
     },
+    objections: [
+      { q: "Why no anaerobic cover — aspiration is anaerobic, right?",
+        a: "Routine anaerobic coverage was deliberately dropped for hospital aspiration absent putrid sputum, poor dentition, or cavitary disease. Marik (NEJM 2001) and ATS / IDSA 2019 [cite:cap] reframed the microbiology — oral streptococci + Gram-negative rods dominate, not Bacteroides. Reflexive clindamycin or metronidazole drives C. difficile and selection pressure without outcome benefit. Reserve anaerobic add-on for putrid sputum, poor dentition, or radiographic cavity per [cite:stew]." },
+      { q: "Why withhold antibiotics after a witnessed aspiration event?",
+        a: "Chemical pneumonitis (Mendelson syndrome) is gastric-acid injury, not infection — Marik (NEJM 2001) showed witnessed aspiration without fever, leukocytosis, or new infiltrate by 48 h is chemical and antibiotics drive selection pressure without changing outcome. ATS / IDSA 2019 [cite:cap] permits observation in this substrate, triggering treatment only for persistent fever, rising leukocytosis, or new infiltrate at 48-72 h. Stewardship [cite:stew] frames reflexive treatment as net harm." },
+      { q: "Why 3-6 wk for lung abscess — extend to radiographic resolution?",
+        a: "Lung abscess duration anchors to cavity resolution on serial imaging, not a fixed calendar — Bartlett (CID 2013) and ATS / IDSA 2019 [cite:cap] recommend 3-6 wk with oral step-down acceptable once stable. IR percutaneous drainage of accessible abscess > 6 cm or non-response accelerates resolution. Cavity persistence > 6 wk triggers workup for malignancy, TB, or mold rather than indefinite antibiotic extension [cite:mono]." },
+    ],
     research: {
       headline: "Anaerobic coverage overstated for hospital aspiration; abscess driven by source control + cavity resolution.",
       trials: [
@@ -5269,6 +5277,16 @@ const SYNDROME_DECISION = {
           why: "Post-obstructive empyema from tumor / foreign body drives recurrence" },
       ],
     },
+    objections: [
+      { q: "Why drainage first — can antibiotics alone sterilize the pleural space?",
+        a: "Empyema is a source-control disease — antibiotics alone fail in loculated or frank pleural infection because the low-pH purulent space inactivates concentration-dependent agents and bacterial burden exceeds antibiotic kill. ACCP 2017 + ATS / IDSA [cite:cap] make chest-tube drainage mandatory at presentation; antibiotics are adjunctive. pH < 7.2, glucose < 40, or positive Gram stain defines the empyema indication for tube placement and triggers the 2-4 wk course." },
+      { q: "Why tPA + DNase together — can't a single fibrinolytic suffice?",
+        a: "MIST-1 (NEJM 2005) showed streptokinase monotherapy ineffective vs placebo. Only MIST-2 (Rahman NEJM 2011, n=210) [cite:mist2] demonstrated intrapleural tPA 10 mg + DNase 5 mg BID × 3 d reduced surgical referral from 39% to 16% — neither agent alone produces the benefit, the combination is essential. tPA breaks fibrin bands; DNase liquefies viscous purulent material. Surgical decortication remains the rescue for treatment failures." },
+      { q: "Why avoid aminoglycoside monotherapy for pleural infection?",
+        a: "Aminoglycosides are inactivated in the low-pH purulent pleural space — activity is concentration- and oxygen-dependent, and abscess / empyema environments suppress both. ATS / IDSA [cite:cap] guidance avoids aminoglycoside monotherapy for primary pleural infection; ampicillin-sulbactam, ceftriaxone, or piperacillin-tazobactam penetrate adequately and remain active. Reserve aminoglycosides for synergy with a full systemic backbone, not as primary pleural therapy." },
+      { q: "Why early surgical decortication for non-response by 7 d?",
+        a: "Failure of chest-tube drainage ± intrapleural tPA + DNase by 7 d signals trapped lung or persistent loculation antibiotics cannot reach — BTS + ATS / IDSA [cite:cap] mandate early VATS / decortication for these substrates. Wait-and-see beyond 7 d compounds re-expansion failure and chronic empyema; early surgery shortens hospitalization and prevents bronchopleural fistula. Thoracic surgery consult is mandated at presentation, not at failure [cite:mist2]." },
+    ],
     research: {
       headline: "MIST-2 established intrapleural tPA + DNase combination; drainage drives outcome; surgical decortication for failure.",
       trials: [
@@ -5364,6 +5382,14 @@ const SYNDROME_DECISION = {
           why: "Highest-impact long-term interventions; addressable at every admission" },
       ],
     },
+    objections: [
+      { q: "Why 5 d for AECOPD when historical practice was 7-14 d?",
+        a: "Falagas Chest 2008 meta and GOLD 2024 [cite:cap] established that 5 d is non-inferior to longer courses for bacterial AECOPD, with fewer adverse events and reduced selection pressure. The REDUCE trial (JAMA 2013) [cite:reduce] separately validated 5 d of prednisone vs 14 d; the antibiotic decision is independent. Reserve > 5 d only for P. aeruginosa, bronchiectasis overlap, or ICU / NIV severity per [cite:stew] short-course defaults." },
+      { q: "Why withhold antibiotics for Anthonisen type 3 alone?",
+        a: "Anthonisen (Ann Intern Med 1987, n=362) showed antibiotic benefit accrues to 2-of-3 criteria (dyspnea + sputum volume + purulence), with purulence carrying most weight. Type 3 alone — increased dyspnea without sputum change — does not benefit, and GOLD 2024 [cite:cap] preserves this framework. Reflexive prescription in type 3 drives C. difficile and resistance without outcome gain; stewardship [cite:stew] supports observation with steroids and bronchodilators." },
+      { q: "Why cover P. aeruginosa empirically — isn't colonization not infection?",
+        a: "Frequent exacerbations (≥ 2 / yr), structural disease (FEV1 < 50%), prior antibiotic courses, and prior P. aeruginosa cultures predict P. aeruginosa as the exacerbation pathogen — GOLD 2024 [cite:cap] triggers anti-pseudomonal cover (cipro, levo, or β-lactam) in this substrate. In chronic colonization the goal is symptom control, not eradication; duration extends to 10-14 d. Sputum culture at every severe exacerbation refines empiric choice." },
+    ],
     research: {
       headline: "Anthonisen criteria + 5-day REDUCE steroid; antibiotics benefit purulent + 2-of-3 criteria.",
       trials: [
@@ -5460,6 +5486,14 @@ const SYNDROME_DECISION = {
           why: "Reduce exacerbations + improve functional status" },
       ],
     },
+    objections: [
+      { q: "Why 14 d for bronchiectasis exacerbation when COPD takes 5 d?",
+        a: "Bronchiectasis substrate carries structural damage, persistent colonization (often P. aeruginosa or NTM), and impaired mucociliary clearance — BTS 2019 and Chalmers (Lancet 2018 PROMISE) anchor 14 d as the floor for symptomatic exacerbations. Shorter courses correlate with early relapse and progressive lung-function decline. Anti-pseudomonal selection [cite:amrgn] also drives longer durations; the goal is symptom return-to-baseline, not eradication of chronic flora." },
+      { q: "Why attempt eradication on the first P. aeruginosa isolate?",
+        a: "First P. aeruginosa isolation in bronchiectasis predicts chronic colonization, accelerated decline, and worse mortality — BTS 2019 mandates an eradication attempt with IV anti-pseudomonal × 14 d followed by inhaled tobramycin or colistin × 3 mo. Established colonization reverses outcomes minimally; the first-isolate window is the highest-yield intervention. Subsequent exacerbations are treated per sensitivity without eradication intent [cite:amrgn]." },
+      { q: "Why inhaled antibiotics maintenance — isn't that overkill?",
+        a: "Inhaled tobramycin, colistin, or aztreonam suppression in chronic P. aeruginosa colonizers (≥ 3 exacerbations / yr) reduces exacerbation frequency, sputum bacterial load, and systemic antibiotic exposure — BTS 2019 and Haworth (Lancet RM 2014) support maintenance in select substrate. Avoiding systemic anti-pseudomonal courses preserves stewardship [cite:stew] and reduces resistance pressure. Reserve for symptomatic colonizers with frequent exacerbations, not all isolates." },
+    ],
     research: {
       headline: "14-day standard; first P. aeruginosa isolate → eradication attempt; airway clearance non-pharmacologic backbone.",
       trials: [
@@ -5550,6 +5584,14 @@ const SYNDROME_DECISION = {
           why: "Antibiotic stewardship — treatment in pure colonization rarely benefits" },
       ],
     },
+    objections: [
+      { q: "Why not just treat all VAT to prevent VAP progression?",
+        a: "VAT lies between airway colonization and VAP — ATS / IDSA 2016 HAP / VAP guidance [cite:hapvap] does not endorse routine antibiotic treatment because most cases never progress, and reflexive treatment exposes all ventilated patients to broad-spectrum selection pressure. Only Nseir (CCM 2008, n=58) suggested reduced VAP progression with IV antibiotics, but the trial was small and unreplicated. Stewardship [cite:stew] reserves treatment for symptomatic substrate with quantitative culture support." },
+      { q: "Why insist on quantitative culture thresholds before treating?",
+        a: "Endotracheal aspirate > 10^6 CFU/mL or BAL > 10^4 CFU/mL distinguishes infection from colonization — [cite:hapvap] anchors this threshold to avoid treating chronic airway flora. Without quantitation, every ventilated patient with a positive culture risks empiric anti-pseudomonal cover, driving resistance and C. difficile [cite:stew]. The threshold combined with clinical signs (purulence, fever, leukocytosis) defines a treat-able entity vs colonization." },
+      { q: "Why short 7 d if treating — VAP gets 7 d, VAT should be longer?",
+        a: "When VAT is treated (purulence + signs + quantitative threshold), 7 d aligns with the PneumA RCT [cite:pneuma] for VAP — Chastre (JAMA 2003, n=401) showed 8 d non-inferior to 15 d in VAP with lower resistance emergence. VAT is a lesser substrate with no evidence supporting longer courses; [cite:hapvap] applies the 7-d default. Extending beyond 7 d compounds resistance pressure without demonstrated benefit." },
+    ],
     research: {
       headline: "Controversial entity; Nseir showed reduced VAP progression in selected; routine treatment NOT supported.",
       trials: [
@@ -5642,6 +5684,14 @@ const SYNDROME_DECISION = {
           why: "Functional optimization + risk reduction across underlying disease" },
       ],
     },
+    objections: [
+      { q: "Why bronchoscopy first — can we just treat the pneumonia?",
+        a: "Post-obstructive pneumonia is a source-control disease — obstruction (tumor, foreign body, mucus plug, extrinsic compression) reseeds the distal airway, and antibiotic courses without obstruction relief produce relapse within weeks. Abers (J Thorac Oncol 2019) and ATS / IDSA [cite:cap] mandate bronchoscopy ± stenting at presentation; treating the pneumonia alone is incomplete care. The bronchoscopy also yields microbiology and tissue diagnosis simultaneously [cite:mono]." },
+      { q: "Why extend duration beyond standard CAP 5-7 d?",
+        a: "Persistent obstruction sustains the infectious nidus — ATS / IDSA [cite:cap] permits standard duration only after definitive obstruction relief; with residual obstruction, courses extend to 14-21 d or until obstruction is resolved. Post-obstructive empyema, abscess, or necrosis (common substrate) further extends. The duration anchors to source-control adequacy, not the initial pneumonia syndrome." },
+      { q: "Why broader empiric cover than typical CAP?",
+        a: "Stagnant distal airway substrate favors mixed flora — oral anaerobes, Gram-negative rods (including Klebsiella + Pseudomonas in cancer / radiation patients), and S. aureus dominate vs typical CAP organisms. ATS / IDSA [cite:cap] and Abers (J Thorac Oncol 2019) support beta-lactam-beta-lactamase inhibitor (e.g., piperacillin-tazobactam) or carbapenem in immunocompromised / heavily pretreated hosts. Narrowing follows culture per [cite:stew] de-escalation principles." },
+    ],
     research: {
       headline: "Bronchoscopy + tumor workup mandatory; recurrence inevitable without obstruction relief.",
       trials: [
@@ -5731,6 +5781,14 @@ const SYNDROME_DECISION = {
           why: "Prevention reduces recurrent bronchitis incidence" },
       ],
     },
+    objections: [
+      { q: "Why no antibiotic for acute bronchitis — patient expects one?",
+        a: "Acute bronchitis is overwhelmingly viral — Smith Cochrane 2017 meta (n=5,099) showed antibiotics produce a half-day cough reduction at the cost of adverse events and resistance. ACP 2016 + IDSA + CDC stewardship [cite:stew] explicitly discourage antibiotics for uncomplicated acute bronchitis. The conversation reframes patient expectations toward symptomatic care; reflexive prescription drives C. difficile and selection pressure without outcome benefit [cite:mono]." },
+      { q: "Why treat suspected pertussis with macrolide if cough is established?",
+        a: "Macrolide (azithromycin × 5 d) for pertussis is for transmission interruption, not symptom modification — by the time paroxysmal cough is established, the toxin-mediated phase has begun and antibiotics rarely alter clinical course. CDC pertussis guidance treats within 3 wk of cough onset to limit household + healthcare-worker spread. Index case workup and prophylaxis of close contacts is the public-health imperative [cite:cdc_abx]." },
+      { q: "Why workup for atypical / pertussis instead of empiric azithromycin?",
+        a: "Empiric azithromycin for every cough drives macrolide resistance in S. pneumoniae and selects for non-typhoidal Salmonella — [cite:stew] cautions against reflexive macrolide use. Targeted workup (PCR for Bordetella, mycoplasma, chlamydia, influenza) identifies pathogens warranting specific therapy. Stewardship reserves antibiotics for confirmed bacterial pathogens or substrate (post-viral bacterial superinfection in COPD per [cite:cap])." },
+    ],
     research: {
       headline: "ACP 2016 + Smith Cochrane 2017 — acute bronchitis viral; antibiotics drive resistance without benefit.",
       trials: [
@@ -5825,6 +5883,14 @@ const SYNDROME_DECISION = {
           why: "Unusual pathogens; specific therapeutic and reporting requirements" },
       ],
     },
+    objections: [
+      { q: "Why doxycycline first when β-lactams cover most CAP?",
+        a: "Zoonotic pneumonia pathogens — Coxiella burnetii (Q fever), Francisella tularensis (tularemia), Chlamydia psittaci (psittacosis), Rickettsia — are intracellular or atypical and intrinsically resistant to β-lactams. Doxycycline penetrates intracellularly and is first-line per CDC tier-1 guidance [cite:cdc_abx]. Anderson (Lancet ID 2013) showed empiric doxycycline in atypical pneumonia covers the common zoonotic pathogens; β-lactam empirics miss the diagnosis and propagate untreated disease." },
+      { q: "Why pursue exposure history when most CAP is empirically treated?",
+        a: "Exposure history is the diagnostic key — bird contact (psittacosis), parturient livestock or unpasteurized dairy (Q fever, brucella), rabbit / tick (tularemia), bat / rodent (hantavirus) — none are uncovered by ATS / IDSA empiric CAP regimens [cite:cap]. Without exposure-driven workup, retrospective serology is the only diagnostic, delaying targeted therapy by weeks. CDC tier-1 reporting [cite:cdc_abx] is also legally required for select agents." },
+      { q: "Why immediate public-health reporting for suspected zoonotic?",
+        a: "Tularemia, anthrax, plague, brucellosis, and Q fever are CDC nationally notifiable / tier-1 select agents — [cite:cdc_abx] mandates reporting at suspicion, not confirmation. Bioterrorism workup, source investigation (slaughterhouse, lab exposure, intentional release), and contact prophylaxis depend on early notification. Reporting is parallel to treatment, not sequential; delays compound public-health risk and miss outbreak signals [cite:mono]." },
+    ],
     research: {
       headline: "Exposure history is the diagnostic key; doxycycline workhorse; CDC reporting for tier-1 select agents.",
       trials: [
@@ -5926,6 +5992,16 @@ const SYNDROME_DECISION = {
           why: "Recurrence high without prophylaxis during ongoing immunosuppression" },
       ],
     },
+    objections: [
+      { q: "Why empiric mold cover at 96 h — can't we wait for galactomannan?",
+        a: "Persistent fever ≥ 96 h on broad antibacterial cover in profound neutropenia predicts invasive fungal disease with mortality > 30% if treatment is delayed — IDSA febrile neutropenia guidance [cite:fn] and Cordonnier (CID 2009 EORTC) anchor empiric mold-active therapy (voriconazole, isavuconazole, or liposomal amphotericin) at the 96-h threshold. Galactomannan + BDG monitoring run in parallel but should not delay empiric escalation; SECURE (Maertens NEJM 2018) [cite:vfneo] established isavuconazole non-inferior to voriconazole." },
+      { q: "Why CT chest within 24 h — CXR should suffice for screening?",
+        a: "Chest X-ray is insensitive in neutropenic hosts because the lack of granulocytes blunts inflammatory infiltrate — halo sign, reverse halo, cavitation, and small nodules diagnostic of invasive pulmonary aspergillosis are visible only on CT. IDSA [cite:fn] mandates CT at fever onset in profound neutropenia (ANC < 100 expected > 7 d). Delayed imaging delays mold cover and worsens outcomes; CT is also the substrate for bronchoscopy / biopsy targeting." },
+      { q: "Why broad anti-pseudomonal empiric — narrow if low MASCC?",
+        a: "Febrile neutropenia is presumed Gram-negative bacteremia until proven otherwise — cefepime, piperacillin-tazobactam, or meropenem are first-line per IDSA [cite:fn] because P. aeruginosa carries highest mortality and demands timely adequate cover. MASCC score [cite:mascc] stratifies low-risk patients for outpatient oral (cipro + amox-clav per Taplitz [cite:taplitzfn]); inpatient substrate (hemodynamically unstable, prolonged neutropenia, comorbid) keeps IV anti-pseudomonal pending culture results [cite:amrgn]." },
+      { q: "Why ID consult mandatory — isn't this oncology's call?",
+        a: "Transplant + heme-malignancy infections (PJP, CMV, mold, atypical mycobacteria, nocardia) require pathogen-specific diagnostics and antifungal stewardship Fishman (NEJM 2007) [cite:fishman] frames as ID specialty domain. IDSA [cite:fn] recommends ID involvement at fever onset for persistent neutropenia. Secondary prophylaxis after IPA / PJP / mucor episodes requires ID-driven planning to balance breakthrough risk against drug-drug interactions with immunosuppression." },
+    ],
     research: {
       headline: "CT chest within 24 h; galactomannan + BDG monitoring; empiric mold-active for persistent fever ≥ 96 h.",
       trials: [
