@@ -33,7 +33,7 @@ function _bugChips(empiric) {
   return { synBugs, remaining };
 }
 
-function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg }) {
+function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, hasStructuredDuration = false }) {
   if(!empiric) return null;
 
   const cultures = caseState.cultures || { status: "pending", organism: null };
@@ -280,11 +280,29 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg }) 
               </div>
             )}
 
-            {/* Duration clock removed from this panel — DurationBlock
-                now owns the stop-date display + start-date input. The
-                applyReassessment engine still computes r.duration for
-                use by other consumers but this UI doesn't render it
-                here to avoid duplicating the same fact in two places. */}
+            {/* Duration clock: rendered only as a FALLBACK when the
+                syndrome has no structured DurationBlock content
+                (i.e., not yet authored in syndromeDecision.js). When
+                DurationBlock exists, it owns the duration display
+                + start-date input + computed stop-date, and this
+                panel suppresses its own clock to avoid showing the
+                same fact in two places. Until the remaining ~104
+                syndromes are bulk-authored, this graceful fallback
+                keeps the duration affordance intact everywhere. */}
+            {r.duration && !hasStructuredDuration && (
+              <div style={{
+                padding:"10px 12px", background:"var(--paper2)", border:"1px solid var(--line)",
+                borderRadius:8,
+              }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
+                  <Clock size={12} color="var(--ink2)"/>
+                  <span style={{ fontSize:11.5, fontWeight:700, color:"var(--ink)", letterSpacing:".02em" }}>DURATION CLOCK</span>
+                </div>
+                <div style={{ fontSize:13, color:"var(--ink)", lineHeight:1.55 }}>
+                  <b>{r.duration.days} days</b> from the first effective dose. Once the syndrome's structured duration content is authored, the clock and start date move into the Duration block above.
+                </div>
+              </div>
+            )}
           </div>
         )}
       </>

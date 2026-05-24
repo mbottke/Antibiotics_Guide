@@ -651,6 +651,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         empiric={ans}
         onDrug={onDrug}
         onOrg={onOrg}
+        hasStructuredDuration={!!getSyndromeDuration(s.id)}
       />
 
       {/* DURATION + EVIDENCE — legacy narrative duration section. Suppressed
