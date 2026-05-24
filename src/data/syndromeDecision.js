@@ -309,6 +309,16 @@ const SYNDROME_DECISION = {
       driver: "S. aureus bacteremia carries 15–25% endocarditis risk and ~20% baseline mortality — the bundle is built to document clearance (q48h BCx), exclude endovascular seeding (TEE), and obtain ID consult (halves mortality). MSSA → cefazolin or nafcillin (bactericidal, narrow); MRSA → vancomycin (AUC 400–600) or daptomycin 8–10 mg/kg if vanco MIC > 1. The 14-d floor applies only to uncomplicated disease — persistence, hardware, or metastatic focus extends to 4–6 wk.",
       guideline: "ie",
       rejected: "Adjunctive rifampin was deliberately rejected for native-valve SAB — ARREST (Lancet 2018, n=770) showed no mortality benefit and increased AEs/drug interactions. Cefazolin is preferred over nafcillin for MSSA when both available: equal efficacy with substantially less AKI and interstitial nephritis." },
+    objections: [
+      { q: "Why 14 d minimum — can we shorten if BCx clear at 48 h?",
+        a: "14 d is the hard floor from the first negative BCx for uncomplicated SAB — endocarditis prevalence is 15-25% even with stable course and clear repeat BCx, and shorter courses double relapse / metastatic seeding rates per IDSA 2011 [cite:ie]. SABATO (2023) opened oral step-down for the back-half but kept the 14 d floor intact. Walk the 14 d duration; reserve shortening for ID-driven specific scenarios." },
+      { q: "Why add rifampin for native-valve SAB?",
+        a: "We deliberately do NOT add rifampin to native-valve SAB — ARREST (Lancet 2018, n=770) showed no mortality benefit, more AEs (hepatitis, GI), and major CYP3A4 interactions including warfarin INR collapse [cite:arrest]. Rifampin retains its role only in PVE staphylococcal disease for biofilm penetration on prosthetic material [cite:ie]. Adding it to native-valve SAB exposes the patient to harm without offsetting benefit." },
+      { q: "Why cefazolin instead of nafcillin for MSSA?",
+        a: "Cefazolin is preferred over nafcillin for MSSA when both are available — equal cure rates with substantially less AKI, less interstitial nephritis, and less hepatotoxicity per recent comparative cohorts. The historic 'cefazolin inoculum effect' was largely in vitro only; clinical outcomes match nafcillin even in deep-seated infection. IDSA / ESCMID 2023 SAB guidance supports cefazolin as the practical MSSA backbone [cite:ie]." },
+      { q: "Why mandatory TEE if TTE already negative?",
+        a: "TTE has only ~70% sensitivity for vegetations and misses small leaflet lesions and perivalvular abscess; TEE is required for any persistent SAB, any prosthetic material, any new murmur, or any clinical suspicion of endovascular focus per AHA 2015 [cite:ie]. Missing IE here means a 14-d course where 4-6 wk + surgery were needed — a missed-IE relapse carries 30-50% mortality." },
+    ],
     research: {
       headline: "ID consult + repeat BCx + echo are the three pillars; mortality benefit replicated across registries.",
       trials: [
@@ -430,6 +440,16 @@ const SYNDROME_DECISION = {
       driver: "Sepsis mortality is driven by speed + adequacy of early therapy plus source control — every hour delay raises mortality, and inadequate empiric coverage doubles it. The empiric backbone covers the substrate (community → broad β-lactam; HCAQ → anti-pseudomonal + MRSA); duration follows BALANCE — 7 d for source-controlled GNR bacteremia, longer only if endovascular, undrained, or immunocompromised. Daily reassessment with mandated de-escalation at 48–72 h is the stewardship contract.",
       guideline: "ssc",
       rejected: "Empiric vancomycin + pip-tazo is deliberately tempered when alternatives fit — the combination roughly doubles AKI risk vs cefepime + vancomycin without survival benefit. Reflexive 14-d duration was rejected by BALANCE: 7 d non-inferior in controlled-source GNR bacteremia, so the default is now short with a defined stop date." },
+    objections: [
+      { q: "Why 7 d and not 14 d for bacteremic sepsis?",
+        a: "BALANCE (NEJM 2025, n=3,608) established 7 d non-inferior to 14 d for 90-d mortality (14.5% vs 14.4%) in source-controlled bloodstream infection, including most GNR bacteremia [cite:balance]. The default is now short with a defined stop date once source is controlled. Reserve 14+ d only for endovascular focus, undrained source, S. aureus bacteremia, or immunocompromise — where BALANCE excluded patients." },
+      { q: "Why vanco + cefepime instead of vanco + pip-tazo?",
+        a: "Observational data (Luther 2018 meta, Schreier 2022) show vanco + pip-tazo roughly doubles AKI vs vanco + cefepime or vanco + meropenem, with no survival benefit — debate continues over assay interference vs true injury [cite:ssc]. When both broad-Gram-negative and MRSA cover are needed, cefepime is the safer β-lactam pairing. Reserve pip-tazo when anaerobic coverage is the decisive feature." },
+      { q: "Why broad empirics — can't we wait for cultures?",
+        a: "Surviving Sepsis 2021 mandates antibiotics within 1 h of suspected septic shock (Class I) — Kumar's 2006 cohort showed each hour delay raises mortality ~7%, and inadequate empiric coverage roughly doubles it [cite:ssc]. The empiric breadth is matched to the substrate (community → ceftriaxone backbone; HCAQ → anti-pseudomonal + MRSA) and narrowed aggressively at 48-72 h on culture data — daily de-escalation review is the stewardship contract." },
+      { q: "Why MRSA cover empirically in a stable host?",
+        a: "MRSA cover is added empirically only when risk factors are present — recent broad antibiotic exposure (90 d), prior MRSA isolate, healthcare exposure, IVDU, or septic shock with skin/soft-tissue source [cite:ssc]. Reflexive vancomycin in low-risk community sepsis invites AKI from the pip-tazo combination without clinical benefit. MRSA nares PCR (NPV ~96% for non-pulmonary sources) enables 24-48 h vanco stop when negative." },
+    ],
     research: {
       headline: "BALANCE 2024 established 7-day non-inferiority in controlled-source GNR bacteremia; source control remains paramount.",
       trials: [
@@ -638,6 +658,16 @@ const SYNDROME_DECISION = {
       driver: "Most CAP is pneumococcus, H. influenzae, or atypicals — empiric ceftriaxone + azithromycin (or a respiratory FQ) cover this substrate for ward patients; severe / ICU adds MRSA + Pseudomonas only when risk factors are present (recent abx, prior MRSA/Pseudo isolate, structural lung disease). Severe non-influenza CAP also gets hydrocortisone 200 mg/d × 4–8 d (CAPE-COD). The 5-day floor holds when the patient is afebrile + stable + tolerating oral by 48–72 h; complications (cavitation, MRSA, Pseudo) extend duration.",
       guideline: "cap",
       rejected: "Empiric vancomycin is deliberately NOT added in stable CAP — baseline MRSA-pneumonia incidence is < 10% absent recent abx exposure, severe COPD, or known colonization; reflexive vanco invites AKI from the pip-tazo combination without clinical benefit. Routine macrolide combination in non-severe ward CAP was tempered by Postma (NEJM 2015) showing β-lactam alone non-inferior." },
+    objections: [
+      { q: "Why not narrow to amoxicillin alone — atypical coverage matters?",
+        a: "For ward-admitted moderate CAP, β-lactam alone (amoxicillin or ceftriaxone) is non-inferior to β-lactam + macrolide per Postma (NEJM 2015, n=2,283) — most U.S. centers retain the combination only for severe / ICU CAP per IDSA / ATS 2019 [cite:cap]. Atypical coverage matters most in severe disease and confirmed Legionella; routine empiric macrolide adds QTc + GI burden without survival benefit at the moderate severity band." },
+      { q: "Why 5 d not 7 d — patient still spiking on day 3?",
+        a: "The 5-d floor applies only when AND-joined criteria are met by 48-72 h: afebrile, stable vitals, tolerating oral, WBC trending toward normal. A patient still spiking at day 3 fails the stop criteria and triggers re-workup (missed atypical, abscess, wrong organism, viral co-infection), not reflexive extension. Tansarli (2018 meta, n=5,403) backs 5 d in responders [cite:cap]; non-response is its own pivot point." },
+      { q: "Why add steroids in severe CAP without shock?",
+        a: "CAPE-COD (NEJM 2023, n=800) showed hydrocortisone 200 mg/d × 4-8 d in severe non-shock CAP reduces 28-d mortality from 11.9% to 6.2% [cite:capecod]. Excludes influenza (signal of harm) and immunocompromised; severe sepsis with shock has its own steroid pathway. The signal is settled enough to apply in severe non-influenza CAP — this is one of the few practice-changing CAP results in a decade." },
+      { q: "Why MRSA cover only with risk factors?",
+        a: "Baseline MRSA pneumonia incidence is < 10% in CAP absent recent broad antibiotics, severe COPD with prior MRSA, or known nasal colonization — IDSA / ATS 2019 reserves empiric vancomycin for risk-positive substrate [cite:cap]. Reflexive vancomycin invites AKI from the pip-tazo combination without survival benefit; MRSA nares PCR enables 24-48 h vanco stop when negative (NPV ~96% for pneumonia)." },
+    ],
     research: {
       headline: "5-day short course is non-inferior in stable patients; severe CAP carries CAPE-COD steroid signal.",
       trials: [
@@ -747,6 +777,16 @@ const SYNDROME_DECISION = {
       driver: "HAP / VAP empirics target the nosocomial substrate: anti-pseudomonal β-lactam (cefepime, pip-tazo, or meropenem if recent broad exposure) + MRSA cover (vancomycin or linezolid) when risk factors are present. Pathogen-directed narrowing at 48–72 h is mandated. 7 d holds for most pathogens including Pseudomonas in non-immunocompromised hosts — PneumA established this 20+ years ago and Kalil 2016 confirmed across pathogens. Extended-infusion β-lactams improve PK target attainment in critical illness.",
       guideline: "hapvap",
       rejected: "The legacy ≥ 14-d course for non-fermenting GNR was deliberately rejected — PneumA (JAMA 2003) and the IDSA 2016 meta-analysis both showed 8–7 d non-inferior to 15 d, including the Pseudomonas subgroup in non-immunocompromised patients. Routine inhaled adjunctive antibiotics for MDR VAP were rejected: IASIS and INHALE trials both negative." },
+    objections: [
+      { q: "Why 7 d for Pseudomonas — should this not be 14?",
+        a: "PneumA (Chastre JAMA 2003, n=401) established 8 d non-inferior to 15 d in VAP overall, and importantly in the Pseudomonas subgroup of non-immunocompromised patients [cite:pneuma]. IDSA 2016 meta-analysis [cite:hapvap] confirmed 7 d non-inferior across pathogens. The legacy 14-d Pseudomonas course was driven by inoculum fear, not outcomes; extend only for immunocompromise, cavitation, persistent purulence, or bacteremic pulmonary source." },
+      { q: "Why empiric MRSA + Pseudomonas for ward HAP?",
+        a: "IDSA 2016 HAP/VAP guidance limits dual MRSA + anti-pseudomonal cover to risk-positive substrate: IV antibiotics within 90 d, septic shock at presentation, ARDS, ≥ 5 d hospitalization before HAP, or unit MRSA prevalence > 10-20% [cite:hapvap]. For stable ward HAP without these features, mono-anti-pseudomonal cover (cefepime or pip-tazo) is appropriate; reflexive vancomycin invites AKI and selects VRE. MRSA nares PCR enables 24-48 h vanco stop when negative." },
+      { q: "Why not add inhaled colistin for MDR VAP?",
+        a: "Adjunctive inhaled antibiotics for MDR VAP were rejected — IASIS and INHALE trials both negative for survival or clinical cure in MDR Gram-negative VAP. Aerosolized colistin has nephrotoxicity and bronchospasm risk without offsetting benefit when systemic therapy adequately dosed (extended-infusion β-lactam to PK target) [cite:hapvap]. Reserve inhaled adjuncts for extreme-resistance scenarios with ID input — not as routine VAP empirics." },
+      { q: "Why extended-infusion β-lactam instead of standard?",
+        a: "Critical illness alters PK — increased volume of distribution, augmented renal clearance, and hypoalbuminemia all reduce time-above-MIC for β-lactams. Extended (3-4 h) or continuous-infusion cefepime, pip-tazo, and meropenem improve PK target attainment (% T > MIC) substantially in VAP per Roberts (Lancet ID 2014) and BLISS (2018); IDSA endorses for high-MIC organisms and critical illness [cite:hapvap]. Especially valuable when MIC is at the susceptibility breakpoint." },
+    ],
     research: {
       headline: "Fixed 7-day course non-inferior to clinical-guided in most HAP/VAP — PneumA established it 20+ years ago.",
       trials: [
@@ -860,6 +900,16 @@ const SYNDROME_DECISION = {
       driver: "Empiric ceftriaxone 2 g q12h + vancomycin (CNS dosing, AUC 400–600) covers pneumococcus + meningococcus; ampicillin is added in age > 50, pregnancy, alcoholism, or immunocompromise to cover Listeria. Dexamethasone 0.15 mg/kg q6h × 4 d MUST be given WITH or BEFORE the first antibiotic dose — de Gans (NEJM 2002) showed unfavourable outcomes 25 → 15% with pneumococcal disease as the driver. Antibiotics within 1 h of suspicion; do not delay for CT.",
       guideline: "degans",
       rejected: "Dexamethasone given AFTER the first antibiotic dose is deliberately NOT recommended — the cytokine cascade has already fired, and the mortality / neurologic-outcome benefit is lost. Empiric coverage without ampicillin in age > 50 or impaired cell-mediated immunity was rejected: Listeria has no β-lactam susceptibility to ceftriaxone, and missed coverage is uniformly fatal." },
+    objections: [
+      { q: "Why ampicillin when ceftriaxone covers everything else?",
+        a: "Listeria monocytogenes is intrinsically resistant to all cephalosporins — ceftriaxone has no activity against it. Empiric ampicillin (or TMP-SMX in β-lactam allergy) is added in age > 50, pregnancy, alcoholism, hematologic malignancy, transplant, or impaired cell-mediated immunity per IDSA / ESCMID guidance [cite:degans]. Missed Listeria coverage in a susceptible host is uniformly fatal — the cost of adding ampicillin is trivial compared to that miss." },
+      { q: "Why dex BEFORE — can't we give it after the first dose?",
+        a: "De Gans + van de Beek (NEJM 2002, n=301) showed dexamethasone 10 mg q6h × 4 d reduces unfavorable outcomes from 25% to 15% in bacterial meningitis (pneumococcal subgroup drove benefit) — BUT only when given WITH or BEFORE the first antibiotic dose [cite:degans]. After the first dose, bacterial lysis has already triggered the cytokine cascade and the benefit is lost. Timing is mechanism-mandated, not arbitrary." },
+      { q: "Why not wait for CT before LP and antibiotics?",
+        a: "Surviving Sepsis logic applies — antibiotics within 1 h of suspicion; do not delay for CT or LP per IDSA guidance [cite:degans]. CT is required before LP only for focal deficit, papilledema, immunocompromise, seizure, or altered mental status with no obvious cause — and even then, draw blood cultures, give empiric antibiotics + dexamethasone first, then image. The mortality slope with antibiotic delay is steep." },
+      { q: "Why 10-14 d for pneumococcus — IDSA range allows 10?",
+        a: "Pneumococcal meningitis duration is pathogen-driven (IDSA 2004 Tunkel): 10-14 d is standard, with the 10-d floor reserved for penicillin-susceptible strains and rapid CSF clearance, and 14 d for higher-MIC strains, complicated course, or vancomycin-treated pending susceptibility [cite:degans]. Repeat LP at 36-48 h confirms sterilization in vancomycin-treated cases; persistent positivity triggers extended duration + workup for ventriculitis / abscess." },
+    ],
     research: {
       headline: "Hour-1 antibiotics + dexamethasone for pneumococcal — both established mortality + neuro-outcome benefit.",
       trials: [
@@ -969,6 +1019,16 @@ const SYNDROME_DECISION = {
       driver: "Fidaxomicin 200 mg BID × 10 d is preferred over oral vancomycin for initial episode and first recurrence — Louie / Cornely RCTs showed equivalent cure with recurrence cut from 25% → 13% (IDSA / SHEA 2021 elevated fidaxomicin to first-line). Fulminant disease (ileus, megacolon, shock) requires PO/NG vancomycin 500 mg QID + IV metronidazole ± rectal vancomycin and early surgical consult. The single most impactful adjunct is stopping the offending inciting antibiotic when clinically feasible.",
       guideline: "cdi",
       rejected: "Metronidazole as first-line was deliberately rejected in the 2021 IDSA/SHEA focused update — it has lower cure and higher recurrence than fidaxomicin or vancomycin and is now reserved for when neither preferred oral agent is available. Routine probiotics for primary prevention were tempered: PROPATRIA (Lancet 2008) showed increased mortality with Lactobacillus prophylaxis in severe pancreatitis, and signals across other settings are heterogeneous." },
+    objections: [
+      { q: "Why fidaxomicin over PO vancomycin — cost is significant?",
+        a: "Fidaxomicin is preferred over PO vancomycin per IDSA / SHEA 2021 — Louie (NEJM 2011) and Cornely (Lancet ID 2012) RCTs (n=1,164) showed equivalent clinical cure with recurrence reduced from 25% to 13% [cite:cdi]. Each recurrence prevented avoids ~30-d hospital readmission, lost workdays, and downstream FMT cost. Cost-effectiveness is favorable in high-recurrence-risk patients (age > 65, prior CDI, severe disease); reserve vanco for cost-constrained low-risk cases." },
+      { q: "Why not IV metronidazole for non-fulminant CDI?",
+        a: "IV (or PO) metronidazole for non-fulminant CDI was deliberately rejected in the IDSA / SHEA 2021 focused update — lower cure rates, more failures, and substantially higher recurrence than fidaxomicin or vancomycin in head-to-head data [cite:cdi]. Reserved only for fulminant disease (added to PO/NG vanco for combined gut + systemic effect) or when neither preferred oral agent is available. PO metronidazole monotherapy is no longer the standard." },
+      { q: "Why early surgery threshold for fulminant CDI?",
+        a: "Fulminant CDI (ileus, megacolon, WBC > 25, lactate > 5, shock) has 30-50% mortality with medical therapy alone; early subtotal colectomy or diverting loop ileostomy + colonic vancomycin lavage halves mortality when done at the right window per Sailhamer + IDSA / SHEA 2021 [cite:cdi]. Daily surgical re-eval is mandated; delaying surgery in the rapidly deteriorating patient is a higher-mortality bet than the surgery itself." },
+      { q: "Why FMT at 2 recurrences — can we just retry fidaxomicin?",
+        a: "FMT cure rate is > 90% for recurrent CDI per van Nood (NEJM 2013, stopped early for efficacy) and meta-analyses; repeated antibiotic courses for 2nd+ recurrence have < 50% durable cure [cite:fmt]. SER-109 (Vowst, NEJM 2022) and Rebyota now offer standardized oral / per-rectal microbiome products as FDA-approved alternatives. Bezlotoxumab adjunct for high-risk first recurrence further reduces recurrence (~40%) per MODIFY I/II [cite:modify]." },
+    ],
     research: {
       headline: "Fidaxomicin reduces recurrence vs vancomycin; FMT is the recurrence breaker; bezlotoxumab adjunct for high-risk.",
       trials: [
@@ -1076,6 +1136,16 @@ const SYNDROME_DECISION = {
       driver: "Intra-abdominal infection is a source-control disease — antibiotic adequacy is necessary but not sufficient; drainage, surgery, or leak repair drive outcome. Empirics cover enteric GNR + anaerobes (ceftriaxone + metronidazole or pip-tazo for moderate; carbapenem for severe / HCAQ). Source control achieved → fixed 4-d course (STOP-IT, NEJM 2015) is non-inferior to longer symptom-guided regimens. Persistent source extends duration until drainage is adequate.",
       guideline: "stopit",
       rejected: "Routine empiric anti-pseudomonal coverage was deliberately rejected for community-acquired non-severe IAI — Davenport (CID 2014) and IDSA 2017 reserve it for HCAQ or recent broad-antibiotic exposure. Routine empiric enterococcal coverage was also restricted: IDSA reserves it for high-risk (postoperative, immunocompromised, prosthetic), and reflexive ampicillin pairing in community IAI is unwarranted." },
+    objections: [
+      { q: "Why only 4 d after source control — surely IAI needs longer?",
+        a: "STOP-IT (NEJM 2015 Sawyer, n=518) established a fixed 4-d course non-inferior to symptom-guided (8+ d) in complicated IAI with adequate source control — same surgical-site infection, recurrence, and death rates [cite:stopit]. The trial excluded inadequate source control, where extension applies. Reserve longer courses for persistent collections, anastomotic leak, undrained focus, or fungal IAI — those are source-control problems, not antibiotic-dose problems." },
+      { q: "Why no anti-pseudomonal cover for community IAI?",
+        a: "Routine empiric anti-pseudomonal cover is deliberately restricted in community-acquired non-severe IAI per IDSA 2017 and SIS — Davenport (CID 2014) showed Pseudomonas prevalence < 5% in community IAI, and reflexive pip-tazo or carbapenem drives resistance + AKI without survival benefit [cite:stopit]. Reserve for HCAQ source, recent broad-antibiotic exposure (90 d), severe sepsis at presentation, or postoperative / immunocompromised substrate." },
+      { q: "Why narrow ceftriaxone + metronidazole instead of pip-tazo?",
+        a: "Community IAI is dominated by enteric GNR (E. coli, Klebsiella) and Bacteroides — ceftriaxone + metronidazole covers > 90% of community isolates at lower cost, less resistance pressure, and fewer drug interactions than pip-tazo [cite:stopit]. Pip-tazo is reserved for severe / HCAQ / recent broad-antibiotic exposure where coverage of resistant GNR + enterococci matters. The stewardship win is real and audit-defensible." },
+      { q: "Why echinocandin for upper-GI perforation — not standard?",
+        a: "Upper-GI perforation, post-op leak, recurrent peritonitis, and immunocompromised IAI carry meaningful Candida prevalence (15-25%) with mortality penalty if missed; IDSA 2017 endorses empiric echinocandin in this substrate pending culture [cite:stopit]. Fluconazole reserved for stable host + low-azole-pressure unit; species-driven narrowing later. Routine echinocandin is NOT for community appendicitis or diverticulitis — substrate-specific only." },
+    ],
     research: {
       headline: "STOP-IT established 4-day post-source-control standard; source control + de-escalation drive outcomes.",
       trials: [
@@ -1704,6 +1774,16 @@ const SYNDROME_DECISION = {
       driver: "Non-purulent cellulitis is overwhelmingly streptococcal — empiric cefazolin (IV) or cephalexin (PO) is appropriate; 5 d standard course is non-inferior to 10 d in those improving (Hepburn 2004, Tansarli 2018 meta). MRSA cover (vancomycin or TMP-SMX/doxycycline) is added only when purulent component, IVDU, prior MRSA isolate, or no response by 72 h. Mark erythema borders + date: spread despite antibiotic triggers re-workup for abscess, necrotizing infection, or wrong organism.",
       guideline: "ssti",
       rejected: "Reflexive MRSA cover in non-purulent cellulitis was deliberately rejected — Pallin (CID 2013, n=153) showed adding TMP-SMX to cephalexin did NOT improve cure, and the IDSA 2014 guideline reserves MRSA cover for purulent / risk-positive cases. Routine prolonged 10-d courses are unwarranted in those improving at 5 d, per Hepburn and the IDSA short-course standard." },
+    objections: [
+      { q: "Why not add MRSA cover by default — it's standard practice?",
+        a: "Non-purulent cellulitis is overwhelmingly streptococcal — Pallin (CID 2013, n=153) showed adding TMP-SMX to cephalexin did NOT improve cure (85% vs 82%) over cephalexin alone [cite:pallin]. IDSA 2014 [cite:ssti] reserves empiric MRSA cover for purulent component, IVDU, prior MRSA isolate, severe sepsis, or non-response at 72 h. Reflexive MRSA cover drives resistance + collateral damage without survival benefit." },
+      { q: "Why oral cephalexin — should this be IV in moderate disease?",
+        a: "Oral cephalexin / dicloxacillin has excellent bioavailability (~90%) and matches IV cefazolin for uncomplicated cellulitis without sepsis or systemic toxicity per IDSA 2014 [cite:ssti]. Aboltins (CID 2015) showed oral non-inferior to IV in stable cellulitis. Reserve IV for severe sepsis, inability to tolerate oral, rapidly spreading erythema, or failed outpatient therapy. The IV-to-PO step-down is a stewardship win, not a quality-of-care concession." },
+      { q: "Why only 5 d when 10 d is the legacy standard?",
+        a: "Hepburn (Arch IM 2004, n=121) established 5 d non-inferior to 10 d in cellulitis responding by day 5; Tansarli (2018 meta) confirmed across short-course SSTI [cite:ssti]. IDSA 2014 endorses 5 d as standard; the 10-d legacy course adds antibiotic exposure without outcome benefit in responders. Extend to 7-10 d only when slow response, extensive disease, or non-strep pathogen confirmed — the AND-joined stop criteria gate the call." },
+      { q: "Why not add TMP-SMX or doxy to cephalexin to widen coverage?",
+        a: "The strongest direct evidence — Pallin (CID 2013) and Moran (NEJM 2017, n=500) — both showed NO benefit to adding TMP-SMX or clindamycin to cephalexin for non-purulent cellulitis [cite:pallin]. Streptococci are universally cephalexin-susceptible; MRSA cover is irrelevant unless purulent. Adding a second agent adds GI side effects, hyperkalemia (TMP-SMX), and C. diff risk without clinical benefit." },
+    ],
     research: {
       headline: "Non-purulent cellulitis is strep-dominant — MRSA cover routinely unnecessary; 5-day course adequate.",
       trials: [
@@ -2491,6 +2571,16 @@ const SYNDROME_DECISION = {
       driver: "Pyelonephritis is E. coli–dominant — empiric ceftriaxone IV (or oral ciprofloxacin / levofloxacin if FQ resistance < 10% locally and outpatient eligible) covers > 90% of community isolates. Bacteremic GNR pyelo treats for 7 d post-clearance (BALANCE 2024). ESBL risk (recent broad antibiotics, healthcare exposure, prior ESBL isolate) shifts to ertapenem (outpatient) or meropenem (severe). Obstruction + sepsis = urology emergency; decompression (stent or nephrostomy) is the inflection point.",
       guideline: "balance",
       rejected: "Routine 14-d β-lactam was deliberately tempered — Talan (JAMA 2000) and Sandberg (Lancet 2012) established 5–7 d FQ non-inferior in uncomplicated pyelo, and BALANCE extended the 7-d principle to bacteremic GNR UTI. Empiric pip-tazo for ESBL pyelonephritis was rejected by MERINO (JAMA 2018): mortality 12.3% vs 3.7% on meropenem — use a carbapenem for serious ESBL bloodstream UTI." },
+    objections: [
+      { q: "Why not pip-tazo for ESBL pyelo — it's susceptible in vitro?",
+        a: "MERINO (JAMA 2018 Harris, n=378) showed pip-tazo mortality 12.3% vs meropenem 3.7% in ceftriaxone-resistant E. coli / K. pneumoniae bacteremia — pip-tazo failed despite in-vitro susceptibility [cite:merino]. ESBL inoculum effect at urinary tract burden defeats the β-lactamase inhibitor; in-vitro MIC does not predict in-vivo outcome here. IDSA AMR-GN 2024 [cite:amrgn] mandates a carbapenem (ertapenem outpatient, meropenem severe) for ESBL bacteremic UTI." },
+      { q: "Why 7 d ciprofloxacin not 14 d β-lactam?",
+        a: "Talan (JAMA 2000, n=255) [cite:talan] showed cipro 7 d superior to TMP-SMX 14 d in uncomplicated pyelonephritis — faster defervescence and equal cure. Sandberg (Lancet 2012) confirmed 7 d FQ non-inferior to 14 d. BALANCE (NEJM 2025) [cite:balance] extends the 7-d principle to bacteremic GNR UTI. β-lactams need 10-14 d due to lower urinary concentrations + lack of the FQ tissue-penetration advantage; FQ short-course is the audit-defensible default in fluoroquinolone-eligible patients." },
+      { q: "Why not oral step-down at 48 h if afebrile?",
+        a: "Oral step-down at 48-72 h is strongly endorsed once the patient is afebrile, hemodynamically stable, tolerating oral, and has organism + susceptibilities back [cite:balance]. Cipro / levo (~100% bioavailability), TMP-SMX, or oral cephalosporin (cefpodoxime, cefdinir) all achieve adequate urinary levels. Reserve continued IV for septic shock, persistent fever, vomiting, severe obstruction with no source control, or no oral option (NPO post-op). Stewardship + LOS gains are real." },
+      { q: "Why urology consult for obstruction — can't we just antibiotic-treat?",
+        a: "Obstructed kidney + sepsis is a urology emergency — decompression (ureteral stent or nephrostomy) is the inflection point for survival per AUA and IDSA guidance [cite:balance]. Antibiotics cannot sterilize an obstructed system; the obstructed kidney becomes a closed-space abscess equivalent. Delaying drainage in favor of antibiotic optimization is high-mortality. Urology consult at the bedside, not the next-day rounds, when CT shows obstruction." },
+    ],
     research: {
       headline: "FQ 5–7 d non-inferior to 10–14 d in uncomplicated; resistance + collateral damage drive alternatives.",
       trials: [
@@ -3840,6 +3930,16 @@ const SYNDROME_DECISION = {
       driver: "IE management hinges on pathogen + valve + complications — a multidisciplinary IE team (ID, cardiology, cardiac surgery) is guideline-mandated and reduces mortality from 27% → 13% (RHEA registry). Native viridans / S. gallolyticus: penicillin G or ceftriaxone × 4 wk. Native staph or enterococcus: 6 wk; PVE: ≥ 6 wk + rifampin for staphylococcal + gentamicin × 2 wk synergy. Early surgery for HF, abscess, large vegetation + embolus, or persistent BCx (Class I, AHA 2015 + ESC 2023) — delaying surgery worsens mortality.",
       guideline: "ie",
       rejected: "Adjunctive rifampin for native-valve staph IE was deliberately rejected — ARREST (Lancet 2018, n=770) showed no mortality benefit and increased AEs/drug interactions; rifampin retains its role only in PVE staph. Adjunctive routine aminoglycoside synergy for native-valve viridans IE was tempered: 2-wk PCN + gent regimen is restricted to strictly uncomplicated low-risk per Sexton 1998 — most patients get the standard 4-wk monotherapy without the renal/ototoxicity cost." },
+    objections: [
+      { q: "Why early surgery — antibiotics will sterilize the vegetation?",
+        a: "EASE (NEJM 2012 Kang, n=76) showed early surgery in IE with large vegetations reduced the composite endpoint by 79% [cite:ease]. AHA 2015 + ESC 2023 [cite:ie] make early surgery Class I for heart failure, perivalvular abscess, persistent BCx > 5 d on appropriate therapy, large vegetations > 10 mm with embolic event, and dehiscence on PVE. Antibiotics alone cannot sterilize a paravalvular abscess or large vegetation; delaying surgery worsens mortality." },
+      { q: "Why oral step-down — IE has always been 6 wk IV?",
+        a: "POET (NEJM 2019 Iversen, n=400) [cite:poet] showed oral step-down non-inferior to continued IV in stabilized left-sided IE (composite primary endpoint, durable at extended follow-up). Select for: stable, susceptible organism, bioavailable oral regimen, structured ID-led follow-up, and ≥ 10 d initial IV stabilization. NOT for early-phase bacteremia, PVE without controlled course, or right-sided IE with unstable substrate. ESC 2023 [cite:ie] now formally endorses." },
+      { q: "Why not add gentamicin synergy to PCN for viridans IE?",
+        a: "Routine 2-wk PCN + gentamicin synergy for native-valve viridans IE is restricted to strictly uncomplicated, low-risk disease (no aortic root extension, no embolism, < 65 y, normal renal function) per Sexton 1998 + AHA 2015 [cite:ie]. Most patients receive standard 4-wk PCN monotherapy — the aminoglycoside synergy adds renal + ototoxicity without offsetting benefit at the population level. Reserve only when criteria met and short-course is goal." },
+      { q: "Why rifampin for PVE but not native-valve staph?",
+        a: "ARREST (Lancet 2018, n=770) [cite:arrest] showed adjunctive rifampin in native-valve SAB / IE had no mortality benefit and increased AEs (hepatitis, GI, CYP3A4 interactions). Rifampin retains its PVE role for biofilm penetration on prosthetic material — sterilizing biofilm-embedded staphylococci that vanco / β-lactam alone cannot reach per AHA 2015 [cite:ie]. Native-valve has no biofilm substrate; the cost-benefit flips." },
+    ],
     research: {
       headline: "Early surgery improves outcomes in high-risk lesions; POET trial opened oral step-down door for stable patients.",
       trials: [
