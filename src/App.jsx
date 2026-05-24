@@ -1718,7 +1718,10 @@ export default function InpatientAbxGuide() {
           onCite={(id)=>openTrial(id)}
           onFull={_toRef((id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); })} />
       )}
-      {drawer && drawer.kind === "trial" && <TrialCard id={drawer.key} />}
+      {drawer && drawer.kind === "trial" && (
+        <TrialCard id={drawer.key}
+          onSyndrome={_toRef((id)=>{ setTab("empiric"); setSynCat("all"); setOpenSyn(id); setDrawer(null); })} />
+      )}
     </Drawer>
   );
 
