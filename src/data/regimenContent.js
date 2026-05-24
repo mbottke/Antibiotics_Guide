@@ -608,6 +608,64 @@ const REGIMEN_CONTENT = {
         ],
       },
     ],
+    "DTR-Pseudomonas / CRAB salvage (IDSA AMR-GN 2024)": [
+      {
+        rx: /ceftolozane-?tazobactam/i,
+        pickIf: "DTR-Pseudomonas confirmed or carbapenem-resistant Pseudomonas HAP/VAP.",
+        whyPick: [
+          "**First-line for DTR-Pseudomonas** per IDSA AMR-GN 2024",
+          "ASPECT-NP NEJM 2019 non-inferior in HAP/VAP",
+          "**3 g IV q8h** for pneumonia — higher than UTI dose",
+        ],
+        watchOut: [
+          { sev: "warn", text: "**NOT for KPC / metallo / OXA-48** — use ceftaz-avi or cefiderocol" },
+          { sev: "warn", text: "Renal-adjusted dosing — recheck SCr q48h" },
+          { sev: "note", text: "ID + carbapenemase typing mandatory" },
+        ],
+      },
+      {
+        rx: /ceftazidime-?avibactam/i,
+        pickIf: "KPC-CRE or OXA-48-producing GNR HAP/VAP.",
+        whyPick: [
+          "**First-line for KPC-CRE + OXA-48** per IDSA AMR-GN 2024",
+          "Active vs Ambler A + C + some D β-lactamases",
+          "**Combine with aztreonam** for metallo-CRE",
+        ],
+        watchOut: [
+          { sev: "warn", text: "**NOT for metallo-CRE alone** — pair with aztreonam or use cefiderocol" },
+          { sev: "warn", text: "Resistance mutations emerging at < 5% — TDM if salvage" },
+          { sev: "note", text: "Extended-infusion q8h — 2.5 g over 2 h" },
+        ],
+      },
+      {
+        rx: /sulbactam-?durlobactam/i,
+        pickIf: "Carbapenem-resistant Acinetobacter baumannii (CRAB) HAP/VAP — first-line per IDSA AMR-GN 2024.",
+        whyPick: [
+          "**XACDURO Lancet ID 2023** — first-line CRAB by IDSA AMR-GN 2024",
+          "Sulbactam targets Acinetobacter PBP3; durlobactam protects from β-lactamases",
+          "**Replaces polymyxin combinations** for most CRAB",
+        ],
+        watchOut: [
+          { sev: "stop", text: "**Acinetobacter only** — narrow spectrum; not for other GNR" },
+          { sev: "warn", text: "Limited real-world experience — coordinate with ID" },
+          { sev: "note", text: "1 g IV q6h each component — renal-adjusted" },
+        ],
+      },
+      {
+        rx: /cefiderocol/i,
+        pickIf: "Pan-resistant Gram-negative (metallo-CRE / CRAB / Stenotrophomonas) salvage.",
+        whyPick: [
+          "**Siderophore cephalosporin** — exploits bacterial iron-uptake to penetrate",
+          "Active vs **metallo-CRE (NDM/VIM/IMP)** — only monotherapy option",
+          "Broad GNR including S. maltophilia",
+        ],
+        watchOut: [
+          { sev: "warn", text: "**CREDIBLE-CR signal** of increased mortality in Acinetobacter subset — controversial; consider sulbactam-durlobactam first for CRAB" },
+          { sev: "warn", text: "Renal-adjusted; extended infusion 3 h" },
+          { sev: "note", text: "Reserve for pan-resistant where no alternative" },
+        ],
+      },
+    ],
   },
 
   /* ===========================================================
@@ -3107,17 +3165,69 @@ const REGIMEN_CONTENT = {
   "neutropenic-pna": {
     "Bacterial empiric": [
       {
-        rx: /antipseudomonal|vancomycin/i,
-        pickIf: "Pneumonia in neutropenic patient.",
+        rx: /piperacillin|cefepime|meropenem/i,
+        pickIf: "Pneumonia in neutropenic / transplant host with ANC < 500.",
         whyPick: [
-          "**Antipseudomonal β-lactam + vancomycin** if MRSA risk",
-          "**Workup fungal** (Aspergillus, Mucor) and viral (CMV, RSV) — broad workup",
-          "**Consider PJP** in HIV / chronic steroid + acute bilateral hypoxia → add TMP-SMX + steroids",
+          "**Antipseudomonal β-lactam first-line** per IDSA 2018 (Taplitz)",
+          "Cefepime or pip-tazo for low-risk; **meropenem if septic shock + ESBL risk + prior broad antibiotics**",
+          "**Add vancomycin** at presentation per local MRSA rate + line presence",
+          "**CT chest within 24 h** — halo / reverse halo / cavitation predicts mold; CXR insensitive",
         ],
         watchOut: [
-          { sev: "warn", text: "**Workup fungal early** — galactomannan (serum + BAL), β-D-glucan, chest CT halo/air-crescent; don't wait for culture" },
-          { sev: "warn", text: "**Viral co-pathogens (CMV, RSV, influenza, COVID)** are common — viral PCR panel + serology in parallel" },
-          { sev: "note", text: "Bronchoscopy / BAL early when not contraindicated by thrombocytopenia or hypoxia — diagnostic yield substantial" },
+          { sev: "warn", text: "**Workup fungal early** — galactomannan (serum + BAL) + β-D-glucan biweekly; CT halo/air-crescent drives mold-active escalation" },
+          { sev: "warn", text: "**Viral co-pathogens (CMV, RSV, influenza, COVID)** common — viral PCR panel + serology in parallel" },
+          { sev: "note", text: "Bronchoscopy / BAL early unless thrombocytopenia / hypoxia contraindicates — diagnostic yield substantial" },
+        ],
+      },
+    ],
+    "MDR-Pseudomonas / CRAB salvage": [
+      {
+        rx: /ceftolozane-?tazobactam|ceftazidime-?avibactam|cefiderocol|sulbactam-?durlobactam/i,
+        pickIf: "DTR-Pseudomonas / KPC-CRE / CRAB / metallo-CRE confirmed or strongly suspected.",
+        whyPick: [
+          "**Mechanism-typing drives choice** per IDSA AMR-GN 2024",
+          "**Ceftolozane-tazo** for DTR-Pseudomonas; **ceftaz-avi** (+ aztreonam) for metallo",
+          "**Sulbactam-durlobactam** first-line for CRAB (XACDURO 2023)",
+          "**Cefiderocol** for pan-resistant salvage",
+        ],
+        watchOut: [
+          { sev: "warn", text: "**ID consult mandatory** — carbapenemase typing + dose intensity drive outcome" },
+          { sev: "warn", text: "Renal-adjusted; TDM where available" },
+          { sev: "note", text: "Combine with inhaled tobi/colistin for pulmonary source — adjunct only" },
+        ],
+      },
+    ],
+    "Mold-active empiric (persistent fever ≥ 96 h)": [
+      {
+        rx: /voriconazole|isavuconazole|posaconazole|amphotericin|caspofungin|micafungin/i,
+        pickIf: "Persistent neutropenic fever ≥ 96 h on broad antibiotics, OR CT halo/cavitation, OR confirmed mold.",
+        whyPick: [
+          "**Voriconazole** first-line for IPA — VfR / SECURE; load 6 mg/kg q12h × 2 then 4 mg/kg q12h",
+          "**Isavuconazole** alternative — fewer interactions + visual AEs (SECURE 2018)",
+          "**Liposomal amphotericin + isavuconazole** for mucormycosis — surgery + ID + thoracic",
+          "**Echinocandin** for empiric Candida / breakthrough during azole prophylaxis",
+        ],
+        watchOut: [
+          { sev: "stop", text: "**Vori + rifampin → vori levels drop** below MIC — switch one (CYP3A4 induction)" },
+          { sev: "warn", text: "**Voriconazole TDM** trough 1–5.5 mg/L at day 5 — sub-target drives failure, supra drives toxicity" },
+          { sev: "warn", text: "**Reduce immunosuppression** per transplant team — single highest-impact intervention" },
+          { sev: "note", text: "EORTC/MSGERC 2020 — preemptive (test-driven) vs empiric — institutional protocol" },
+        ],
+      },
+    ],
+    "PJP coverage": [
+      {
+        rx: /trimethoprim-?sulfamethoxazole|sulfamethoxazole/i,
+        pickIf: "Hypoxia + bilateral interstitial infiltrate + HIV / chronic steroid / transplant — PJP suspected or confirmed.",
+        whyPick: [
+          "**TMP-SMX 15–20 mg/kg/d TMP** divided q6–8h × 21 d",
+          "**Add steroids** if PaO₂ < 70 or A-a > 35 — prednisone 40 mg BID, then taper",
+          "**Secondary prophylaxis** after acute episode — TMP-SMX SS daily during ongoing IS",
+        ],
+        watchOut: [
+          { sev: "warn", text: "**TMP-SMX hyperkalemia + AKI + cytopenias** at high dose — monitor K, SCr, CBC q3 d" },
+          { sev: "warn", text: "**Sulfa allergy** — desensitize OR pentamidine 4 mg/kg/d (toxicity profile worse)" },
+          { sev: "note", text: "Diagnosis: induced sputum / BAL PCR > silver stain; β-D-glucan supportive" },
         ],
       },
     ],
