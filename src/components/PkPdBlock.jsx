@@ -59,11 +59,16 @@ const PATTERN_LABEL = {
   "time+AUC":  "Time + AUC",
 };
 
+/* Pattern → accent tone. Reuses the four-tone primary palette of the
+   answer canvas (ox / oxblood-red / amber / neutral-ink2) rather than
+   importing separate violet/teal hexes — keeps the entire layer
+   cohesive with severity badges and section accents. The BAR SHAPE
+   primarily encodes the pattern; color reinforces. */
 const PATTERN_COLOR = {
-  "time-dep":  "var(--ox)",
-  "conc-dep":  "#b91c1c",
-  "AUC":       "#7c3aed",
-  "time+AUC":  "#0f766e",
+  "time-dep":  "var(--ox)",       // blue — sustained-exposure semantic
+  "conc-dep":  "#b91c1c",          // oxblood red — same hue as required severity
+  "AUC":       "var(--amber)",     // amber — area exposure
+  "time+AUC":  "var(--ink2)",      // neutral — hybrid kinetic
 };
 
 /* Render the bar — purely CSS. The shape encodes the pattern:
@@ -135,10 +140,13 @@ function PkPdBar({ pattern }) {
 
 function PkPdRow({ name, pkpd, timeToEffect }) {
   const color = PATTERN_COLOR[pkpd.pattern] || "var(--ink2)";
+  /* Two-column grid (name+pattern | bar+target+response). The chip
+     moves under target text instead of consuming a third column so
+     narrow viewports flow naturally without overflow. */
   return (
     <div style={{
       display: "grid",
-      gridTemplateColumns: "minmax(140px, 28%) 1fr auto",
+      gridTemplateColumns: "minmax(120px, 32%) 1fr",
       gap: 10,
       alignItems: "center",
       padding: "8px 0",
@@ -157,23 +165,28 @@ function PkPdRow({ name, pkpd, timeToEffect }) {
       <div style={{ minWidth: 0 }}>
         <PkPdBar pattern={pkpd.pattern} />
         <div style={{
-          fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink2)",
-          marginTop: 3, lineHeight: 1.45,
+          display: "flex", flexWrap: "wrap", alignItems: "center",
+          justifyContent: "space-between", gap: 6,
+          marginTop: 3,
         }}>
-          {pkpd.target}
+          <div style={{
+            fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink2)",
+            lineHeight: 1.45, minWidth: 0, flex: "1 1 220px",
+          }}>
+            {pkpd.target}
+          </div>
+          {timeToEffect && (
+            <div style={{
+              fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink2)",
+              whiteSpace: "nowrap", textAlign: "right",
+              padding: "2px 6px", background: "var(--paper2)",
+              border: "1px solid var(--line)", borderRadius: 4,
+            }} title="Median time to clinical response">
+              Response in {timeToEffect}
+            </div>
+          )}
         </div>
       </div>
-
-      {timeToEffect && (
-        <div style={{
-          fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink2)",
-          whiteSpace: "nowrap", textAlign: "right",
-          padding: "2px 6px", background: "var(--paper2)",
-          border: "1px solid var(--line)", borderRadius: 4,
-        }} title="Median time to clinical response">
-          Response in {timeToEffect}
-        </div>
-      )}
     </div>
   );
 }
