@@ -1039,7 +1039,54 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
    `.rx-bedside` so it never leaks into the classic UI.
    ========================================================================== */
 const CSS5 = `
-.rx-bedside{ padding: 32px 22px 80px; min-height: 100vh; }
+/* ─────────────────────────────── Wave 6 W6-B · paper texture + ambient ────────
+   Adds two additive ambient layers to the bedside surface so the page reads
+   as high-quality printed paper rather than a screen:
+
+     Layer 1 — SVG noise grain. A 240×240 fractalNoise tile painted at very
+     low alpha through ::before, multiplied into the surface so the warm
+     paper tones bleed through. Data-URI'd so no asset request. Effective
+     opacity ≤8% (0.045 wrapper × subtle alpha LUT in the SVG itself).
+
+     Layer 2 — radial ambient gradient. A barely-visible warm wash from the
+     top-left (--ox-soft) and a cooler paper2 pool from the bottom-right.
+     Lifts the page off pure flat color without competing with content.
+
+   Both layers sit at z-index: -1 on ::before / ::after pseudos and are
+   contained by isolation:isolate on .rx-bedside so they never bleed into
+   ancestors. Content (.rx-bedside-container and everything inside) stays
+   above by virtue of normal stacking on positioned elements.
+
+   Honors prefers-reduced-motion implicitly — neither layer animates, both
+   are static decoration that stays put regardless of motion preference. */
+.rx-bedside{
+  padding: 32px 22px 80px;
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+}
+.rx-bedside::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 .04 .04 .06 .04 0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+  background-repeat: repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.045;
+}
+.rx-bedside::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, color-mix(in srgb, var(--ox-soft) 20%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, color-mix(in srgb, var(--paper2) 50%, transparent) 0%, transparent 70%);
+}
 .rx-bedside :focus-visible{ outline: 2px solid var(--ox); outline-offset: 2px; border-radius: 3px; }
 
 /* The Case Bar's free-text input must shrink to the viewport on narrow
@@ -1112,6 +1159,9 @@ const CSS5 = `
      hierarchy work without color. */
   .rx-bedside,.rx-root{ background:#fff!important; color:#111!important; }
   .rx-bedside *{ background:transparent!important; box-shadow:none!important; }
+  /* Suppress the paper-texture + ambient pseudo-elements on print —
+     the printer renders real paper; we don't need a simulation. */
+  .rx-bedside::before,.rx-bedside::after{ display:none!important; }
   /* Hide UI chrome that has no meaning on paper. */
   .rx-bedside-rail,.rx-header,.rx-nav,.rx-builder,.rx-toolbar,
   [data-bedside-header-strip] button,
