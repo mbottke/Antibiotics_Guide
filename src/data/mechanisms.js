@@ -345,6 +345,378 @@ const MECHANISMS = {
     ],
   },
 
+  /* ============= RESISTANCE — CL-6 M-3 enzymes + target processes ======== */
+
+  "OXA-48": {
+    title:  "OXA-48 — Class D oxacillinase carbapenemase",
+    family: "resistance",
+    alias:  ["OXA-48-like", "blaOXA-48", "Ambler D carbapenemase"],
+    summary:
+      "Plasmid-borne Ambler class D serine carbapenemase, endemic across " +
+      "the Mediterranean, Middle East, and North Africa. Hydrolyzes " +
+      "carbapenems weakly but reliably; spares third-generation " +
+      "cephalosporins. Treatment hinges on ceftazidime-avibactam — the only " +
+      "β-lactamase inhibitor combination that restores activity against OXA-48.",
+    keypoints: [
+      "Ceftazidime-avibactam is the workhorse — avibactam inhibits OXA-48 carbamylation.",
+      "Meropenem-vaborbactam does NOT restore activity against OXA-48 (vaborbactam misses class D).",
+      "Imipenem-relebactam also inactive — DBO inhibitor spectrum stops at class A/C.",
+      "Ceftriaxone usually still in vitro active — OXA-48 weakly hydrolyzes oxyimino-cephalosporins.",
+      "Endemic to Mediterranean rim, Turkey, North Africa; rising in U.S. imported cases.",
+    ],
+    bedside:
+      "Reading 'OXA-48' on a CRE report should immediately steer the regimen " +
+      "to ceftazidime-avibactam. The classic trap: clinicians reach for " +
+      "meropenem-vaborbactam expecting the same KPC paradigm, but vaborbactam " +
+      "(a cyclic boronate) cannot inhibit the class D serine. Co-resident " +
+      "ESBL/AmpC enzymes often extend the cephalosporin resistance and " +
+      "demand the avibactam shield regardless.",
+    foundational:
+      "OXA-48 is structurally a class D β-lactamase: an active-site serine " +
+      "carbamylated by a nearby lysine, generating the nucleophile that " +
+      "attacks the β-lactam carbonyl. Unlike class A KPC, OXA-48's narrow " +
+      "active site weakly accommodates carbapenems and excludes most " +
+      "expanded-spectrum cephalosporins. Avibactam's diazabicyclooctane core " +
+      "reversibly acylates the active-site serine, blocking turnover. " +
+      "Vaborbactam and relebactam bind class A/C serines but miss class D " +
+      "carbamylated geometry — the chemistry breaks.",
+    papers: [
+      { name: "IDSA AMR-GN guidance", year: 2024,
+        finding: "Ceftazidime-avibactam first-line for OXA-48 CRE; meropenem-vaborbactam and imipenem-relebactam not recommended." },
+    ],
+  },
+
+  "OXA-23": {
+    title:  "OXA-23 — Acinetobacter carbapenemase",
+    family: "resistance",
+    alias:  ["blaOXA-23", "OXA-23-like", "Acinetobacter OXA"],
+    summary:
+      "Class D oxacillinase carried on plasmids and chromosomal transposons " +
+      "of Acinetobacter baumannii — the dominant carbapenem-resistance " +
+      "mechanism in CRAB worldwide. Hydrolyzes imipenem and meropenem. " +
+      "Treatment options remain limited: sulbactam-durlobactam (Xacduro, FDA " +
+      "May 2023), high-dose ampicillin-sulbactam, or polymyxin combinations.",
+    keypoints: [
+      "Sulbactam-durlobactam is the targeted FDA-approved option (ATTACK trial 2023).",
+      "High-dose ampicillin-sulbactam (9 g sulbactam/day) attacks PBP3 directly.",
+      "Cefiderocol is an option but CREDIBLE-CR signaled higher mortality in CRAB subgroup.",
+      "Polymyxin/colistin remains a partner, never solo — efficacy data are weak.",
+      "Most 'treatment' regimens carry low-quality evidence; mortality remains 40-60%.",
+    ],
+    bedside:
+      "CRAB pneumonia or bacteremia is one of the hardest decisions in ID. " +
+      "Until sulbactam-durlobactam approval in 2023, every option was off-label " +
+      "or weakly evidenced. The ATTACK trial showed sulbactam-durlobactam plus " +
+      "imipenem cut 28-day mortality from 32% to 19% versus colistin plus " +
+      "imipenem. Source control, de-escalation when possible, and ID consult " +
+      "are non-negotiable.",
+    foundational:
+      "OXA-23 mirrors OXA-48 mechanistically (class D serine carbamylation) " +
+      "but with a hydrophobic active-site bridge that better accommodates " +
+      "carbapenem's hydroxyethyl group. Sulbactam is an intrinsic PBP3-binder " +
+      "in Acinetobacter — its 'inhibitor' role is actually direct " +
+      "antibacterial activity. Durlobactam (a diazabicyclooctane) protects " +
+      "sulbactam from co-resident class A/C/D β-lactamases including OXA-23, " +
+      "letting sulbactam reach PBP3.",
+    papers: [
+      { name: "ATTACK RCT", year: 2023,
+        finding: "Sulbactam-durlobactam + imipenem vs colistin + imipenem: 19% vs 32% 28-day mortality in CRAB pneumonia/BSI." },
+    ],
+  },
+
+  "OXA-58": {
+    title:  "OXA-58 — Acinetobacter carbapenemase variant",
+    family: "resistance",
+    alias:  ["blaOXA-58", "OXA-58-like"],
+    summary:
+      "Less common Acinetobacter baumannii class D carbapenemase; same " +
+      "treatment paradigm as OXA-23. Hydrolyzes carbapenems weakly but " +
+      "expression on multi-copy plasmids drives clinically meaningful " +
+      "resistance. Sulbactam-durlobactam is the targeted option; legacy " +
+      "regimens (colistin, tigecycline, high-dose ampicillin-sulbactam) " +
+      "carry weak evidence.",
+    keypoints: [
+      "Sulbactam-durlobactam covers OXA-58 (ATTACK trial enrolled OXA-23/24/58 strains).",
+      "High-dose ampicillin-sulbactam targets PBP3 — sulbactam is the active partner.",
+      "Cefiderocol is an alternative; watch CREDIBLE-CR CRAB mortality signal.",
+      "Less prevalent than OXA-23 but rising — Europe, Asia, Middle East clusters.",
+      "Polymyxin/tigecycline combinations are salvage, not first-line, in 2024.",
+    ],
+    bedside:
+      "OXA-58 on a culture report should trigger the same workflow as OXA-23: " +
+      "ID consult, source control, sulbactam-durlobactam if available. The " +
+      "lab will often type only as 'OXA-23-like / OXA-58-like' — treat the " +
+      "phenotype, not the genotype. CRAB mortality without active therapy " +
+      "approaches 50%; the targeted novel agent earns its high cost.",
+    foundational:
+      "OXA-58 shares the carbamylated-lysine class D mechanism but its " +
+      "active-site loop architecture differs from OXA-23 — clinically " +
+      "equivalent carbapenem hydrolysis, distinct evolutionary lineage. " +
+      "Plasmid promoter strength and gene copy number drive expression more " +
+      "than enzyme kinetics. Durlobactam restores sulbactam activity by " +
+      "shielding the PBP3-binding sulbactam from OXA-58 hydrolysis, the " +
+      "same logic as OXA-23.",
+    papers: [
+      { name: "ATTACK RCT subgroup", year: 2023,
+        finding: "OXA-58 strains responded similarly to OXA-23 strains in sulbactam-durlobactam arm; small sample size limits inference." },
+    ],
+  },
+
+  "CTX-M-15": {
+    title:  "CTX-M-15 — Globally dominant ESBL variant",
+    family: "resistance",
+    alias:  ["blaCTX-M-15", "CTX-M-15 ESBL"],
+    summary:
+      "The single most prevalent extended-spectrum β-lactamase worldwide, " +
+      "carried on IncF plasmids in E. coli ST131 — the pandemic lineage " +
+      "driving community-onset ESBL urinary and bloodstream infection. " +
+      "Hydrolyzes ceftriaxone and ceftazidime efficiently. Carbapenem is " +
+      "first-line for serious infection (MERINO trial).",
+    keypoints: [
+      "E. coli ST131 carrying CTX-M-15 is the dominant community ESBL clone globally.",
+      "Carbapenem (meropenem/ertapenem) is first-line for bacteremia — pip-tazo failed (MERINO).",
+      "Ceftolozane-tazobactam and ceftazidime-avibactam are active alternatives in shortage.",
+      "Cystitis: oral nitrofurantoin, fosfomycin, or pivmecillinam remain effective.",
+      "Travel and prior antibiotic exposure are the dominant acquisition risk factors.",
+    ],
+    bedside:
+      "When the lab reports 'ESBL' on a community-onset E. coli BSI, the " +
+      "underlying enzyme is CTX-M-15 in well over 80% of U.S. and European " +
+      "cases. The clinical lever is fast carbapenem step-up: MERINO showed " +
+      "pip-tazo gave 12% vs 4% 30-day mortality versus meropenem and was " +
+      "stopped early for harm. Treat ESBL bacteremia as carbapenem-only " +
+      "until source control and clinical stability are achieved.",
+    foundational:
+      "CTX-M-15 evolved from chromosomal CTX-M-3 by a single Asp240Gly " +
+      "substitution that widens the R2 binding pocket — efficient hydrolysis " +
+      "of ceftazidime (a bulky aminothiazolyl-oxyimino cephalosporin) added " +
+      "to its native cefotaxime activity. The IncF plasmid co-carries " +
+      "fluoroquinolone resistance determinants (aac(6')-Ib-cr, qnr) and " +
+      "aminoglycoside-modifying enzymes — explains why ST131 strains often " +
+      "look broadly resistant. Avibactam, tazobactam, clavulanate restore " +
+      "the β-lactam in vitro.",
+    papers: [
+      { name: "MERINO RCT", year: 2018,
+        finding: "Piperacillin-tazobactam non-inferiority to meropenem REJECTED for ESBL BSI; 30-day mortality 12% vs 4%, stopped early." },
+    ],
+  },
+
+  "PBP2x": {
+    title:  "PBP2x — Penicillin-resistant pneumococcus PBP",
+    family: "resistance",
+    alias:  ["PBP 2x", "PRSP", "penicillin-resistant pneumococcus"],
+    summary:
+      "Altered penicillin-binding protein in S. pneumoniae driving high-level " +
+      "penicillin and cephalosporin resistance (PRSP). Transpeptidase-domain " +
+      "mutations lower β-lactam affinity. Drives the meningitis dosing " +
+      "doctrine: ceftriaxone 2 g q12h plus vancomycin until susceptibilities " +
+      "return, because standard q24h dosing fails at the CSF MIC.",
+    keypoints: [
+      "Meningitis: ceftriaxone 2 g q12h + vancomycin empiric — q24h underdoses CSF.",
+      "Ceftaroline binds PBP2x with restored affinity (treats some PRSP pneumonia).",
+      "Pneumonia: standard ceftriaxone 1-2 g q24h adequate unless MIC ≥ 4.",
+      "Resistance arises by transformational uptake of streptococcal mosaic PBP DNA.",
+      "PBP1a and PBP2b mutations layer onto PBP2x for the highest-MIC strains.",
+    ],
+    bedside:
+      "PBP2x is the difference between a pneumococcal meningitis case who " +
+      "survives intact and one who dies. IDSA/ESCMID call for ceftriaxone 2 g " +
+      "q12h plus vancomycin empirically in suspected pneumococcal meningitis " +
+      "specifically because PBP2x-altered strains have ceftriaxone MICs at " +
+      "or above the CSF-attainable concentration on q24h dosing. Step down " +
+      "only after susceptibility data return.",
+    foundational:
+      "PBP2x is a transpeptidase that cross-links the peptidoglycan stem " +
+      "peptides during cell-wall synthesis. β-lactams normally acylate its " +
+      "active-site serine. PRSP strains carry mosaic pbp2x alleles imported " +
+      "horizontally from commensal viridans streptococci; the active-site " +
+      "geometry shifts and β-lactam affinity drops 10-100×. Ceftaroline's " +
+      "fifth-generation cephalosporin side-chain restores binding to most " +
+      "mutant PBP2x — the unique anti-PRSP β-lactam.",
+    papers: [
+      { name: "IDSA bacterial meningitis", year: 2004,
+        finding: "Empiric ceftriaxone 2 g q12h + vancomycin for adult pneumococcal meningitis until susceptibilities confirm β-lactam alone." },
+    ],
+  },
+
+  "Mosaic PBP": {
+    title:  "Mosaic PBP — Gonococcal cephalosporin resistance",
+    family: "resistance",
+    alias:  ["penA mosaic", "gonococcal mosaic PBP", "ceftriaxone-reduced-susceptibility gonococcus"],
+    summary:
+      "Neisseria gonorrhoeae horizontally recombines its penA-encoded PBP " +
+      "with segments from commensal Neisseria, generating mosaic alleles with " +
+      "reduced ceftriaxone and cefixime affinity. Drives the global trend " +
+      "toward elevated cephalosporin MICs and the 2021 CDC dose escalation " +
+      "to ceftriaxone 500-1000 mg IM single dose.",
+    keypoints: [
+      "CDC 2021: ceftriaxone 500 mg IM ×1 (1 g if ≥150 kg) — replaced dual therapy.",
+      "Azithromycin co-administration dropped (resistance surge + ceftriaxone alone adequate).",
+      "Test-of-cure mandatory for pharyngeal gonorrhea and any ceftriaxone failure.",
+      "Cefixime no longer first-line — mosaic PBP raises its MIC faster than ceftriaxone.",
+      "Emerging XDR strains (FC428, A8806) carry penA-60.001 — global surveillance signal.",
+    ],
+    bedside:
+      "Gonococcal mosaic PBP is the resistance mechanism behind the CDC's " +
+      "2021 guideline change from ceftriaxone 250 mg + azithromycin to " +
+      "ceftriaxone 500 mg alone (1 g if ≥150 kg). The dose increase compensates " +
+      "for the rising mosaic-PBP MIC — empiric coverage still works at " +
+      "current U.S. epidemiology but the margin is narrowing. Pharyngeal " +
+      "infection demands test-of-cure.",
+    foundational:
+      "Wild-type gonococcal penA encodes PBP2, the transpeptidase β-lactam " +
+      "target. N. gonorrhoeae is naturally transformable and imports DNA " +
+      "from commensal N. cinerea, N. flavescens, and N. perflava during " +
+      "co-colonization of the oropharynx. The resulting mosaic penA carries " +
+      "60-70 amino-acid substitutions clustered in the transpeptidase domain, " +
+      "lowering ceftriaxone affinity 5-10×. PenA-60.001 in the FC428 clone " +
+      "adds an A311V substitution driving treatment failure cases.",
+    papers: [
+      { name: "CDC STI Treatment Guidelines", year: 2021,
+        finding: "Ceftriaxone 500 mg IM ×1 monotherapy replaced dual therapy; dose doubled to compensate for mosaic-penA MIC drift." },
+    ],
+  },
+
+  "vanB": {
+    title:  "vanB — Inducible vancomycin resistance",
+    family: "resistance",
+    alias:  ["vanB cluster", "inducible glycopeptide resistance"],
+    summary:
+      "Inducible vancomycin resistance operon in Enterococcus faecium and " +
+      "E. faecalis; plasmid or chromosomal transposon-mediated. Re-engineers " +
+      "the peptidoglycan precursor to D-Ala-D-Lac like vanA, but vanS sensor " +
+      "responds only to vancomycin (not teicoplanin). Teicoplanin appears " +
+      "susceptible in vitro — clinical failure is common.",
+    keypoints: [
+      "Teicoplanin in vitro susceptible but clinical failure common — do not rely on it.",
+      "Treatment mirrors vanA: daptomycin 8-12 mg/kg or linezolid for VRE bacteremia.",
+      "vanS-vanR senses vancomycin; teicoplanin fails to trigger expression in vitro only.",
+      "Predominantly E. faecium; clonal hospital outbreaks (CC17) drive U.S. epidemiology.",
+      "PCR (Verigene, GeneXpert) distinguishes vanA vs vanB on blood cultures.",
+    ],
+    bedside:
+      "The in vitro teicoplanin susceptibility on a vanB VRE report is a " +
+      "trap. Clinical experience (mostly European, where teicoplanin is " +
+      "available) shows therapeutic failure as the vanB operon induces under " +
+      "treatment pressure. Treat vanB exactly like vanA: daptomycin 8-12 " +
+      "mg/kg for bacteremia, linezolid for pulmonary or CNS disease, " +
+      "ampicillin if E. faecalis (preserves susceptibility).",
+    foundational:
+      "The vanB gene cluster encodes vanS_B (a histidine kinase sensor), " +
+      "vanR_B (response regulator), vanH_B (D-lactate dehydrogenase), " +
+      "vanB (D-Ala-D-Lac ligase), and vanX_B (D,D-dipeptidase). Vancomycin " +
+      "binding to nascent peptidoglycan induces vanS_B autophosphorylation, " +
+      "triggering operon expression. The substituted D-Ala-D-Lac terminus " +
+      "loses one hydrogen bond to vancomycin, dropping affinity 1000-fold. " +
+      "vanS_B fails to recognize teicoplanin's longer lipid tail in vitro.",
+  },
+
+  "vanD": {
+    title:  "vanD — Constitutive vancomycin resistance",
+    family: "resistance",
+    alias:  ["vanD cluster", "constitutive vancomycin resistance"],
+    summary:
+      "Chromosomally encoded, constitutively expressed vancomycin resistance " +
+      "operon in sporadic Enterococcus faecium isolates. Lower-level " +
+      "resistance than vanA (vancomycin MIC 16-64); teicoplanin variably " +
+      "affected. Rare globally and not transferable — the chromosomal " +
+      "location limits horizontal spread but makes detection harder.",
+    keypoints: [
+      "Constitutive expression — no induction needed, no susceptible window.",
+      "Vancomycin MIC typically 16-64; teicoplanin MIC 2-32, variable in vitro.",
+      "Treatment mirrors vanA/vanB: daptomycin or linezolid for serious infection.",
+      "Chromosomal location means no plasmid spread — sporadic, not clonal.",
+      "vanD strains have an inactive D,D-dipeptidase, forcing constitutive D-Ala-D-Lac.",
+    ],
+    bedside:
+      "vanD is the third van phenotype clinicians may encounter, mostly via " +
+      "reference lab reports. The clinical bottom line: treat as any other " +
+      "high-level VRE — daptomycin 8-12 mg/kg for bacteremia, linezolid for " +
+      "pulmonary or CNS disease. The low-level MIC (16-64) makes the lab " +
+      "report sometimes ambiguous — confirm with E-test or molecular probe " +
+      "before assuming susceptibility.",
+    foundational:
+      "vanD operon mirrors the vanA gene cluster (vanH_D, vanD, vanX_D) but " +
+      "carries a frameshifted, inactive D,D-dipeptidase that cannot destroy " +
+      "the native D-Ala-D-Ala precursor. The cell compensates by losing " +
+      "the native D-Ala-D-Ala-ligase (ddl_D-frameshifted), forcing " +
+      "obligatory D-Ala-D-Lac wall synthesis — hence constitutive expression " +
+      "without inducer. The biochemical lesion is permanent rather than " +
+      "regulated, which paradoxically lowers the MIC versus inducible vanA.",
+  },
+
+  "Lipid II binding": {
+    title:  "Lipid II binding — Glycopeptide target site",
+    family: "resistance",
+    alias:  ["glycopeptide target", "D-Ala-D-Ala", "peptidoglycan precursor binding"],
+    summary:
+      "The D-Ala-D-Ala terminus of the lipid-II peptidoglycan precursor — " +
+      "the binding site for vancomycin, teicoplanin, dalbavancin, telavancin, " +
+      "and oritavancin. Five hydrogen bonds anchor vancomycin to the " +
+      "substrate, blocking transpeptidation and transglycosylation. vanA/B/D " +
+      "substitute D-Ala-D-Lac, losing one bond and 1000-fold affinity.",
+    keypoints: [
+      "Vancomycin H-bonds via 5 contacts to D-Ala-D-Ala terminus — the binding fingerprint.",
+      "D-Ala-D-Lac substitution (vanA/B/D) loses 1 bond, affinity drops 1000×.",
+      "Lipoglycopeptides (dalba, tela, orita) add membrane anchor for higher potency.",
+      "Oritavancin uniquely also binds D-Ala-D-Lac with retained activity vs vanA.",
+      "Long-acting agents (dalba, orita) leverage tail-anchored membrane residence.",
+    ],
+    bedside:
+      "Understanding lipid-II binding explains both why vancomycin works " +
+      "(blocks both transpeptidation and transglycosylation by physically " +
+      "occluding the substrate) and why VRE defeats it (one hydrogen bond " +
+      "lost = 1000× affinity drop). It also predicts which next-generation " +
+      "glycopeptides retain activity: oritavancin's secondary binding mode " +
+      "to lipid-II's pentaglycine bridge survives vanA substitution.",
+    foundational:
+      "Lipid II is the membrane-anchored peptidoglycan precursor: " +
+      "undecaprenyl-pyrophosphate-MurNAc-(L-Ala-D-iGlu-L-Lys-D-Ala-D-Ala)-GlcNAc. " +
+      "Glycopeptide antibiotics form a heptapeptide cup that hydrogen-bonds " +
+      "to the D-Ala-D-Ala backbone amides — five bonds for vancomycin, more " +
+      "for teicoplanin via additional sugars. The bound antibiotic physically " +
+      "blocks both transpeptidase and transglycosylase access. " +
+      "Lipoglycopeptides add a hydrophobic tail that anchors in the bacterial " +
+      "membrane, raising local concentration and prolonging half-life.",
+  },
+
+  "Transpeptidation": {
+    title:  "Transpeptidation — β-lactam target reaction",
+    family: "resistance",
+    alias:  ["PBP transpeptidation", "cell-wall cross-linking", "DD-transpeptidase"],
+    summary:
+      "The peptidoglycan cross-linking reaction catalyzed by penicillin-" +
+      "binding proteins (PBPs) — the universal β-lactam target. PBPs use " +
+      "an active-site serine to release the terminal D-Ala of the donor " +
+      "stem peptide and form a bond to the acceptor diaminopimelate or " +
+      "lysine. β-lactams mimic D-Ala-D-Ala and trap the PBP as a covalent " +
+      "acyl-enzyme.",
+    keypoints: [
+      "β-lactam ring geometry mimics the D-Ala-D-Ala substrate of the transpeptidase.",
+      "Active-site serine attacks the β-lactam carbonyl, forming a stable acyl-enzyme.",
+      "Resistance mechanisms: PBP2a (MRSA), PBP2x (PRSP), mosaic penA (gonococcus).",
+      "Cefiderocol, ceftaroline, ceftobiprole engineered for altered-PBP affinity.",
+      "Each species carries 4-8 PBPs; bactericidal activity targets PBP1/2/3.",
+    ],
+    bedside:
+      "Transpeptidation is the reaction every β-lactam blocks — penicillins, " +
+      "cephalosporins, carbapenems, monobactams. Understanding it explains " +
+      "the divergent therapy across staphylococcal, pneumococcal, and " +
+      "gonococcal resistance: same target reaction, different PBP isoforms " +
+      "mutated, different β-lactams that restore binding. PBP affinity " +
+      "differences also drive bactericidal vs bacteriostatic profiles within " +
+      "the β-lactam class.",
+    foundational:
+      "PBPs are DD-transpeptidases: the active-site serine attacks the donor " +
+      "stem peptide's D-Ala-D-Ala bond, displacing the terminal D-Ala and " +
+      "forming an acyl-enzyme intermediate. A nearby amino group on the " +
+      "acceptor peptidoglycan strand (meso-DAP in Gram-negatives, L-Lys via " +
+      "pentaglycine in S. aureus) attacks this intermediate, releasing the " +
+      "cross-linked product. β-lactams' fused four-membered ring strains " +
+      "the C-N bond into the geometry of the D-Ala-D-Ala transition state, " +
+      "trapping the PBP irreversibly acylated.",
+  },
+
 };
 
 /* Build alias map once at module load. Case-insensitive lookup against
