@@ -1651,3 +1651,59 @@ describe("content-audit · FORMULARY timeToEffect bounds (Wave 5 R3)", () => {
     });
   }
 });
+
+/* ============================================================
+   Wave 5 R4 · OPAT agent route shape audit. The `route` field on
+   OPAT_PROFILES[syndrome].agents[] is free-form prose, but every
+   real entry encodes a recognizable administration cadence. Catch
+   typos / missing fields by anchoring on at least one known route
+   token (IV, IM, PO, SC, continuous infusion, elastomeric).
+   ============================================================ */
+describe("content-audit · OPAT agent route shape (Wave 5 R4)", () => {
+  const ROUTE_ANCHOR = /\b(IV|IM|PO|SC|continuous infusion|CI via pump|CI|elastomeric|pump)\b/i;
+  for(const synId of Object.keys(OPAT_PROFILES)) {
+    const agents = OPAT_PROFILES[synId].agents || [];
+    for(let i = 0; i < agents.length; i++) {
+      const ag = agents[i];
+      test(`[${synId} | OPAT | agents[${i}]] route names a recognizable cadence`, () => {
+        expect(typeof ag.route, `agents[${i}].route must be string`).toBe("string");
+        expect(ROUTE_ANCHOR.test(ag.route),
+          `route "${ag.route}" lacks any of IV/IM/PO/SC/continuous infusion/CI/elastomeric — likely a typo`)
+          .toBe(true);
+      });
+    }
+  }
+});
+
+/* ============================================================
+   Wave 5 R4 · mechanism alias collision audit. Two MECHANISMS
+   entries cannot share an alias — getMechanism would silently
+   resolve the first match and the second entry becomes
+   unreachable through that key. Catches the vanA/vanB-class
+   conflation Codex flagged on PR-7a.
+   ============================================================ */
+describe("content-audit · mechanism alias uniqueness (Wave 5 R4)", () => {
+  test("no alias is shared between two mechanism entries", () => {
+    const seen = new Map();   // key → owning canonical key
+    const collisions = [];
+    for(const canonical of Object.keys(MECHANISMS)) {
+      const aliases = MECHANISMS[canonical].alias || [];
+      for(const a of aliases) {
+        const norm = a.toLowerCase();
+        if(seen.has(norm) && seen.get(norm) !== canonical) {
+          collisions.push(`"${a}" claimed by both "${seen.get(norm)}" and "${canonical}"`);
+        } else {
+          seen.set(norm, canonical);
+        }
+      }
+      // Also: a canonical key cannot collide with another entry's alias.
+      const canonNorm = canonical.toLowerCase();
+      if(seen.has(canonNorm) && seen.get(canonNorm) !== canonical) {
+        collisions.push(`canonical "${canonical}" collides with alias on "${seen.get(canonNorm)}"`);
+      } else {
+        seen.set(canonNorm, canonical);
+      }
+    }
+    expect(collisions, `mechanism alias collisions:\n  ${collisions.join("\n  ")}`).toEqual([]);
+  });
+});
