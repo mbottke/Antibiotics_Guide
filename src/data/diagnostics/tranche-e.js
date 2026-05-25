@@ -74,6 +74,9 @@ export const TRANCHE_E_DIAGNOSTICS = {
       { sev: "required",
         what: "**CT chest with IV contrast** — defines collection, gas, sternal dehiscence, descending extension from neck.",
         why:  "Surgical emergency; CT defines the operative field and extent of necrosis for cardiothoracic consultation." },
+      { sev: "trigger",
+        what: "TTE (TEE if inconclusive) for post-sternotomy mediastinitis or persistent S. aureus bacteremia.",
+        why:  "Mediastinitis extends to pericarditis / endocarditis in 5–15%; missed echocardiogram drives delayed surgical re-intervention." },
     ],
     biopsy: [
       { sev: "trigger",
@@ -306,8 +309,11 @@ export const TRANCHE_E_DIAGNOSTICS = {
     ],
     biomarkers: [
       { sev: "required",
-        what: "Lactate, CBC with differential, CRP, procalcitonin, **galactomannan**, **1,3-β-D-glucan** at fever onset and serially.",
-        why:  "Fungal biomarkers detect invasive mold/yeast 5–14 days before culture; gates pre-emptive antifungal start." },
+        what: "Lactate, CBC with differential, CRP, procalcitonin at fever onset and serially.",
+        why:  "Standard severity + ICU-disposition workup at fever onset; lactate gates pressors and source-control urgency." },
+      { sev: "trigger",
+        what: "Serum **galactomannan** + **1,3-β-D-glucan** at day 4–7 of persistent fever on broad-spectrum antibiotics.",
+        why:  "IDSA febrile-neutropenia 2018: fungal biomarkers are gated to persistent fever > 4 d, not fever onset — earlier values are non-specific." },
     ],
     panels: [
       { sev: "trigger",
@@ -342,8 +348,11 @@ export const TRANCHE_E_DIAGNOSTICS = {
     ],
     biomarkers: [
       { sev: "required",
-        what: "CBC, lactate, lipase, CRP, procalcitonin, **galactomannan + 1,3-β-D-glucan** at presentation.",
-        why:  "Lactate flags transmural ischemia and perforation risk; fungal markers detect invasive mold early." },
+        what: "CBC, lactate, lipase, CRP, procalcitonin at presentation.",
+        why:  "Lactate flags transmural ischemia and perforation risk; lipase distinguishes pancreatic involvement." },
+      { sev: "trigger",
+        what: "**Galactomannan + 1,3-β-D-glucan** at day 4–7 of persistent fever on broad-spectrum coverage.",
+        why:  "Invasive mold complicates typhlitis in prolonged neutropenia; gated to persistent fever per IDSA 2018." },
     ],
     imaging: [
       { sev: "required",
