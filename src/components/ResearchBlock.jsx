@@ -128,7 +128,7 @@ function ResearchBlock({ research }) {
   const accentBg = "rgba(15, 76, 129, 0.08)";
 
   return (
-    <Section kicker="Research · Evidence behind the recommendation" icon={BookOpen} testId="research-block">
+    <Section kicker="Research · Evidence behind the recommendation" icon={BookOpen} glyph="evidence" testId="research-block">
       {/* Headline — the bottom-line interpretation of what the
           literature actually shows. Identical visual treatment to
           monitoring + duration headline rows for consistency. */}

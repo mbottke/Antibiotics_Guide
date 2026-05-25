@@ -16,7 +16,7 @@ export const coversLayer = {
   render: (shared) => {
     const { s, ans, onDrug, onOrg } = shared;
     return (
-      <Section kicker="Covers" icon={Check} id="ans-covers">
+      <Section kicker="Covers" icon={Check} glyph="core" id="ans-covers">
         <div style={{ fontSize:13, color:"var(--ink2)", lineHeight:1.6 }}>
           <div style={{ marginBottom:6 }}>
             <span style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--green)", fontWeight:700, marginRight:6 }}>Cover</span>

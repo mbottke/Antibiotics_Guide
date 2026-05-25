@@ -17,7 +17,7 @@ export const startLayer = {
   render: (shared) => {
     const { ans, allergy, coreRefinements, onDrug, onOpenMechanism, dose, setTierPick, s } = shared;
     return (
-      <Section kicker="Start now" icon={Crosshair} sticky id="ans-start">
+      <Section kicker="Start now" icon={Crosshair} glyph="core" sticky id="ans-start">
         <RxLine kind="core" tier={ans.core} refinements={coreRefinements} onDrug={onDrug}
           onOpenMechanism={onOpenMechanism}
           ctx={ans.ctx} d={ans.d} synId={s.id}

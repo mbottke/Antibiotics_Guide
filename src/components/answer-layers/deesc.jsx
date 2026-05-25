@@ -15,7 +15,7 @@ export const deescLayer = {
   render: (shared) => {
     const { s, ans, onDrug, onOrg } = shared;
     return (
-      <Section kicker="Stop at 48–72 h" icon={TrendingDown} id="ans-deesc">
+      <Section kicker="Stop at 48–72 h" icon={TrendingDown} glyph="core" id="ans-deesc">
         <div style={{ fontSize:13, color:"var(--ink2)", lineHeight:1.6, marginBottom: ans.deesc.length ? 12 : 0 }}>
           {renderGloss(s.deesc, onDrug)}
         </div>

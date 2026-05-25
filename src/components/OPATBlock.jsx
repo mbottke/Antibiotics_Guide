@@ -184,7 +184,7 @@ function OPATBlock({ opat, ctx }) {
   if(eligibility.length === 0 && monitoring.length === 0 && agents.length === 0) return null;
 
   return (
-    <Section kicker="OPAT · Outpatient IV pathway" icon={HomeIcon} testId="opat-block">
+    <Section kicker="OPAT · Outpatient IV pathway" icon={HomeIcon} glyph="duration" testId="opat-block">
       {matchedTotal > 0 && (
         <div style={{ marginBottom: 10, display: "flex", justifyContent: "flex-end" }}>
           <span style={{

@@ -18,7 +18,7 @@ export const durationLegacyLayer = {
   render: (shared) => {
     const { s, ans, onCite } = shared;
     return (
-      <Section kicker="Duration" icon={Clock} id="ans-duration">
+      <Section kicker="Duration" icon={Clock} glyph="duration" id="ans-duration">
         <div style={{ fontSize:13.5, color:"var(--ink)", lineHeight:1.55 }}>
           {s.duration}
           {ans.evidence && (

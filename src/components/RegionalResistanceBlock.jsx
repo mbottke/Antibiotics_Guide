@@ -125,7 +125,7 @@ function RegionalResistanceBlock({ patterns }) {
   const accentBg = "rgba(15, 76, 129, 0.08)";
 
   return (
-    <Section kicker="Regional resistance · Antibiogram alerts" icon={Globe} testId="regional-resistance-block">
+    <Section kicker="Regional resistance · Antibiogram alerts" icon={Globe} glyph="local" testId="regional-resistance-block">
       <div style={{
         background: accentBg,
         border: "1px solid var(--ox-line)",
