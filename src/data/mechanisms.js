@@ -135,10 +135,13 @@ const MECHANISMS = {
     bedside:
       "The classic trap: a ceftriaxone-susceptible Enterobacter on day 1 " +
       "becomes a ceftriaxone-resistant Enterobacter on day 5. The induction " +
-      "is mechanistic — the antibiotic stabilizes AmpD which transcriptionally " +
-      "represses AmpC; β-lactam exposure depletes the repressor. Cefepime " +
-      "evades this trap because of poor affinity for the AmpC active site " +
-      "(zwitterionic quaternary nitrogen).",
+      "is mechanistic — β-lactam exposure increases the pool of muropeptide " +
+      "recycling intermediates, which displace AmpR's repressor conformation " +
+      "and switch it to an activator of ampC transcription. AmpD normally " +
+      "clears those intermediates and keeps AmpC repressed; selection of " +
+      "AmpD-loss mutants gives stably derepressed (hyperproducing) AmpC. " +
+      "Cefepime evades the trap because of poor affinity for the AmpC active " +
+      "site (zwitterionic quaternary nitrogen) — substrate, not regulator.",
     foundational:
       "AmpC is a serine β-lactamase but kinetically distinct from class A. " +
       "The active-site serine attacks the β-lactam ring, but the wider " +
@@ -156,7 +159,7 @@ const MECHANISMS = {
   "KPC": {
     title:  "KPC — Klebsiella pneumoniae carbapenemase",
     family: "resistance",
-    alias:  ["Klebsiella pneumoniae carbapenemase", "Ambler class A carbapenemase"],
+    alias:  ["Klebsiella pneumoniae carbapenemase", "Ambler class A carbapenemase", "KPC / OXA-48"],
     summary:
       "Plasmid-borne serine carbapenemase (Ambler class A) that hydrolyzes " +
       "carbapenems plus all earlier β-lactams. The first wave of CRE in the " +
@@ -221,10 +224,14 @@ const MECHANISMS = {
       "Zn1+Zn2) to coordinate a hydroxide ion that attacks the β-lactam ring. " +
       "There is no acyl-enzyme intermediate — the chemistry is fundamentally " +
       "different from serine enzymes, which is why serine-targeted inhibitors " +
-      "fail. Aztreonam (a monobactam, not a true β-lactam ring) escapes " +
-      "because its open-chain core does not engage the metallo-chemistry. " +
-      "Cefiderocol's siderophore catechol moiety binds ferric iron, hijacking " +
-      "active uptake into the periplasm — concentration outflanks hydrolysis.",
+      "fail. Aztreonam is a monobactam β-lactam — its β-lactam ring stands " +
+      "alone without the fused thiazolidine (penicillins), dihydrothiazine " +
+      "(cephalosporins), or pyrroline (carbapenems) partner. The MBL active " +
+      "site is shaped around that fused bicyclic substrate, so monobactams " +
+      "are poor MBL substrates and largely escape hydrolysis (aztreonam still " +
+      "needs avibactam to evade co-resident ESBL/AmpC enzymes). Cefiderocol's " +
+      "siderophore catechol moiety binds ferric iron, hijacking active uptake " +
+      "into the periplasm — concentration outflanks hydrolysis.",
     papers: [
       { name: "CREDIBLE-CR", year: 2021,
         finding: "Cefiderocol non-inferior to best-available for CR-GNR; signal of higher mortality in CRAB subgroup." },
@@ -272,7 +279,7 @@ const MECHANISMS = {
   "vanA": {
     title:  "vanA — Vancomycin resistance in Enterococcus",
     family: "resistance",
-    alias:  ["VRE", "vanA", "vancomycin-resistant enterococcus", "vanB"],
+    alias:  ["VRE", "vanA", "vancomycin-resistant enterococcus"],
     summary:
       "Inducible operon (vanA on Tn1546) re-engineers the peptidoglycan " +
       "precursor terminus from D-Ala-D-Ala to D-Ala-D-Lac. Vancomycin " +
