@@ -290,6 +290,74 @@ function RefinementRow({ idx, step, onDrug }) {
   );
 }
 
+/* ---------- layer registry ----------
+
+   Wave 5 PR-3 anchor refactor. Every depth layer rendered below
+   `Section kicker="Start now"` is catalogued here. The registry is
+   the single source of truth for:
+
+     · the Canvas spine chip strip (a section appears in the spine
+       iff `when(shared)` returns true AND `spineLabel` is set);
+     · the layer-group tabs (PR-12 will render `Core / Risks /
+       Duration / Local / Special / Evidence` from the `group` field);
+     · the snapshot-refine patch system (PR-5/6 will mutate the
+       rendered layer set by id when a "what changed?" finding fires).
+
+   Entries are listed in render order. Each entry carries:
+
+     id          — DOM id of the section (also used by spine onClick
+                   to scroll the target into view);
+     group       — Core | Risks | Duration | Local | Special | Evidence;
+                   reserved for PR-12's tab strip — today the spine
+                   still flat-iterates;
+     spineLabel  — chip text in the sticky spine; can be a string or
+                   a function(shared) => string for the few labels
+                   that flip on ctx (e.g. Pediatrics vs Pregnancy);
+                   omit `spineLabel` to render a layer that is not
+                   surfaced in the spine (no entry today; reserved);
+     when(shared)— predicate that gates spine visibility AND agrees
+                   with the visibility of the layer's content. Some
+                   JSX wrappers below are unconditional (e.g.
+                   ans-risks, ans-rationale, ans-objections,
+                   ans-regional, ans-novel, ans-monitoring) and the
+                   contained block returns null when its data input
+                   is empty — for those layers `when` must mirror the
+                   child's null-return condition exactly, so the
+                   spine and the rendered content agree. Other JSX
+                   wrappers (e.g. ans-surge tier-1, ans-pedspreg,
+                   ans-depth, legacy ans-duration, ans-pearls) carry
+                   their own explicit conditional guard; for those,
+                   `when` must reproduce the guard's expression. The
+                   shared bag (`_shared` in the component below) is
+                   the single value passed into every `when` and
+                   `spineLabel` call.
+
+   `ans-duration` is emitted twice — once for the structured Duration
+   block and once for the legacy narrative fallback. Their `when`
+   predicates are mutually exclusive (`_duration` present vs absent),
+   so the spine dedupe collapses the pair into a single chip. */
+const LAYERS = [
+  { id: "ans-start",       group: "core",     spineLabel: "Start",     when: () => true },
+  { id: "ans-covers",      group: "core",     spineLabel: "Covers",    when: () => true },
+  { id: "ans-deesc",       group: "core",     spineLabel: "48–72 h",   when: () => true },
+  { id: "ans-risks",       group: "risks",    spineLabel: "Risks",     when: (s) => s.pickedAgents.length > 0 },
+  { id: "ans-rationale",   group: "risks",    spineLabel: "Why",       when: (s) => !!s._rationale },
+  { id: "ans-objections",  group: "risks",    spineLabel: "Challenge", when: (s) => s._objections && s._objections.length > 0 },
+  { id: "ans-duration",    group: "duration", spineLabel: "Duration",  when: (s) => !!s._duration },
+  { id: "ans-monitoring",  group: "duration", spineLabel: "Monitor",   when: (s) => !!s._monitoring },
+  { id: "ans-antibiogram", group: "local",    spineLabel: "Local %S",  when: (s) => !!s.antibiogram },
+  { id: "ans-regional",    group: "local",    spineLabel: "Regional",  when: (s) => s._regional.length > 0 },
+  { id: "ans-novel",       group: "local",    spineLabel: "Novel",     when: (s) => s._novel.length > 0 },
+  { id: "ans-surge",       group: "local",    spineLabel: "Surge",     when: (s) => s._surgeTier1.length > 0 },
+  { id: "ans-pedspreg",    group: "special",  spineLabel: (s) => s.ans.ctx.pregnancy ? "Pregnancy" : "Pediatrics", when: (s) => s._pedsPregShow.length > 0 },
+  { id: "ans-depth",       group: "evidence", spineLabel: "Depth",     when: (s) => !!(s._research || s._surgeOther.length > 0 || s._siteP.length > 0 || (!s._ctxPedsPreg && s._pedsPreg.length > 0)) },
+  { id: "ans-state",       group: "duration", spineLabel: "State",     when: () => true },
+  { id: "ans-duration",    group: "duration", spineLabel: "Duration",  when: (s) => !s._duration },
+  { id: "ans-pearls",      group: "evidence", spineLabel: "Pearls",    when: (s) => s.ans.pearls.length > 0 },
+];
+
+export { LAYERS };
+
 /* ---------- the canvas itself ---------- */
 function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite, antibiogram, onOpenAntibiogramManager }) {
   const ans = useMemo(() => composeAnswer(caseState), [caseState]);
@@ -441,6 +509,8 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
      on ctx pregnancy or pediatric age — adults don't need it on
      screen. SurgeProtocols tier-1 always-visible; non-tier-1
      collapsed with the reference layers (Research, SitePenetration). */
+  const _duration = getSyndromeDuration(s.id);
+  const _monitoring = getSyndromeMonitoring(s.id);
   const _research = getSyndromeResearch(s.id);
   const _rationale = getReasoningForSyndrome(s.id);
   const _objections = getObjectionsForSyndrome(s.id);
@@ -454,8 +524,8 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
   const _ctxPedsPreg = ans.ctx.pregnancy === true || (typeof ans.ctx.age === "number" && ans.ctx.age < 18);
   const _pedsPregShow = _ctxPedsPreg ? _pedsPreg : [];
   const _depthCount = [
-    getSyndromeDuration(s.id) ? 1 : 0,
-    getSyndromeMonitoring(s.id) ? 1 : 0,
+    _duration ? 1 : 0,
+    _monitoring ? 1 : 0,
     _research ? 1 : 0,
     _regional.length ? 1 : 0,
     _novel.length ? 1 : 0,
@@ -464,32 +534,48 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
     _pedsPreg.length ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
-  /* Phase A3 — Canvas spine. A horizontally-scrollable sticky chip
-     strip listing the visible major sections of the answer, each one
-     scrolls its target into view on click. Chips are computed from the
-     same predicates that gate section rendering below, so an entry only
-     appears when the corresponding section actually rendered. Without
-     this, a 9-layer answer becomes 5+ screens of scroll on a phone and
-     the user loses their place in the middle of a syndrome card. */
-  const _spineItems = [
-    { id: "ans-start",      label: "Start" },
-    { id: "ans-covers",     label: "Covers" },
-    { id: "ans-deesc",      label: "48–72 h" },
-    pickedAgents.length > 0 && { id: "ans-risks", label: "Risks" },
-    _rationale && { id: "ans-rationale", label: "Why" },
-    _objections && _objections.length > 0 && { id: "ans-objections", label: "Challenge" },
-    getSyndromeDuration(s.id) && { id: "ans-duration",   label: "Duration" },
-    getSyndromeMonitoring(s.id) && { id: "ans-monitoring", label: "Monitor" },
-    antibiogram               && { id: "ans-antibiogram", label: "Local %S" },
-    _regional.length > 0      && { id: "ans-regional",   label: "Regional" },
-    _novel.length > 0         && { id: "ans-novel",      label: "Novel" },
-    _surgeTier1.length > 0    && { id: "ans-surge",      label: "Surge" },
-    _pedsPregShow.length > 0  && { id: "ans-pedspreg",   label: ans.ctx.pregnancy ? "Pregnancy" : "Pediatrics" },
-    (_research || _surgeOther.length > 0 || _siteP.length > 0 || (!_ctxPedsPreg && _pedsPreg.length > 0)) && { id: "ans-depth", label: "Depth" },
-    { id: "ans-state",      label: "State" },
-    !getSyndromeDuration(s.id) && { id: "ans-duration", label: "Duration" },
-    ans.pearls.length > 0      && { id: "ans-pearls",     label: "Pearls" },
-  ].filter(Boolean);
+  /* Wave 5 PR-3 — layer registry shared bag. The bag below is the
+     single source of truth that LAYERS predicates consult; the JSX
+     below threads the same locals. Centralizing the bag eliminates
+     the drift bug where the spine and the render block could
+     disagree about whether a section should be visible (the spine
+     was hand-maintained against the same predicates expressed twice).
+
+     Layers consume the bag through `LAYERS[i].when(shared)`. The
+     `group` field on each LAYERS entry sets up the PR-12 layer-group
+     tab strip (Core / Risks / Duration / Local / Special / Evidence)
+     without yet activating it; today the spine still flat-iterates
+     every visible layer.
+
+     The shared bag is NOT memoized — its members are already memoized
+     where it matters (pickedAgents, effectiveBranch) and the rest are
+     cheap references. */
+  const _shared = {
+    ans, ctx: ans.ctx, antibiogram, pickedAgents,
+    _duration, _monitoring, _research, _rationale, _objections,
+    _regional, _novel, _surgeTier1, _surgeOther, _siteP, _pedsPreg,
+    _ctxPedsPreg, _pedsPregShow,
+  };
+
+  /* Phase A3 + Wave 5 PR-3 — Canvas spine, registry-derived. The chip
+     strip mirrors the visible major sections; chips are computed by
+     walking LAYERS and applying each entry's `when(shared)` predicate
+     against the shared bag above. Duplicate ids (e.g. ans-duration is
+     emitted by both the structured Duration block and the legacy
+     fallback) collapse into a single spine chip — the predicates are
+     mutually exclusive so the chip always points at whichever block
+     rendered. Without this drift-resistant derivation, a 9-layer
+     answer's spine and render block could disagree about visibility. */
+  const _spineItems = [];
+  const _spineSeenIds = new Set();
+  for (const layer of LAYERS) {
+    if (!layer.spineLabel) continue;
+    if (!layer.when(_shared)) continue;
+    if (_spineSeenIds.has(layer.id)) continue;
+    _spineSeenIds.add(layer.id);
+    const label = typeof layer.spineLabel === "function" ? layer.spineLabel(_shared) : layer.spineLabel;
+    _spineItems.push({ id: layer.id, label });
+  }
   const _onSpineClick = (id) => {
     const el = typeof document !== "undefined" ? document.getElementById(id) : null;
     if(!el) return;
@@ -816,7 +902,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
 
       <div id="ans-duration" style={{ scrollMarginTop: 96 }}>
         <DurationBlock
-          duration={getSyndromeDuration(s.id)}
+          duration={_duration}
           pickedAgents={pickedAgents}
           pickedBranch={effectiveBranch}
           onBranchSelect={handleBranchSelect}
@@ -827,7 +913,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
       </div>
       <div id="ans-monitoring" style={{ scrollMarginTop: 96 }}>
         <MonitoringBlock
-          monitoring={getSyndromeMonitoring(s.id)}
+          monitoring={_monitoring}
           pickedAgents={pickedAgents}
           pickedBranch={effectiveBranch}
           ctx={{ ...ans.ctx, ...ans.d }}
@@ -908,7 +994,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           empiric={ans}
           onDrug={onDrug}
           onOrg={onOrg}
-          hasStructuredDuration={!!getSyndromeDuration(s.id)}
+          hasStructuredDuration={!!_duration}
         />
       </div>
 
@@ -917,7 +1003,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           (rendered above ReassessmentPanel), to avoid duplicating the same
           fact in two places. The structured block carries the same string
           inside its headline + branches with richer affordances. */}
-      {!getSyndromeDuration(s.id) && (
+      {!_duration && (
         <Section kicker="Duration" icon={Clock} id="ans-duration">
           <div style={{ fontSize:13.5, color:"var(--ink)", lineHeight:1.55 }}>
             {s.duration}
