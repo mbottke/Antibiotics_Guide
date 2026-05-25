@@ -1078,6 +1078,461 @@ const MECHANISMS = {
       "membrane, raising local concentration and prolonging half-life.",
   },
 
+  /* ============= CLASS — non-β-lactam families (Wave 5 CL-6 M-2) ========= */
+
+  "Fluoroquinolones": {
+    title:  "Fluoroquinolones — DNA gyrase / topoisomerase IV inhibitors",
+    family: "class",
+    alias:  ["FQ", "ciprofloxacin", "levofloxacin", "moxifloxacin"],
+    summary:
+      "Ciprofloxacin, levofloxacin, moxifloxacin — synthetic fluoroquinolones " +
+      "that inhibit bacterial DNA gyrase (gyrA) and topoisomerase IV (parC), " +
+      "trapping cleaved DNA-enzyme complexes and triggering lethal " +
+      "double-strand breaks. Concentration-dependent killing with AUC/MIC " +
+      "targets. Broad Gram-negative reach; moxifloxacin adds anaerobic and " +
+      "anti-pneumococcal coverage at the cost of QT prolongation.",
+    keypoints: [
+      "Cipro and levo are Gram-negative workhorses; moxi adds anaerobic plus pneumococcal coverage.",
+      "Concentration-dependent: AUC/MIC ≥ 125 for Gram-negatives, ≥ 30 for pneumococcus.",
+      "Resistance: stepwise gyrA + parC point mutations; plasmid qnr lowers the barrier.",
+      "Boxed warnings: tendinopathy, neuropathy, dysglycemia, QT prolongation, neuropsychiatric effects.",
+      "Avoid concurrent divalent cations (Ca, Mg, Fe, Al) — chelation drops oral bioavailability sharply.",
+    ],
+    bedside:
+      "Fluoroquinolones earn their place in step-down therapy: oral " +
+      "bioavailability rivals IV, tissue penetration is excellent, and " +
+      "Gram-negative spectrum is broad. The 2016 FDA boxed-warning bundle " +
+      "(tendinopathy, neuropathy, dysglycemia, neuropsych) reframed them as " +
+      "second-line for uncomplicated infections. Reserve for resistant " +
+      "Gram-negatives, atypical pneumonia, or when no safer oral option " +
+      "exists.",
+    foundational:
+      "Fluoroquinolones bind the cleaved-DNA gyrase complex at the GyrA " +
+      "subunit interface, stabilizing the transient double-strand break that " +
+      "gyrase normally reseals. The trapped ternary complex collides with " +
+      "replication forks, generating lethal lesions. Topoisomerase IV (parC) " +
+      "is the secondary target in most Gram-positives, primary in some. " +
+      "Killing is concentration-dependent (Cmax/MIC, AUC/MIC). Resistance " +
+      "arises by stepwise quinolone-resistance-determining region (QRDR) " +
+      "mutations in gyrA and parC; efflux (AcrAB-TolC) and plasmid-borne qnr " +
+      "compound the picture.",
+    papers: [
+      { name: "FDA Drug Safety Communication", year: 2016,
+        finding: "Boxed-warning expansion: tendinopathy, neuropathy, dysglycemia, neuropsychiatric and cardiac effects shifted fluoroquinolones to second-line for uncomplicated infections." },
+    ],
+  },
+
+  "Macrolides": {
+    title:  "Macrolides — 50S ribosomal translocation blockers",
+    family: "class",
+    alias:  ["azithromycin", "clarithromycin", "erythromycin"],
+    summary:
+      "Azithromycin, clarithromycin, erythromycin — bind the 23S rRNA in " +
+      "the 50S subunit at the nascent-peptide exit tunnel, blocking " +
+      "translocation of the peptidyl-tRNA. Bacteriostatic against most " +
+      "pathogens. Cover atypicals (Legionella, Mycoplasma, Chlamydia), " +
+      "many streptococci, and Bordetella. Resistance via erm methylation " +
+      "(MLSB) and mef efflux.",
+    keypoints: [
+      "Azithromycin: long half-life, tissue concentration, single-dose regimens for chlamydia and pertussis.",
+      "Atypical pneumonia coverage drives the macrolide's role in CAP combination regimens.",
+      "QT prolongation (especially erythromycin, clarithromycin) — screen high-risk patients before dosing.",
+      "Clarithromycin is a potent CYP3A4 inhibitor; azithromycin is the cleaner interaction profile.",
+      "Erm methylation confers cross-resistance to macrolides, lincosamides, streptogramin B (MLSB phenotype).",
+    ],
+    bedside:
+      "Azithromycin's tissue-loading kinetics make a 5-day course pharmacokinetically " +
+      "equivalent to longer courses for most respiratory pathogens — it " +
+      "concentrates in macrophages and tissue 10-100× serum. The trade-off " +
+      "is rising pneumococcal resistance (now > 30% in U.S. surveillance) " +
+      "and the QT signal that reframed azithromycin's cardiovascular safety " +
+      "profile after the 2012 Ray NEJM study.",
+    foundational:
+      "Macrolides reversibly bind the 23S rRNA peptidyl-transferase center " +
+      "and nascent-peptide exit tunnel of the 50S ribosomal subunit. The " +
+      "lactone ring occludes peptide elongation by blocking translocation " +
+      "of the growing peptide through the exit channel. Erm methyltransferases " +
+      "dimethylate A2058 of 23S rRNA, sterically blocking macrolide, " +
+      "lincosamide, and streptogramin B binding (MLSB cross-resistance). " +
+      "Mef-encoded efflux pumps confer lower-level macrolide-only resistance.",
+    papers: [
+      { name: "Ray et al. NEJM", year: 2012,
+        finding: "Azithromycin associated with small absolute increase in cardiovascular death versus amoxicillin in Tennessee Medicaid cohort — driver of subsequent QT labeling change." },
+    ],
+  },
+
+  "Tetracyclines": {
+    title:  "Tetracyclines — 30S A-site aminoacyl-tRNA blockers",
+    family: "class",
+    alias:  ["doxycycline", "tigecycline", "minocycline"],
+    summary:
+      "Doxycycline, minocycline, tigecycline, eravacycline, omadacycline — " +
+      "bind the 30S ribosomal subunit at the A-site, blocking aminoacyl-tRNA " +
+      "delivery and halting peptide elongation. Bacteriostatic. Broad " +
+      "spectrum including atypicals, Rickettsia, and many MDR pathogens. " +
+      "Tigecycline and eravacycline overcome efflux and ribosomal-protection " +
+      "resistance via glycyl side-chain modifications.",
+    keypoints: [
+      "Doxycycline 100 mg BID — workhorse for CAP atypicals, tick-borne disease, MRSA SSTI, acne.",
+      "Tigecycline reaches MDR Gram-negatives but black-box mortality signal limits monotherapy use.",
+      "Eravacycline and omadacycline are next-generation options for cIAI and CABP respectively.",
+      "Avoid in pregnancy and < 8 years (tooth discoloration) except doxycycline for rickettsial disease.",
+      "Resistance: tetA/B efflux pumps and tetM/O ribosomal protection proteins — tigecycline evades both.",
+    ],
+    bedside:
+      "Doxycycline's quiet utility: oral, cheap, broad, and effective against " +
+      "CA-MRSA, atypical pneumonia, syphilis (penicillin alternative), and " +
+      "tick-borne pathogens. Tigecycline solved the MDR Gram-negative problem " +
+      "in the 2000s but the FDA black-box mortality signal (higher death rate " +
+      "in pooled trials, mechanism unclear) limited monotherapy enthusiasm. " +
+      "Newer agents (eravacycline, omadacycline) sidestep that signal.",
+    foundational:
+      "Tetracyclines bind the 30S subunit at the A-site, sterically blocking " +
+      "the incoming aminoacyl-tRNA from forming the codon-anticodon complex " +
+      "required for peptide elongation. The binding is reversible — hence " +
+      "bacteriostatic activity. Resistance mechanisms include efflux pumps " +
+      "(TetA/B/C/K), ribosomal protection proteins (TetM/O/Q that " +
+      "GTP-dependently dislodge the drug), and rare enzymatic inactivation " +
+      "(TetX). Tigecycline's 9-t-butylglycylamido side chain sterically " +
+      "blocks both efflux and ribosomal protection.",
+    papers: [
+      { name: "Solomkin (IGNITE-4)", year: 2019,
+        finding: "Eravacycline non-inferior to meropenem for complicated intra-abdominal infection including resistant Gram-negative pathogens." },
+    ],
+  },
+
+  "Glycopeptides": {
+    title:  "Glycopeptides — D-Ala-D-Ala peptidoglycan binders",
+    family: "class",
+    alias:  ["vancomycin", "teicoplanin", "dalbavancin", "oritavancin"],
+    summary:
+      "Vancomycin, teicoplanin, dalbavancin, oritavancin, telavancin — bind " +
+      "the D-Ala-D-Ala terminus of the lipid-II peptidoglycan precursor via " +
+      "a five-hydrogen-bond fingerprint, physically blocking both " +
+      "transglycosylation and transpeptidation. Cidal against Gram-positives " +
+      "including MRSA. AUC/MIC ≥ 400 target for vancomycin. Lipoglycopeptides " +
+      "add membrane anchoring for long half-life.",
+    keypoints: [
+      "Vancomycin AUC/MIC 400–600 for serious MRSA — guideline-recommended over trough-only dosing.",
+      "Dalbavancin and oritavancin: single- or two-dose regimens for ABSSSI via long half-life.",
+      "vanA / vanB substitute D-Ala-D-Lac, dropping affinity 1000× — VRE phenotype.",
+      "Oritavancin retains activity against vanA via a secondary lipid-II binding mode.",
+      "Red-man syndrome with rapid vanco infusion is a histamine release, not a true allergy.",
+    ],
+    bedside:
+      "Vancomycin remains the MRSA backbone for endovascular and serious " +
+      "infection. The 2020 ASHP/IDSA consensus moved from trough-based " +
+      "(15-20 mg/L) to AUC-guided (400-600) dosing to balance efficacy with " +
+      "AKI risk — Bayesian software now standard. Lipoglycopeptides " +
+      "(dalbavancin, oritavancin) deliver a single-dose ABSSSI regimen with " +
+      "weeks of antibacterial coverage, transforming OPAT logistics.",
+    foundational:
+      "Glycopeptides form a heptapeptide cup that hydrogen-bonds to the " +
+      "D-Ala-D-Ala backbone amides of the lipid-II peptidoglycan precursor " +
+      "— five bonds for vancomycin, additional sugars stabilize teicoplanin. " +
+      "Bound antibiotic physically occludes transpeptidase and " +
+      "transglycosylase access to the precursor. Lipoglycopeptides " +
+      "(dalbavancin, oritavancin, telavancin) add hydrophobic tails that " +
+      "anchor in the bacterial membrane, raising local concentration. " +
+      "vanA/B/D operons substitute D-Ala-D-Lac, losing one H-bond and " +
+      "1000-fold affinity.",
+    papers: [
+      { name: "Rybak ASHP/IDSA consensus", year: 2020,
+        finding: "Vancomycin AUC/MIC 400–600 mg·h/L preferred over trough-only targeting for serious MRSA infection to balance efficacy and AKI risk." },
+      { name: "Boucher DISCOVER-1/2", year: 2014,
+        finding: "Dalbavancin two-dose regimen non-inferior to vancomycin-linezolid sequence for ABSSSI — established single-dose lipoglycopeptide ABSSSI paradigm." },
+    ],
+  },
+
+  "Lipopeptides": {
+    title:  "Lipopeptides — Calcium-dependent membrane depolarizers",
+    family: "class",
+    alias:  ["cyclic lipopeptide", "lipopeptide class", "calcium-dependent membrane antibiotic"],
+    summary:
+      "Daptomycin — cyclic lipopeptide whose decanoyl tail anchors to " +
+      "phosphatidylglycerol of the bacterial inner membrane in a " +
+      "calcium-dependent two-step insertion, then oligomerizes into pores " +
+      "that depolarize the membrane and trigger cidal Gram-positive " +
+      "killing. Concentration-dependent. Pulmonary surfactant inactivates " +
+      "the lipopeptide — contraindicated in pneumonia.",
+    keypoints: [
+      "MRSA / VRE bacteremia: 8–10 mg/kg; ≥ 10 mg/kg for endocarditis or persistent BSI.",
+      "Contraindicated in pneumonia — alveolar surfactant sequesters the lipid tail before it reaches bacteria.",
+      "Weekly CK monitoring; hold for myopathy or rise > 5× ULN.",
+      "Drug-induced eosinophilic pneumonitis is a recognized late toxicity; consider on new infiltrates.",
+      "Synergy with anti-staph β-lactams (ceftaroline, nafcillin) in persistent MRSA bacteremia.",
+    ],
+    bedside:
+      "Daptomycin earns the MRSA-bacteremia spotlight when vancomycin fails " +
+      "or MIC creeps. The single rule: never pneumonia. Pulmonary surfactant " +
+      "physically inactivates the molecule before it can engage the " +
+      "bacterial membrane — a true biochemical incompatibility, not a " +
+      "penetration issue. High-dose dosing (10-12 mg/kg) for endovascular " +
+      "disease has become standard with weekly CK surveillance.",
+    foundational:
+      "The decanoyl tail of daptomycin inserts into bacterial " +
+      "phosphatidylglycerol in a calcium-dependent two-step: Ca²⁺-1 " +
+      "coordinates the polar heads of two monomers, then Ca²⁺-2 triggers " +
+      "oligomerization into a membrane-spanning pore. Depolarization " +
+      "disrupts cell-division machinery and is cidal at Cmax/MIC ≥ 60. " +
+      "Surfactant phosphatidylcholine binds the same lipid-tail step at " +
+      "the alveolar surface — the drug never reaches the pathogen in " +
+      "lung infection. Resistance arises via mprF and cls phospholipid " +
+      "remodeling that repels the cationic daptomycin-Ca²⁺ complex.",
+    papers: [
+      { name: "Silverman et al.", year: 2005,
+        finding: "First mechanistic demonstration of pulmonary surfactant sequestration of daptomycin — explained the failed CAP randomized trial result." },
+    ],
+  },
+
+  "Oxazolidinones": {
+    title:  "Oxazolidinones — 23S rRNA initiation blockers",
+    family: "class",
+    alias:  ["linezolid", "tedizolid"],
+    summary:
+      "Linezolid and tedizolid — synthetic oxazolidinones that bind the 23S " +
+      "rRNA at the peptidyl transferase center of the 50S subunit, blocking " +
+      "70S initiation complex formation. Bacteriostatic against most " +
+      "Gram-positives including MRSA and VRE. Full oral bioavailability. " +
+      "Bone-marrow suppression after ~2 weeks and serotonergic interactions " +
+      "define their toxicity ceiling.",
+    keypoints: [
+      "100% oral bioavailability — IV-to-PO conversion is dose-equivalent (linezolid 600 mg BID).",
+      "MRSA pneumonia: best lung-penetrating option; ZEPHyR trial supported over vancomycin.",
+      "Bacteriostatic — never use as monotherapy for endocarditis or persistent bacteremia.",
+      "Reversible cytopenias (thrombocytopenia first) emerge after ~2 weeks; weekly CBC monitoring.",
+      "MAO inhibition: serotonergic interactions with SSRIs/SNRIs/triptans risk serotonin syndrome.",
+    ],
+    bedside:
+      "Linezolid is the MRSA pneumonia drug of choice when lung penetration " +
+      "matters — alveolar epithelial-lining-fluid concentrations exceed " +
+      "vancomycin substantially. ZEPHyR (Wunderink 2012) randomized MRSA " +
+      "VAP/HAP and favored linezolid clinically. Tedizolid offers once-daily " +
+      "dosing with less marrow toxicity at standard SSTI courses. Neither " +
+      "is appropriate for endovascular MRSA — switch to daptomycin or " +
+      "vancomycin.",
+    foundational:
+      "Linezolid binds the A-site of the 23S rRNA at the peptidyl " +
+      "transferase center, preventing formation of the 70S initiation " +
+      "complex required for peptide synthesis. The binding site overlaps " +
+      "the chloramphenicol pocket but distinct enough to avoid most " +
+      "cross-resistance. Resistance is rare and arises from 23S rRNA G2576T " +
+      "mutations or the plasmid-borne cfr methyltransferase. Mitochondrial " +
+      "ribosome cross-reactivity explains the marrow suppression, lactic " +
+      "acidosis, and optic/peripheral neuropathy of prolonged courses.",
+    papers: [
+      { name: "Wunderink ZEPHyR", year: 2012,
+        finding: "Linezolid achieved higher clinical success than vancomycin in MRSA nosocomial pneumonia in pre-specified per-protocol analysis." },
+    ],
+  },
+
+  "Aminoglycosides": {
+    title:  "Aminoglycosides — 30S codon-misreading agents",
+    family: "class",
+    alias:  ["AG", "gentamicin", "tobramycin", "amikacin"],
+    summary:
+      "Gentamicin, tobramycin, amikacin, plazomicin, streptomycin — bind " +
+      "the 16S rRNA in the 30S ribosomal subunit, distorting the A-site " +
+      "and causing codon misreading and premature termination. Cidal, " +
+      "concentration-dependent (Cmax/MIC ≥ 8-10). Nephrotoxic and " +
+      "ototoxic; once-daily extended-interval dosing minimizes " +
+      "accumulation while preserving Cmax-driven efficacy.",
+    keypoints: [
+      "Once-daily extended-interval dosing maximizes Cmax/MIC and the post-antibiotic effect.",
+      "Synergy partner for enterococcal endocarditis (with ampicillin or vancomycin); rarely solo.",
+      "Plazomicin (FDA 2018) overcomes most aminoglycoside-modifying enzymes — reserved for CRE.",
+      "Trough nephrotoxicity threshold: gentamicin/tobramycin < 1 mg/L, amikacin < 4 mg/L on extended-interval.",
+      "Audiometry baseline + weekly if exposure > 7 days — cochlear/vestibular damage is irreversible.",
+    ],
+    bedside:
+      "Aminoglycosides hold three niches in modern care: synergy for " +
+      "enterococcal endocarditis (often replaced by ampicillin-ceftriaxone), " +
+      "empiric burst for Gram-negative shock pending culture, and salvage " +
+      "for MDR Pseudomonas or CRE. Once-daily dosing (gentamicin 5-7 mg/kg) " +
+      "harnesses concentration-dependent killing while limiting renal " +
+      "accumulation. Plazomicin extends the spectrum to most CRE.",
+    foundational:
+      "Aminoglycosides bind the 16S rRNA A-site of the 30S subunit, " +
+      "distorting the decoding region so cognate-tRNA recognition becomes " +
+      "promiscuous. Misincorporated amino acids generate misfolded membrane " +
+      "proteins that compromise membrane integrity — the secondary cidal " +
+      "mechanism beyond ribosomal poisoning. Uptake is energy-dependent " +
+      "(oxygen-required), explaining intrinsic anaerobic resistance. " +
+      "Resistance arises via aminoglycoside-modifying enzymes (AAC, ANT, " +
+      "APH) that acetylate, adenylate, or phosphorylate the drug; 16S rRNA " +
+      "methyltransferases (armA, rmt) confer pan-aminoglycoside resistance.",
+    papers: [
+      { name: "Wagenlehner EPIC", year: 2019,
+        finding: "Plazomicin non-inferior to meropenem for complicated UTI including ESBL and carbapenem-resistant Enterobacterales." },
+    ],
+  },
+
+  "Sulfonamides": {
+    title:  "Sulfonamides — Sequential folate-synthesis blockade",
+    family: "class",
+    alias:  ["TMP-SMX", "trimethoprim-sulfamethoxazole", "co-trimoxazole", "Bactrim", "Septra"],
+    summary:
+      "Trimethoprim-sulfamethoxazole (TMP-SMX) — sulfamethoxazole inhibits " +
+      "dihydropteroate synthase (DHPS) and trimethoprim inhibits dihydrofolate " +
+      "reductase (DHFR), sequentially blocking bacterial folate synthesis. " +
+      "Static individually, cidal in fixed 1:5 combination via pathway " +
+      "synergy. Broad spectrum including MRSA, Stenotrophomonas, Nocardia, " +
+      "Pneumocystis.",
+    keypoints: [
+      "Fixed 1:5 trimethoprim-to-sulfamethoxazole ratio achieves synergistic cidality versus monotherapy.",
+      "First-line for Pneumocystis pneumonia, Stenotrophomonas, Nocardia, and uncomplicated CA-MRSA SSTI.",
+      "Hyperkalemia via amiloride-like ENaC blockade — risk amplified in CKD and on ACE/ARB therapy.",
+      "Bone marrow suppression, SJS/TEN, and crystalluria define the toxicity ceiling.",
+      "Avoid in third trimester (kernicterus) and severe G6PD deficiency (hemolysis).",
+    ],
+    bedside:
+      "TMP-SMX is the cheapest broadly-active oral antibiotic in the " +
+      "armamentarium — pivotal for Pneumocystis prophylaxis and treatment, " +
+      "Stenotrophomonas (often the only option), Nocardia, and CA-MRSA SSTI. " +
+      "The hyperkalemia signal in older patients on ACE inhibitors is " +
+      "underappreciated; check potassium at 3-7 days. SJS/TEN risk is " +
+      "rare but high-acuity and contraindicates rechallenge.",
+    foundational:
+      "Folate synthesis requires two sequential reactions bacteria perform " +
+      "de novo: dihydropteroate synthase (DHPS) condenses PABA with " +
+      "pteridine, then dihydrofolate reductase (DHFR) reduces dihydrofolate " +
+      "to tetrahydrofolate. Sulfamethoxazole competes with PABA at DHPS; " +
+      "trimethoprim competes with dihydrofolate at DHFR. Blocking two " +
+      "consecutive enzymes in one pathway produces synergistic cidality — " +
+      "the pathway flux drops below survival threshold. Mammalian cells " +
+      "bypass DHPS via dietary folate, explaining selective toxicity.",
+    papers: [
+      { name: "Fraser et al. Cochrane", year: 2014,
+        finding: "TMP-SMX prophylaxis reduced Pneumocystis pneumonia incidence by 85% in immunocompromised hosts versus no prophylaxis." },
+    ],
+  },
+
+  "Nitroimidazoles": {
+    title:  "Nitroimidazoles — Anaerobic DNA strand-breakers",
+    family: "class",
+    alias:  ["metronidazole", "tinidazole", "Flagyl"],
+    summary:
+      "Metronidazole and tinidazole — prodrugs activated by anaerobic " +
+      "electron transfer to the nitro group, generating radical " +
+      "intermediates that fragment DNA. Cidal against anaerobes, " +
+      "microaerophilic protozoa (Giardia, Trichomonas, Entamoeba), and " +
+      "Clostridioides difficile. No activity against aerobes — the " +
+      "activation step requires anaerobic metabolism.",
+    keypoints: [
+      "First-line for anaerobic intra-abdominal infection (with a Gram-negative partner) and bacterial vaginosis.",
+      "Oral or IV metronidazole — 100% bioavailable; IV reserves for NPO or severe disease.",
+      "C. difficile: oral vancomycin or fidaxomicin now preferred; metronidazole only when others unavailable.",
+      "Disulfiram-like reaction with alcohol — counsel patients to abstain during and 72 h post-therapy.",
+      "Peripheral neuropathy on prolonged courses (> 4 weeks); reversible if caught early.",
+    ],
+    bedside:
+      "Metronidazole anchors anaerobic coverage in intra-abdominal sepsis " +
+      "when paired with a Gram-negative agent (ceftriaxone-metro, " +
+      "cipro-metro). Its C. difficile role has receded — IDSA 2018 demoted " +
+      "it behind oral vancomycin and fidaxomicin for all severity " +
+      "categories. The disulfiram-alcohol interaction is real but " +
+      "overstated; far more clinically relevant is the cumulative " +
+      "neuropathy risk on chronic dosing.",
+    foundational:
+      "Metronidazole enters cells by passive diffusion; anaerobic electron " +
+      "transport (via pyruvate-ferredoxin oxidoreductase or analogous low " +
+      "redox-potential systems) reduces the nitro group to a reactive " +
+      "nitro radical anion. The radical abstracts hydrogen from DNA, " +
+      "generating single- and double-strand breaks and lethal nucleotide " +
+      "damage. Aerobic conditions reoxidize the radical to inert parent " +
+      "drug — explaining strict anaerobic selectivity. Resistance is rare " +
+      "but arises via nim genes encoding nitroimidazole reductases that " +
+      "yield non-toxic amine products.",
+    papers: [
+      { name: "IDSA C. difficile guideline", year: 2018,
+        finding: "Oral vancomycin and fidaxomicin demoted metronidazole to third-line for all severity strata of C. difficile infection." },
+    ],
+  },
+
+  "Polymyxins": {
+    title:  "Polymyxins — LPS lipid A binders disrupting outer membrane",
+    family: "class",
+    alias:  ["colistin", "polymyxin B", "polymyxin E"],
+    summary:
+      "Colistin (polymyxin E) and polymyxin B — cyclic cationic " +
+      "lipopeptides that bind the lipid A moiety of lipopolysaccharide on " +
+      "the Gram-negative outer membrane, displacing divalent cations and " +
+      "disrupting membrane integrity. Cidal. Nephrotoxic and neurotoxic; " +
+      "reserved for CRE, CRAB, and MDR Pseudomonas when novel agents are " +
+      "unavailable.",
+    keypoints: [
+      "Reserve for CRE, CRAB, MDR Pseudomonas when ceftaz-avi, mero-vab, cefiderocol unavailable.",
+      "Colistin is a prodrug (CMS) — slow conversion, delayed steady state, mandates loading dose.",
+      "Polymyxin B is the active drug — preferred for systemic infection per consensus 2019 guidelines.",
+      "Nephrotoxicity ~30-50%, often reversible; neurotoxicity (paresthesias, weakness) less common.",
+      "Resistance via mgrB inactivation and pmrAB mutations driving lipid A modification (mcr-1 plasmid).",
+    ],
+    bedside:
+      "Polymyxins were the last-line salvage of the pre-ceftaz-avi era. " +
+      "Modern practice relegates them to MBL-CRE bridges, CRAB combinations, " +
+      "and colistin-only-susceptible Pseudomonas. The Tumbarello (2019) and " +
+      "Shields (2017) data showed novel agents halve mortality versus " +
+      "polymyxin regimens. When polymyxin is unavoidable, polymyxin B " +
+      "(not colistin) is preferred for systemic disease — faster onset, " +
+      "less renal injury.",
+    foundational:
+      "Polymyxins are cyclic decapeptides with a hydrophobic fatty-acid " +
+      "tail and five free amine groups. The cationic amines displace " +
+      "divalent cations (Ca²⁺, Mg²⁺) that bridge adjacent lipid A " +
+      "molecules in the LPS outer membrane, while the lipid tail inserts " +
+      "into the destabilized leaflet — disrupting outer-membrane integrity " +
+      "and allowing self-promoted uptake. Resistance arises via mgrB " +
+      "inactivation or pmrAB mutations that drive lipid A modification " +
+      "(L-Ara4N, phosphoethanolamine addition); plasmid-borne mcr-1 confers " +
+      "transferable resistance via the same lipid A target.",
+    papers: [
+      { name: "Tsuji consensus guidelines", year: 2019,
+        finding: "Polymyxin B preferred over colistin for systemic infection; reserve both for situations where novel β-lactam-inhibitor agents are unavailable." },
+    ],
+  },
+
+  "Lincosamides": {
+    title:  "Lincosamides — 50S peptidyl transferase center inhibitors",
+    family: "class",
+    alias:  ["clindamycin", "lincomycin"],
+    summary:
+      "Clindamycin and lincomycin — bind the 23S rRNA at the peptidyl " +
+      "transferase center of the 50S subunit (overlapping the macrolide " +
+      "site), blocking peptide bond formation. Bacteriostatic generally, " +
+      "cidal against susceptible streptococci at high inoculum. Suppress " +
+      "exotoxin synthesis in toxic shock. C. difficile is the highest-risk " +
+      "class for collateral colitis.",
+    keypoints: [
+      "Clindamycin suppresses exotoxin production — adjunct for streptococcal and staphylococcal toxic shock.",
+      "Erm methylation drives macrolide-lincosamide-streptogramin B (MLSB) cross-resistance.",
+      "D-test detects inducible clindamycin resistance in erm-positive MRSA — flag before use.",
+      "C. difficile risk is the highest of any antibacterial class — avoid when alternatives exist.",
+      "Excellent oral bioavailability, bone and abscess penetration — workhorse for SSTI step-down.",
+    ],
+    bedside:
+      "Clindamycin's exotoxin-suppression role is the high-value indication: " +
+      "Strep pyogenes necrotizing fasciitis and staphylococcal toxic shock " +
+      "syndrome get clindamycin added to the β-lactam to halt streptolysin " +
+      "and TSST-1 production. The C. difficile cost is the highest of any " +
+      "antibacterial — population-attributable risk dwarfs " +
+      "fluoroquinolones — so the duration window should be the minimum " +
+      "to suppress toxin.",
+    foundational:
+      "Lincosamides bind the 23S rRNA at the peptidyl transferase center " +
+      "of the 50S subunit, overlapping the macrolide A-site and the " +
+      "streptogramin B pocket. The bound drug blocks the peptide bond " +
+      "formation step of elongation by displacing the aminoacyl end of " +
+      "the A-site tRNA. Erm methyltransferases dimethylate A2058 of 23S " +
+      "rRNA, sterically excluding macrolides, lincosamides, and " +
+      "streptogramin B in a single mutation (MLSB phenotype). Inducible " +
+      "erm is detected by D-zone testing — clindamycin susceptibility " +
+      "in vitro can fail clinically.",
+    papers: [
+      { name: "Carapetis et al.", year: 2014,
+        finding: "Clindamycin added to β-lactam reduced mortality in invasive group A streptococcal disease via exotoxin suppression in observational cohorts." },
+    ],
+  },
+
   "Transpeptidation": {
     title:  "Transpeptidation — β-lactam target reaction",
     family: "resistance",
