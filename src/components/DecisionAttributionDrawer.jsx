@@ -39,35 +39,11 @@
    intentional.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle, BookOpen, CheckCircle2, Crosshair, Info, X } from "lucide-react";
-
-/* Shared **bold** parser — same shape as MonitoringBlock / DiagnosticsBlock
-   / OPATBlock / MechanismDrawer. Will fold into a shared util in the
-   Phase R2 consolidation PR. */
-function _parseBold(text) {
-  if(!text) return [];
-  const parts = [];
-  const re = /\*\*([^*]+)\*\*/g;
-  let last = 0, m;
-  while((m = re.exec(text)) !== null) {
-    if(m.index > last) parts.push({ text: text.slice(last, m.index), bold: false });
-    parts.push({ text: m[1], bold: true });
-    last = m.index + m[0].length;
-  }
-  if(last < text.length) parts.push({ text: text.slice(last), bold: false });
-  return parts;
-}
-function _RichText({ text, accentColor }) {
-  return (
-    <>
-      {_parseBold(text).map((p, i) => p.bold ? (
-        <span key={i} style={{ fontWeight: 700, color: accentColor || "inherit" }}>{p.text}</span>
-      ) : <span key={i}>{p.text}</span>)}
-    </>
-  );
-}
+import { RichText as _RichText } from "./util/richText.jsx";
+import { useFocusTrap } from "./util/useFocusTrap.js";
 
 function _ruleTone(type, sev) {
   if(type === "eliminate") return { color: "#b91c1c", bg: "rgba(185, 28, 28, 0.08)", line: "rgba(185, 28, 28, 0.25)", label: "Eliminate", Icon: AlertTriangle };
@@ -89,12 +65,17 @@ const CITE_LABEL = {
 };
 
 function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
+  const dialogRef = useRef(null);
+
   useEffect(() => {
     if(!open) return;
     const onKey = (e) => { if(e.key === "Escape") onClose && onClose(); };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  // WCAG 2.4.3 / 2.1.2 — trap focus inside open dialog, restore on close.
+  useFocusTrap(dialogRef, open && !!step);
 
   if(!open || !step) return null;
 
@@ -136,6 +117,8 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
       }}
     >
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         data-testid="decision-attribution-drawer"
         style={{
@@ -147,6 +130,7 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
           overflowY: "auto",
           padding: 22,
           boxShadow: "0 24px 48px -16px rgba(15, 23, 42, 0.35)",
+          outline: "none",
         }}
       >
         {/* Header */}

@@ -20,66 +20,11 @@
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
-import { Activity, AlertTriangle, CheckCircle2, Info } from "lucide-react";
+import { Activity } from "lucide-react";
 import { Section } from "./Section.jsx";
 import { matchesCtx } from "../engines/ctxMatch.js";
-
-/* Bold-callout parser. Shared shape with RegimenOptions / DurationBlock. */
-function parseBold(text) {
-  if(!text) return [];
-  const parts = [];
-  const re = /\*\*([^*]+)\*\*/g;
-  let last = 0, m;
-  while((m = re.exec(text)) !== null) {
-    if(m.index > last) parts.push({ text: text.slice(last, m.index), bold: false });
-    parts.push({ text: m[1], bold: true });
-    last = m.index + m[0].length;
-  }
-  if(last < text.length) parts.push({ text: text.slice(last), bold: false });
-  return parts;
-}
-
-function RichText({ text, accentColor, accentBg }) {
-  return (
-    <>
-      {parseBold(text).map((p, i) => p.bold ? (
-        <span key={i} style={{
-          fontWeight: 700,
-          color: accentColor,
-          background: accentBg || "transparent",
-          padding: accentBg ? "0 3px" : 0,
-          borderRadius: accentBg ? 3 : 0,
-        }}>{p.text}</span>
-      ) : <span key={i}>{p.text}</span>)}
-    </>
-  );
-}
-
-/* Severity → visual style. Mirrors RegimenOptions' watchOut palette
-   so the entire app speaks one severity vocabulary. */
-function severityStyle(sev) {
-  if(sev === "required") return {
-    Icon: CheckCircle2,
-    label: "REQUIRED",
-    color: "#b91c1c",
-    bg: "rgba(185, 28, 28, 0.08)",
-    line: "rgba(185, 28, 28, 0.25)",
-  };
-  if(sev === "trigger") return {
-    Icon: AlertTriangle,
-    label: "TRIGGER",
-    color: "var(--amber)",
-    bg: "var(--amber-soft)",
-    line: "var(--amber-line)",
-  };
-  return {
-    Icon: Info,
-    label: "CONSIDER",
-    color: "var(--ink2)",
-    bg: "var(--paper2)",
-    line: "var(--line)",
-  };
-}
+import { RichText } from "./util/richText.jsx";
+import { severityStyle } from "./util/severityStyle.js";
 
 /* Does this item match the current cross-section selection?
    Returns true when ANY of:
