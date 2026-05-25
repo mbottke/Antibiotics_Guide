@@ -34,6 +34,7 @@ import { Num, ToxDot, ChildPughScorer } from "../components/primitives";
 import { drugCoversOrg, drugRoute } from "../engines/lookup";
 import {
   FORMULARY, FORM_FLAT, RENAL_TRIGGERS, TDM, TOX_COLS, SAFE, INTERACTIONS,
+  AGENT_RX,
 } from "../data/drugs";
 import { ORGS, ORG_BY_ID, LADDER } from "../data/organisms";
 import { ALLERGY_INTRO, ALLERGY, SPECIAL_POP } from "../data/content";
@@ -64,6 +65,51 @@ function AgentsSection({
   const [fmRoute, setFmRoute] = useState("all"); // all | iv | po
   const [fmCover, setFmCover] = useState("");    // org id or ""
 
+  /* Wave 5 PR-13c — spectrum + microbiome filter chips. Default OFF so
+     existing screenshots / e2e baselines hold; activating any chip
+     narrows the formulary instantly. The chip set is the common
+     bedside taxonomy:
+       apsa  antipseudomonal
+       ana   anaerobic-active
+       mrsa  anti-MRSA
+       bl    β-lactam (subtract aztreonam for severe-allergy hunts)
+     The microbiome chips use the PR-4 FORMULARY fields.   */
+  const [fmSpectrum, setFmSpectrum] = useState({}); // { apsa, ana, mrsa, bl }
+  const [fmCdiffMax, setFmCdiffMax] = useState(0); // 0 = no filter; 1–5 = max allowed
+  const [fmMdrLevel, setFmMdrLevel] = useState(""); // "" | "low" | "med" | "high"
+
+  /* Helpers — map a FORMULARY drug to its AGENT_RX entry to read
+     {apsa, ana, mrsa, bl} flags. Falls back to {} when not in AGENT_RX. */
+  const _rxFor = (dr) => {
+    const hit = AGENT_RX.find(a => a.canon === dr.name ||
+      (typeof a.rx === "object" && a.rx.test(dr.name)));
+    return hit || {};
+  };
+
+  const _spectrumMatch = (dr) => {
+    const flags = _rxFor(dr);
+    if(fmSpectrum.apsa && !flags.apsa) return false;
+    if(fmSpectrum.ana  && !flags.ana)  return false;
+    if(fmSpectrum.mrsa && !flags.mrsa) return false;
+    // bl filter excludes aztreonam (bl:false in AGENT_RX) — by design
+    if(fmSpectrum.bl   && !flags.bl)   return false;
+    return true;
+  };
+
+  const _microbiomeMatch = (dr) => {
+    if(fmCdiffMax && typeof dr.cdiffScore === "number" && dr.cdiffScore > fmCdiffMax) return false;
+    if(fmMdrLevel) {
+      const levels = ["low", "med", "high"];
+      const drIdx  = levels.indexOf(dr.mdrPressure || "");
+      const fltIdx = levels.indexOf(fmMdrLevel);
+      // "low" filter shows low only; "med" shows low+med; "high" shows all
+      if(drIdx === -1 || drIdx > fltIdx) return false;
+    }
+    return true;
+  };
+
+  const toggleSpectrum = (key) => setFmSpectrum(prev => ({ ...prev, [key]: !prev[key] }));
+
   const crcl = d?.crcl;
   const crclBand = d?.crclBand;
 
@@ -76,11 +122,18 @@ function AgentsSection({
       if (fmRoute === "iv" && !/iv/i.test(drugRoute(dr.name))) return false;
       if (fmRoute === "po" && !/po/i.test(drugRoute(dr.name))) return false;
       if (fmCover && !drugCoversOrg(dr.name, fmCover)) return false;
+      if (!_spectrumMatch(dr)) return false;
+      if (!_microbiomeMatch(dr)) return false;
       return true;
     };
     const fmClasses = FORMULARY.map(cl => ({ ...cl, drugs: cl.drugs.filter(_fmMatch) })).filter(cl => cl.drugs.length);
     const fmTotal = fmClasses.reduce((n, cl) => n + cl.drugs.length, 0);
-    const fmActive = fmRoute !== "all" || !!fmCover;
+    const fmActive = fmRoute !== "all" || !!fmCover ||
+      Object.values(fmSpectrum).some(Boolean) || fmCdiffMax > 0 || !!fmMdrLevel;
+    const clearAll = () => {
+      setFmCover(""); setFmRoute("all"); setFmSpectrum({});
+      setFmCdiffMax(0); setFmMdrLevel("");
+    };
     return (
       <>
         <h2 className="rx-h2">Formulary</h2>
@@ -122,12 +175,70 @@ function AgentsSection({
             ))}
           </div>
           <span className="rx-fmbar-count"><Num>{fmTotal}</Num> of <Num>{FORM_FLAT.length}</Num> agents</span>
-          {fmActive && <button className="rx-resetbtn" onClick={()=>{ setFmCover(""); setFmRoute("all"); }}><RotateCcw size={13}/> Clear</button>}
+          {fmActive && <button className="rx-resetbtn" onClick={clearAll}><RotateCcw size={13}/> Clear</button>}
         </div>
+
+        {/* Wave 5 PR-13c — spectrum + microbiome filter chips. Rendered
+            on a second row beneath the route/coverage row so the existing
+            visual baseline holds when no chip is active. */}
+        <div className="rx-fmbar" style={{ flexWrap: "wrap", gap: 8 }}>
+          <span className="rx-fmbar-lab" style={{ fontSize: 10 }}>
+            <Activity size={13}/> Spectrum
+          </span>
+          {[
+            ["apsa", "Antipseudomonal"],
+            ["ana",  "Anaerobic"],
+            ["mrsa", "Anti-MRSA"],
+            ["bl",   "β-lactam"],
+          ].map(([k, lab]) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={!!fmSpectrum[k]}
+              onClick={() => toggleSpectrum(k)}
+              className={fmSpectrum[k] ? "rx-tag t-ox clk on" : "rx-tag t-neutral clk"}
+              style={{ fontSize: 10, padding: "2px 8px" }}
+            >
+              {lab}
+            </button>
+          ))}
+          <span style={{ width: 8 }} />
+          <span className="rx-fmbar-lab" style={{ fontSize: 10 }}>
+            <ShieldAlert size={13}/> Microbiome
+          </span>
+          <label className="rx-fmbar-field" style={{ fontSize: 10 }}>
+            <span>Max C.diff</span>
+            <select
+              value={fmCdiffMax}
+              onChange={(e) => setFmCdiffMax(Number(e.target.value))}
+              aria-label="Max C. difficile risk score"
+            >
+              <option value={0}>Any</option>
+              <option value={1}>≤ 1</option>
+              <option value={2}>≤ 2</option>
+              <option value={3}>≤ 3</option>
+              <option value={4}>≤ 4</option>
+            </select>
+          </label>
+          <label className="rx-fmbar-field" style={{ fontSize: 10 }}>
+            <span>MDR pressure</span>
+            <select
+              value={fmMdrLevel}
+              onChange={(e) => setFmMdrLevel(e.target.value)}
+              aria-label="Maximum MDR-selection pressure"
+            >
+              <option value="">Any</option>
+              <option value="low">low only</option>
+              <option value="med">low + med</option>
+              <option value="high">all</option>
+            </select>
+          </label>
+        </div>
+
         {fmCover && <p className="rx-fmbar-note">Showing agents with first- or second-line activity against <b>{(ORG_BY_ID[fmCover]||{}).label}</b> (derived from the spectrum matrix). Confirm against the local antibiogram.</p>}
 
         {fmTotal === 0
-          ? <p className="rx-dc-muted" style={{padding:"8px 2px"}}>No formulary agent matches these filters. <button className="rx-dc-druglink" onClick={()=>{ setFmCover(""); setFmRoute("all"); }}>Clear filters</button>.</p>
+          ? <p className="rx-dc-muted" style={{padding:"8px 2px"}}>No formulary agent matches these filters. <button className="rx-dc-druglink" onClick={clearAll}>Clear filters</button>.</p>
           : fmClasses.map(cl => {
           const FI = FORM_ICON[cl.icon] || Pill;
           return (
