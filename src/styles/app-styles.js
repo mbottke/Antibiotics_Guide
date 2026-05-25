@@ -26,6 +26,36 @@ const CSS = `
 .rx-mono{font-family:var(--mono); font-variant-numeric:tabular-nums; font-feature-settings:"tnum";}
 .rx-serif{font-family:var(--serif);}
 .rx-root :focus-visible{outline:2px solid var(--ox); outline-offset:2px; border-radius:3px;}
+
+/* ─────────────────────────────── Wave 6 W6-B · motion + reveal ────────────────
+   Two keyframes, three reveal classes, two interaction utilities. Building
+   blocks for the "Apple-level" feel without an animation library. Every
+   duration + easing flows through CSS variables so the OS-level reduced-motion
+   rule below collapses them simultaneously.
+
+   USAGE
+     <div className="rx-reveal">      ← fade + rise on mount (~320ms)
+     <div className="rx-reveal-fast"> ← faster (~180ms) for inner content
+     <div className="rx-fade">        ← pure fade-in for chip elevations
+     <div className="rx-lift">        ← elevates on hover/focus
+     <button className="rx-cta-glow"> ← oxblood glow on focus
+   Apply selectively — these are accents, not blanket styles. */
+@keyframes rx-fade-rise{
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes rx-fade-in{
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.rx-reveal      { animation: rx-fade-rise var(--duration-slow) var(--ease-out) both; }
+.rx-reveal-fast { animation: rx-fade-rise var(--duration-base) var(--ease-out) both; }
+.rx-fade        { animation: rx-fade-in var(--duration-base) var(--ease-out) both; }
+.rx-lift        { transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out); }
+.rx-lift:hover  { transform: translateY(-1px); box-shadow: var(--shadow-e2); }
+.rx-lift:focus-visible { transform: translateY(-1px); box-shadow: var(--shadow-e3); }
+.rx-cta-glow:focus-visible { box-shadow: var(--shadow-glow-ox); }
+
 @media (prefers-reduced-motion: reduce){
   .rx-root *,.rx-root *::before,.rx-root *::after{transition-duration:.01ms!important; animation-duration:.01ms!important; scroll-behavior:auto!important;}
   /* Wave 6 W6-B · global motion reduction across portal-mounted modals + drawers
@@ -36,6 +66,9 @@ const CSS = `
   [aria-modal="true"] *,[aria-modal="true"] *::before,[aria-modal="true"] *::after{
     transition-duration:.01ms!important; animation-duration:.01ms!important;
   }
+  /* Reveal classes — collapse to no-op so the content appears immediately. */
+  .rx-reveal,.rx-reveal-fast,.rx-fade{ animation: none!important; }
+  .rx-lift:hover,.rx-lift:focus-visible{ transform: none!important; }
 }
 .rx-wrap{max-width:1180px; margin:0 auto; padding:0 22px;}
 
