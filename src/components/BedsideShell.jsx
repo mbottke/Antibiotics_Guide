@@ -11,6 +11,7 @@ import { CaseBar } from "./CaseBar.jsx";
 import { AnswerCanvas } from "./AnswerCanvas.jsx";
 import { FontSizeControl } from "./FontSizeControl.jsx";
 import { SettingsModal } from "./SettingsModal.jsx";
+import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay.jsx";
 import { SYNDROMES } from "../data/syndromes.js";
 
 function _synName(id) {
@@ -203,6 +204,11 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
         onClose={() => setSettingsOpen(false)}
         onOpenAntibiogramManager={onOpenAntibiogramManager}
       />
+
+      {/* Wave 6 W6-D · keyboard-shortcut overlay — `?` toggles. Owns its
+          own open state via a global keydown listener so it can surface
+          from anywhere in the bedside surface without prop drilling. */}
+      <KeyboardShortcutsOverlay />
     </div>
   );
 }

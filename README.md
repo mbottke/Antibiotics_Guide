@@ -186,18 +186,36 @@ localStorage.
 | #112 | PR-11 · React Testing Library harness (RTL + jsdom) | ✅ merged |
 | #114 | R3 · sentinel refresh + audit-gate strengthening + new tests | ✅ merged |
 | #115 | R2 expanded · shared utils + WCAG focus trap across 6 components | ✅ merged |
-| #116 | R4 · OPAT RTL tests + mechanism alias audit + OPAT route audit | 🟦 draft |
-| —   | PR-7b / PR-8b / PR-12 · mechanism wiring · OPAT demotion · layer-group tabs | ⏳ planned |
+| #116 | R4 · OPAT RTL tests + mechanism alias audit + OPAT route audit | ✅ merged |
+| #117 | R5 · README refresh + MechanismDrawer + PkPdBlock RTL | ✅ merged |
+| #118 | CL-1 · CSS tokens (`--red*`/`--scrim`/`--shadow-drawer`) + parseBold sweep + 4 RTL sentinels | ✅ merged |
+| #119 | CL-2 · legacy OPAT demotion + integrity gate | ✅ merged |
+| #120 | CL-3 · `MechanismDrawer` wiring (ClassChip + TermChip → drawer) | ✅ merged |
+| #121 | CL-4 · `SettingsModal` + microbiome-sort UI toggle | ✅ merged |
+| #122 | CL-5 · PR-12 layer-group tab strip (Core/Risks/Duration/Local/Special/Evidence) | ✅ merged |
+| #123 | CL-6 M-3 · 10 resistance-mechanism entries (OXA-48/23/58, CTX-M-15, PBP2x, mosaic PBP, vanB/D, lipid II, transpeptidation) | ✅ merged |
+| #124 | CL-7 O-1 · 3 endovascular OPAT profiles (mycotic-aneurysm, device-vascular, persistent-mrsa) | ✅ merged |
+| #125 | CL-6 M-1 · 9 β-lactam family drug-class mechanisms | ✅ merged |
+| #126 | CL-7 O-2 · 5 musculoskeletal OPAT profiles (septic-arthritis, dfi, pyomyositis, bursitis, mediastinitis) | ✅ merged |
+| —   | CL-6 M-2 + M-4 · non-β-lactam classes + resistance pumps/porins (22 entries) | 🟦 in flight |
+| —   | CL-7 O-3 · 12 OPAT profiles for existing IV-eligible syndromes | 🟦 in flight |
+| —   | Wave 6 W6-D · onboarding + keyboard-shortcut overlay + first-impression scaffolding | ⏳ planned |
+| —   | Wave 6 W6-A · per-syndrome Deep Dive surface + evidence-grade chip + completeness audit | ⏳ planned |
+| —   | Wave 6 W6-B · visual leap (typography hierarchy, motion, density grid, color discipline) | ⏳ planned |
+| —   | Wave 6 W6-C · allergy delabeling flow + "What's next?" panel + decision-trace export | ⏳ planned |
 
 **Coverage at this snapshot:** 108/108 syndromes (100%) for diagnostics; 117 syndromes
 catalogued at apex authoring across regimen + duration + monitoring + rationale +
 objections; 32/32 FORMULARY drugs (100%) for the PR-4 pkpd/timeToEffect/cdiffScore/
-mdrPressure/kinetics schema.
+mdrPressure/kinetics schema; **26/~37** mechanisms (Wave 5 CL-6 — M-1 + M-3 merged,
+M-2 + M-4 in flight); **16/~60** OPAT profiles (Wave 5 CL-7 — O-1 + O-2 merged, O-3
+in flight).
 
 ### Test surface
 
-`npm run test` covers **23 files, 4,160 unit + integrity + audit + RTL tests** as of
-R4. Notable Wave 5 additions:
+`npm run test` covers **~30 files, ~4,290 unit + integrity + audit + RTL tests** as
+of the latest Wave 5 closeout merge (CL-5 + M-1 + M-3 + O-1 + O-2). Notable Wave 5
+additions:
 
 - `tests/answerCanvas-layers.test.js` — LAYERS registry shape contract.
 - `tests/layers-invariants.test.js` — layer-group enum, id-order snapshot,
@@ -214,7 +232,9 @@ R4. Notable Wave 5 additions:
   round-trip, pkpd.target anchor regex, timeToEffect bounds, mechanism alias
   uniqueness, OPAT route shape).
 - `tests/rtl/` — `// @vitest-environment jsdom` component sentinels for
-  `MonitoringBlock`, `DurationBlock`, `DiagnosticsBlock`, `OPATBlock`.
+  `MonitoringBlock`, `DurationBlock`, `DiagnosticsBlock`, `OPATBlock`, `MechanismDrawer`,
+  `PkPdBlock`, `DecisionAttributionDrawer`, `RegimensComparePanel`, `AgentsFilterBar`,
+  `MicrobiomeChips`, `SettingsModal`, and the `ClassChip → MechanismDrawer` wiring path.
 
 ### Architectural traps locked in by the audit
 
