@@ -39,7 +39,7 @@ import { resolveDrug, computeDose, agentsInRx, adjustmentsForAgent, doseAdjustme
 import { SPECTRUM, SpectrumChartFull, SPX_ORGS, SPX_CLASSES, SPX_SCALE, SPX_ORG_BY, SPX_SG_BY, SPX_AGENTS } from "./spectrum/Spectrum";
 import { RISK_KW } from "./data/risk-keywords";
 import { CAT_ICONS, SYN_ICON, FORM_ICON, TREE_ICON, RDX_ICON, TABS } from "./data/ui-maps";
-import { ALLERGY_INTRO, ALLERGY, SPECIAL_POP, PROPHYLAXIS, OPAT, SEPSIS_FLOW, TREES, RAPID_DX, TIMEOUT_ITEMS, IVPO_CRITERIA, PO_AGENTS, GLOSSARY, GLOSS_KEYS, GLOSS_TOKEN } from "./data/content";
+import { ALLERGY_INTRO, ALLERGY, SPECIAL_POP, PROPHYLAXIS, SEPSIS_FLOW, TREES, RAPID_DX, TIMEOUT_ITEMS, IVPO_CRITERIA, PO_AGENTS, GLOSSARY, GLOSS_KEYS, GLOSS_TOKEN } from "./data/content";
 import { GUIDELINES, REFS, EVOLVING, TRIAL_DETAIL, DURATIONS, DUR_MAX, DUR_REF, DUR_BY_DX, CLOCK, VERSION, REVIEWED } from "./data/evidence";
 import { SYNDROMES, SYN_CATS, SRC_CONTROL, SYN_GUIDE, DIRECTED } from "./data/syndromes";
 import { RENAL_DOSING, WEIGHT_DOSING, _wtKey, _wtLabel, HEPATIC_DOSING, HD_DOSING, DOSE_AGENTS, _ADJ_META, CP_COMPONENTS } from "./data/dosing";

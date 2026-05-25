@@ -57,7 +57,13 @@ const PROPHYLAXIS = {
   ],
 };
 
-/* ===================== DATA: OPAT ===================== */
+/* ===================== DATA: OPAT (PRINCIPLES PAGE ONLY) =====================
+   Wave 5 PR-8b demoted this constant: it is the general OPAT primer surfaced
+   on the Principles page and nowhere else. Per-syndrome OPAT decisions live
+   in src/data/opatDecision.js (OPAT_PROFILES + getOPATForSyndrome) and render
+   through OPATBlock inside the answer canvas. Do NOT import this constant
+   into any syndrome-level component — the per-syndrome surface is the only
+   correct read path for bedside decisions. */
 const OPAT = {
   intro:"Outpatient parenteral antimicrobial therapy enables completion of IV courses outside hospital. Success hinges on agent selection, vascular access, and monitoring — not just clinical stability.",
   criteria:[
