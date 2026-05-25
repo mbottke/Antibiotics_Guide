@@ -2,54 +2,120 @@
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import { _escRe } from "../lib/util";
 
-/* ===================== DATA: FORMULARY ===================== */
-/* Typical adult IV doses, normal renal function, serious infection.          */
+/* ===================== DATA: FORMULARY =====================
+   Typical adult IV doses, normal renal function, serious infection.
+
+   Wave 5 PR-4 fields added to every drug:
+
+     pkpd        PK/PD pattern + clinical target.
+                 { pattern: "time-dep" | "conc-dep" | "AUC" | "time+AUC",
+                   target:  "free-form string, eg '%T > MIC ≥ 50% (severe ≥ 100%)'" }
+                 Drives extended-infusion guidance and dose-by-CrCl logic.
+
+     timeToEffect Median time to clinical response under adequate
+                  empiric coverage, expressed as "<lo>–<hi> h" or
+                  "<lo>–<hi> d". Defines the reassessment window the
+                  Reassessment block uses to flag non-response.
+
+     cdiffScore  1–5 collateral C. difficile risk score (1 = lowest,
+                 5 = highest). Anchored to Brown 2013 JAC meta and
+                 the IDSA 2018 C. diff guidance. Drives the
+                 microbiome chip on RegimenOptions (PR-10) and the
+                 opt-in "rank by collateral damage" sort.
+
+     mdrPressure  "low" | "med" | "high". Resistance-selection
+                  pressure on the gut microbiome and downstream
+                  pathogens, drawn from IDSA AMR-GN 2024 + Surviving
+                  Sepsis stewardship guidance. Drives the same
+                  collateral-damage chip alongside cdiffScore.
+
+     kinetics    "bactericidal" | "bacteriostatic" | "context-dependent".
+                 Surfaces in the answer canvas where kill kinetics
+                 matter clinically (endocarditis, neutropenic host,
+                 deep-seated focus).
+
+   The fields are optional at the schema level — the audit gate
+   warns when a drug is missing them, but the rendered canvas
+   degrades gracefully (renders no chip / no time-to-effect
+   advisory). Today every drug has every field populated. */
 const FORMULARY = [
   { cls:"Penicillins", icon:"pill", drugs:[
-    { name:"Penicillin G", spec:"natural penicillin", dose:"2–4 million units IV q4h", renal:"Reduce in CrCl <10", pearl:"Streptococci, syphilis, susceptible enterococci. Largely a directed-therapy agent." },
-    { name:"Ampicillin", spec:"aminopenicillin", dose:"2 g IV q4–6h", renal:"CrCl 10–50: q6–8h; <10: q12h", pearl:"Enterococcus and Listeria. Synergy with ceftriaxone for E. faecalis endocarditis." },
-    { name:"Ampicillin-sulbactam", spec:"+ inhibitor", dose:"3 g IV q6h (high-dose for CRAB: 27 g/day)", renal:"CrCl 15–29: q12h; <15: q24h", pearl:"Adds anaerobes and many Acinetobacter; high-dose forms used as CRAB alternative." },
-    { name:"Nafcillin / oxacillin", spec:"antistaphylococcal penicillin", dose:"2 g IV q4h", renal:"No adjustment (hepatic)", pearl:"MSSA. Vesicant, hepatotoxicity, interstitial nephritis — cefazolin often better tolerated." },
-    { name:"Piperacillin-tazobactam", spec:"antipseudomonal + inhibitor", dose:"4.5 g IV q6h, or extended infusion q8h", renal:"CrCl 20–40: 3.375 g q6h; <20: 2.25 g q6h", pearl:"Broad incl. Pseudomonas + anaerobes. Inferior to carbapenem for serious ESBL (MERINO). Vanc co-administration raises AKI signal." },
+    { name:"Penicillin G", spec:"natural penicillin", dose:"2–4 million units IV q4h", renal:"Reduce in CrCl <10", pearl:"Streptococci, syphilis, susceptible enterococci. Largely a directed-therapy agent.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 50% (severe ≥ 100%)"}, timeToEffect:"24–48 h", cdiffScore:2, mdrPressure:"low", kinetics:"bactericidal" },
+    { name:"Ampicillin", spec:"aminopenicillin", dose:"2 g IV q4–6h", renal:"CrCl 10–50: q6–8h; <10: q12h", pearl:"Enterococcus and Listeria. Synergy with ceftriaxone for E. faecalis endocarditis.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 50% (severe ≥ 100%)"}, timeToEffect:"24–48 h", cdiffScore:3, mdrPressure:"low", kinetics:"bactericidal" },
+    { name:"Ampicillin-sulbactam", spec:"+ inhibitor", dose:"3 g IV q6h (high-dose for CRAB: 27 g/day)", renal:"CrCl 15–29: q12h; <15: q24h", pearl:"Adds anaerobes and many Acinetobacter; high-dose forms used as CRAB alternative.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 50% (CRAB ≥ 60%)"}, timeToEffect:"24–48 h", cdiffScore:4, mdrPressure:"med", kinetics:"bactericidal" },
+    { name:"Nafcillin / oxacillin", spec:"antistaphylococcal penicillin", dose:"2 g IV q4h", renal:"No adjustment (hepatic)", pearl:"MSSA. Vesicant, hepatotoxicity, interstitial nephritis — cefazolin often better tolerated.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 40% (severe ≥ 70%)"}, timeToEffect:"24–48 h", cdiffScore:2, mdrPressure:"low", kinetics:"bactericidal" },
+    { name:"Piperacillin-tazobactam", spec:"antipseudomonal + inhibitor", dose:"4.5 g IV q6h, or extended infusion q8h", renal:"CrCl 20–40: 3.375 g q6h; <20: 2.25 g q6h", pearl:"Broad incl. Pseudomonas + anaerobes. Inferior to carbapenem for serious ESBL (MERINO). Vanc co-administration raises AKI signal.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 50% (extended infusion preferred MIC ≥ 4)"}, timeToEffect:"24–48 h", cdiffScore:4, mdrPressure:"high", kinetics:"bactericidal" },
   ]},
   { cls:"Cephalosporins", icon:"pill", drugs:[
-    { name:"Cefazolin", spec:"1st generation", dose:"2 g IV q8h", renal:"CrCl 10–34: q12h; <10: q24h", pearl:"MSSA + strep + surgical prophylaxis. Unique side chain — usually safe in penicillin allergy." },
-    { name:"Ceftriaxone", spec:"3rd generation", dose:"1–2 g IV q24h (2 g q12h for meningitis)", renal:"No adjustment", pearl:"CAP, pyelonephritis, SBP. No Pseudomonas, anaerobe, or enterococcus. Avoid for AmpC inducers." },
-    { name:"Ceftazidime", spec:"3rd gen, antipseudomonal", dose:"2 g IV q8h", renal:"CrCl 30–50: q12h; 10–30: q24h", pearl:"Antipseudomonal, poor Gram-positive cover; supplanted by cefepime. No longer used for S. maltophilia." },
-    { name:"Cefepime", spec:"4th generation", dose:"2 g IV q8h (serious GNR / neutropenia)", renal:"CrCl 30–60: q12h; 11–29: q24h", pearl:"Pseudomonas + broad GNR + preferred for moderate-risk AmpC (IDSA 2024). Neurotoxicity if underdosed for renal function." },
-    { name:"Ceftaroline", spec:"anti-MRSA cephalosporin", dose:"600 mg IV q8–12h", renal:"CrCl 30–50: 400 mg q12h; 15–30: 300 mg q12h", pearl:"Only β-lactam with MRSA activity; salvage for refractory MRSA bacteremia." },
+    { name:"Cefazolin", spec:"1st generation", dose:"2 g IV q8h", renal:"CrCl 10–34: q12h; <10: q24h", pearl:"MSSA + strep + surgical prophylaxis. Unique side chain — usually safe in penicillin allergy.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 60%"}, timeToEffect:"24–48 h", cdiffScore:2, mdrPressure:"low", kinetics:"bactericidal" },
+    { name:"Ceftriaxone", spec:"3rd generation", dose:"1–2 g IV q24h (2 g q12h for meningitis)", renal:"No adjustment", pearl:"CAP, pyelonephritis, SBP. No Pseudomonas, anaerobe, or enterococcus. Avoid for AmpC inducers.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 60–70%"}, timeToEffect:"24–48 h", cdiffScore:4, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Ceftazidime", spec:"3rd gen, antipseudomonal", dose:"2 g IV q8h", renal:"CrCl 30–50: q12h; 10–30: q24h", pearl:"Antipseudomonal, poor Gram-positive cover; supplanted by cefepime. No longer used for S. maltophilia.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 60–70%"}, timeToEffect:"24–48 h", cdiffScore:4, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Cefepime", spec:"4th generation", dose:"2 g IV q8h (serious GNR / neutropenia)", renal:"CrCl 30–60: q12h; 11–29: q24h", pearl:"Pseudomonas + broad GNR + preferred for moderate-risk AmpC (IDSA 2024). Neurotoxicity if underdosed for renal function.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 60–70% (extended infusion at MIC ≥ 4)"}, timeToEffect:"24–48 h", cdiffScore:4, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Ceftaroline", spec:"anti-MRSA cephalosporin", dose:"600 mg IV q8–12h", renal:"CrCl 30–50: 400 mg q12h; 15–30: 300 mg q12h", pearl:"Only β-lactam with MRSA activity; salvage for refractory MRSA bacteremia.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 50–60%"}, timeToEffect:"24–48 h", cdiffScore:3, mdrPressure:"med", kinetics:"bactericidal" },
   ]},
   { cls:"Carbapenems & monobactam", icon:"shield", drugs:[
-    { name:"Ertapenem", spec:"carbapenem", dose:"1 g IV q24h", renal:"CrCl <30: 500 mg q24h", pearl:"ESBL workhorse for non-Pseudomonas infection. No Pseudomonas, Acinetobacter, or enterococcus." },
-    { name:"Meropenem", spec:"antipseudomonal carbapenem", dose:"1 g IV q8h (2 g q8h for CNS)", renal:"CrCl 26–50: q12h; 10–25: 500 mg q12h", pearl:"Broadest workhorse incl. Pseudomonas + ESBL + anaerobes. Lower seizure risk than imipenem." },
-    { name:"Aztreonam", spec:"monobactam", dose:"2 g IV q8h", renal:"CrCl 10–30: 50%; <10: 25%", pearl:"Gram-negative only. Safe in severe penicillin allergy (except prior ceftazidime reaction); pairs with ceftazidime-avibactam for MBL-CRE." },
+    { name:"Ertapenem", spec:"carbapenem", dose:"1 g IV q24h", renal:"CrCl <30: 500 mg q24h", pearl:"ESBL workhorse for non-Pseudomonas infection. No Pseudomonas, Acinetobacter, or enterococcus.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 40%"}, timeToEffect:"24–48 h", cdiffScore:4, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Meropenem", spec:"antipseudomonal carbapenem", dose:"1 g IV q8h (2 g q8h for CNS)", renal:"CrCl 26–50: q12h; 10–25: 500 mg q12h", pearl:"Broadest workhorse incl. Pseudomonas + ESBL + anaerobes. Lower seizure risk than imipenem.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 40% (CNS / shock ≥ 100%, extended infusion)"}, timeToEffect:"24–48 h", cdiffScore:4, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Aztreonam", spec:"monobactam", dose:"2 g IV q8h", renal:"CrCl 10–30: 50%; <10: 25%", pearl:"Gram-negative only. Safe in severe penicillin allergy (except prior ceftazidime reaction); pairs with ceftazidime-avibactam for MBL-CRE.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 50–70%"}, timeToEffect:"24–48 h", cdiffScore:3, mdrPressure:"med", kinetics:"bactericidal" },
   ]},
   { cls:"Novel reserve agents (IDSA 2024)", icon:"micro", drugs:[
-    { name:"Ceftolozane-tazobactam", spec:"antipseudomonal", dose:"1.5–3 g IV q8h (extended infusion)", renal:"Adjust per CrCl", pearl:"Reserved for DTR-Pseudomonas; active vs ESBL but preserve for Pseudomonas/polymicrobial." },
-    { name:"Ceftazidime-avibactam", spec:"KPC / OXA-48", dose:"2.5 g IV q8h (extended infusion)", renal:"Adjust per CrCl", pearl:"KPC and OXA-48 CRE, DTR-Pseudomonas. NOT metallo-β-lactamases — add aztreonam for NDM/VIM." },
-    { name:"Meropenem-vaborbactam", spec:"KPC", dose:"4 g IV q8h (extended infusion)", renal:"Adjust per CrCl", pearl:"KPC-producing CRE; vaborbactam does not cover OXA-48 or MBL." },
-    { name:"Imipenem-relebactam", spec:"KPC / DTR-Pseudomonas", dose:"1.25 g IV q6h", renal:"Adjust per CrCl", pearl:"KPC-CRE and DTR-Pseudomonas alternative; no MBL or OXA-48 coverage." },
-    { name:"Cefiderocol", spec:"siderophore cephalosporin", dose:"2 g IV q8h (extended infusion)", renal:"Adjust per CrCl", pearl:"MBL-CRE, DTR-Pseudomonas, CRAB, S. maltophilia. Trojan-horse iron uptake; true last-line." },
-    { name:"Sulbactam-durlobactam", spec:"anti-CRAB (2023)", dose:"1 g/1 g IV q6h (with carbapenem)", renal:"Adjust per CrCl", pearl:"Preferred for CRAB combined with imipenem or meropenem; superior to colistin-based regimens." },
+    { name:"Ceftolozane-tazobactam", spec:"antipseudomonal", dose:"1.5–3 g IV q8h (extended infusion)", renal:"Adjust per CrCl", pearl:"Reserved for DTR-Pseudomonas; active vs ESBL but preserve for Pseudomonas/polymicrobial.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 50% (extended infusion)"}, timeToEffect:"24–72 h", cdiffScore:3, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Ceftazidime-avibactam", spec:"KPC / OXA-48", dose:"2.5 g IV q8h (extended infusion)", renal:"Adjust per CrCl", pearl:"KPC and OXA-48 CRE, DTR-Pseudomonas. NOT metallo-β-lactamases — add aztreonam for NDM/VIM.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 50% (extended infusion)"}, timeToEffect:"24–72 h", cdiffScore:3, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Meropenem-vaborbactam", spec:"KPC", dose:"4 g IV q8h (extended infusion)", renal:"Adjust per CrCl", pearl:"KPC-producing CRE; vaborbactam does not cover OXA-48 or MBL.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 40–50% (extended infusion)"}, timeToEffect:"24–72 h", cdiffScore:3, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Imipenem-relebactam", spec:"KPC / DTR-Pseudomonas", dose:"1.25 g IV q6h", renal:"Adjust per CrCl", pearl:"KPC-CRE and DTR-Pseudomonas alternative; no MBL or OXA-48 coverage.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 40–50%"}, timeToEffect:"24–72 h", cdiffScore:3, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Cefiderocol", spec:"siderophore cephalosporin", dose:"2 g IV q8h (extended infusion)", renal:"Adjust per CrCl", pearl:"MBL-CRE, DTR-Pseudomonas, CRAB, S. maltophilia. Trojan-horse iron uptake; true last-line.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 75% (extended infusion mandatory)"}, timeToEffect:"48–72 h", cdiffScore:3, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Sulbactam-durlobactam", spec:"anti-CRAB (2023)", dose:"1 g/1 g IV q6h (with carbapenem)", renal:"Adjust per CrCl", pearl:"Preferred for CRAB combined with imipenem or meropenem; superior to colistin-based regimens.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 50%"}, timeToEffect:"48–72 h", cdiffScore:3, mdrPressure:"high", kinetics:"bactericidal" },
   ]},
   { cls:"Fluoroquinolones", icon:"flask", drugs:[
-    { name:"Ciprofloxacin", spec:"fluoroquinolone", dose:"400 mg IV q8–12h / 500–750 mg PO q12h", renal:"CrCl <30: q18–24h", pearl:"Best Gram-negative/Pseudomonas FQ; weak vs S. pneumoniae — not CAP monotherapy." },
-    { name:"Levofloxacin", spec:"respiratory FQ", dose:"750 mg IV/PO q24h", renal:"CrCl 20–49: 750 mg q48h; <20: 750 once then 500 q48h", pearl:"CAP + Pseudomonas + S. maltophilia option. Excellent oral bioavailability for IV→PO." },
-    { name:"Moxifloxacin", spec:"respiratory FQ", dose:"400 mg IV/PO q24h", renal:"No adjustment", pearl:"Best Gram-positive/anaerobe FQ but NO reliable Pseudomonas and inadequate urinary levels. QT." },
+    { name:"Ciprofloxacin", spec:"fluoroquinolone", dose:"400 mg IV q8–12h / 500–750 mg PO q12h", renal:"CrCl <30: q18–24h", pearl:"Best Gram-negative/Pseudomonas FQ; weak vs S. pneumoniae — not CAP monotherapy.",
+      pkpd:{pattern:"AUC", target:"AUC24/MIC ≥ 125 (Gram-neg)"}, timeToEffect:"24–48 h", cdiffScore:5, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Levofloxacin", spec:"respiratory FQ", dose:"750 mg IV/PO q24h", renal:"CrCl 20–49: 750 mg q48h; <20: 750 once then 500 q48h", pearl:"CAP + Pseudomonas + S. maltophilia option. Excellent oral bioavailability for IV→PO.",
+      pkpd:{pattern:"AUC", target:"AUC24/MIC ≥ 100 (Gram-neg) / ≥ 30 (Gram-pos)"}, timeToEffect:"24–48 h", cdiffScore:5, mdrPressure:"high", kinetics:"bactericidal" },
+    { name:"Moxifloxacin", spec:"respiratory FQ", dose:"400 mg IV/PO q24h", renal:"No adjustment", pearl:"Best Gram-positive/anaerobe FQ but NO reliable Pseudomonas and inadequate urinary levels. QT.",
+      pkpd:{pattern:"AUC", target:"AUC24/MIC ≥ 30–50 (Gram-pos)"}, timeToEffect:"24–48 h", cdiffScore:5, mdrPressure:"high", kinetics:"bactericidal" },
   ]},
   { cls:"Glycopeptide, lipopeptide & oxazolidinone", icon:"syringe", drugs:[
-    { name:"Vancomycin (IV)", spec:"glycopeptide", dose:"Load 20–25 mg/kg, then 15–20 mg/kg q8–12h; target AUC/MIC 400–600", renal:"Dose by levels/AUC; extend interval as CrCl falls; HD post-dialysis", pearl:"AUC-guided monitoring lowers nephrotoxicity vs trough-only. Load on actual body weight; never skip the load for renal impairment." },
-    { name:"Daptomycin", spec:"lipopeptide", dose:"8–10 mg/kg IV q24h (≥10 for VRE bacteremia)", renal:"CrCl <30 or HD: q48h", pearl:"MRSA/VRE bacteremia. NEVER for pneumonia (surfactant). Weekly CK; hold for myopathy." },
-    { name:"Linezolid", spec:"oxazolidinone", dose:"600 mg IV/PO q12h", renal:"No adjustment", pearl:"100% oral bioavailability; pulmonary MRSA + VRE. Cytopenias >14 d, serotonin syndrome with SSRIs, lactic acidosis." },
+    { name:"Vancomycin (IV)", spec:"glycopeptide", dose:"Load 20–25 mg/kg, then 15–20 mg/kg q8–12h; target AUC/MIC 400–600", renal:"Dose by levels/AUC; extend interval as CrCl falls; HD post-dialysis", pearl:"AUC-guided monitoring lowers nephrotoxicity vs trough-only. Load on actual body weight; never skip the load for renal impairment.",
+      pkpd:{pattern:"AUC", target:"AUC24/MIC 400–600 mg·h/L"}, timeToEffect:"48–72 h", cdiffScore:2, mdrPressure:"med", kinetics:"bactericidal" },
+    { name:"Daptomycin", spec:"lipopeptide", dose:"8–10 mg/kg IV q24h (≥10 for VRE bacteremia)", renal:"CrCl <30 or HD: q48h", pearl:"MRSA/VRE bacteremia. NEVER for pneumonia (surfactant). Weekly CK; hold for myopathy.",
+      pkpd:{pattern:"conc-dep", target:"Cmax/MIC ≥ 60, AUC24/MIC ≥ 666"}, timeToEffect:"24–48 h", cdiffScore:2, mdrPressure:"med", kinetics:"bactericidal" },
+    { name:"Linezolid", spec:"oxazolidinone", dose:"600 mg IV/PO q12h", renal:"No adjustment", pearl:"100% oral bioavailability; pulmonary MRSA + VRE. Cytopenias >14 d, serotonin syndrome with SSRIs, lactic acidosis.",
+      pkpd:{pattern:"time+AUC", target:"%T > MIC ≥ 85%, AUC24/MIC ≥ 80–120"}, timeToEffect:"24–48 h", cdiffScore:2, mdrPressure:"med", kinetics:"bacteriostatic" },
   ]},
   { cls:"Other agents", icon:"beaker", drugs:[
-    { name:"Clindamycin", spec:"lincosamide", dose:"600–900 mg IV q8h", renal:"No adjustment", pearl:"Toxin suppression in necrotizing/toxic-shock. High C. difficile risk; D-test for inducible MRSA resistance." },
-    { name:"Metronidazole", spec:"nitroimidazole", dose:"500 mg IV/PO q8h", renal:"No adjustment (reduce in severe hepatic disease)", pearl:"Anaerobes + protozoa. Disulfiram reaction with alcohol; neuropathy with prolonged use." },
-    { name:"Trimethoprim-sulfamethoxazole", spec:"folate inhibitor", dose:"8–12 mg/kg/day (TMP) IV/PO div q6–8h (severe)", renal:"CrCl 15–30: 50%; <15: avoid", pearl:"MRSA, S. maltophilia, Nocardia, PJP. Hyperkalemia, AKI, marrow suppression, sulfa allergy." },
-    { name:"Doxycycline / minocycline", spec:"tetracycline", dose:"100 mg IV/PO q12h", renal:"No adjustment", pearl:"Atypicals, CA-MRSA SSTI, tick-borne; minocycline for S. maltophilia/CRAB. Photosensitivity." },
-    { name:"Azithromycin", spec:"macrolide", dose:"500 mg IV/PO q24h", renal:"No adjustment", pearl:"Atypical coverage in CAP. QT prolongation; pneumococcal macrolide resistance common." },
-    { name:"Gentamicin / amikacin", spec:"aminoglycoside", dose:"Gent 5–7 mg/kg IV q24h (extended-interval)", renal:"Interval by levels; avoid/extend in renal impairment", pearl:"GNR synergy. Concentration-dependent killing; nephro/ototoxic — monitor levels." },
-    { name:"Polymyxin B / colistin", spec:"polymyxin", dose:"Weight-based; load then maintenance", renal:"Colistin adjusted per CrCl; polymyxin B not", pearl:"Last-resort for CRE/CRAB/DTR-Pseudomonas. Nephrotoxic, neurotoxic; now largely replaced by novel β-lactam agents." },
+    { name:"Clindamycin", spec:"lincosamide", dose:"600–900 mg IV q8h", renal:"No adjustment", pearl:"Toxin suppression in necrotizing/toxic-shock. High C. difficile risk; D-test for inducible MRSA resistance.",
+      pkpd:{pattern:"time-dep", target:"%T > MIC ≥ 40–60%"}, timeToEffect:"24–48 h", cdiffScore:5, mdrPressure:"med", kinetics:"bacteriostatic" },
+    { name:"Metronidazole", spec:"nitroimidazole", dose:"500 mg IV/PO q8h", renal:"No adjustment (reduce in severe hepatic disease)", pearl:"Anaerobes + protozoa. Disulfiram reaction with alcohol; neuropathy with prolonged use.",
+      pkpd:{pattern:"conc-dep", target:"Cmax/MIC and AUC24/MIC"}, timeToEffect:"24–48 h", cdiffScore:1, mdrPressure:"low", kinetics:"bactericidal" },
+    { name:"Trimethoprim-sulfamethoxazole", spec:"folate inhibitor", dose:"8–12 mg/kg/day (TMP) IV/PO div q6–8h (severe)", renal:"CrCl 15–30: 50%; <15: avoid", pearl:"MRSA, S. maltophilia, Nocardia, PJP. Hyperkalemia, AKI, marrow suppression, sulfa allergy.",
+      pkpd:{pattern:"AUC", target:"AUC24/MIC"}, timeToEffect:"48–72 h", cdiffScore:3, mdrPressure:"med", kinetics:"context-dependent" },
+    { name:"Doxycycline / minocycline", spec:"tetracycline", dose:"100 mg IV/PO q12h", renal:"No adjustment", pearl:"Atypicals, CA-MRSA SSTI, tick-borne; minocycline for S. maltophilia/CRAB. Photosensitivity.",
+      pkpd:{pattern:"AUC", target:"AUC24/MIC ≥ 25"}, timeToEffect:"48–72 h", cdiffScore:2, mdrPressure:"low", kinetics:"bacteriostatic" },
+    { name:"Azithromycin", spec:"macrolide", dose:"500 mg IV/PO q24h", renal:"No adjustment", pearl:"Atypical coverage in CAP. QT prolongation; pneumococcal macrolide resistance common.",
+      pkpd:{pattern:"AUC", target:"AUC24/MIC (intracellular accumulation)"}, timeToEffect:"48–72 h", cdiffScore:3, mdrPressure:"med", kinetics:"bacteriostatic" },
+    { name:"Gentamicin / amikacin", spec:"aminoglycoside", dose:"Gent 5–7 mg/kg IV q24h (extended-interval)", renal:"Interval by levels; avoid/extend in renal impairment", pearl:"GNR synergy. Concentration-dependent killing; nephro/ototoxic — monitor levels.",
+      pkpd:{pattern:"conc-dep", target:"Cmax/MIC ≥ 8–10"}, timeToEffect:"24–48 h", cdiffScore:1, mdrPressure:"low", kinetics:"bactericidal" },
+    { name:"Polymyxin B / colistin", spec:"polymyxin", dose:"Weight-based; load then maintenance", renal:"Colistin adjusted per CrCl; polymyxin B not", pearl:"Last-resort for CRE/CRAB/DTR-Pseudomonas. Nephrotoxic, neurotoxic; now largely replaced by novel β-lactam agents.",
+      pkpd:{pattern:"AUC", target:"fAUC24/MIC ≥ 12"}, timeToEffect:"48–72 h", cdiffScore:2, mdrPressure:"med", kinetics:"bactericidal" },
   ]},
 ];
 
