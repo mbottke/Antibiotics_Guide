@@ -17,8 +17,26 @@
 
    Visual language matches the rest of the answer canvas — Section-
    style chrome on a modal overlay, monospace severity badges, oxblood
-   accent. Same severity grammar (high / med / low) the refineRegimen
-   engine uses.
+   accent.
+
+   SEVERITY VOCABULARY · two-grammar architecture
+   ----------------------------------------------
+   This drawer uses (high / med / low) — the engine-native severity
+   grammar produced by refineRegimen in src/engines/regimen.js. Every
+   step in `composeAnswer.refinement.steps` carries `sev: "high" | "med" | "low"`.
+
+   The content-authoring layers (MonitoringBlock, DiagnosticsBlock,
+   OPATBlock, MechanismDrawer) use (required / trigger / consider) —
+   the same severity *concept* but framed for authored content rather
+   than engine output. The two grammars coexist by design:
+
+     • engine grammar (high/med/low)  — graded RULE FIRING urgency
+     • content grammar (required/trigger/consider) — authored ORDER tier
+
+   Conflating them would require authors to think in engine terms or
+   engines to emit content-tier language; neither maps cleanly. This
+   doc-block + the audit-gate vocabulary check keep them documented and
+   intentional.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useEffect } from "react";
