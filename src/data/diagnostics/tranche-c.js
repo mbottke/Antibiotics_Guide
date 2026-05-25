@@ -272,16 +272,13 @@ export const TRANCHE_C_DIAGNOSTICS = {
   "asymp-bact": {
     cultures: [
       { sev: "required",
-        what: "Urine culture in **pregnancy** (screen at 12–16 weeks) and **before urologic procedures** with mucosal trauma.",
-        why:  "These are the only two indications where treating asymptomatic bacteriuria changes outcomes (IDSA 2019)." },
-      { sev: "trigger",
-        what: "**Do NOT order urine culture** in asymptomatic patients outside the two indications above — including delirium, falls, foul urine, catheter changes.",
-        why:  "Stewardship anchor: treating ASB drives resistance and C. difficile without improving outcomes; the order itself is the error." },
+        what: "Reserve urine culture for **pregnancy** (screen at 12–16 weeks) and **pre-urologic procedure** with mucosal trauma — **do not order in any other asymptomatic patient**, including delirium, falls, foul urine, or catheter change.",
+        why:  "IDSA 2019: these are the only two indications where treating ASB changes outcomes; ordering outside them drives the cascade to harm." },
     ],
     biomarkers: [
       { sev: "consider",
-        what: "If urinalysis shows pyuria in an asymptomatic patient, this alone is **not an indication to treat**.",
-        why:  "Pyuria + bacteriuria without symptoms remains colonization in most populations; symptoms gate treatment." },
+        what: "Pyuria + bacteriuria without symptoms is **colonization**, not infection — do not treat on UA alone.",
+        why:  "Symptoms gate treatment; treating ASB drives resistance and C. difficile without improving outcomes." },
     ],
   },
 
@@ -360,6 +357,9 @@ export const TRANCHE_C_DIAGNOSTICS = {
       { sev: "required",
         what: "Two sets of peripheral blood cultures **before antibiotics**; intra-operative peritoneal cultures at source control.",
         why:  "Polymicrobial bacteremia is common; tissue / fluid culture defines resistance and adequacy of empiric coverage." },
+      { sev: "consider",
+        what: "Add fungal culture (and 1,3-β-D-glucan if available) for **upper-GI perforation**, **recurrent / persistent leak**, or **post-operative peritonitis** on broad-spectrum therapy.",
+        why:  "Candida peritonitis is meaningful in upper-GI source and recurrent leaks; missed antifungal coverage drives mortality." },
     ],
     biomarkers: [
       { sev: "required",
