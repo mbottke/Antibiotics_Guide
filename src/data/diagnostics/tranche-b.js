@@ -48,7 +48,7 @@ export const TRANCHE_B_DIAGNOSTICS = {
     cultures: [
       { sev: "required",
         what: "Two sets of peripheral blood cultures **plus** one set from each lumen of every indwelling line, before antibiotics.",
-        why:  "Differential time-to-positivity from line vs peripheral diagnoses CLABSI; > 120 min delta is diagnostic." },
+        why:  "Differential time-to-positivity from line vs peripheral diagnoses CLABSI; > 2 h (120 min) delta is diagnostic." },
       { sev: "required",
         what: "Urine, sputum, stool culture, and any focal site (skin, mucositis, perianal) before empiric coverage.",
         why:  "Yield is lower in neutropenia but every pre-treatment culture preserves the de-escalation window." },
@@ -86,7 +86,7 @@ export const TRANCHE_B_DIAGNOSTICS = {
   "sepsis-asplenia": {
     cultures: [
       { sev: "required",
-        what: "Two sets of peripheral blood cultures **before the first dose**; the first dose itself should not be delayed beyond 30 min.",
+        what: "Two sets of peripheral blood cultures **before the first dose**; first dose within 1 h — empiric therapy never waits.",
         why:  "OPSI mortality exceeds 50%; pneumococcus, H. influenzae, and N. meningitidis drive overwhelming bacteremia." },
       { sev: "required",
         what: "Peripheral blood smear for Howell-Jolly bodies (confirms functional asplenia) and intra-erythrocytic organisms.",
@@ -416,7 +416,7 @@ export const TRANCHE_B_DIAGNOSTICS = {
         why:  "Single positive CoNS is contamination in > 80% of cases; two-set positivity is the diagnostic threshold." },
       { sev: "required",
         what: "Differential time-to-positivity between line and peripheral cultures; line-tip culture on removal.",
-        why:  "> 120 min delta supports CLABSI; line removal with quantitative tip culture confirms source." },
+        why:  "> 2 h (120 min) delta supports CLABSI; line removal with quantitative tip culture confirms source." },
     ],
     biomarkers: [
       { sev: "consider",
@@ -470,7 +470,7 @@ export const TRANCHE_B_DIAGNOSTICS = {
     cultures: [
       { sev: "required",
         what: "**Paired** peripheral and central-line blood cultures drawn simultaneously, before antibiotics and before line removal.",
-        why:  "Differential time-to-positivity > 120 min between line and peripheral cultures is diagnostic." },
+        why:  "Differential time-to-positivity > 2 h (120 min) between line and peripheral cultures is diagnostic." },
       { sev: "required",
         what: "Quantitative line-tip culture (Maki roll-plate, ≥ 15 CFU) on removal if line is pulled.",
         why:  "Confirms catheter as source and pairs with blood culture organism for definitive diagnosis." },
@@ -688,8 +688,8 @@ export const TRANCHE_B_DIAGNOSTICS = {
     ],
     biomarkers: [
       { sev: "trigger",
-        what: "Vancomycin trough or AUC₂₄ ratio; check **MIC** with reflex daptomycin MIC if vancomycin MIC ≥ 2 mg/L.",
-        why:  "Vancomycin MIC creep and heteroresistance drive failure; daptomycin or ceftaroline addition triggered at MIC ≥ 2." },
+        what: "Vancomycin AUC₂₄/MIC target 400–600; reflex daptomycin MIC and consider switch if vancomycin MIC > 1 mg/L (creep) or = 2 (borderline).",
+        why:  "MIC > 1 mg/L predicts failure even when CLSI calls ≤ 2 susceptible; heteroresistance and seeded foci compound the risk." },
       { sev: "consider",
         what: "Daily CRP trend; lactate if signs of new organ dysfunction.",
         why:  "Inflammatory persistence supports occult focus; new lactate rise drives imaging escalation." },
