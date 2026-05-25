@@ -117,23 +117,47 @@ const CSS = `
 
 /* ----------------------------- LAYOUT ----------------------------- */
 .rx-main{padding:26px 0 80px;}
-.rx-h2{font-family:var(--serif); font-size:26px; font-weight:600; letter-spacing:-.014em; margin:0 0 5px;}
+/* Wave 6 W6-B · display typography polish.
+   • Tightened tracking on the serif display ramp (better at large size).
+   • Locked line-height so headings breathe on dense pages without
+     fighting the surrounding body text.
+   • h1 introduced for the rare full-page hero context where h2 was being
+     pressed into double-duty. */
+.rx-h1{font-family:var(--serif); font-size:38px; font-weight:600; letter-spacing:-.022em; line-height:1.08; margin:0 0 10px; color:var(--ink);}
+.rx-h2{font-family:var(--serif); font-size:26px; font-weight:600; letter-spacing:-.016em; line-height:1.18; margin:0 0 5px;}
 .rx-lede{color:var(--ink2); font-size:14.5px; margin:0 0 22px; max-width:80ch; line-height:1.6;}
-.rx-h3{font-family:var(--serif); font-size:18.5px; font-weight:600; margin:34px 0 13px; letter-spacing:-.01em; display:flex; align-items:center; gap:9px;}
+.rx-h3{font-family:var(--serif); font-size:18.5px; font-weight:600; margin:34px 0 13px; letter-spacing:-.01em; line-height:1.3; display:flex; align-items:center; gap:9px;}
 .rx-h3 .ic{color:var(--ox); display:flex;}
 .rx-h4{font-family:var(--sans); font-size:13px; font-weight:700; letter-spacing:.01em; margin:20px 0 9px; display:flex; align-items:center; gap:7px;}
 .rx-h4 .ic{color:var(--ox); display:flex;}
+/* Numeric data — dose strings, mg/kg, ml/min, MIC values, half-life
+   columns. Tabular figures lock the column position so eyes scan
+   vertical numeric stacks without micro-saccades. */
+.rx-num,.rx-dose,.rx-mic,[data-tabular="true"]{font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; letter-spacing:-.002em;}
 .rx-disc{display:flex; gap:10px; align-items:flex-start; background:var(--ox-soft); border:1px solid var(--ox-line);
   border-radius:10px; padding:12px 14px; margin:0 0 24px; font-size:12.5px; color:var(--ox-deep); line-height:1.55;}
 .rx-disc svg{flex:0 0 auto; margin-top:1px;}
-.rx-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px;}
+/* Wave 6 W6-B · card elevation polish.
+   .rx-card was a flat surface (1px border, no shadow). Adds a barely-
+   perceptible resting elevation (shadow-e1) and an interactive class
+   that lifts on hover/focus. The lift uses 1px translate to feel
+   tactile without being noisy. */
+.rx-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:var(--shadow-e1); transition:box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);}
+.rx-card.rx-card-interactive:hover{box-shadow:var(--shadow-e2); transform:translateY(-1px);}
+.rx-card.rx-card-interactive:focus-within{box-shadow:var(--shadow-e3);}
 .rx-callout{background:var(--blue-soft); border:1px solid var(--blue-line); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--blue); display:flex; gap:10px; align-items:flex-start; line-height:1.55; margin:16px 0;}
 .rx-callout svg{flex:0 0 auto; margin-top:1px;}
 
 /* ----------------------------- TAGS + CHIPS ----------------------------- */
-.rx-tag{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 8px; border-radius:999px; line-height:1.3; letter-spacing:.01em; white-space:nowrap;}
-.rx-tag.clk{cursor:pointer; transition:filter .12s;}
-.rx-tag.clk:hover{filter:brightness(.96);}
+/* Wave 6 W6-B · chip polish. Pill chips get a hairline shadow at rest
+   (so the eye sees them as "tactile" rather than painted-on), and a
+   smooth ease-out for the hover-brightness shift. Active state lifts
+   to shadow-e1 for a sense of being grasped. */
+.rx-tag{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 8px; border-radius:999px; line-height:1.3; letter-spacing:.01em; white-space:nowrap; box-shadow:var(--shadow-e0); transition:filter var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);}
+.rx-tag.clk{cursor:pointer;}
+.rx-tag.clk:hover{filter:brightness(.97); box-shadow:var(--shadow-e1);}
+.rx-tag.clk:active{transform:translateY(0.5px);}
+.rx-tag.clk:focus-visible{box-shadow:var(--shadow-glow-ox);}
 .t-ox{background:var(--ox-soft); color:var(--ox); border:1px solid var(--ox-line);}
 .t-amber{background:var(--amber-soft); color:var(--amber); border:1px solid var(--amber-line);}
 .t-green{background:var(--green-soft); color:var(--green); border:1px solid var(--green-line);}
@@ -1045,6 +1069,37 @@ const CSS5 = `
   .rx-bedside *,
   .rx-bedside *::before,
   .rx-bedside *::after{ transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* ─────────────────────────────── Wave 6 W6-B · print stylesheet ───────────────
+   When a clinician prints (or saves as PDF) an answer canvas they get a
+   typographically considered handoff page — not the screen UI with
+   throwaway buttons and oxblood headers blasted into ink. Strip every
+   interactive affordance, retain content + structure, narrow margins.
+   Tested visually via Cmd/Ctrl+P; not in the e2e gate. */
+@media print {
+  /* High-contrast monochrome bias; let serif headings and body do the
+     hierarchy work without color. */
+  .rx-bedside,.rx-root{ background:#fff!important; color:#111!important; }
+  .rx-bedside *{ background:transparent!important; box-shadow:none!important; }
+  /* Hide UI chrome that has no meaning on paper. */
+  .rx-bedside-rail,.rx-header,.rx-nav,.rx-builder,.rx-toolbar,
+  [data-bedside-header-strip] button,
+  .rx-bedside-container > div:first-child > div:nth-child(1),
+  .rx-bedside-container > div:first-child > div:nth-child(2),
+  button,[role="button"]:not([data-print-keep]){ display:none!important; }
+  /* Keep severity coding readable without color saturation. */
+  .rx-tag,.rx-chip{ border:1px solid #333!important; background:transparent!important; color:#111!important; box-shadow:none!important; }
+  /* Section chrome → underline only. */
+  [data-testid$="-block"],section{ border:none!important; padding:0!important; margin:0 0 12pt 0!important; }
+  /* Page breaks avoid orphaning a kicker from its body. */
+  h1,h2,h3,h4,.rx-h1,.rx-h2,.rx-h3,.rx-h4{ break-after:avoid-page; page-break-after:avoid; }
+  /* Footer-style disclaimer prepended below the answer. */
+  .rx-bedside-container::after{
+    content:"Inpatient Antibiotic Guide · Decision support only. Verify every order against the local antibiogram and clinical pharmacy. Generated " attr(data-print-date);
+    display:block; margin-top:18pt; padding-top:8pt; border-top:1pt solid #333;
+    font-size:9pt; color:#444; font-style:italic;
+  }
 }
 `;
 
