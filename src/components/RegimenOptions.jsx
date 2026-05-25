@@ -31,6 +31,7 @@ import { lookupOptionContent } from "../data/regimenContent.js";
 import { doseAdjustments } from "../engines/dosing.js";
 import { matchesCtx } from "../engines/ctxMatch.js";
 import { AGENT_RX, DRUG_ALIASES, FORMULARY } from "../data/drugs.js";
+import { parseBold, RichText } from "./util/richText.jsx";
 
 /* Wave 5 PR-10 — microbiome collateral-damage signals.
    FORMULARY lookup keyed by canonical FORMULARY name; AGENT_RX is the
@@ -150,39 +151,6 @@ function MicrobiomeChips({ optionText }) {
         </span>
       )}
     </span>
-  );
-}
-
-/* Bold-callout parser. Splits a string on **…** segments and returns
-   an array of { text, bold } chunks. The renderer wraps bold chunks
-   in an accented span keyed to the calling context. */
-function parseBold(text) {
-  if(!text) return [];
-  const parts = [];
-  const re = /\*\*([^*]+)\*\*/g;
-  let last = 0, m;
-  while((m = re.exec(text)) !== null) {
-    if(m.index > last) parts.push({ text: text.slice(last, m.index), bold: false });
-    parts.push({ text: m[1], bold: true });
-    last = m.index + m[0].length;
-  }
-  if(last < text.length) parts.push({ text: text.slice(last), bold: false });
-  return parts;
-}
-
-function RichText({ text, accentColor, accentBg }) {
-  return (
-    <>
-      {parseBold(text).map((p, i) => p.bold ? (
-        <span key={i} style={{
-          fontWeight: 700,
-          color: accentColor,
-          background: accentBg || "transparent",
-          padding: accentBg ? "0 3px" : 0,
-          borderRadius: accentBg ? 3 : 0,
-        }}>{p.text}</span>
-      ) : <span key={i}>{p.text}</span>)}
-    </>
   );
 }
 

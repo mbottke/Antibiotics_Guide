@@ -16,35 +16,11 @@
    it presence without consuming canvas vertical real-estate.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BookOpen, ChevronDown, ChevronRight, X } from "lucide-react";
 import { getMechanism } from "../data/mechanisms.js";
-
-/* Bold-callout parser — shared shape with MonitoringBlock /
-   DurationBlock / RegimenOptions. */
-function parseBold(text) {
-  if(!text) return [];
-  const parts = [];
-  const re = /\*\*([^*]+)\*\*/g;
-  let last = 0, m;
-  while((m = re.exec(text)) !== null) {
-    if(m.index > last) parts.push({ text: text.slice(last, m.index), bold: false });
-    parts.push({ text: m[1], bold: true });
-    last = m.index + m[0].length;
-  }
-  if(last < text.length) parts.push({ text: text.slice(last), bold: false });
-  return parts;
-}
-
-function RichText({ text, accentColor }) {
-  return (
-    <>
-      {parseBold(text).map((p, i) => p.bold ? (
-        <span key={i} style={{ fontWeight: 700, color: accentColor || "inherit" }}>{p.text}</span>
-      ) : <span key={i}>{p.text}</span>)}
-    </>
-  );
-}
+import { RichText } from "./util/richText.jsx";
+import { useFocusTrap } from "./util/useFocusTrap.js";
 
 function FamilyBadge({ family }) {
   const isRes = family === "resistance";
@@ -65,6 +41,7 @@ function FamilyBadge({ family }) {
 function MechanismDrawer({ mechanismKey, open, onClose }) {
   const [foundationalOpen, setFoundationalOpen] = useState(false);
   const entry = mechanismKey ? getMechanism(mechanismKey) : null;
+  const dialogRef = useRef(null);
 
   /* Escape closes; reset foundational expand state when the drawer
      re-opens against a new key. */
@@ -76,6 +53,9 @@ function MechanismDrawer({ mechanismKey, open, onClose }) {
   }, [open, onClose]);
 
   useEffect(() => { if(open) setFoundationalOpen(false); }, [open, mechanismKey]);
+
+  // WCAG 2.4.3 / 2.1.2 — trap focus inside open dialog, restore on close.
+  useFocusTrap(dialogRef, open && !!entry);
 
   if(!open || !entry) return null;
 
@@ -96,6 +76,8 @@ function MechanismDrawer({ mechanismKey, open, onClose }) {
       }}
     >
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         style={{
           background: "var(--paper)",
@@ -106,6 +88,7 @@ function MechanismDrawer({ mechanismKey, open, onClose }) {
           overflowY: "auto",
           padding: 22,
           boxShadow: "0 24px 48px -16px rgba(15, 23, 42, 0.35)",
+          outline: "none",
         }}
         data-testid="mechanism-drawer"
       >
