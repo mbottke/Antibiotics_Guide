@@ -233,7 +233,16 @@ function OPATBlock({ opat, ctx }) {
             </span>
             <AccessBadge access={opat.access} />
           </div>
-          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <div
+            role="region"
+            aria-label="OPAT agents table — scroll horizontally"
+            tabIndex={0}
+            style={{
+              overflowX: "auto", WebkitOverflowScrolling: "touch",
+              /* outline only on keyboard focus (rx-root :focus-visible
+                 rule); avoids drawing a ring around the box on click. */
+            }}
+          >
             <AgentsTable agents={agents} />
           </div>
         </div>
