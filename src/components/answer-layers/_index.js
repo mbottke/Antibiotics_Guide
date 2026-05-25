@@ -46,6 +46,7 @@ import { rationaleLayer } from "./rationale.jsx";
 import { objectionsLayer } from "./objections.jsx";
 import { durationLayer } from "./duration.jsx";
 import { monitoringLayer } from "./monitoring.jsx";
+import { opatLayer } from "./opat.jsx";
 import { antibiogramLayer } from "./antibiogram.jsx";
 import { regionalLayer } from "./regional.jsx";
 import { novelLayer } from "./novel.jsx";
@@ -73,6 +74,7 @@ export const LAYERS = [
   objectionsLayer,
   durationLayer,
   monitoringLayer,
+  opatLayer,
   antibiogramLayer,
   regionalLayer,
   novelLayer,
