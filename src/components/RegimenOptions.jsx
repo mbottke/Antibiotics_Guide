@@ -30,18 +30,46 @@ import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { lookupOptionContent } from "../data/regimenContent.js";
 import { doseAdjustments } from "../engines/dosing.js";
 import { matchesCtx } from "../engines/ctxMatch.js";
-import { AGENT_RX, FORMULARY } from "../data/drugs.js";
+import { AGENT_RX, DRUG_ALIASES, FORMULARY } from "../data/drugs.js";
 
 /* Wave 5 PR-10 — microbiome collateral-damage signals.
    FORMULARY lookup keyed by canonical FORMULARY name; AGENT_RX is the
    same regex registry used by the case parser and refine engine, so
    "ceftriaxone" / "ceftriaxone or cefotaxime" / "zosyn" all resolve
-   identically here. */
+   identically here.
+
+   Codex review fix (PR #108): several AGENT_RX canons (e.g.
+   "Linezolid / tedizolid", "Amoxicillin-clavulanate") are not
+   FORMULARY drug names. DRUG_ALIASES maps FORMULARY → SPX-style
+   alias; we reverse it to look up FORMULARY records by either spelling. */
 const _DRUG_BY_NAME = (() => {
   const m = {};
   FORMULARY.forEach(c => c.drugs.forEach(d => { m[d.name] = d; }));
   return m;
 })();
+/* Reverse alias map: alias-name → canonical FORMULARY name. Built once.
+   Used as the second fallback when an AGENT_RX canon (e.g.
+   "Linezolid / tedizolid") doesn't directly index FORMULARY. */
+const _ALIAS_TO_FORMULARY = (() => {
+  const m = {};
+  Object.keys(DRUG_ALIASES).forEach((k) => { m[DRUG_ALIASES[k]] = k; });
+  return m;
+})();
+/* Match AGENT_RX hits against the regex variants on each FORMULARY drug.
+   Slower fallback that walks the regex set if neither direct nor alias
+   lookup hits — guarantees no silent drops as long as the canon was
+   matched in the source text. */
+function _resolveDrug(canon) {
+  if(_DRUG_BY_NAME[canon]) return _DRUG_BY_NAME[canon];
+  const aliased = _ALIAS_TO_FORMULARY[canon];
+  if(aliased && _DRUG_BY_NAME[aliased]) return _DRUG_BY_NAME[aliased];
+  const direct = AGENT_RX.find(a => a.canon === canon);
+  if(direct) {
+    const hit = FORMULARY.find(c => c.drugs.find(d => direct.rx.test(d.name)));
+    if(hit) return hit.drugs.find(d => direct.rx.test(d.name));
+  }
+  return null;
+}
 
 function _extractMicrobiomeSignals(optionText) {
   if(typeof optionText !== "string" || !optionText) return null;
@@ -52,7 +80,7 @@ function _extractMicrobiomeSignals(optionText) {
   const mdrCount = { low: 0, med: 0, high: 0 };
   let mdrUnknown = 0;
   for(const name of hits) {
-    const d = _DRUG_BY_NAME[name];
+    const d = _resolveDrug(name);
     if(!d) { mdrUnknown++; continue; }
     if(typeof d.cdiffScore === "number") {
       cdiffSum += d.cdiffScore;
