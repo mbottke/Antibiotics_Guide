@@ -47,15 +47,17 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
   /* Wave 5 CL-5 · layer-group tab strip (PR-12).
      The `group` field on every LAYERS entry routes layers into
      6 tabs: Core / Risks / Duration / Local / Special / Evidence.
-     Default tab = "core". `Show all` flips back to the legacy single-
-     scroll canvas. State persists in localStorage so a user's preferred
-     reading rhythm survives a page refresh. */
+     Default tab = "all" so the canvas surfaces every authored layer
+     on initial load (mirrors the user's "I know it's likely there"
+     framing); tab clicks narrow the view to a single group when the
+     clinician wants focused reading. State persists in localStorage
+     so a user's preferred reading rhythm survives a page refresh. */
   const _readLayerTab = () => {
     try {
-      if (typeof window === "undefined") return "core";
+      if (typeof window === "undefined") return "all";
       const v = window.localStorage?.getItem("ab_layer_tab");
-      return v && /^(core|risks|duration|local|special|evidence|all)$/.test(v) ? v : "core";
-    } catch (e) { return "core"; }
+      return v && /^(core|risks|duration|local|special|evidence|all)$/.test(v) ? v : "all";
+    } catch (e) { return "all"; }
   };
   const _writeLayerTab = (v) => {
     try {
