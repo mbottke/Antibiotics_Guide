@@ -9,7 +9,7 @@
 
 import { describe, expect, it } from "vitest";
 import React from "react";
-import { LAYERS } from "../src/components/AnswerCanvas.jsx";
+import { LAYERS } from "../src/components/answer-layers/_index.js";
 
 const VALID_GROUPS = new Set(["core", "risks", "duration", "local", "special", "evidence"]);
 
