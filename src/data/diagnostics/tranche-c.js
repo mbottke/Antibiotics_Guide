@@ -199,7 +199,7 @@ export const TRANCHE_C_DIAGNOSTICS = {
     ],
     biomarkers: [
       { sev: "required",
-        what: "Lactate, CBC, CMP, lactate at presentation; lactate trend after resuscitation.",
+        what: "Lactate, CBC, CMP at presentation; **lactate trend** after resuscitation.",
         why:  "Defines urosepsis vs uncomplicated abscess and drives ICU disposition; tracks resuscitation adequacy." },
     ],
     imaging: [
