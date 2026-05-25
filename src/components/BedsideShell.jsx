@@ -6,10 +6,11 @@
    the full vertical real estate. The user can re-expand by clicking Edit.
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useState } from "react";
-import { ArrowLeft, Pencil, Search } from "lucide-react";
+import { ArrowLeft, Pencil, Search, Settings as SettingsIcon } from "lucide-react";
 import { CaseBar } from "./CaseBar.jsx";
 import { AnswerCanvas } from "./AnswerCanvas.jsx";
 import { FontSizeControl } from "./FontSizeControl.jsx";
+import { SettingsModal } from "./SettingsModal.jsx";
 import { SYNDROMES } from "../data/syndromes.js";
 
 function _synName(id) {
@@ -23,6 +24,12 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
      re-open the Case Bar by clicking Edit. While the Case Bar is open, the
      Answer Canvas stays hidden so the screen has one job at a time. */
   const [editing, setEditing] = useState(!caseState.syndrome);
+
+  /* Wave 5 CL-4 · settings modal — gear icon in the global header strip.
+     Snapshot contract: site-level preferences land in localStorage (per
+     the existing antibiogram pattern); per-syndrome UI state stays in
+     component memory. */
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const applyCase = (update) => {
     setCaseState(c => ({
@@ -95,6 +102,23 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
               </button>
             )}
             <FontSizeControl />
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Open settings"
+              title="Settings"
+              style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: 28, height: 28,
+                background: "var(--panel)",
+                border: "1px solid var(--line)",
+                borderRadius: 999,
+                cursor: "pointer",
+                color: "var(--ink2)",
+              }}
+            >
+              <SettingsIcon size={13} aria-hidden />
+            </button>
             <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".18em", textTransform:"uppercase", color:"var(--ox)", fontWeight:600 }}>
               Bedside — Phase A
             </div>
@@ -172,6 +196,13 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
           />
         )}
       </div>
+
+      {/* Wave 5 CL-4 · settings modal — gear-icon companion */}
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onOpenAntibiogramManager={onOpenAntibiogramManager}
+      />
     </div>
   );
 }
