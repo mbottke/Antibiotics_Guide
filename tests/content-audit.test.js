@@ -24,6 +24,7 @@ import { COMBINED_RISKS } from "../src/data/combinedRisks.js";
 import { REGIONAL_RESISTANCE } from "../src/data/regionalResistance.js";
 import { NOVEL_AGENTS } from "../src/data/novelAgents.js";
 import { PEDS_PREG_DOSING } from "../src/data/pedsPregDosing.js";
+import { FORMULARY } from "../src/data/drugs.js";
 import { SURGE_PROTOCOLS } from "../src/data/surgeProtocols.js";
 import { SITE_PENETRATION } from "../src/data/sitePenetration.js";
 import { GUIDELINES, EVOLVING, TRIAL_DETAIL } from "../src/data/evidence.js";
@@ -1111,5 +1112,115 @@ describe("content-audit · combinedRisks regex soundness (P2)", () => {
           .toBe(true);
       }
     }
+  });
+});
+
+/* ============================================================
+   FORMULARY · Wave 5 PR-4 schema audit
+
+   Five fields were added to every FORMULARY drug in PR-4:
+   pkpd, timeToEffect, cdiffScore, mdrPressure, kinetics. The
+   fields are optional at the schema level (the rendered canvas
+   degrades gracefully when absent), but today every drug has
+   every field populated. The audit gates the SHAPE of every
+   populated field so a typo doesn't ship undetected. ========== */
+
+const PKPD_PATTERNS = new Set(["time-dep", "conc-dep", "AUC", "time+AUC"]);
+const MDR_PRESSURE_VALUES = new Set(["low", "med", "high"]);
+const KINETICS_VALUES = new Set(["bactericidal", "bacteriostatic", "context-dependent"]);
+const TIME_TO_EFFECT_RE = /^\d+(–\d+)?\s*(h|d)$/;
+
+describe("content-audit · FORMULARY drug fields (Wave 5 PR-4)", () => {
+  const ALL_DRUGS = FORMULARY.flatMap(c => c.drugs.map(d => ({ cls: c.cls, ...d })));
+
+  test("every drug has the five Wave 5 fields populated", () => {
+    for(const d of ALL_DRUGS) {
+      const tag = `${d.cls} :: ${d.name}`;
+      expect(d.pkpd, `${tag}.pkpd missing`).toBeTruthy();
+      expect(d.timeToEffect, `${tag}.timeToEffect missing`).toBeTruthy();
+      expect(d.cdiffScore, `${tag}.cdiffScore missing (0/null both invalid)`).toBeTruthy();
+      expect(d.mdrPressure, `${tag}.mdrPressure missing`).toBeTruthy();
+      expect(d.kinetics, `${tag}.kinetics missing`).toBeTruthy();
+    }
+  });
+
+  test("pkpd.pattern ∈ {time-dep, conc-dep, AUC, time+AUC}", () => {
+    for(const d of ALL_DRUGS) {
+      if(!d.pkpd) continue;
+      expect(PKPD_PATTERNS.has(d.pkpd.pattern),
+        `${d.name}.pkpd.pattern "${d.pkpd.pattern}" must be one of ${[...PKPD_PATTERNS].join("/")}`)
+        .toBe(true);
+    }
+  });
+
+  test("pkpd.target is a non-empty string ≤ 80 chars", () => {
+    for(const d of ALL_DRUGS) {
+      if(!d.pkpd) continue;
+      expect(typeof d.pkpd.target, `${d.name}.pkpd.target type`).toBe("string");
+      expect(d.pkpd.target.length, `${d.name}.pkpd.target non-empty`).toBeGreaterThan(0);
+      expect(d.pkpd.target.length, `${d.name}.pkpd.target length (80 hard cap)`).toBeLessThanOrEqual(80);
+    }
+  });
+
+  test("timeToEffect matches /^N(–N)? (h|d)$/ — units are a safety contract", () => {
+    for(const d of ALL_DRUGS) {
+      if(!d.timeToEffect) continue;
+      expect(TIME_TO_EFFECT_RE.test(d.timeToEffect),
+        `${d.name}.timeToEffect "${d.timeToEffect}" must match /^\\d+(–\\d+)?\\s*(h|d)$/`)
+        .toBe(true);
+    }
+  });
+
+  test("cdiffScore ∈ {1, 2, 3, 4, 5}", () => {
+    for(const d of ALL_DRUGS) {
+      if(d.cdiffScore == null) continue;
+      expect([1, 2, 3, 4, 5].includes(d.cdiffScore),
+        `${d.name}.cdiffScore "${d.cdiffScore}" must be 1..5 integer`)
+        .toBe(true);
+    }
+  });
+
+  test("mdrPressure ∈ {low, med, high}", () => {
+    for(const d of ALL_DRUGS) {
+      if(!d.mdrPressure) continue;
+      expect(MDR_PRESSURE_VALUES.has(d.mdrPressure),
+        `${d.name}.mdrPressure "${d.mdrPressure}" must be one of ${[...MDR_PRESSURE_VALUES].join("/")}`)
+        .toBe(true);
+    }
+  });
+
+  test("kinetics ∈ {bactericidal, bacteriostatic, context-dependent}", () => {
+    for(const d of ALL_DRUGS) {
+      if(!d.kinetics) continue;
+      expect(KINETICS_VALUES.has(d.kinetics),
+        `${d.name}.kinetics "${d.kinetics}" must be one of ${[...KINETICS_VALUES].join("/")}`)
+        .toBe(true);
+    }
+  });
+
+  test("coverage stats reported", () => {
+    const total = ALL_DRUGS.length;
+    const populated = {
+      pkpd:         ALL_DRUGS.filter(d => d.pkpd).length,
+      timeToEffect: ALL_DRUGS.filter(d => d.timeToEffect).length,
+      cdiffScore:   ALL_DRUGS.filter(d => d.cdiffScore).length,
+      mdrPressure:  ALL_DRUGS.filter(d => d.mdrPressure).length,
+      kinetics:     ALL_DRUGS.filter(d => d.kinetics).length,
+    };
+    const pct = (n) => Math.round((n / total) * 100);
+    // eslint-disable-next-line no-console
+    console.log(`FORMULARY PR-4 field coverage (${total} drugs):`, {
+      pkpd:         `${populated.pkpd}/${total} (${pct(populated.pkpd)}%)`,
+      timeToEffect: `${populated.timeToEffect}/${total} (${pct(populated.timeToEffect)}%)`,
+      cdiffScore:   `${populated.cdiffScore}/${total} (${pct(populated.cdiffScore)}%)`,
+      mdrPressure:  `${populated.mdrPressure}/${total} (${pct(populated.mdrPressure)}%)`,
+      kinetics:     `${populated.kinetics}/${total} (${pct(populated.kinetics)}%)`,
+    });
+    // The PR-4 contract is ≥ 80% coverage at merge; we shipped 100%.
+    expect(populated.pkpd / total).toBeGreaterThanOrEqual(0.8);
+    expect(populated.timeToEffect / total).toBeGreaterThanOrEqual(0.8);
+    expect(populated.cdiffScore / total).toBeGreaterThanOrEqual(0.8);
+    expect(populated.mdrPressure / total).toBeGreaterThanOrEqual(0.8);
+    expect(populated.kinetics / total).toBeGreaterThanOrEqual(0.8);
   });
 });
