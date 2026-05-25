@@ -46,14 +46,14 @@ import { RichText as _RichText } from "./util/richText.jsx";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 
 function _ruleTone(type, sev) {
-  if(type === "eliminate") return { color: "#b91c1c", bg: "rgba(185, 28, 28, 0.08)", line: "rgba(185, 28, 28, 0.25)", label: "Eliminate", Icon: AlertTriangle };
+  if(type === "eliminate") return { color: "var(--red)", bg: "var(--red-soft)", line: "var(--red-line)", label: "Eliminate", Icon: AlertTriangle };
   if(type === "substitute") return { color: "var(--ox)", bg: "var(--ox-soft)", line: "var(--ox-line)", label: "Substitute", Icon: Crosshair };
   if(type === "flag")      return { color: "var(--amber)", bg: "var(--amber-soft)", line: "var(--amber-line)", label: "Flag", Icon: AlertTriangle };
   return { color: "var(--ink2)", bg: "var(--paper2)", line: "var(--line)", label: "Note", Icon: Info };
 }
 
 function _sevTone(sev) {
-  if(sev === "high") return { color: "#b91c1c", label: "HIGH" };
+  if(sev === "high") return { color: "var(--red)", label: "HIGH" };
   if(sev === "med")  return { color: "var(--amber)", label: "MEDIUM" };
   return { color: "var(--ink2)", label: "LOW" };
 }
@@ -111,7 +111,7 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
       onClick={(e) => { e.stopPropagation(); if(onClose) onClose(); }}
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(15, 23, 42, 0.45)",
+        background: "var(--scrim)",
         display: "flex", alignItems: "flex-start", justifyContent: "center",
         padding: "8vh 16px",
       }}
@@ -129,7 +129,7 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
           maxHeight: "80vh",
           overflowY: "auto",
           padding: 22,
-          boxShadow: "0 24px 48px -16px rgba(15, 23, 42, 0.35)",
+          boxShadow: "var(--shadow-drawer)",
           outline: "none",
         }}
       >

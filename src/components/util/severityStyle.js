@@ -20,9 +20,9 @@ export function severityStyle(sev) {
   if(sev === "required") return {
     Icon: CheckCircle2,
     label: "REQUIRED",
-    color: "#b91c1c",
-    bg: "rgba(185, 28, 28, 0.08)",
-    line: "rgba(185, 28, 28, 0.25)",
+    color: "var(--red)",
+    bg: "var(--red-soft)",
+    line: "var(--red-line)",
   };
   if(sev === "trigger") return {
     Icon: AlertTriangle,

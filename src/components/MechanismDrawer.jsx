@@ -29,9 +29,9 @@ function FamilyBadge({ family }) {
       fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700,
       letterSpacing: ".08em", textTransform: "uppercase",
       padding: "2px 7px", borderRadius: 4,
-      color: isRes ? "#b91c1c" : "var(--ox)",
-      background: isRes ? "rgba(185, 28, 28, 0.08)" : "rgba(15, 76, 129, 0.08)",
-      border: "1px solid " + (isRes ? "rgba(185, 28, 28, 0.25)" : "var(--ox-line)"),
+      color: isRes ? "var(--red)" : "var(--ox)",
+      background: isRes ? "var(--red-soft)" : "rgba(15, 76, 129, 0.08)",
+      border: "1px solid " + (isRes ? "var(--red-line)" : "var(--ox-line)"),
     }}>
       {isRes ? "Resistance" : "Class"}
     </span>
@@ -70,7 +70,7 @@ function MechanismDrawer({ mechanismKey, open, onClose }) {
       onClick={onClose}
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(15, 23, 42, 0.45)",
+        background: "var(--scrim)",
         display: "flex", alignItems: "flex-start", justifyContent: "center",
         padding: "5vh 16px",
       }}
@@ -87,7 +87,7 @@ function MechanismDrawer({ mechanismKey, open, onClose }) {
           maxHeight: "85vh",
           overflowY: "auto",
           padding: 22,
-          boxShadow: "0 24px 48px -16px rgba(15, 23, 42, 0.35)",
+          boxShadow: "var(--shadow-drawer)",
           outline: "none",
         }}
         data-testid="mechanism-drawer"
