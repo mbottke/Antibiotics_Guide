@@ -366,16 +366,16 @@ const DIAGNOSTICS = {
   cdiff: {
     cultures: [
       { sev: "required",
-        what: "Stool **NAAT (PCR)** or 2-step algorithm (GDH antigen + toxin EIA) only in patients with ≥ 3 unformed stools in 24 h.",
-        why:  "Testing formed stool drives over-diagnosis of colonization; symptomatic-only testing preserves PPV." },
+        what: "Stool **2-step algorithm** (GDH + toxin EIA, or NAAT + toxin) only in patients with ≥ 3 unformed stools in 24 h.",
+        why:  "IDSA/SHEA 2021 prefers a multi-step algorithm over standalone NAAT — NAAT alone over-diagnoses colonization; testing formed stool compounds the error." },
       { sev: "trigger",
         what: "Do NOT repeat testing within 7 days of an initial result, and do NOT test for cure.",
         why:  "Stewardship contract; toxin shedding outlasts symptoms and drives unnecessary additional courses." },
     ],
     biomarkers: [
       { sev: "required",
-        what: "WBC, creatinine, albumin, lactate at diagnosis — define **severe** vs non-severe per IDSA 2017/2021.",
-        why:  "Severity (WBC ≥ 15, Cr ≥ 1.5×, albumin < 2.5) gates fidaxomicin / vancomycin choice and IV vs PO route." },
+        what: "WBC, creatinine, albumin, lactate at diagnosis — flag **fulminant** features that change route (PO → IV adjunct) and gate surgical consult.",
+        why:  "WBC ≥ 15, Cr ≥ 1.5×, albumin < 2.5, shock, ileus, megacolon. IDSA 2021 prefers **fidaxomicin** for any initial episode regardless of non-fulminant severity." },
     ],
     imaging: [
       { sev: "trigger",
