@@ -30,6 +30,7 @@ import { SITE_PENETRATION } from "../src/data/sitePenetration.js";
 import { GUIDELINES, EVOLVING, TRIAL_DETAIL } from "../src/data/evidence.js";
 import { TRIAL_TO_SYNDROMES, getSyndromesForTrial, _ORPHAN_IDS } from "../src/data/evidenceMap.js";
 import { DIAGNOSTICS } from "../src/data/diagnostics.js";
+import { OPAT_PROFILES, getFormularyValidationErrors } from "../src/data/opatDecision.js";
 import { MECHANISMS, getMechanism } from "../src/data/mechanisms.js";
 
 /* -------- limits and known vocabularies ------------------------- */
@@ -1309,6 +1310,142 @@ describe("content-audit · diagnostics.js entries (Wave 5 PR-6)", () => {
     expect(covered).toBeGreaterThanOrEqual(1);   // floor; raised as PR-6 tranches land
   });
 });
+
+/* ============================================================
+   Wave 5 PR-8 · OPAT-profile schema audit. Validates the
+   outpatient-IV content surface against the schema doc-blocked
+   in src/data/opatDecision.js. PR-8a seeds 8 high-volume IV
+   syndromes; PR-8b-c will broaden to all ~60-70 IV-eligible
+   syndromes per the decision-locked comprehensive coverage scope.
+   ============================================================ */
+
+const OPAT_ACCESS = new Set(["PICC", "midline", "port", "none"]);
+const OPAT_LIMITS = {
+  agentsMin:        1,
+  agentsMax:       10,
+  eligibilityMin:   1,
+  whatMaxWords:    28,
+  whyMaxWords:     26,
+  doseMaxWords:    14,
+  monitoringMaxWords: 14,
+  noteMaxWords:    26,
+};
+
+describe("content-audit · opatDecision.js entries (Wave 5 PR-8)", () => {
+  const synIds = Object.keys(OPAT_PROFILES);
+
+  test("every OPAT key matches a known syndrome id", () => {
+    const known = new Set(SYNDROMES.map(s => s.id));
+    const orphans = synIds.filter(id => !known.has(id));
+    expect(orphans, `unknown syndrome ids in OPAT_PROFILES: ${orphans.join(", ")}`).toEqual([]);
+  });
+
+  test("every agents[].name round-trips to a FORMULARY name", () => {
+    const errors = getFormularyValidationErrors();
+    expect(errors, errors.join("\n")).toEqual([]);
+  });
+
+  for(const synId of synIds) {
+    const entry = OPAT_PROFILES[synId];
+    const label = `[${synId} | OPAT]`;
+
+    test(`${label} — eligibility populated and severity-graded`, () => {
+      expect(Array.isArray(entry.eligibility), `${label}.eligibility must be array`).toBe(true);
+      expect(entry.eligibility.length,
+        `${label}.eligibility needs ≥ ${OPAT_LIMITS.eligibilityMin}`)
+        .toBeGreaterThanOrEqual(OPAT_LIMITS.eligibilityMin);
+      for(let i = 0; i < entry.eligibility.length; i++) {
+        const it = entry.eligibility[i];
+        expect(SEV_MONITORING.has(it.sev),
+          `${label}.eligibility[${i}].sev "${it.sev}" must be required/trigger/consider`).toBe(true);
+        expect(typeof it.what, `${label}.eligibility[${i}].what must be string`).toBe("string");
+        const wcWhat = wordCount(it.what);
+        expect(wcWhat,
+          `${label}.eligibility[${i}].what has ${wcWhat} words (max ${OPAT_LIMITS.whatMaxWords})`)
+          .toBeLessThanOrEqual(OPAT_LIMITS.whatMaxWords);
+        expect(typeof it.why, `${label}.eligibility[${i}].why must be string`).toBe("string");
+        const wcWhy = wordCount(it.why);
+        expect(wcWhy,
+          `${label}.eligibility[${i}].why has ${wcWhy} words (max ${OPAT_LIMITS.whyMaxWords})`)
+          .toBeLessThanOrEqual(OPAT_LIMITS.whyMaxWords);
+        if(it.matchCtx !== undefined) {
+          const err = validateCtxPredicate(it.matchCtx, `${label}.eligibility[${i}].matchCtx`);
+          if(err) throw new Error(err);
+        }
+      }
+    });
+
+    test(`${label} — access is a valid enum value`, () => {
+      expect(OPAT_ACCESS.has(entry.access),
+        `${label}.access "${entry.access}" must be PICC/midline/port/none`).toBe(true);
+    });
+
+    test(`${label} — agents populated with route/dose/monitoring`, () => {
+      expect(Array.isArray(entry.agents), `${label}.agents must be array`).toBe(true);
+      expect(entry.agents.length,
+        `${label}.agents needs ≥ ${OPAT_LIMITS.agentsMin}`)
+        .toBeGreaterThanOrEqual(OPAT_LIMITS.agentsMin);
+      expect(entry.agents.length,
+        `${label}.agents capped at ${OPAT_LIMITS.agentsMax}`)
+        .toBeLessThanOrEqual(OPAT_LIMITS.agentsMax);
+      for(let i = 0; i < entry.agents.length; i++) {
+        const ag = entry.agents[i];
+        expect(typeof ag.name, `${label}.agents[${i}].name must be string`).toBe("string");
+        expect(typeof ag.route, `${label}.agents[${i}].route must be string`).toBe("string");
+        expect(typeof ag.dose, `${label}.agents[${i}].dose must be string`).toBe("string");
+        expect(typeof ag.monitoring, `${label}.agents[${i}].monitoring must be string`).toBe("string");
+        const wcDose = wordCount(ag.dose);
+        expect(wcDose,
+          `${label}.agents[${i}].dose has ${wcDose} words (max ${OPAT_LIMITS.doseMaxWords}): "${ag.dose}"`)
+          .toBeLessThanOrEqual(OPAT_LIMITS.doseMaxWords);
+        const wcMon = wordCount(ag.monitoring);
+        expect(wcMon,
+          `${label}.agents[${i}].monitoring has ${wcMon} words (max ${OPAT_LIMITS.monitoringMaxWords})`)
+          .toBeLessThanOrEqual(OPAT_LIMITS.monitoringMaxWords);
+        if(ag.note !== undefined) {
+          expect(typeof ag.note, `${label}.agents[${i}].note must be string`).toBe("string");
+          const wcNote = wordCount(ag.note);
+          expect(wcNote,
+            `${label}.agents[${i}].note has ${wcNote} words (max ${OPAT_LIMITS.noteMaxWords})`)
+            .toBeLessThanOrEqual(OPAT_LIMITS.noteMaxWords);
+        }
+      }
+    });
+
+    test(`${label} — monitoring section (optional) severity-graded`, () => {
+      if(!Array.isArray(entry.monitoring)) return;
+      for(let i = 0; i < entry.monitoring.length; i++) {
+        const it = entry.monitoring[i];
+        expect(SEV_MONITORING.has(it.sev),
+          `${label}.monitoring[${i}].sev "${it.sev}" must be required/trigger/consider`).toBe(true);
+        expect(typeof it.what, `${label}.monitoring[${i}].what must be string`).toBe("string");
+        const wcWhat = wordCount(it.what);
+        expect(wcWhat,
+          `${label}.monitoring[${i}].what has ${wcWhat} words (max ${OPAT_LIMITS.whatMaxWords})`)
+          .toBeLessThanOrEqual(OPAT_LIMITS.whatMaxWords);
+        expect(typeof it.why, `${label}.monitoring[${i}].why must be string`).toBe("string");
+        const wcWhy = wordCount(it.why);
+        expect(wcWhy,
+          `${label}.monitoring[${i}].why has ${wcWhy} words (max ${OPAT_LIMITS.whyMaxWords})`)
+          .toBeLessThanOrEqual(OPAT_LIMITS.whyMaxWords);
+        if(it.matchCtx !== undefined) {
+          const err = validateCtxPredicate(it.matchCtx, `${label}.monitoring[${i}].matchCtx`);
+          if(err) throw new Error(err);
+        }
+      }
+    });
+  }
+
+  test("coverage of all SYNDROMES (informational)", () => {
+    const total = SYNDROMES.length;
+    const covered = SYNDROMES.filter(s => !!OPAT_PROFILES[s.id]).length;
+    const ratio = covered / total;
+    // eslint-disable-next-line no-console
+    console.log(`[content-audit] OPAT coverage: ${covered}/${total} syndromes (${(ratio * 100).toFixed(1)}%)`);
+    expect(covered).toBeGreaterThanOrEqual(1);
+  });
+});
+
 
 /* ============================================================
    Wave 5 PR-7 · mechanisms drawer schema audit. Validates the

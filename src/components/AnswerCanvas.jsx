@@ -22,6 +22,7 @@ import { getSurgeForSyndrome } from "../data/surgeProtocols.js";
 import { getPenetrationForSyndrome } from "../data/sitePenetration.js";
 import { getPedsPregForSyndrome } from "../data/pedsPregDosing.js";
 import { getDiagnosticsForSyndrome } from "../data/diagnostics.js";
+import { getOPATForSyndrome } from "../data/opatDecision.js";
 import {
   getSyndromeDuration, getSyndromeMonitoring, getSyndromeResearch,
   getReasoningForSyndrome, getObjectionsForSyndrome,
@@ -180,6 +181,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
      screen. SurgeProtocols tier-1 always-visible; non-tier-1
      collapsed with the reference layers (Research, SitePenetration). */
   const _diagnostics = getDiagnosticsForSyndrome(s.id);
+  const _opat = getOPATForSyndrome(s.id);
   const _duration = getSyndromeDuration(s.id);
   const _monitoring = getSyndromeMonitoring(s.id);
   const _research = getSyndromeResearch(s.id);
@@ -235,6 +237,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
     allergy, dose, coreRefinements,
     // cached content-accessor results
     _diagnostics,
+    _opat,
     _duration, _monitoring, _research, _rationale, _objections,
     _regional, _novel, _surgeTier1, _surgeOther, _siteP, _pedsPreg,
     _ctxPedsPreg, _pedsPregShow,
