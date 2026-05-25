@@ -34,7 +34,6 @@ import { Num, ToxDot, ChildPughScorer } from "../components/primitives";
 import { drugCoversOrg, drugRoute } from "../engines/lookup";
 import {
   FORMULARY, FORM_FLAT, RENAL_TRIGGERS, TDM, TOX_COLS, SAFE, INTERACTIONS,
-  AGENT_RX,
 } from "../data/drugs";
 import { ORGS, ORG_BY_ID, LADDER } from "../data/organisms";
 import { ALLERGY_INTRO, ALLERGY, SPECIAL_POP } from "../data/content";
@@ -78,21 +77,45 @@ function AgentsSection({
   const [fmCdiffMax, setFmCdiffMax] = useState(0); // 0 = no filter; 1–5 = max allowed
   const [fmMdrLevel, setFmMdrLevel] = useState(""); // "" | "low" | "med" | "high"
 
-  /* Helpers — map a FORMULARY drug to its AGENT_RX entry to read
-     {apsa, ana, mrsa, bl} flags. Falls back to {} when not in AGENT_RX. */
-  const _rxFor = (dr) => {
-    const hit = AGENT_RX.find(a => a.canon === dr.name ||
-      (typeof a.rx === "object" && a.rx.test(dr.name)));
-    return hit || {};
-  };
+  /* Spectrum-chip filter — drives off the FORMULARY-derived activity
+     matrix (drugCoversOrg) and the canonical drug class, NOT the
+     intentionally-partial AGENT_RX registry.
+
+     Codex review (PR #111) caught: AGENT_RX omits several FORMULARY
+     agents (Ceftaroline, the novel β-lactam/inhibitor reserve set,
+     etc.); driving spectrum chips from AGENT_RX silently excluded
+     those valid matches. Sourcing from FORMULARY metadata is the
+     correctness contract.
+
+       apsa  →  drugCoversOrg(dr, "pseudo")
+       mrsa  →  drugCoversOrg(dr, "mrsa")
+       ana   →  drugCoversOrg(dr, "anaerobe")
+       bl    →  drug class is a β-lactam class, excluding aztreonam
+                (the monobactam — preserves the existing AGENT_RX
+                semantic of "bl matches penicillins / cephalosporins
+                / carbapenems but NOT aztreonam," which is the safety-
+                relevant grouping for severe β-lactam allergy hunts). */
+  const BETA_LACTAM_CLASSES = new Set([
+    "Penicillins",
+    "Cephalosporins",
+    "Carbapenems & monobactam",
+    "Novel reserve agents (IDSA 2024)",
+  ]);
+  /* FORMULARY stores class on the outer wrapper, not the inner drug
+     record — flatten once so the predicate can resolve drug → class. */
+  const _DRUG_CLASS_OF = (() => {
+    const m = {};
+    FORMULARY.forEach((c) => c.drugs.forEach((d) => { m[d.name] = c.cls; }));
+    return m;
+  })();
+  const _isBetaLactam = (dr) =>
+    BETA_LACTAM_CLASSES.has(_DRUG_CLASS_OF[dr.name]) && dr.name !== "Aztreonam";
 
   const _spectrumMatch = (dr) => {
-    const flags = _rxFor(dr);
-    if(fmSpectrum.apsa && !flags.apsa) return false;
-    if(fmSpectrum.ana  && !flags.ana)  return false;
-    if(fmSpectrum.mrsa && !flags.mrsa) return false;
-    // bl filter excludes aztreonam (bl:false in AGENT_RX) — by design
-    if(fmSpectrum.bl   && !flags.bl)   return false;
+    if(fmSpectrum.apsa && !drugCoversOrg(dr.name, "pseudo"))   return false;
+    if(fmSpectrum.ana  && !drugCoversOrg(dr.name, "anaerobe")) return false;
+    if(fmSpectrum.mrsa && !drugCoversOrg(dr.name, "mrsa"))     return false;
+    if(fmSpectrum.bl   && !_isBetaLactam(dr))                  return false;
     return true;
   };
 
