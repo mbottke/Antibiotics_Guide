@@ -144,7 +144,8 @@ function AgentsTable({ agents }) {
   if(!Array.isArray(agents) || agents.length === 0) return null;
   return (
     <table style={{
-      width: "100%", borderCollapse: "collapse", fontSize: 11.5,
+      width: "100%", minWidth: 480,
+      borderCollapse: "collapse", fontSize: 11.5,
       border: "1px solid var(--line)", borderRadius: 6, overflow: "hidden",
     }}>
       <thead>
@@ -279,7 +280,9 @@ function OPATBlock({ opat, ctx }) {
             </span>
             <AccessBadge access={opat.access} />
           </div>
-          <AgentsTable agents={agents} />
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+            <AgentsTable agents={agents} />
+          </div>
         </div>
       )}
 
