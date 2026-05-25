@@ -161,8 +161,8 @@ function renderFootnotesOnly(text, inlineRefinements) {
    injects FootMark elements after each agent-name match that has an
    attached refinement. Preserves ClassChip and TermChip popovers; only
    string nodes are searched. */
-function renderRichWithFootnotes(text, onDrug, inlineRefinements) {
-  const base = renderRich(text, onDrug);
+function renderRichWithFootnotes(text, onDrug, inlineRefinements, onOpenMechanism) {
+  const base = renderRich(text, onDrug, onOpenMechanism);
   if(!Array.isArray(base) || !inlineRefinements.length) return base;
   const out = [];
   let key = 0;
@@ -201,7 +201,7 @@ function renderRichWithFootnotes(text, onDrug, inlineRefinements) {
 }
 
 /* ---------- the rendered rx line + footnote list ---------- */
-function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId, onAgentSelect }) {
+function RxLine({ tier, kind, refinements, onDrug, onOpenMechanism, ctx, d, synId, onAgentSelect }) {
   // Split refinements into inline-attachable vs leader-display.
   const { inline, leader } = useMemo(() => _attachRefinements(refinements), [refinements]);
   const tierColor = kind === "add" ? "var(--amber)" : "var(--ox)";
@@ -238,7 +238,7 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId, onAgentSelect 
           exists for this tier — the cards subsume the note's content. */}
       {tier.note && !tierHasContent(synId, tier.k, tier.rx, splitRegimenOptions) && (
         <div style={{ fontSize:12, color:"var(--ink2)", marginTop:4, lineHeight:1.5, fontStyle:"italic" }}>
-          {renderGloss(tier.note, onDrug)}
+          {renderGloss(tier.note, onDrug, onOpenMechanism)}
         </div>
       )}
       {/* Leader-annotation refinements (cross-cutting; can't be inlined) appear under the line. */}
@@ -261,7 +261,7 @@ function RxLine({ tier, kind, refinements, onDrug, ctx, d, synId, onAgentSelect 
   );
 }
 
-function RefinementRow({ idx, step, onDrug }) {
+function RefinementRow({ idx, step, onDrug, onOpenMechanism }) {
   const tone = _TONE_FOR[step.type] || _TONE_FOR.note;
   const stateColor = step.sev === "high" ? "var(--ox)" : step.sev === "med" ? "var(--amber)" : "var(--ink2)";
   return (
@@ -292,7 +292,7 @@ function RefinementRow({ idx, step, onDrug }) {
               : <span style={{ textDecoration: step.type === "eliminate" ? "line-through" : "none", opacity: step.type === "eliminate" ? .6 : 1 }}>{step.agent}</span>}
           </span>
         </div>
-        <div>{renderGloss(step.reason, onDrug)} {step.cite && <Cite id={step.cite} />}</div>
+        <div>{renderGloss(step.reason, onDrug, onOpenMechanism)} {step.cite && <Cite id={step.cite} />}</div>
       </div>
     </div>
   );

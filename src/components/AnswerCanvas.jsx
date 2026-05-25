@@ -28,11 +28,21 @@ import {
   getReasoningForSyndrome, getObjectionsForSyndrome,
 } from "../data/syndromeDecision.js";
 import { LAYERS } from "./answer-layers/_index.js";
+import { MechanismDrawer } from "./MechanismDrawer.jsx";
 
 /* ---------- the canvas itself ---------- */
 function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite, antibiogram, onOpenAntibiogramManager }) {
   const ans = useMemo(() => composeAnswer(caseState), [caseState]);
   const [copied, setCopied] = useState(false);
+
+  /* Wave 5 CL-3 · mechanism drawer state owned at the canvas root.
+     Threaded to every rendered ClassChip / TermChip via the shared bag,
+     consumed inside `renderText` paths. Click on any class or resistance
+     chip with an authored mechanism shows the drawer; the snapshot-only
+     contract means the key is component state, never URL or storage. */
+  const [mechanismKey, setMechanismKey] = useState(null);
+  const _onOpenMechanism = (key) => setMechanismKey(key);
+  const _closeMechanism = () => setMechanismKey(null);
 
   /* Phase D3.1 cross-section selection state — multi-tier aware.
        picksByTier  — { [tierLabel]: agentText | null } — one pick
@@ -233,6 +243,10 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
     caseState, setCaseState,
     // props threaded through
     antibiogram, onDrug, onOrg, onCite, onOpenAntibiogramManager,
+    // Wave 5 CL-3 · mechanism drawer opener — layers/blocks that render
+    // free-text through renderRich pass this to ClassChip/TermChip so the
+    // "Read the mechanism" footer can wire to the canvas-owned drawer.
+    onOpenMechanism: _onOpenMechanism,
     // computed locals consumed by render functions
     allergy, dose, coreRefinements,
     // cached content-accessor results
@@ -406,6 +420,17 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         <ShieldCheck size={13} style={{ flex:"0 0 auto", marginTop:1 }} />
         Empiric therapy is a time-limited bridge. Reassess against cultures at 48–72 h and narrow or stop — breadth held longer is harm, not safety. Decision support only; verify every order against the local antibiogram and clinical pharmacy.
       </div>
+
+      {/* Wave 5 CL-3 · MechanismDrawer mounted once at canvas root.
+          Any ClassChip or TermChip whose phrase resolves through
+          getMechanism() opens this overlay via the shared
+          onOpenMechanism callback. Returns null when key is unset
+          or unauthored — graceful fallback. */}
+      <MechanismDrawer
+        mechanismKey={mechanismKey}
+        open={!!mechanismKey}
+        onClose={_closeMechanism}
+      />
     </div>
   );
 }
