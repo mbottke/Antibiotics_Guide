@@ -133,15 +133,13 @@ const MECHANISMS = {
       "Plasmid-borne AmpC (CMY-2) increasingly seen in E. coli and Klebsiella.",
     ],
     bedside:
-      "The classic trap: a ceftriaxone-susceptible Enterobacter on day 1 " +
-      "becomes a ceftriaxone-resistant Enterobacter on day 5. The induction " +
-      "is mechanistic — β-lactam exposure increases the pool of muropeptide " +
-      "recycling intermediates, which displace AmpR's repressor conformation " +
-      "and switch it to an activator of ampC transcription. AmpD normally " +
-      "clears those intermediates and keeps AmpC repressed; selection of " +
-      "AmpD-loss mutants gives stably derepressed (hyperproducing) AmpC. " +
-      "Cefepime evades the trap because of poor affinity for the AmpC active " +
-      "site (zwitterionic quaternary nitrogen) — substrate, not regulator.",
+      "The trap: a ceftriaxone-susceptible Enterobacter on day 1 becomes " +
+      "ceftriaxone-resistant on day 5. β-lactam exposure increases " +
+      "muropeptide recycling intermediates → those flip AmpR from repressor " +
+      "to activator of ampC transcription. AmpD clears the intermediates and " +
+      "keeps AmpC quiet; AmpD-loss mutants give stably derepressed " +
+      "(hyperproducing) AmpC. Cefepime evades the trap by poor affinity for " +
+      "the AmpC active site (zwitterionic quaternary nitrogen).",
     foundational:
       "AmpC is a serine β-lactamase but kinetically distinct from class A. " +
       "The active-site serine attacks the β-lactam ring, but the wider " +
@@ -220,18 +218,15 @@ const MECHANISMS = {
       "Source control and ID consultation are non-negotiable — MBL-CRE " +
       "mortality without active therapy approaches 60%.",
     foundational:
-      "Class B β-lactamases use a Zn²⁺ ion (or two — subclass B1 has " +
-      "Zn1+Zn2) to coordinate a hydroxide ion that attacks the β-lactam ring. " +
-      "There is no acyl-enzyme intermediate — the chemistry is fundamentally " +
-      "different from serine enzymes, which is why serine-targeted inhibitors " +
-      "fail. Aztreonam is a monobactam β-lactam — its β-lactam ring stands " +
-      "alone without the fused thiazolidine (penicillins), dihydrothiazine " +
-      "(cephalosporins), or pyrroline (carbapenems) partner. The MBL active " +
-      "site is shaped around that fused bicyclic substrate, so monobactams " +
-      "are poor MBL substrates and largely escape hydrolysis (aztreonam still " +
-      "needs avibactam to evade co-resident ESBL/AmpC enzymes). Cefiderocol's " +
-      "siderophore catechol moiety binds ferric iron, hijacking active uptake " +
-      "into the periplasm — concentration outflanks hydrolysis.",
+      "Class B β-lactamases use Zn²⁺ (subclass B1 has Zn1+Zn2) to coordinate " +
+      "a hydroxide attacking the β-lactam ring — no acyl-enzyme intermediate, " +
+      "so serine-targeted inhibitors fail. Aztreonam is a monobactam β-lactam: " +
+      "its β-lactam ring stands alone, without the fused thiazolidine, " +
+      "dihydrothiazine, or pyrroline partner. The MBL active site is shaped " +
+      "around that fused bicyclic substrate, so monobactams escape hydrolysis " +
+      "(aztreonam still needs avibactam to shield co-resident ESBL/AmpC). " +
+      "Cefiderocol's catechol moiety binds ferric iron, hijacking active " +
+      "uptake — concentration outflanks hydrolysis.",
     papers: [
       { name: "CREDIBLE-CR", year: 2021,
         finding: "Cefiderocol non-inferior to best-available for CR-GNR; signal of higher mortality in CRAB subgroup." },
