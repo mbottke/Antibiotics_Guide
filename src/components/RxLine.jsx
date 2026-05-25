@@ -59,38 +59,53 @@ const _TONE_FOR = {
 
 /* The inline footnote marker rendered immediately after a refinement-named
    agent in the rx prose. Numbered, color-tinted by severity, and tied to
-   the reason list beneath the line by index. */
-function FootMark({ idx, step }) {
+   the reason list beneath the line by index.
+
+   Wave 5 PR-14: by default, FootMark is INTERACTIVE — it opens
+   DecisionAttributionDrawer on click. When passed `interactive={false}`,
+   it renders as a plain non-focusable <sup> with tooltip-only fallback.
+
+   The `interactive=false` path is mandatory inside OptionCard render
+   (which uses renderFootnotesOnly), because OptionCard is itself a
+   `<button role="radio">` and nested interactive controls violate the
+   axe nested-button rule + break radio-group keyboard semantics.
+   The contract is enforced at the renderFootnotesOnly call site. */
+function FootMark({ idx, step, interactive = true }) {
   const tone = _TONE_FOR[step.type] || _TONE_FOR.note;
   const color = step.sev === "high" ? "var(--ox)" : step.sev === "med" ? "var(--amber)" : "var(--ink2)";
-  /* Wave 5 PR-14 — clickable trace-decision affordance. Self-contained
-     state + drawer overlay (no prop drilling needed). Mechanism cross-
-     link to MechanismDrawer (PR-7a) wires up in PR-14b once that lands. */
+  const supStyle = {
+    display:"inline-flex", alignItems:"center", justifyContent:"center",
+    minWidth:14, height:14, padding:"0 4px", marginLeft:3,
+    fontSize:9, fontFamily:"var(--mono)", fontWeight:700,
+    color:"#fff", background:color, borderRadius:7, verticalAlign:"super",
+    lineHeight:1, border:"none",
+  };
+  if(!interactive) {
+    return (
+      <sup style={supStyle} title={`${tone.label}: ${step.reason}`}>{idx}</sup>
+    );
+  }
+  /* Clickable trace-decision affordance. Self-contained state + drawer
+     overlay; the drawer is rendered through a React portal so a click on
+     its backdrop never bubbles to a surrounding interactive ancestor
+     (Codex review #109 — backdrop click was changing the selected
+     regimen when the drawer was opened from inside an option card). */
   const [open, setOpen] = React.useState(false);
+  /* Use a real <button> rather than `<sup role="button">` — proper
+     semantic element, Space-key activation works correctly without
+     extra preventDefault dance, and the visual presentation is a
+     superscript via `verticalAlign:"super"` on the inline style. */
   return (
     <>
-      <sup
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(true); }}
-        onKeyDown={(e) => {
-          if(e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setOpen(true);
-          }
-        }}
         title={`Trace decision — ${tone.label}: ${step.reason}`}
         aria-label={`Trace decision · ${tone.label} on ${step.agent}`}
-        style={{
-          display:"inline-flex", alignItems:"center", justifyContent:"center",
-          minWidth:14, height:14, padding:"0 4px", marginLeft:3,
-          fontSize:9, fontFamily:"var(--mono)", fontWeight:700,
-          color:"#fff", background:color, borderRadius:7, verticalAlign:"super",
-          lineHeight:1, cursor:"pointer", border:"none",
-        }}
+        style={{ ...supStyle, cursor:"pointer", appearance:"none" }}
       >
         {idx}
-      </sup>
+      </button>
       <DecisionAttributionDrawer
         step={step}
         open={open}
@@ -106,7 +121,12 @@ function FootMark({ idx, step }) {
    the OptionCard stay a proper <button role="radio"> without violating
    the nested-interactive axe rule. Phase D2 reintroduces drug/class
    drill from inside cards through a different mechanism (likely a
-   per-card "details" affordance, not inline chips). */
+   per-card "details" affordance, not inline chips).
+
+   Wave 5 PR-14: passes `interactive={false}` on FootMark for the same
+   reason — clickable FootMark inside an option-card button would nest
+   buttons. The trace-decision drawer is still reachable from any line-
+   prose FootMark (renderRichWithFootnotes path). */
 function renderFootnotesOnly(text, inlineRefinements) {
   if(typeof text !== "string") return text;
   if(!inlineRefinements || !inlineRefinements.length) return text;
@@ -130,7 +150,7 @@ function renderFootnotesOnly(text, inlineRefinements) {
         {match[0]}
       </span>
     );
-    out.push(<FootMark key={"fm" + (key++)} idx={ent.idx} step={ent.step} />);
+    out.push(<FootMark key={"fm" + (key++)} idx={ent.idx} step={ent.step} interactive={false} />);
     usedSteps.add(ent.idx);
     remaining = remaining.slice(match.index + match[0].length);
   }
