@@ -47,6 +47,7 @@ import { objectionsLayer } from "./objections.jsx";
 import { durationLayer } from "./duration.jsx";
 import { monitoringLayer } from "./monitoring.jsx";
 import { antibiogramLayer } from "./antibiogram.jsx";
+import { pkpdLayer } from "./pkpd.jsx";
 import { regionalLayer } from "./regional.jsx";
 import { novelLayer } from "./novel.jsx";
 import { surgeLayer } from "./surge.jsx";
@@ -74,6 +75,7 @@ export const LAYERS = [
   durationLayer,
   monitoringLayer,
   antibiogramLayer,
+  pkpdLayer,
   regionalLayer,
   novelLayer,
   surgeLayer,
