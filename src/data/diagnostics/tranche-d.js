@@ -363,9 +363,9 @@ export const TRANCHE_D_DIAGNOSTICS = {
         why:  "Post-neurosurgical pleocytosis is non-specific; lactate and glucose ratio differentiate true ventriculitis." },
     ],
     panels: [
-      { sev: "trigger",
-        what: "Meningoencephalitis multiplex PCR (BioFire ME) on CSF when culture-negative or partially treated.",
-        why:  "Recovers pathogen after empiric exposure has sterilized routine culture; supports targeted narrowing." },
+      { sev: "consider",
+        what: "BioFire ME panel is **not validated** for device CSF — covers only community organisms and misses CoNS, Pseudomonas, Acinetobacter.",
+        why:  "A negative panel in ventriculitis creates dangerous false reassurance for de-escalation; relies on quantitative culture + 16S PCR." },
     ],
     imaging: [
       { sev: "trigger",
@@ -401,11 +401,9 @@ export const TRANCHE_D_DIAGNOSTICS = {
       { sev: "trigger",
         what: "CT or MRI of suspected primary source (sinuses, teeth, lung, heart).",
         why:  "Contiguous (sinus, dental) vs hematogenous (IE, lung) drives both surgical and primary source intervention." },
-    ],
-    biopsy: [
       { sev: "trigger",
-        what: "**Avoid LP when mass effect present** — herniation risk; CSF rarely diagnostic in abscess.",
-        why:  "LP is contraindicated with significant mass effect; aspirate of the abscess itself is the diagnostic step." },
+        what: "**Avoid LP when mass effect present** — herniation risk; abscess aspirate is the diagnostic step, not CSF.",
+        why:  "LP is contraindicated with significant mass effect; pathogen comes from operative aspirate, not lumbar puncture." },
     ],
   },
 
@@ -431,11 +429,9 @@ export const TRANCHE_D_DIAGNOSTICS = {
       { sev: "trigger",
         what: "CT myelogram if MRI contraindicated; CT alone is inadequate for cord and epidural space.",
         why:  "Pacemaker / hardware patients still need MRI-equivalent definition; CT misses small but cord-compressing collections." },
-    ],
-    biopsy: [
       { sev: "trigger",
-        what: "**LP contraindicated** when epidural abscess suspected — risk of inoculating CSF and herniation.",
-        why:  "Imaging precedes LP; pathogen comes from blood or operative tissue, not lumbar puncture." },
+        what: "**LP contraindicated** when epidural abscess suspected — risk of inoculating CSF and herniation; imaging precedes LP.",
+        why:  "Pathogen comes from blood or operative tissue, not lumbar puncture; LP routes infection toward neuraxis." },
     ],
   },
 
@@ -461,8 +457,6 @@ export const TRANCHE_D_DIAGNOSTICS = {
       { sev: "required",
         what: "CT / MRI sinuses and mastoids to identify primary source.",
         why:  "Source must be addressed surgically alongside cranial drainage; failure to clear primary drives recurrence." },
-    ],
-    biopsy: [
       { sev: "trigger",
         what: "**LP contraindicated with significant mass effect** — operative aspiration is both diagnostic and therapeutic.",
         why:  "Herniation risk; pathogen identification comes from the collection, not lumbar puncture." },
@@ -488,9 +482,9 @@ export const TRANCHE_D_DIAGNOSTICS = {
         why:  "Post-operative pleocytosis is non-specific; lactate and glucose ratio differentiate true bacterial meningitis." },
     ],
     panels: [
-      { sev: "trigger",
-        what: "Multiplex CSF PCR (BioFire ME) when culture-negative or partially treated.",
-        why:  "Recovers pathogen after empiric exposure; supports rapid de-escalation in low-suspicion cases." },
+      { sev: "consider",
+        what: "BioFire ME panel is **not validated** for post-neurosurgical CSF — designed for community LP, omits CoNS, Pseudomonas, Acinetobacter.",
+        why:  "Negative panel creates false reassurance; nosocomial pathogens not in target set. Quantitative culture + 16S PCR remain the diagnostic anchor." },
     ],
     imaging: [
       { sev: "trigger",
@@ -623,11 +617,11 @@ export const TRANCHE_D_DIAGNOSTICS = {
       { sev: "required",
         what: "CBC (hemolysis), CMP, CK, lactate, haptoglobin, coagulation — **massive CK rise and hemolysis** are red flags.",
         why:  "Intravascular hemolysis and massive myonecrosis define clostridial disease; severity gates hyperbaric and surgical urgency." },
+    ],
+    imaging: [
       { sev: "trigger",
         what: "**Colonoscopy after recovery if C. septicum identified** — occult colon cancer in > 50%.",
         why:  "C. septicum bacteremia / myonecrosis is a paraneoplastic sentinel; missing the cancer is the cost of skipping the scope." },
-    ],
-    imaging: [
       { sev: "trigger",
         what: "Plain XR or CT for gas in tissue — supports diagnosis but **never delays operative debridement**.",
         why:  "Soft-tissue gas is supportive; absence does not exclude — clinical pain out of proportion drives OR." },
@@ -643,13 +637,10 @@ export const TRANCHE_D_DIAGNOSTICS = {
   tetanus: {
     cultures: [
       { sev: "consider",
-        what: "**Wound culture is rarely diagnostic** — C. tetani recovered in < 30% even in clear cases.",
-        why:  "Diagnosis is clinical (trismus, spasms, rigidity); negative culture does not exclude; positive does not confirm." },
+        what: "**Wound culture rarely diagnostic** — C. tetani recovered in < 30% even in clear cases; diagnosis is clinical (trismus, spasms, rigidity).",
+        why:  "Negative culture does not exclude; positive does not confirm. Begin treatment (TIG, antitoxin, metronidazole, supportive care) on clinical suspicion." },
     ],
     biomarkers: [
-      { sev: "required",
-        what: "**Tetanus is a clinical diagnosis** — assess immunization history, wound type, and characteristic spasms.",
-        why:  "No laboratory test rules in or out; treatment (TIG, antitoxin, metronidazole, supportive care) begins on suspicion." },
       { sev: "trigger",
         what: "Anti-tetanus IgG titer pre-treatment — protective level (> 0.1 IU/mL) makes diagnosis very unlikely.",
         why:  "Adequate antibody titer at presentation argues strongly against tetanus; useful for ruling out, not in." },
