@@ -37,6 +37,7 @@
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 
 import { sourceControlLayer } from "./source-control.jsx";
+import { diagnosticsLayer } from "./diagnostics.jsx";
 import { startLayer } from "./start.jsx";
 import { coversLayer } from "./covers.jsx";
 import { deescLayer } from "./deesc.jsx";
@@ -63,6 +64,7 @@ import { pearlsLayer } from "./pearls.jsx";
    sits between ans-state and ans-pearls. */
 export const LAYERS = [
   sourceControlLayer,
+  diagnosticsLayer,
   startLayer,
   coversLayer,
   deescLayer,
