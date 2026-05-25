@@ -29,16 +29,18 @@
    up to replace the legacy tab router.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
-  Activity, AlertTriangle, Clock, CornerDownRight, Crosshair,
+  Activity, AlertTriangle, ArrowLeftRight, Clock, CornerDownRight, Crosshair,
   FlaskConical, Info, Layers, Network, ShieldAlert, TrendingDown, X,
 } from "lucide-react";
 import { SpectrumCompare } from "../components/cards";
 import { Cite, PDot } from "../components/primitives";
 import { SpectrumChartFull } from "../spectrum/Spectrum";
 import { PEN, PEN_SITES } from "../data/drugs";
-import { MECH } from "../data/organisms";
+import { MECH, ORGS } from "../data/organisms";
+import { SYNDROMES } from "../data/syndromes";
+import { compareRegimens } from "../engines/regimenCompare";
 
 function CompareSection({
   activeTab,
@@ -394,13 +396,216 @@ function CompareSection({
     </div>
   );
 
+  /* REGIMENS panel — Wave 5 PR-13 cross-cutting path. Consumes the
+     compareRegimens engine (PR-5b) to give the clinician a direct
+     A-vs-B side-by-side: coverage delta per organism, toxicity tally,
+     microbiome impact, and evidence-grade against an optional syndrome.
+     Inputs are free-text, comma-separated drug lists. Parsing happens
+     through AGENT_RX inside the engine, so "zosyn, vanc" works the
+     same as canonical FORMULARY names. */
+  const regimensPanel = <RegimensComparePanel />;
+
   /* Sub-tab dispatch. Default to "spectrum" so the component renders
      a useful panel even when activeTab is undefined (e.g. tests that
      mount the component without props). */
   const tab = activeTab || "spectrum";
   if(tab === "penetration") return penetrationPanel;
   if(tab === "mechanisms") return mechanismsPanel;
+  if(tab === "regimens") return regimensPanel;
   return spectrumPanel;
+}
+
+/* ============================================================
+   Wave 5 PR-13 — Regimens compare sub-tab body.
+   Side-by-side diff between two empiric regimens using the
+   compareRegimens engine (PR-5b). Pure UI on top of the symmetric
+   four-dimensional diff. ============================================ */
+function RegimensComparePanel() {
+  const [regAText, setRegAText] = useState("Cefepime, Vancomycin (IV)");
+  const [regBText, setRegBText] = useState("Meropenem");
+  const [synId, setSynId] = useState("sepsis");
+
+  const regA = useMemo(
+    () => regAText.split(",").map(s => s.trim()).filter(Boolean),
+    [regAText],
+  );
+  const regB = useMemo(
+    () => regBText.split(",").map(s => s.trim()).filter(Boolean),
+    [regBText],
+  );
+  const syndrome = useMemo(
+    () => SYNDROMES.find(s => s.id === synId) || null,
+    [synId],
+  );
+
+  const diff = useMemo(
+    () => compareRegimens(regA, regB, syndrome),
+    [regA, regB, syndrome],
+  );
+
+  const winnerLabel = (w) => w === "a" ? "Regimen A" : w === "b" ? "Regimen B" : "Tie";
+  const winnerColor = (w) => w === "tie" ? "var(--ink2)" : "var(--ox)";
+
+  return (
+    <div>
+      <h2 className="rx-h2">
+        <span className="ic"><ArrowLeftRight size={20} aria-hidden /></span>
+        Compare two empiric regimens
+      </h2>
+      <p className="rx-lede" style={{ maxWidth: "82ch" }}>
+        Side-by-side diff across four independent dimensions: organism
+        coverage (using <code>drugCoversOrg</code>), toxicity tally
+        (DRUG_IX rows per agent), microbiome impact (<i>C. difficile</i>
+        score + MDR-selection pressure from FORMULARY), and evidence
+        grade against an optional syndrome (tier-position scoring). Free-
+        text input — alias and shorthand spellings ("zosyn", "vanc") are
+        recognized through the same AGENT_RX registry the regimen engine
+        uses.
+      </p>
+
+      {/* Inputs */}
+      <div className="rx-card" style={{ display: "grid", gap: 12, marginBottom: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+          <label style={{ display: "block" }}>
+            <span style={{
+              fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+              letterSpacing: ".08em", textTransform: "uppercase",
+              color: "var(--ox)",
+            }}>Regimen A</span>
+            <input
+              type="text"
+              value={regAText}
+              onChange={(e) => setRegAText(e.target.value)}
+              placeholder="Cefepime, Vancomycin (IV)"
+              aria-label="Regimen A — comma-separated drug names"
+              style={{
+                width: "100%", marginTop: 4, padding: "6px 8px",
+                fontFamily: "var(--mono)", fontSize: 12,
+                border: "1px solid var(--line)", borderRadius: 5,
+                background: "var(--paper)",
+              }}
+            />
+          </label>
+          <label style={{ display: "block" }}>
+            <span style={{
+              fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+              letterSpacing: ".08em", textTransform: "uppercase",
+              color: "var(--ox)",
+            }}>Regimen B</span>
+            <input
+              type="text"
+              value={regBText}
+              onChange={(e) => setRegBText(e.target.value)}
+              placeholder="Meropenem"
+              aria-label="Regimen B — comma-separated drug names"
+              style={{
+                width: "100%", marginTop: 4, padding: "6px 8px",
+                fontFamily: "var(--mono)", fontSize: 12,
+                border: "1px solid var(--line)", borderRadius: 5,
+                background: "var(--paper)",
+              }}
+            />
+          </label>
+        </div>
+        <label style={{ display: "block" }}>
+          <span style={{
+            fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+            letterSpacing: ".08em", textTransform: "uppercase",
+            color: "var(--ink2)",
+          }}>Syndrome context (drives coverage + evidence grade)</span>
+          <select
+            value={synId}
+            onChange={(e) => setSynId(e.target.value)}
+            aria-label="Syndrome context"
+            style={{
+              marginTop: 4, padding: "6px 8px", fontSize: 12,
+              border: "1px solid var(--line)", borderRadius: 5,
+              background: "var(--paper)", maxWidth: 360,
+            }}
+          >
+            <option value="">— none (use full organism set) —</option>
+            {SYNDROMES.map(s => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {/* Coverage delta */}
+      <h3 className="rx-h3">
+        <span className="ic"><Crosshair size={18} /></span>
+        Coverage delta — per organism
+      </h3>
+      <div className="rx-card" style={{ marginBottom: 16 }}>
+        {diff.coverage.organisms.length === 0 ? (
+          <p style={{ color: "var(--ink2)", fontSize: 12 }}>No organisms to compare — pick a syndrome or add drugs.</p>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+            <thead>
+              <tr style={{ background: "var(--paper2)" }}>
+                <th style={{ textAlign: "left", padding: "6px 9px", fontWeight: 700 }}>Organism</th>
+                <th style={{ textAlign: "center", padding: "6px 9px", fontWeight: 700 }}>A</th>
+                <th style={{ textAlign: "center", padding: "6px 9px", fontWeight: 700 }}>B</th>
+                <th style={{ textAlign: "left", padding: "6px 9px", fontWeight: 700 }}>Delta</th>
+              </tr>
+            </thead>
+            <tbody>
+              {diff.coverage.organisms.map(o => {
+                const tone = o.delta === "neither" ? "#b91c1c" : o.delta === "both" ? "var(--ink2)" : "var(--ox)";
+                const deltaLabel = o.delta === "aOnly" ? "A only" : o.delta === "bOnly" ? "B only" :
+                                   o.delta === "both" ? "Both" : "Neither";
+                return (
+                  <tr key={o.id} style={{ borderTop: "1px solid var(--line)" }}>
+                    <td style={{ padding: "6px 9px" }}>{o.label}</td>
+                    <td style={{ padding: "6px 9px", textAlign: "center", color: o.a ? "var(--ox)" : "var(--ink2)" }}>
+                      {o.a ? "✓" : "—"}
+                    </td>
+                    <td style={{ padding: "6px 9px", textAlign: "center", color: o.b ? "var(--ox)" : "var(--ink2)" }}>
+                      {o.b ? "✓" : "—"}
+                    </td>
+                    <td style={{ padding: "6px 9px", color: tone, fontFamily: "var(--mono)", fontSize: 11, fontWeight: 600 }}>
+                      {deltaLabel}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Microbiome + evidence + toxicity summary */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
+        <div className="rx-card">
+          <h4><span className="ic"><Activity size={15} /></span>Microbiome impact</h4>
+          <ul style={{ paddingLeft: 20, margin: 0 }}>
+            <li><b>A:</b> worst C.diff = {diff.microbiome.a.cdiffMax || "—"} · MDR high count = {diff.microbiome.a.mdrCount.high}</li>
+            <li><b>B:</b> worst C.diff = {diff.microbiome.b.cdiffMax || "—"} · MDR high count = {diff.microbiome.b.mdrCount.high}</li>
+            <li style={{ marginTop: 6, color: winnerColor(diff.microbiome.winner), fontWeight: 600 }}>
+              Lower collateral: {winnerLabel(diff.microbiome.winner)}
+            </li>
+          </ul>
+        </div>
+        <div className="rx-card">
+          <h4><span className="ic"><ShieldAlert size={15} /></span>Toxicity tally</h4>
+          <ul style={{ paddingLeft: 20, margin: 0 }}>
+            <li><b>A:</b> {diff.toxicity.a.total} flags ({diff.toxicity.a.majorCount} major)</li>
+            <li><b>B:</b> {diff.toxicity.b.total} flags ({diff.toxicity.b.majorCount} major)</li>
+          </ul>
+        </div>
+        <div className="rx-card">
+          <h4><span className="ic"><FlaskConical size={15} /></span>Evidence grade</h4>
+          <ul style={{ paddingLeft: 20, margin: 0 }}>
+            <li><b>A:</b> {diff.evidence.a.preferred.length} preferred · {diff.evidence.a.alternative.length} alt · {diff.evidence.a.offProtocol.length} off-protocol</li>
+            <li><b>B:</b> {diff.evidence.b.preferred.length} preferred · {diff.evidence.b.alternative.length} alt · {diff.evidence.b.offProtocol.length} off-protocol</li>
+            <li style={{ marginTop: 6, color: winnerColor(diff.evidence.winner), fontWeight: 600 }}>
+              Better-graded: {winnerLabel(diff.evidence.winner)}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export { CompareSection };

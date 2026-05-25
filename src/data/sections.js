@@ -45,7 +45,7 @@ const SECTIONS = [
     label: "Compare",
     icon: LayoutGrid,
     hint: "Spectrum × penetration × mechanism matrices and drug-vs-drug picker",
-    tabs: ["spectrum", "penetration", "mechanisms"],
+    tabs: ["spectrum", "penetration", "mechanisms", "regimens"],
   },
   {
     id: "principles",
