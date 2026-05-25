@@ -290,11 +290,384 @@ function RefinementRow({ idx, step, onDrug }) {
   );
 }
 
+/* ---------- per-layer render functions ----------
+
+   Wave 5 PR-3 Stage 1. Each function below produces the JSX for a
+   single LAYERS entry. The functions are pure: they take the shared
+   bag (`_shared` from the AnswerCanvas component) as their only
+   argument and return JSX. The previous inline JSX block (~340 LoC
+   inside AnswerCanvas) is replaced by `LAYERS.map(L => L.render(...))`.
+
+   Each render function consumes only the fields it needs from
+   `shared`; the bag itself is destructured at the top of every
+   function for readability. The same `shared` value is what
+   `LAYERS[i].when(shared)` consults, so visibility and content are
+   guaranteed to read from the same source — drift between the two
+   is structurally impossible. */
+
+function renderSourceControl(shared) {
+  const { ans } = shared;
+  if (!ans.sourceControl) return null;
+  return (
+    <div style={{
+      display:"flex", gap:10, alignItems:"flex-start",
+      padding:"12px 14px", background:"var(--ox-soft)", border:"1px solid var(--ox-line)",
+      borderRadius:10, marginBottom: 16, fontSize:12.5, color:"var(--ox-deep)", lineHeight:1.55,
+    }}>
+      <Crosshair size={15} style={{ flex:"0 0 auto", marginTop:1, color:"var(--ox)" }} />
+      <div>
+        <b>Source control is the therapy; antibiotics are adjunctive.</b> {ans.sourceControl}
+      </div>
+    </div>
+  );
+}
+
+function renderStart(shared) {
+  const { ans, allergy, coreRefinements, onDrug, dose, setTierPick, s } = shared;
+  return (
+    <Section kicker="Start now" icon={Crosshair} sticky id="ans-start">
+      <RxLine kind="core" tier={ans.core} refinements={coreRefinements} onDrug={onDrug}
+        ctx={ans.ctx} d={ans.d} synId={s.id}
+        onAgentSelect={setTierPick(ans.core.k)} />
+      {ans.adds.map((a, i) => (
+        <RxLine key={i} kind="add" tier={a} refinements={[]} onDrug={onDrug}
+          ctx={ans.ctx} d={ans.d} synId={s.id}
+          onAgentSelect={setTierPick(a.k)} />
+      ))}
+      {allergy && (
+        <div style={{
+          display:"flex", gap:9, alignItems:"flex-start",
+          padding:"10px 12px", background: allergy.tone === "ox" ? "var(--ox-soft)" : "var(--amber-soft)",
+          border: `1px solid ${allergy.tone === "ox" ? "var(--ox-line)" : "var(--amber-line)"}`,
+          borderRadius:8, fontSize:12, color: allergy.tone === "ox" ? "var(--ox-deep)" : "var(--amber)",
+          lineHeight:1.55, marginTop:8,
+        }}>
+          <ShieldAlert size={14} style={{ flex:"0 0 auto", marginTop:1 }} />
+          <div><b>{allergy.head}.</b> {allergy.body}</div>
+        </div>
+      )}
+      {ans.ctx.on && ans.empiricAgents.length > 0 && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop:"1px dashed var(--line2)" }}>
+          <div style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--muted)", fontWeight:600, marginBottom:7 }}>
+            <Calculator size={11} style={{ verticalAlign:"-1px", marginRight:5 }}/>Dosing for this patient
+            {ans.d.crcl != null && <span style={{ marginLeft:8, color:"var(--ink2)", textTransform:"none", letterSpacing:0, fontFamily:"var(--sans)", fontSize:11.5 }}>CrCl {ans.d.crcl} mL/min</span>}
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px, 1fr))", gap:6 }}>
+            {ans.empiricAgents.map(n => {
+              const a = dose(n);
+              const stat = (a && (a.kind === "band" || a.kind === "level") && a.adjusted) ? a.adjusted : (a ? a.normal : null);
+              const changed = a && a.kind === "band" && a.changed;
+              return (
+                <div key={n} style={{
+                  display:"flex", justifyContent:"space-between", alignItems:"center", gap:8, flexWrap:"wrap",
+                  padding:"5px 10px", background: changed ? "var(--decision-adjusted-bg)" : "var(--paper2)",
+                  border:`1px solid ${changed ? "var(--decision-adjusted-line)" : "var(--line)"}`, borderRadius:6,
+                  fontSize:12, fontFamily:"var(--mono)",
+                }}>
+                  <button type="button" onClick={() => onDrug && onDrug(n)}
+                    style={{ fontFamily:"var(--sans)", fontSize:12.5, fontWeight:600, color:"var(--ink)",
+                      background:"none", border:"none", cursor:"pointer", padding:0, textAlign:"left", minWidth:0, overflow:"hidden", textOverflow:"ellipsis" }}>
+                    {n.split(" / ")[0]}
+                  </button>
+                  <span style={{ color: changed ? "var(--decision-adjusted)" : "var(--ink2)", fontWeight:600, minWidth:0, overflowWrap:"anywhere" }}>{stat || ""}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ fontSize:11, color:"var(--muted)", fontStyle:"italic", marginTop:7 }}>
+            First (loading) doses are full doses regardless of clearance — adjustments are maintenance only.
+          </div>
+        </div>
+      )}
+    </Section>
+  );
+}
+
+function renderCovers(shared) {
+  const { s, ans, onDrug, onOrg } = shared;
+  return (
+    <Section kicker="Covers" icon={Check} id="ans-covers">
+      <div style={{ fontSize:13, color:"var(--ink2)", lineHeight:1.6 }}>
+        <div style={{ marginBottom:6 }}>
+          <span style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--green)", fontWeight:700, marginRight:6 }}>Cover</span>
+          {renderGloss(s.cover.empiric, onDrug)}
+        </div>
+        <div style={{ marginBottom:6 }}>
+          <span style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--ox)", fontWeight:700, marginRight:6 }}>Don't over-cover</span>
+          {renderGloss(s.cover.drop, onDrug)}
+        </div>
+        {ans.bugs.length > 0 && (
+          <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginTop:9 }}>
+            {ans.bugs.map(b => {
+              const o = ORG_BY_ID[b];
+              if(!o) return null;
+              return (
+                <button key={b} type="button" onClick={() => onOrg && onOrg(b)}
+                  style={{
+                    display:"inline-flex", alignItems:"center", gap:4,
+                    fontSize:11, fontWeight:500, padding:"3px 8px", borderRadius:999,
+                    background:"var(--line2)", color:"var(--ink2)", border:"1px solid var(--line)",
+                    cursor:"pointer",
+                  }}>
+                  <Bug size={10}/> {o.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+function renderDeesc(shared) {
+  const { s, ans, onDrug, onOrg } = shared;
+  return (
+    <Section kicker="Stop at 48–72 h" icon={TrendingDown} id="ans-deesc">
+      <div style={{ fontSize:13, color:"var(--ink2)", lineHeight:1.6, marginBottom: ans.deesc.length ? 12 : 0 }}>
+        {renderGloss(s.deesc, onDrug)}
+      </div>
+      {ans.deesc.length > 0 && (
+        <div>
+          <div style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--muted)", fontWeight:600, marginBottom:7 }}>
+            <Crosshair size={11} style={{ verticalAlign:"-1px", marginRight:5 }}/>Narrow by organism
+          </div>
+          <div style={{ display:"flex", flexDirection:"column", gap:7 }}>
+            {ans.deesc.slice(0, 6).map(row => (
+              <div key={row.id} style={{
+                display:"flex", gap:9, alignItems:"flex-start",
+                padding:"7px 10px", background:"var(--paper2)", border:"1px solid var(--line)",
+                borderRadius:7, fontSize:12, lineHeight:1.5,
+              }}>
+                <button type="button" onClick={() => onOrg && onOrg(row.id)}
+                  style={{
+                    flex:"0 0 auto", display:"inline-flex", alignItems:"center", gap:4,
+                    fontSize:11, fontWeight:600, color:"var(--ox)", background:"var(--ox-softer)",
+                    border:"1px solid var(--ox-line)", borderRadius:5, padding:"3px 7px",
+                    cursor:"pointer", whiteSpace:"nowrap",
+                  }}>
+                  <Bug size={10}/> {row.label}
+                </button>
+                <div style={{ flex:1, minWidth:0 }}>
+                  {row.targets.length > 0
+                    ? row.targets.map((t, i) => (
+                        <div key={i} style={{ marginBottom: i < row.targets.length - 1 ? 4 : 0 }}>
+                          {t.sub && row.targets.length > 1 && (
+                            <span style={{ fontFamily:"var(--mono)", fontSize:10, color:"var(--muted)", marginRight:6 }}>{t.sub}</span>
+                          )}
+                          <ArrowRight size={10} style={{ verticalAlign:"-1px", color:"var(--muted)", margin:"0 4px" }}/>
+                          {renderRich(t.first, onDrug)}
+                        </div>
+                      ))
+                    : row.docFallback.length > 0 && (
+                        <span>
+                          <ArrowRight size={10} style={{ verticalAlign:"-1px", color:"var(--muted)", marginRight:4 }}/>
+                          {row.docFallback.map((n, i) => (
+                            <React.Fragment key={n}>
+                              {i ? ", " : ""}
+                              <button type="button" onClick={() => onDrug && onDrug(n)}
+                                style={{ background:"none", border:"none", padding:0, color:"var(--ox)", fontWeight:600, cursor:"pointer", textDecoration:"underline", textDecorationStyle:"dotted", textUnderlineOffset:2 }}>
+                                {n}
+                              </button>
+                            </React.Fragment>
+                          ))}
+                        </span>
+                      )}
+                  {row.stop.length > 0 && (
+                    <div style={{ fontSize:11, color:"var(--muted)", marginTop:4 }}>
+                      <Scissors size={10} style={{ verticalAlign:"-1px", marginRight:4 }}/>
+                      Lets you stop: {row.stop.join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Section>
+  );
+}
+
+function renderRisks(shared) {
+  return (
+    <div id="ans-risks" style={{ scrollMarginTop: 96 }}>
+      <CombinedRisksBlock pickedAgents={shared.pickedAgents} />
+    </div>
+  );
+}
+
+function renderRationale(shared) {
+  return (
+    <div id="ans-rationale" style={{ scrollMarginTop: 96 }}>
+      <ReasoningTraceBlock rationale={shared._rationale} onCite={shared.onCite} />
+    </div>
+  );
+}
+
+function renderObjections(shared) {
+  return (
+    <div id="ans-objections" style={{ scrollMarginTop: 96 }}>
+      <ObjectionsBlock objections={shared._objections} onCite={shared.onCite} />
+    </div>
+  );
+}
+
+function renderDurationStructured(shared) {
+  const { ans, _duration, pickedAgents, effectiveBranch, handleBranchSelect, startDate, setStartDate } = shared;
+  return (
+    <div id="ans-duration" style={{ scrollMarginTop: 96 }}>
+      <DurationBlock
+        duration={_duration}
+        pickedAgents={pickedAgents}
+        pickedBranch={effectiveBranch}
+        onBranchSelect={handleBranchSelect}
+        startDate={startDate}
+        onStartDateChange={setStartDate}
+        ctx={{ ...ans.ctx, ...ans.d }}
+      />
+    </div>
+  );
+}
+
+function renderMonitoring(shared) {
+  const { ans, _monitoring, pickedAgents, effectiveBranch } = shared;
+  return (
+    <div id="ans-monitoring" style={{ scrollMarginTop: 96 }}>
+      <MonitoringBlock
+        monitoring={_monitoring}
+        pickedAgents={pickedAgents}
+        pickedBranch={effectiveBranch}
+        ctx={{ ...ans.ctx, ...ans.d }}
+      />
+    </div>
+  );
+}
+
+function renderAntibiogram(shared) {
+  const { antibiogram, s, onOpenAntibiogramManager } = shared;
+  return (
+    <div id="ans-antibiogram" style={{ scrollMarginTop: 96 }}>
+      <AntibiogramBlock
+        antibiogram={antibiogram}
+        syndrome={s}
+        onOpenManager={onOpenAntibiogramManager}
+      />
+    </div>
+  );
+}
+
+function renderRegional(shared) {
+  return (
+    <div id="ans-regional" style={{ scrollMarginTop: 96 }}>
+      <RegionalResistanceBlock patterns={shared._regional} />
+    </div>
+  );
+}
+
+function renderNovel(shared) {
+  return (
+    <div id="ans-novel" style={{ scrollMarginTop: 96 }}>
+      <NovelAgentsBlock agents={shared._novel} />
+    </div>
+  );
+}
+
+function renderSurgeTier1(shared) {
+  return (
+    <div id="ans-surge" style={{ scrollMarginTop: 96 }}>
+      <SurgeProtocolsBlock protocols={shared._surgeTier1} />
+    </div>
+  );
+}
+
+function renderPedsPreg(shared) {
+  return (
+    <div id="ans-pedspreg" style={{ scrollMarginTop: 96 }}>
+      <PedsPregBlock entries={shared._pedsPregShow} />
+    </div>
+  );
+}
+
+function renderDepth(shared) {
+  const { _research, _surgeOther, _siteP, _ctxPedsPreg, _pedsPreg } = shared;
+  return (
+    <details id="ans-depth" style={{
+      marginTop: 8, padding: 0,
+      border: "1px solid var(--line)", borderRadius: 8,
+      background: "var(--paper2)",
+      scrollMarginTop: 96,
+    }}>
+      <summary style={{
+        cursor: "pointer", padding: "10px 14px",
+        fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
+        color: "var(--ox)", letterSpacing: ".08em", textTransform: "uppercase",
+        listStyle: "none", borderRadius: 8,
+        display: "flex", alignItems: "center", gap: 8,
+      }}>
+        <ChevronRight size={12} /> More depth · evidence + reference
+      </summary>
+      <div style={{ padding: "0 14px 14px" }}>
+        <ResearchBlock research={_research} />
+        {_surgeOther.length > 0 && <SurgeProtocolsBlock protocols={_surgeOther} />}
+        <SitePenetrationBlock entries={_siteP} />
+        {!_ctxPedsPreg && _pedsPreg.length > 0 && <PedsPregBlock entries={_pedsPreg} />}
+      </div>
+    </details>
+  );
+}
+
+function renderState(shared) {
+  const { caseState, setCaseState, ans, onDrug, onOrg, _duration } = shared;
+  return (
+    <div id="ans-state" style={{ scrollMarginTop: 96 }}>
+      <ReassessmentPanel
+        caseState={caseState}
+        setCaseState={setCaseState}
+        empiric={ans}
+        onDrug={onDrug}
+        onOrg={onOrg}
+        hasStructuredDuration={!!_duration}
+      />
+    </div>
+  );
+}
+
+function renderDurationLegacy(shared) {
+  const { s, ans, onCite } = shared;
+  return (
+    <Section kicker="Duration" icon={Clock} id="ans-duration">
+      <div style={{ fontSize:13.5, color:"var(--ink)", lineHeight:1.55 }}>
+        {s.duration}
+        {ans.evidence && (
+          <span style={{ marginLeft:8 }}>
+            {ans.evidence.ev && <Ev kind={ans.evidence.ev} />}{" "}
+            <Cite id={ans.evidence.ref} onClick={(cid) => onCite && onCite(cid)} />
+          </span>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+function renderPearls(shared) {
+  const { ans } = shared;
+  return (
+    <Section kicker="Pearls" icon={Activity} id="ans-pearls">
+      <ul style={{ margin:0, padding:"0 0 0 18px", fontSize:12.5, color:"var(--ink2)", lineHeight:1.6 }}>
+        {ans.pearls.map((p, i) => (
+          <li key={i} style={{ marginBottom:5 }} dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>") }} />
+        ))}
+      </ul>
+    </Section>
+  );
+}
+
 /* ---------- layer registry ----------
 
-   Wave 5 PR-3 anchor refactor. Every depth layer rendered below
-   `Section kicker="Start now"` is catalogued here. The registry is
-   the single source of truth for:
+   Wave 5 PR-3 anchor refactor + Stage 1. Every depth layer rendered
+   below the header strip and spine is catalogued here. The registry
+   is the single source of truth for:
 
      · the Canvas spine chip strip (a section appears in the spine
        iff `when(shared)` returns true AND `spineLabel` is set);
@@ -337,23 +710,24 @@ function RefinementRow({ idx, step, onDrug }) {
    predicates are mutually exclusive (`_duration` present vs absent),
    so the spine dedupe collapses the pair into a single chip. */
 const LAYERS = [
-  { id: "ans-start",       group: "core",     spineLabel: "Start",     when: () => true },
-  { id: "ans-covers",      group: "core",     spineLabel: "Covers",    when: () => true },
-  { id: "ans-deesc",       group: "core",     spineLabel: "48–72 h",   when: () => true },
-  { id: "ans-risks",       group: "risks",    spineLabel: "Risks",     when: (s) => s.pickedAgents.length > 0 },
-  { id: "ans-rationale",   group: "risks",    spineLabel: "Why",       when: (s) => !!s._rationale },
-  { id: "ans-objections",  group: "risks",    spineLabel: "Challenge", when: (s) => s._objections && s._objections.length > 0 },
-  { id: "ans-duration",    group: "duration", spineLabel: "Duration",  when: (s) => !!s._duration },
-  { id: "ans-monitoring",  group: "duration", spineLabel: "Monitor",   when: (s) => !!s._monitoring },
-  { id: "ans-antibiogram", group: "local",    spineLabel: "Local %S",  when: (s) => !!s.antibiogram },
-  { id: "ans-regional",    group: "local",    spineLabel: "Regional",  when: (s) => s._regional.length > 0 },
-  { id: "ans-novel",       group: "local",    spineLabel: "Novel",     when: (s) => s._novel.length > 0 },
-  { id: "ans-surge",       group: "local",    spineLabel: "Surge",     when: (s) => s._surgeTier1.length > 0 },
-  { id: "ans-pedspreg",    group: "special",  spineLabel: (s) => s.ans.ctx.pregnancy ? "Pregnancy" : "Pediatrics", when: (s) => s._pedsPregShow.length > 0 },
-  { id: "ans-depth",       group: "evidence", spineLabel: "Depth",     when: (s) => !!(s._research || s._surgeOther.length > 0 || s._siteP.length > 0 || (!s._ctxPedsPreg && s._pedsPreg.length > 0)) },
-  { id: "ans-state",       group: "duration", spineLabel: "State",     when: () => true },
-  { id: "ans-duration",    group: "duration", spineLabel: "Duration",  when: (s) => !s._duration },
-  { id: "ans-pearls",      group: "evidence", spineLabel: "Pearls",    when: (s) => s.ans.pearls.length > 0 },
+  { id: "ans-source-control", group: "core",     spineLabel: null,        when: (s) => !!s.ans.sourceControl, render: renderSourceControl },
+  { id: "ans-start",          group: "core",     spineLabel: "Start",     when: () => true,                                                    render: renderStart },
+  { id: "ans-covers",         group: "core",     spineLabel: "Covers",    when: () => true,                                                    render: renderCovers },
+  { id: "ans-deesc",          group: "core",     spineLabel: "48–72 h",   when: () => true,                                                    render: renderDeesc },
+  { id: "ans-risks",          group: "risks",    spineLabel: "Risks",     when: (s) => s.pickedAgents.length > 0,                              render: renderRisks },
+  { id: "ans-rationale",      group: "risks",    spineLabel: "Why",       when: (s) => !!s._rationale,                                         render: renderRationale },
+  { id: "ans-objections",     group: "risks",    spineLabel: "Challenge", when: (s) => s._objections && s._objections.length > 0,              render: renderObjections },
+  { id: "ans-duration",       group: "duration", spineLabel: "Duration",  when: (s) => !!s._duration,                                          render: renderDurationStructured },
+  { id: "ans-monitoring",     group: "duration", spineLabel: "Monitor",   when: (s) => !!s._monitoring,                                        render: renderMonitoring },
+  { id: "ans-antibiogram",    group: "local",    spineLabel: "Local %S",  when: (s) => !!s.antibiogram,                                        render: renderAntibiogram },
+  { id: "ans-regional",       group: "local",    spineLabel: "Regional",  when: (s) => s._regional.length > 0,                                 render: renderRegional },
+  { id: "ans-novel",          group: "local",    spineLabel: "Novel",     when: (s) => s._novel.length > 0,                                    render: renderNovel },
+  { id: "ans-surge",          group: "local",    spineLabel: "Surge",     when: (s) => s._surgeTier1.length > 0,                               render: renderSurgeTier1 },
+  { id: "ans-pedspreg",       group: "special",  spineLabel: (s) => s.ans.ctx.pregnancy ? "Pregnancy" : "Pediatrics", when: (s) => s._pedsPregShow.length > 0, render: renderPedsPreg },
+  { id: "ans-depth",          group: "evidence", spineLabel: "Depth",     when: (s) => !!(s._research || s._surgeOther.length > 0 || s._siteP.length > 0 || (!s._ctxPedsPreg && s._pedsPreg.length > 0)), render: renderDepth },
+  { id: "ans-state",          group: "duration", spineLabel: "State",     when: () => true,                                                    render: renderState },
+  { id: "ans-duration",       group: "duration", spineLabel: "Duration",  when: (s) => !s._duration,                                           render: renderDurationLegacy },
+  { id: "ans-pearls",         group: "evidence", spineLabel: "Pearls",    when: (s) => s.ans.pearls.length > 0,                                render: renderPearls },
 ];
 
 export { LAYERS };
@@ -551,7 +925,18 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
      where it matters (pickedAgents, effectiveBranch) and the rest are
      cheap references. */
   const _shared = {
-    ans, ctx: ans.ctx, antibiogram, pickedAgents,
+    // syndrome + composed answer
+    ans, s, ctx: ans.ctx,
+    // local UI state + handlers
+    pickedAgents, effectiveBranch, handleBranchSelect,
+    startDate, setStartDate,
+    picksByTier, setTierPick,
+    caseState, setCaseState,
+    // props threaded through
+    antibiogram, onDrug, onOrg, onCite, onOpenAntibiogramManager,
+    // computed locals consumed by render functions
+    allergy, dose, coreRefinements,
+    // cached content-accessor results
     _duration, _monitoring, _research, _rationale, _objections,
     _regional, _novel, _surgeTier1, _surgeOther, _siteP, _pedsPreg,
     _ctxPedsPreg, _pedsPregShow,
@@ -679,353 +1064,16 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         </nav>
       )}
 
-      {/* Source control banner — when applicable, leads the answer. */}
-      {ans.sourceControl && (
-        <div style={{
-          display:"flex", gap:10, alignItems:"flex-start",
-          padding:"12px 14px", background:"var(--ox-soft)", border:"1px solid var(--ox-line)",
-          borderRadius:10, marginBottom: 16, fontSize:12.5, color:"var(--ox-deep)", lineHeight:1.55,
-        }}>
-          <Crosshair size={15} style={{ flex:"0 0 auto", marginTop:1, color:"var(--ox)" }} />
-          <div>
-            <b>Source control is the therapy; antibiotics are adjunctive.</b> {ans.sourceControl}
-          </div>
-        </div>
-      )}
-
-      {/* START NOW — the regimen. Each tier's pick is reported into
-          its own slot in picksByTier; the union (pickedAgents) drives
-          downstream cross-section linking. This is the D3.1 multi-tier
-          aggregation foundation: combined-risk detection (D3.2) reads
-          across all tiers so pairs like pip-tazo + vancomycin fire
-          even when the user picked them from separate tiers. */}
-      <Section kicker="Start now" icon={Crosshair} sticky id="ans-start">
-        <RxLine kind="core" tier={ans.core} refinements={coreRefinements} onDrug={onDrug}
-          ctx={ans.ctx} d={ans.d} synId={s.id}
-          onAgentSelect={setTierPick(ans.core.k)} />
-        {ans.adds.map((a, i) => (
-          <RxLine key={i} kind="add" tier={a} refinements={[]} onDrug={onDrug}
-            ctx={ans.ctx} d={ans.d} synId={s.id}
-            onAgentSelect={setTierPick(a.k)} />
-        ))}
-
-        {/* Allergy guardrail — quick read above the dose calc */}
-        {allergy && (
-          <div style={{
-            display:"flex", gap:9, alignItems:"flex-start",
-            padding:"10px 12px", background: allergy.tone === "ox" ? "var(--ox-soft)" : "var(--amber-soft)",
-            border: `1px solid ${allergy.tone === "ox" ? "var(--ox-line)" : "var(--amber-line)"}`,
-            borderRadius:8, fontSize:12, color: allergy.tone === "ox" ? "var(--ox-deep)" : "var(--amber)",
-            lineHeight:1.55, marginTop:8,
-          }}>
-            <ShieldAlert size={14} style={{ flex:"0 0 auto", marginTop:1 }} />
-            <div><b>{allergy.head}.</b> {allergy.body}</div>
-          </div>
-        )}
-
-        {/* Patient-specific dose summary — surfaced beneath the regimen when context is on. */}
-        {ans.ctx.on && ans.empiricAgents.length > 0 && (
-          <div style={{ marginTop: 12, paddingTop: 12, borderTop:"1px dashed var(--line2)" }}>
-            <div style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--muted)", fontWeight:600, marginBottom:7 }}>
-              <Calculator size={11} style={{ verticalAlign:"-1px", marginRight:5 }}/>Dosing for this patient
-              {ans.d.crcl != null && <span style={{ marginLeft:8, color:"var(--ink2)", textTransform:"none", letterSpacing:0, fontFamily:"var(--sans)", fontSize:11.5 }}>CrCl {ans.d.crcl} mL/min</span>}
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px, 1fr))", gap:6 }}>
-              {ans.empiricAgents.map(n => {
-                const a = dose(n);
-                const stat = (a && (a.kind === "band" || a.kind === "level") && a.adjusted) ? a.adjusted : (a ? a.normal : null);
-                const changed = a && a.kind === "band" && a.changed;
-                return (
-                  <div key={n} style={{
-                    display:"flex", justifyContent:"space-between", alignItems:"center", gap:8, flexWrap:"wrap",
-                    padding:"5px 10px", background: changed ? "var(--decision-adjusted-bg)" : "var(--paper2)",
-                    border:`1px solid ${changed ? "var(--decision-adjusted-line)" : "var(--line)"}`, borderRadius:6,
-                    fontSize:12, fontFamily:"var(--mono)",
-                  }}>
-                    <button type="button" onClick={() => onDrug && onDrug(n)}
-                      style={{ fontFamily:"var(--sans)", fontSize:12.5, fontWeight:600, color:"var(--ink)",
-                        background:"none", border:"none", cursor:"pointer", padding:0, textAlign:"left", minWidth:0, overflow:"hidden", textOverflow:"ellipsis" }}>
-                      {n.split(" / ")[0]}
-                    </button>
-                    <span style={{ color: changed ? "var(--decision-adjusted)" : "var(--ink2)", fontWeight:600, minWidth:0, overflowWrap:"anywhere" }}>{stat || ""}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <div style={{ fontSize:11, color:"var(--muted)", fontStyle:"italic", marginTop:7 }}>
-              First (loading) doses are full doses regardless of clearance — adjustments are maintenance only.
-            </div>
-          </div>
-        )}
-      </Section>
-
-      {/* COVERS & DELIBERATE OMISSIONS */}
-      <Section kicker="Covers" icon={Check} id="ans-covers">
-        <div style={{ fontSize:13, color:"var(--ink2)", lineHeight:1.6 }}>
-          <div style={{ marginBottom:6 }}>
-            <span style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--green)", fontWeight:700, marginRight:6 }}>Cover</span>
-            {renderGloss(s.cover.empiric, onDrug)}
-          </div>
-          <div style={{ marginBottom:6 }}>
-            <span style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--ox)", fontWeight:700, marginRight:6 }}>Don't over-cover</span>
-            {renderGloss(s.cover.drop, onDrug)}
-          </div>
-          {ans.bugs.length > 0 && (
-            <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginTop:9 }}>
-              {ans.bugs.map(b => {
-                const o = ORG_BY_ID[b];
-                if(!o) return null;
-                return (
-                  <button key={b} type="button" onClick={() => onOrg && onOrg(b)}
-                    style={{
-                      display:"inline-flex", alignItems:"center", gap:4,
-                      fontSize:11, fontWeight:500, padding:"3px 8px", borderRadius:999,
-                      background:"var(--line2)", color:"var(--ink2)", border:"1px solid var(--line)",
-                      cursor:"pointer",
-                    }}>
-                    <Bug size={10}/> {o.label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </Section>
-
-      {/* STOP AT 48-72 H */}
-      <Section kicker="Stop at 48–72 h" icon={TrendingDown} id="ans-deesc">
-        <div style={{ fontSize:13, color:"var(--ink2)", lineHeight:1.6, marginBottom: ans.deesc.length ? 12 : 0 }}>
-          {renderGloss(s.deesc, onDrug)}
-        </div>
-        {ans.deesc.length > 0 && (
-          <div>
-            <div style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--muted)", fontWeight:600, marginBottom:7 }}>
-              <Crosshair size={11} style={{ verticalAlign:"-1px", marginRight:5 }}/>Narrow by organism
-            </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:7 }}>
-              {ans.deesc.slice(0, 6).map(row => (
-                <div key={row.id} style={{
-                  display:"flex", gap:9, alignItems:"flex-start",
-                  padding:"7px 10px", background:"var(--paper2)", border:"1px solid var(--line)",
-                  borderRadius:7, fontSize:12, lineHeight:1.5,
-                }}>
-                  <button type="button" onClick={() => onOrg && onOrg(row.id)}
-                    style={{
-                      flex:"0 0 auto", display:"inline-flex", alignItems:"center", gap:4,
-                      fontSize:11, fontWeight:600, color:"var(--ox)", background:"var(--ox-softer)",
-                      border:"1px solid var(--ox-line)", borderRadius:5, padding:"3px 7px",
-                      cursor:"pointer", whiteSpace:"nowrap",
-                    }}>
-                    <Bug size={10}/> {row.label}
-                  </button>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    {row.targets.length > 0
-                      ? row.targets.map((t, i) => (
-                          <div key={i} style={{ marginBottom: i < row.targets.length - 1 ? 4 : 0 }}>
-                            {t.sub && row.targets.length > 1 && (
-                              <span style={{ fontFamily:"var(--mono)", fontSize:10, color:"var(--muted)", marginRight:6 }}>{t.sub}</span>
-                            )}
-                            <ArrowRight size={10} style={{ verticalAlign:"-1px", color:"var(--muted)", margin:"0 4px" }}/>
-                            {renderRich(t.first, onDrug)}
-                          </div>
-                        ))
-                      : row.docFallback.length > 0 && (
-                          <span>
-                            <ArrowRight size={10} style={{ verticalAlign:"-1px", color:"var(--muted)", marginRight:4 }}/>
-                            {row.docFallback.map((n, i) => (
-                              <React.Fragment key={n}>
-                                {i ? ", " : ""}
-                                <button type="button" onClick={() => onDrug && onDrug(n)}
-                                  style={{ background:"none", border:"none", padding:0, color:"var(--ox)", fontWeight:600, cursor:"pointer", textDecoration:"underline", textDecorationStyle:"dotted", textUnderlineOffset:2 }}>
-                                  {n}
-                                </button>
-                              </React.Fragment>
-                            ))}
-                          </span>
-                        )}
-                    {row.stop.length > 0 && (
-                      <div style={{ fontSize:11, color:"var(--muted)", marginTop:4 }}>
-                        <Scissors size={10} style={{ verticalAlign:"-1px", marginRight:4 }}/>
-                        Lets you stop: {row.stop.join(", ")}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </Section>
-
-      {/* DURATION + MONITORING (Phase D2) — structured decision content
-          authored in syndromeDecision.js. Render only when content exists;
-          falls back to the legacy narrative Duration section below
-          (which is suppressed in that case to avoid duplication). The
-          regimen cards say what to start; these blocks say when to stop
-          and what to check.
-
-          Cross-section linking: pickedAgent (from RegimenOptions cards
-          above) implicitly lights the matching duration branch via
-          matchAgent regex; pickedBranch (from clicking a duration
-          branch) propagates to MonitoringBlock so items tagged with
-          matchBranch surface as MATCHES. Both signals also drive the
-          MonitoringBlock matchAgent highlighting. */}
-      {/* COMBINED-REGIMEN RISKS (Phase D3.2) — agent-pair interactions
-          detected across the union of picks from every tier above.
-          Renders nothing when no risks fire, so the page baseline is
-          unchanged for safe combinations. */}
-      <div id="ans-risks" style={{ scrollMarginTop: 96 }}>
-        <CombinedRisksBlock pickedAgents={pickedAgents} />
-      </div>
-
-      {/* WHY · REASONING TRACE (Phase D1) — driver / guideline / rejected.
-          Sits between combined-risks and duration so the user reads
-          "what + why + why not" before they see "how long". Renders
-          nothing when the syndrome has no authored rationale, matching
-          every other depth layer's graceful-fallback contract. */}
-      <div id="ans-rationale" style={{ scrollMarginTop: 96 }}>
-        <ReasoningTraceBlock rationale={_rationale} onCite={onCite} />
-      </div>
-
-      {/* CHALLENGE · OBJECTIONS (Phase D2) — pharmacist's predictable
-          pushback, pre-answered. Follows the reasoning trace so the
-          reading order is "what + why + why not" → "the pushback
-          you'll hear at the bedside, already answered" → "how long".
-          Each Q renders as a bold mono kicker; each A as readable
-          prose with inline `[cite:id]` citations resolved through the
-          Cite primitive. Renders nothing when the syndrome has no
-          authored objections, matching every other depth layer's
-          graceful-fallback contract. */}
-      <div id="ans-objections" style={{ scrollMarginTop: 96 }}>
-        <ObjectionsBlock objections={_objections} onCite={onCite} />
-      </div>
-
-      <div id="ans-duration" style={{ scrollMarginTop: 96 }}>
-        <DurationBlock
-          duration={_duration}
-          pickedAgents={pickedAgents}
-          pickedBranch={effectiveBranch}
-          onBranchSelect={handleBranchSelect}
-          startDate={startDate}
-          onStartDateChange={setStartDate}
-          ctx={{ ...ans.ctx, ...ans.d }}
-        />
-      </div>
-      <div id="ans-monitoring" style={{ scrollMarginTop: 96 }}>
-        <MonitoringBlock
-          monitoring={_monitoring}
-          pickedAgents={pickedAgents}
-          pickedBranch={effectiveBranch}
-          ctx={{ ...ans.ctx, ...ans.d }}
-        />
-      </div>
-      {/* PROMOTED depth layers (Phase H + I) — drive the empiric choice
-          when resistance / novel-agent context applies, so they render
-          above Research + reference layers. Phase E adds the
-          institution-specific overlay ABOVE the regional narrative so
-          the actionable local %S shows first. */}
-      {antibiogram && (
-        <div id="ans-antibiogram" style={{ scrollMarginTop: 96 }}>
-          <AntibiogramBlock
-            antibiogram={antibiogram}
-            syndrome={s}
-            onOpenManager={onOpenAntibiogramManager}
-          />
-        </div>
-      )}
-      <div id="ans-regional" style={{ scrollMarginTop: 96 }}>
-        <RegionalResistanceBlock patterns={_regional} />
-      </div>
-      <div id="ans-novel" style={{ scrollMarginTop: 96 }}>
-        <NovelAgentsBlock agents={_novel} />
-      </div>
-      {/* SURGE TIER-1 always-visible — bioterror / Ebola / Marburg
-          recognition is life-saving + cannot be hidden. Non-tier-1
-          surge entries collapse with reference layers below. */}
-      {_surgeTier1.length > 0 && (
-        <div id="ans-surge" style={{ scrollMarginTop: 96 }}>
-          <SurgeProtocolsBlock protocols={_surgeTier1} />
-        </div>
-      )}
-      {/* PEDS + PREGNANCY (Phase J) — gated on ctx pregnancy or
-          pediatric age. Adults don't need this layer on screen. */}
-      {_pedsPregShow.length > 0 && (
-        <div id="ans-pedspreg" style={{ scrollMarginTop: 96 }}>
-          <PedsPregBlock entries={_pedsPregShow} />
-        </div>
-      )}
-      {/* "MORE DEPTH" expander — Research (F) + non-tier-1 Surge (K) +
-          SitePenetration (L) + ctx-irrelevant PedsPreg (J) collapse by
-          default. Native <details> for accessibility + zero-JS toggle. */}
-      {(_research || _surgeOther.length > 0 || _siteP.length > 0 || (!_ctxPedsPreg && _pedsPreg.length > 0)) && (
-        <details id="ans-depth" style={{
-          marginTop: 8, padding: 0,
-          border: "1px solid var(--line)", borderRadius: 8,
-          background: "var(--paper2)",
-          scrollMarginTop: 96,
-        }}>
-          <summary style={{
-            cursor: "pointer", padding: "10px 14px",
-            fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
-            color: "var(--ox)", letterSpacing: ".08em", textTransform: "uppercase",
-            listStyle: "none", borderRadius: 8,
-            display: "flex", alignItems: "center", gap: 8,
-          }}>
-            <ChevronRight size={12} /> More depth · evidence + reference
-          </summary>
-          <div style={{ padding: "0 14px 14px" }}>
-            <ResearchBlock research={_research} />
-            {_surgeOther.length > 0 && <SurgeProtocolsBlock protocols={_surgeOther} />}
-            <SitePenetrationBlock entries={_siteP} />
-            {!_ctxPedsPreg && _pedsPreg.length > 0 && <PedsPregBlock entries={_pedsPreg} />}
-          </div>
-        </details>
-      )}
-
-      {/* CURRENT STATE — snapshot inputs (cultures, clinical trajectory,
-          source control) that refine the regimen. Despite the legacy file
-          name, this is not a longitudinal reassessment workflow — it is a
-          set of optional state toggles that further narrow the snapshot
-          answer when the clinician knows them. */}
-      <div id="ans-state" style={{ scrollMarginTop: 96 }}>
-        <ReassessmentPanel
-          caseState={caseState}
-          setCaseState={setCaseState}
-          empiric={ans}
-          onDrug={onDrug}
-          onOrg={onOrg}
-          hasStructuredDuration={!!_duration}
-        />
-      </div>
-
-      {/* DURATION + EVIDENCE — legacy narrative duration section. Suppressed
-          when the syndrome has authored structured DurationBlock content
-          (rendered above ReassessmentPanel), to avoid duplicating the same
-          fact in two places. The structured block carries the same string
-          inside its headline + branches with richer affordances. */}
-      {!_duration && (
-        <Section kicker="Duration" icon={Clock} id="ans-duration">
-          <div style={{ fontSize:13.5, color:"var(--ink)", lineHeight:1.55 }}>
-            {s.duration}
-            {ans.evidence && (
-              <span style={{ marginLeft:8 }}>
-                {ans.evidence.ev && <Ev kind={ans.evidence.ev} />}{" "}
-                <Cite id={ans.evidence.ref} onClick={(cid) => onCite && onCite(cid)} />
-              </span>
-            )}
-          </div>
-        </Section>
-      )}
-
-      {/* PEARLS — short, scannable. */}
-      {ans.pearls.length > 0 && (
-        <Section kicker="Pearls" icon={Activity} id="ans-pearls">
-          <ul style={{ margin:0, padding:"0 0 0 18px", fontSize:12.5, color:"var(--ink2)", lineHeight:1.6 }}>
-            {ans.pearls.map((p, i) => (
-              <li key={i} style={{ marginBottom:5 }} dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>") }} />
-            ))}
-          </ul>
-        </Section>
+      {/* Depth layers — registry-driven. Every layer below the
+          header strip and spine is rendered by `LAYERS.map(...)`.
+          The order of LAYERS dictates the render order; each entry's
+          `when(_shared)` predicate gates visibility, and the
+          `render(_shared)` function produces the JSX. The previous
+          inline JSX block (~340 LoC, hand-maintained against the
+          spine predicates) is gone — drift between spine and
+          rendered content is structurally impossible. */}
+      {LAYERS.map((L, i) =>
+        L.when(_shared) ? <React.Fragment key={i}>{L.render(_shared)}</React.Fragment> : null
       )}
 
       {/* ACTIONS */}
