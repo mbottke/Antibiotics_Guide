@@ -327,12 +327,14 @@ export const TRANCHE_D_DIAGNOSTICS = {
         why:  "Capnocytophaga sepsis in asplenic / cirrhotic patients carries > 30% mortality; needs early identification." },
     ],
     biomarkers: [
-      { sev: "consider",
-        what: "Tetanus immunization status; rabies risk assessment for animal exposures.",
-        why:  "Tetanus prophylaxis and rabies PEP are time-sensitive parallel decisions, not antimicrobials but bundled workup." },
       { sev: "trigger",
         what: "**HIV, HBV, HCV serology** on source (if known) and victim for human bites with blood exposure.",
         why:  "Human bites carry viral transmission risk; baseline + 3/6 month serology guides post-exposure prophylaxis." },
+    ],
+    panels: [
+      { sev: "required",
+        what: "Tetanus immunization status; **rabies risk assessment** for animal exposure (species, behavior, vaccination, jurisdiction).",
+        why:  "Tetanus prophylaxis (Td/Tdap ± TIG) and rabies PEP (RIG + vaccine series) are time-sensitive parallel decisions on every bite." },
     ],
     imaging: [
       { sev: "trigger",
@@ -681,7 +683,7 @@ export const TRANCHE_D_DIAGNOSTICS = {
   "enteric-fever": {
     cultures: [
       { sev: "required",
-        what: "**Two-to-three sets of peripheral blood cultures** — highest yield in first week (~80%).",
+        what: "**Three sets of peripheral blood cultures** in week 1 — highest yield (~80%).",
         why:  "Salmonella Typhi / Paratyphi confirmed by culture; yield falls week 2–3 as bacteremia clears." },
       { sev: "required",
         what: "Stool culture week 2–3 and urine culture week 3–4 — yield rises as blood culture falls.",
