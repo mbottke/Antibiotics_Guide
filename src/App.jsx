@@ -446,6 +446,7 @@ export default function InpatientAbxGuide() {
     spectrum: () => _renderCompare("spectrum"),
     penetration: () => _renderCompare("penetration"),
     mechanisms:  () => _renderCompare("mechanisms"),
+    regimens:    () => _renderCompare("regimens"),
   };
 
   /* ============ PHASE C · SURFACE × MODE ROUTER ===========================

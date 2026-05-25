@@ -1,6 +1,6 @@
 /* data · icon maps + tab definitions (lucide-backed).
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import { Activity, AlertTriangle, Beaker, Bone, Brain, Calculator, Clock, Crosshair, Droplets, Flame, FlaskConical, GitBranch, HeartPulse, LayoutGrid, ListChecks, Microscope, Network, Pill, ShieldAlert, ShieldCheck, Slice, Soup, Stethoscope, Syringe, TrendingDown, Wind } from "lucide-react";
+import { Activity, AlertTriangle, ArrowLeftRight, Beaker, Bone, Brain, Calculator, Clock, Crosshair, Droplets, Flame, FlaskConical, GitBranch, HeartPulse, LayoutGrid, ListChecks, Microscope, Network, Pill, ShieldAlert, ShieldCheck, Slice, Soup, Stethoscope, Syringe, TrendingDown, Wind } from "lucide-react";
 
 /* ===================== ICON MAPS + PRIMITIVES ===================== */
 const CAT_ICONS = { pulse:Activity, lung:Wind, heart:HeartPulse, drop:Droplets, soup:Soup, slice:Slice, bone:Bone, brain:Brain, flame:Flame, shield:ShieldCheck };
@@ -20,6 +20,7 @@ const TABS = [
   { id:"spectrum", label:"Spectrum", icon:Microscope },
   { id:"penetration", label:"Penetration", icon:Droplets },
   { id:"mechanisms", label:"Mechanisms", icon:Network },
+  { id:"regimens", label:"Regimens", icon:ArrowLeftRight },
   { id:"dose", label:"Dose", icon:Calculator },
   { id:"course", label:"Course", icon:Clock },
   { id:"safety", label:"Safety", icon:AlertTriangle },
