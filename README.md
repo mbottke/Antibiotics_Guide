@@ -9,8 +9,8 @@ de-escalation, the spectrum matrix, and patient-specific dosing.
 > Antibacterials only. Verify every order.
 
 This repository is the build-tooled home for what was previously a single ~7,500-line
-artifact. It is being migrated in phases (see [Roadmap](#roadmap)); **Phases 1 and 2
-are complete.**
+artifact. It is being migrated in phases (see [Roadmap](#roadmap)); **Phases 1–4 are
+complete. Wave 5 is in flight** — see [Wave 5 status](#wave-5--bedside-reframe-in-flight).
 
 ---
 
@@ -138,6 +138,7 @@ New files (`main.tsx`, and everything extracted in Phase 3) are fully checked un
 | **2 — Tokens** | Consolidate the duplicated token blocks into `tokens.json` → `build-tokens.mjs` → `tokens.css` | ✅ done |
 | **3 — Split** | Extract `lib/` + `data/` → `engines/` → `components/` (strict DAG) | ✅ done |
 | **4 — CI** | `integrity` · `render` · `a11y` gates on every push/PR | ✅ done |
+| **Wave 5 — Bedside reframe** | Snapshot consult, layered depth, content stewardship, multi-agent authoring | 🟦 in flight |
 
 **Phase 3** is complete: the monolith is now 19 modules on the `lib → data → engines →
 components → root` DAG. Each layer was extracted and verified green independently. The
@@ -148,6 +149,69 @@ reviewable diff in the PR.
 
 **Phase 4** is complete: the three checks used by hand during development now run in CI
 (`.github/workflows/ci.yml`) and locally via `npm run verify`. See [Testing](#testing).
+
+---
+
+## Wave 5 — bedside reframe (in flight)
+
+Wave 5 closes the qualitative gaps that the prior phases could not: a **snapshot
+consult** (no saved state, no longitudinal chart), **depth on demand** (drill from a
+chip into the mechanism / trial / regional resistance behind it), **graded evidence**,
+**ad-hoc course updates** that merge ephemerally into the Answer Canvas, and tighter
+cross-section navigation. The cardinal constraint is **snapshot-only**: refinement
+patches live in component state, never `caseState`, never the URL hash, never
+localStorage.
+
+### Status snapshot
+
+| PR | Title | State |
+|----|-------|-------|
+| #92 | PR-1 · per-syndrome content sentinels (cystitis / cap / sepsis) | ✅ merged |
+| #93 | PR-2 · mass migration of remaining 103 syndromes to per-file modules | ✅ merged |
+| #94 | PR-3 · `AnswerCanvas` layer registry (Stage 0 → 1 → 2; 18 layer modules) | ✅ merged |
+| #95 | PR-4 · `FORMULARY` pkpd / timeToEffect / cdiffScore / mdrPressure / kinetics | ✅ merged |
+| #96 | PR-5a · `composeAnswer(currentRegimen)` + `refineOnNewFinding` engine | ✅ merged |
+| #97 | PR-5b · `regimenCompare` four-dimensional symmetric diff | ✅ merged |
+| #98 | PR-5c · `case-parser` `DRUG_RX_UNION` + `currentRegimen` / `findings` + 50-utterance corpus | ✅ merged |
+| #99 | PR-6a · diagnostics-stewardship foundation + 10 sentinel syndromes | 🟦 draft |
+| —   | PR-6b–f · diagnostics content tranches (parallel agents, ~107 syndromes) | ⏳ queued |
+| —   | PR-7 / PR-8 / PR-9 / PR-10 · mechanisms · OPAT · PK/PD · microbiome chips | ⏳ planned |
+| —   | PR-11 · React Testing Library harness | ⏳ planned |
+| —   | PR-12 / PR-13 / PR-14 · navigation simplification + cross-cutting paths + attribution drawer | ⏳ planned |
+
+### Test surface
+
+`npm run test` covers **16 files, 3,389 unit + integrity + audit tests**. Notable
+Wave 5 additions:
+
+- `tests/answerCanvas-layers.test.js` — LAYERS registry shape contract.
+- `tests/refineOnNewFinding.test.js` — snapshot-refine engine determinism + purity.
+- `tests/regimenCompare.test.js` — four-dimensional symmetry + winner contracts.
+- `tests/case-parser-corpus.test.js` — 50-utterance parser-coverage corpus (≥ 47 must
+  route to a meaningful caseState; current 49/50).
+- `tests/content-audit.test.js` — apex schema gates for every authored surface
+  (regimenContent, syndromeDecision, combinedRisks, FORMULARY pkpd/microbiome,
+  diagnostics).
+
+### Architectural traps locked in by the audit
+
+The Wave 5 PRs explicitly closed three drift risks the prior structure invited:
+
+1. **DRUG_KEYWORDS derives from `AGENT_RX`** (case-parser.js, PR-5c) — the parser and
+   the regimen engine see the same canonical drug names by construction; a new agent
+   added to one is automatically visible to the other.
+2. **`LAYERS` predicates + render functions are colocated** (answer-layers/, PR-3) —
+   `when(shared)` and `render(shared)` consume the same bag, so the spine chip and the
+   rendered block can never disagree about visibility.
+3. **`matchCtx` only elevates, never hides** (ctxMatch.js + every authored layer) —
+   hiding important monitoring / diagnostics based on partial information would lose
+   orders that matter; matching items get a left-border accent + chip and float to the
+   top within their severity bucket.
+
+Detailed plan in `/root/.claude/plans/create-a-plan-for-gleaming-locket.md` (durable
+through compactions). PRs are merged via a hybrid workflow — architectural changes
+through draft → AI review → human review → merge; mechanical content tranches direct
+to main after `npm run verify` + AI review.
 
 ---
 

@@ -29,6 +29,7 @@ import { SURGE_PROTOCOLS } from "../src/data/surgeProtocols.js";
 import { SITE_PENETRATION } from "../src/data/sitePenetration.js";
 import { GUIDELINES, EVOLVING, TRIAL_DETAIL } from "../src/data/evidence.js";
 import { TRIAL_TO_SYNDROMES, getSyndromesForTrial, _ORPHAN_IDS } from "../src/data/evidenceMap.js";
+import { DIAGNOSTICS } from "../src/data/diagnostics.js";
 
 /* -------- limits and known vocabularies ------------------------- */
 
@@ -1222,5 +1223,88 @@ describe("content-audit · FORMULARY drug fields (Wave 5 PR-4)", () => {
     expect(populated.cdiffScore / total).toBeGreaterThanOrEqual(0.8);
     expect(populated.mdrPressure / total).toBeGreaterThanOrEqual(0.8);
     expect(populated.kinetics / total).toBeGreaterThanOrEqual(0.8);
+  });
+});
+
+/* ============================================================
+   Wave 5 PR-6 · diagnostic-stewardship schema audit. Mirrors
+   the monitoring-block contract: same severity vocabulary,
+   same word caps, same matchCtx predicate validator. Every
+   authored entry held to the apex bar from PR-6a onward; the
+   coverage check is informational while content tranches roll
+   out across the remaining ~107 syndromes. ============================================ */
+
+const DIAG_CATEGORIES = ["cultures", "biomarkers", "panels", "imaging", "biopsy"];
+
+describe("content-audit · diagnostics.js entries (Wave 5 PR-6)", () => {
+  const synIds = Object.keys(DIAGNOSTICS);
+
+  test("every diagnostics key matches a known syndrome id", () => {
+    const known = new Set(SYNDROMES.map(s => s.id));
+    const orphans = synIds.filter(id => !known.has(id));
+    expect(orphans, `unknown syndrome ids in DIAGNOSTICS: ${orphans.join(", ")}`).toEqual([]);
+  });
+
+  for(const synId of synIds) {
+    const entry = DIAGNOSTICS[synId];
+    const label = `[${synId} | diagnostics]`;
+
+    test(`${label} — at least one category populated`, () => {
+      const categoriesUsed = DIAG_CATEGORIES.filter(k => Array.isArray(entry[k]) && entry[k].length > 0);
+      expect(categoriesUsed.length, `${label} must populate ≥ 1 of cultures/biomarkers/panels/imaging/biopsy`)
+        .toBeGreaterThanOrEqual(1);
+    });
+
+    test(`${label} — only known category keys present`, () => {
+      const unknownKeys = Object.keys(entry).filter(k => !DIAG_CATEGORIES.includes(k));
+      expect(unknownKeys, `${label} unknown categories: ${unknownKeys.join(", ")}`).toEqual([]);
+    });
+
+    for(const cat of DIAG_CATEGORIES) {
+      const items = entry[cat];
+      if(!Array.isArray(items) || items.length === 0) continue;
+
+      test(`${label}.${cat} — every item carries valid sev + what + why`, () => {
+        for(let i = 0; i < items.length; i++) {
+          const it = items[i];
+          const itLabel = `${label}.${cat}[${i}]`;
+
+          expect(SEV_MONITORING.has(it.sev),
+            `${itLabel}.sev "${it.sev}" must be required/trigger/consider`).toBe(true);
+
+          expect(typeof it.what,
+            `${itLabel}.what must be a string`).toBe("string");
+          const wcWhat = wordCount(it.what);
+          expect(wcWhat,
+            `${itLabel}.what has ${wcWhat} words (max ${LIMITS.monitoringWhatMaxWords}): "${it.what}"`)
+            .toBeLessThanOrEqual(LIMITS.monitoringWhatMaxWords);
+
+          expect(typeof it.why,
+            `${itLabel}.why must be a string`).toBe("string");
+          const wcWhy = wordCount(it.why);
+          expect(wcWhy,
+            `${itLabel}.why has ${wcWhy} words (max ${LIMITS.monitoringWhyMaxWords}): "${it.why}"`)
+            .toBeLessThanOrEqual(LIMITS.monitoringWhyMaxWords);
+
+          if(it.matchCtx !== undefined) {
+            const err = validateCtxPredicate(it.matchCtx, `${itLabel}.matchCtx`);
+            if(err) throw new Error(err);
+          }
+        }
+      });
+    }
+  }
+
+  /* Coverage report — informational. PR-6a ships sentinel content for
+     the 10 highest-volume syndromes; PR-6b–f author the remaining
+     ~107 in parallel tranches. Once content fills out, the assertion
+     here ratchets up to 0.5 → 0.8 → 1.0 in successive PRs. */
+  test("coverage of all SYNDROMES (informational)", () => {
+    const total = SYNDROMES.length;
+    const covered = SYNDROMES.filter(s => !!DIAGNOSTICS[s.id]).length;
+    const ratio = covered / total;
+    // eslint-disable-next-line no-console
+    console.log(`[content-audit] diagnostics coverage: ${covered}/${total} syndromes (${(ratio * 100).toFixed(1)}%)`);
+    expect(covered).toBeGreaterThanOrEqual(1);   // floor; raised as PR-6 tranches land
   });
 });
