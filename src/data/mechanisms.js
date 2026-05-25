@@ -345,6 +345,404 @@ const MECHANISMS = {
     ],
   },
 
+  /* ============= CLASS — β-lactam family (Wave 5 CL-6 M-1) =============== */
+
+  "Penicillins": {
+    title:  "Penicillins — Natural β-lactam transpeptidase inhibitors",
+    family: "class",
+    alias:  ["penicillin G", "penicillin V", "natural penicillin"],
+    summary:
+      "Natural penicillins (penicillin G IV, penicillin V oral) — the " +
+      "foundational β-lactams. Irreversibly acylate the active-site serine " +
+      "of bacterial transpeptidases (PBPs), halting peptidoglycan " +
+      "crosslinking and triggering autolysin-mediated lysis. Narrow " +
+      "Gram-positive spectrum: streptococci, susceptible enterococci, " +
+      "Treponema, oral anaerobes, meningococci. Staphylococci are nearly " +
+      "uniformly resistant via β-lactamase production.",
+    keypoints: [
+      "Streptococcus pyogenes and Treponema pallidum remain 100% penicillin-susceptible — no documented clinical resistance.",
+      "Penicillin G dosing: 18–24 million units/day continuous or divided q4h for severe streptococcal disease.",
+      "Time-dependent killing: fT>MIC ≥ 50% drives efficacy; extended infusion improves attainment.",
+      "Crosses inflamed meninges; remains first-line for neurosyphilis and susceptible meningococcal meningitis.",
+      "Non-anaphylactic reported allergy almost always allows cephalosporin or carbapenem use safely.",
+    ],
+    bedside:
+      "When a clinical isolate reads pen-S, narrow back to penicillin G — " +
+      "narrower spectrum, faster cidality, and lower collateral C. difficile " +
+      "risk than broad β-lactams. The classic example: viridans-group strep " +
+      "endocarditis at MIC ≤ 0.12. Penicillin G 18–24 MU/day plus gentamicin " +
+      "shortens therapy to two weeks (vs four with ceftriaxone monotherapy) " +
+      "per AHA endocarditis guidelines.",
+    foundational:
+      "Penicillin's β-lactam ring mimics the D-Ala-D-Ala terminus of the " +
+      "nascent peptidoglycan pentapeptide. The active-site serine of the " +
+      "transpeptidase (PBP) attacks the strained β-lactam carbonyl, forming " +
+      "a covalent acyl-enzyme that hydrolyzes only very slowly — effectively " +
+      "irreversible. With PBPs disabled, peptidoglycan crosslinking fails; " +
+      "the cell wall weakens and endogenous autolysins (LytA in pneumococcus) " +
+      "fragment it. Cidality requires active growth — explaining the " +
+      "antagonism observed with bacteriostatic partners in some models.",
+    papers: [
+      { name: "Fleming", year: 1929,
+        finding: "Original observation: Penicillium notatum lyses staphylococci on adjacent agar — launched the antibiotic era." },
+      { name: "AHA Endocarditis", year: 2015,
+        finding: "Penicillin G + gentamicin × 2 weeks cures viridans strep endocarditis at MIC ≤ 0.12 mcg/mL." },
+    ],
+  },
+
+  "Anti-staphylococcal penicillins": {
+    title:  "Anti-staph penicillins — MSSA-targeted isoxazolyl β-lactams",
+    family: "class",
+    alias:  ["nafcillin", "oxacillin", "anti-staph PCN", "isoxazolyl penicillins"],
+    summary:
+      "Isoxazolyl penicillins (nafcillin, oxacillin, cloxacillin, " +
+      "dicloxacillin, flucloxacillin) — the MSSA workhorses. A bulky " +
+      "3-methyl-5-aryl-isoxazole side chain sterically shields the β-lactam " +
+      "from staphylococcal β-lactamase while preserving high PBP affinity. " +
+      "First-line over vancomycin for MSSA bacteremia: faster sterilization, " +
+      "lower mortality, no cross-coverage of MRSA (PBP2a).",
+    keypoints: [
+      "Nafcillin/oxacillin IV outperform vancomycin for MSSA bacteremia — switch the moment the speciation reports.",
+      "Cefazolin is an accepted alternative: better tolerated, no inoculum effect concern for endovascular routine MSSA.",
+      "Nafcillin: hepatic clearance, interstitial nephritis risk, vesicant — central line preferred.",
+      "Oral dicloxacillin / flucloxacillin: high serum concentrations, used for step-down or mild SSTI.",
+      "No activity against Gram-negatives, enterococci, or MRSA — purely an anti-staphylococcal niche agent.",
+    ],
+    bedside:
+      "MSSA bacteremia mortality drops substantially when a β-lactam " +
+      "replaces vancomycin within 48 h. McDanel (CID 2017) showed cefazolin " +
+      "and nafcillin both outperformed vancomycin (mortality 21% nafcillin " +
+      "vs 32% vancomycin). Cefazolin is often preferred for tolerability; " +
+      "nafcillin retains the edge in CNS sources due to better penetration. " +
+      "Never use anti-staph penicillins empirically before MRSA is excluded.",
+    foundational:
+      "The β-lactam pharmacophore is identical to penicillin G, but the " +
+      "6-acyl side chain carries a bulky 3-methyl-5-phenyl-isoxazole group " +
+      "(oxacillin/cloxacillin/dicloxacillin/flucloxacillin) or a " +
+      "2-ethoxy-1-naphthyl group (nafcillin). These substitutions sterically " +
+      "occlude the active-site cleft of staphylococcal PC1 β-lactamase " +
+      "(BlaZ), preventing acylation of the hydrolytic serine, while still " +
+      "fitting the larger PBP active sites — preserving target affinity. " +
+      "The trade-off: zero activity against PBP2a (MRSA) and no Gram-negative " +
+      "penetration through outer-membrane porins.",
+    papers: [
+      { name: "McDanel et al.", year: 2017,
+        finding: "Cefazolin and nafcillin outperformed vancomycin for MSSA bacteremia (21% vs 32% mortality in propensity-matched cohort)." },
+      { name: "Loubet et al.", year: 2018,
+        finding: "Cefazolin non-inferior to anti-staph penicillins for MSSA bacteremia with fewer adverse events in meta-analysis." },
+    ],
+  },
+
+  "Aminopenicillins": {
+    title:  "Aminopenicillins — Extended-spectrum penicillins",
+    family: "class",
+    alias:  ["amoxicillin", "ampicillin"],
+    summary:
+      "Amoxicillin (oral) and ampicillin (IV) — penicillins with an amino " +
+      "group on the C6 side chain that confers Gram-negative reach. Cover " +
+      "non-β-lactamase E. coli, Proteus mirabilis, Haemophilus, Listeria, " +
+      "and enterococci. The drug of choice for Listeria meningitis, " +
+      "enterococcal endocarditis, and uncomplicated otitis. β-lactamase-" +
+      "producing organisms require a paired inhibitor.",
+    keypoints: [
+      "Ampicillin (with gentamicin or ceftriaxone) is first-line for E. faecalis endocarditis.",
+      "Listeria monocytogenes meningitis: ampicillin 2 g IV q4h plus gentamicin synergy.",
+      "Amoxicillin remains first-line for community-acquired otitis, sinusitis, and strep pharyngitis.",
+      "Rising E. coli resistance — ~50% community urinary isolates β-lactamase positive in many regions.",
+      "Mononucleosis-associated rash with ampicillin is non-allergic; no true penicillin sensitization.",
+    ],
+    bedside:
+      "The ampicillin-ceftriaxone regimen for E. faecalis endocarditis " +
+      "(Fernández-Hidalgo 2013) eliminated the need for gentamicin co-therapy " +
+      "— equivalent cure rates with markedly less nephrotoxicity. For " +
+      "Listeria, every hour of delayed ampicillin in suspected " +
+      "rhombencephalitis matters; empirical ampicillin coverage is mandatory " +
+      "in adults > 50, immunocompromised, and pregnant patients with possible " +
+      "bacterial meningitis.",
+    foundational:
+      "The amino group at the alpha carbon of the C6 side chain adds a " +
+      "positive charge that improves passage through Gram-negative " +
+      "outer-membrane porins (OmpF, OmpC), extending the spectrum beyond " +
+      "penicillin G. PBP binding remains identical to penicillin G " +
+      "(PBP1a/1b/2/3), so killing kinetics and Gram-positive coverage are " +
+      "preserved. The amino group, however, leaves the β-lactam fully " +
+      "exposed to staphylococcal and TEM/SHV β-lactamases — hence the " +
+      "universal pairing with clavulanate or sulbactam for ambulatory " +
+      "empiric use.",
+    papers: [
+      { name: "Fernández-Hidalgo et al.", year: 2013,
+        finding: "Ampicillin + ceftriaxone equivalent to ampicillin + gentamicin for E. faecalis endocarditis with less nephrotoxicity." },
+      { name: "Mylonakis et al.", year: 1998,
+        finding: "Listeria meningitis review: ampicillin plus aminoglycoside reduced mortality vs single agent in severe disease." },
+    ],
+  },
+
+  "Anti-pseudomonal penicillins": {
+    title:  "Anti-pseudomonal penicillins — Acyl/ureido β-lactams",
+    family: "class",
+    alias:  ["piperacillin", "ureidopenicillin"],
+    summary:
+      "Piperacillin and ticarcillin — penicillins re-engineered with an " +
+      "acyl side chain that traverses the Pseudomonas outer-membrane porin " +
+      "OprD. Cover most Enterobacterales, Pseudomonas aeruginosa, and many " +
+      "anaerobes. Hydrolyzed by virtually all β-lactamases, so always paired " +
+      "with a β-lactamase inhibitor (piperacillin-tazobactam) in clinical " +
+      "practice.",
+    keypoints: [
+      "Piperacillin-tazobactam 4.5 g IV q8h (extended infusion) — workhorse for empiric sepsis.",
+      "Ticarcillin is largely retired in the US; piperacillin/tazobactam dominates the class.",
+      "Avoid for serious ESBL infection (MERINO) and for AmpC inducers — even on susceptible report.",
+      "Extended infusion (BLING-III, MERCY) improves attainment; mortality benefit modest but consistent.",
+      "Watch for hypokalemia, platelet dysfunction, and AKI when co-administered with vancomycin.",
+    ],
+    bedside:
+      "Pip-tazo remains the empiric backbone for hospital-acquired sepsis " +
+      "where Pseudomonas coverage matters. BLING-III (Dulhunty 2024) " +
+      "randomized critically ill patients to continuous vs intermittent " +
+      "β-lactam dosing — 90-day mortality 24.9% vs 26.8%, just missing " +
+      "significance but consistent with prior meta-analyses. The MERINO " +
+      "trap: never use it for confirmed ESBL bacteremia, even if pip-tazo " +
+      "MIC reports susceptible — switch to a carbapenem.",
+    foundational:
+      "The class divides by side-chain chemistry: carboxypenicillins " +
+      "(ticarcillin) carry a carboxyl on the alpha carbon; ureidopenicillins " +
+      "(piperacillin, mezlocillin, azlocillin) carry a substituted urea. " +
+      "Both confer net charge and bulk that allow transit through OprD and " +
+      "OmpF porins of Pseudomonas and Enterobacterales — the " +
+      "carboxypenicillins less efficiently than the ureidopenicillins. Once " +
+      "inside, the same PBP1/2/3 acylation drives lysis. Susceptibility to " +
+      "all serine β-lactamases (TEM, SHV, AmpC, ESBL, KPC) mandates pairing " +
+      "with tazobactam in modern practice.",
+    papers: [
+      { name: "BLING-III RCT", year: 2024,
+        finding: "Continuous infusion β-lactam in sepsis: 90-day mortality 24.9% vs 26.8% intermittent — narrowly non-significant." },
+      { name: "MERCY RCT", year: 2023,
+        finding: "Continuous-infusion meropenem vs intermittent in sepsis — no clinical-cure benefit; PK target attainment higher." },
+    ],
+  },
+
+  "β-lactam/β-lactamase-inhibitor combos": {
+    title:  "BLBLI combos — β-lactam plus β-lactamase inhibitor",
+    family: "class",
+    alias:  ["BLBLI", "β-lactamase inhibitor", "piperacillin-tazobactam", "amoxicillin-clavulanate"],
+    summary:
+      "A β-lactam paired with an inhibitor that disables the bacterial " +
+      "β-lactamase, restoring activity. Older combinations (amox-clav, " +
+      "amp-sulbactam, pip-tazo) cover plasmid-encoded class A enzymes; newer " +
+      "DBO/boronate pairings (ceftaz-avi, mero-vab, imipenem-rele, " +
+      "ceftolozane-tazo) reach KPC, AmpC, OXA-48, and difficult Pseudomonas.",
+    keypoints: [
+      "Clavulanate, tazobactam, sulbactam — classic suicide inhibitors of class A serine enzymes.",
+      "Avibactam (DBO) and relebactam restore activity against KPC and AmpC; vaborbactam covers KPC.",
+      "No inhibitor restores activity against metallo-β-lactamases (NDM/VIM/IMP) — zinc, not serine.",
+      "Ceftolozane-tazobactam excels against MDR Pseudomonas via stable PBP3 binding.",
+      "Ceftaz-avi + aztreonam: the off-label combo for MBL-producing CRE awaiting cefiderocol access.",
+    ],
+    bedside:
+      "These pairings transformed CRE survival. Shields (2017) showed " +
+      "ceftaz-avi cut KPC bacteremia mortality from 32% (colistin era) to " +
+      "9%. The right inhibitor depends on the right enzyme — KPC → " +
+      "avi/vab/rele; OXA-48 → avi only; AmpC → avi or rele; MBL → none, " +
+      "aztreonam is the lifeboat. Confirming the carbapenemase identity by " +
+      "molecular assay (Xpert Carba-R) before agent selection is now standard.",
+    foundational:
+      "Suicide inhibitors (clavulanate, sulbactam, tazobactam) carry their " +
+      "own β-lactam ring that the bacterial β-lactamase opens, forming a " +
+      "covalent acyl-enzyme intermediate that rearranges into an " +
+      "inactivating species — the enzyme destroys itself. " +
+      "Diazabicyclooctanes (avibactam, relebactam) and cyclic boronates " +
+      "(vaborbactam) form reversible carbamate or boronate-ester adducts " +
+      "with the active-site serine, blocking turnover without permanent " +
+      "enzyme inactivation. None engage metallo-enzymes, whose " +
+      "Zn²⁺-coordinated hydroxide mechanism lacks the serine target.",
+    papers: [
+      { name: "Shields et al.", year: 2017,
+        finding: "Ceftaz-avi cut KPC-CRE bacteremia mortality from 32% (colistin) to 9% in propensity-matched cohort." },
+      { name: "ASPECT-NP", year: 2019,
+        finding: "Ceftolozane-tazo non-inferior to meropenem for ventilated nosocomial pneumonia, signal favoring novel agent." },
+    ],
+  },
+
+  "1st/2nd-gen cephalosporins": {
+    title:  "1st/2nd-gen cephalosporins — MSSA / community Gram-negatives",
+    family: "class",
+    alias:  ["cefazolin", "cephalexin", "cefuroxime", "first-gen cephalosporin", "second-gen cephalosporin"],
+    summary:
+      "Early-generation cephalosporins. First-gen (cefazolin, cephalexin) " +
+      "target MSSA, streptococci, and some community E. coli/Klebsiella/" +
+      "Proteus. Second-gen splits into true cephs (cefuroxime — adds " +
+      "Haemophilus and modest Gram-negative gain) and cephamycins (cefoxitin, " +
+      "cefotetan — anaerobic coverage including Bacteroides fragilis via " +
+      "altered PBP affinity).",
+    keypoints: [
+      "Cefazolin 2 g IV q8h is gold-standard surgical prophylaxis and MSSA bacteremia therapy.",
+      "Cephalexin: oral step-down for MSSA SSTI; high serum levels, simple QID dosing.",
+      "Cefuroxime adds H. influenzae and M. catarrhalis to first-gen spectrum — community pneumonia.",
+      "Cefoxitin and cefotetan reach Bacteroides — appendicitis and intra-abdominal prophylaxis.",
+      "No reliable Pseudomonas, AmpC organisms, ESBL, or MRSA coverage in this generation.",
+    ],
+    bedside:
+      "Cefazolin's quiet dominance: it matches nafcillin for MSSA bacteremia " +
+      "with fewer adverse events (Loubet 2018 meta-analysis), beats " +
+      "vancomycin handily, and remains the universal surgical-prophylaxis " +
+      "backbone — single dose within 60 min of incision (vancomycin within " +
+      "120 min) cuts SSI by ~50%. The historical inoculum-effect concern " +
+      "for deep MSSA endovascular disease has not borne out in modern " +
+      "propensity-matched cohorts.",
+    foundational:
+      "Cephalosporins share the β-lactam ring fused to a six-membered " +
+      "dihydrothiazine (vs penicillin's five-membered thiazolidine), " +
+      "conferring greater β-lactamase stability and a different PBP-binding " +
+      "profile. First-gen R1 side chains (cefazolin's tetrazolyl-thiomethyl, " +
+      "cephalexin's phenyl-glycyl) confer high MSSA PBP affinity and limited " +
+      "porin transit. Second-gen cephamycins (cefoxitin, cefotetan) add a " +
+      "7α-methoxy substituent that sterically blocks many class A " +
+      "β-lactamases — explaining their preserved anaerobic coverage, since " +
+      "Bacteroides fragilis relies heavily on chromosomal cephalosporinases.",
+    papers: [
+      { name: "Loubet et al.", year: 2018,
+        finding: "Cefazolin non-inferior to anti-staph penicillins for MSSA bacteremia with fewer adverse drug events." },
+      { name: "Bratzler et al.", year: 2013,
+        finding: "ASHP surgical-prophylaxis guideline: single-dose cefazolin within 60 min reduces SSI ~50% across procedures." },
+    ],
+  },
+
+  "3rd/4th/5th-gen cephalosporins": {
+    title:  "3rd/4th/5th-gen cephalosporins — Broad / AmpC-stable / anti-MRSA",
+    family: "class",
+    alias:  ["ceftriaxone", "cefepime", "ceftaroline", "third-gen cephalosporin"],
+    summary:
+      "Third-gen (ceftriaxone, cefotaxime, ceftazidime) extend Gram-negative " +
+      "spectrum via expanded R1 side chains. Fourth-gen cefepime adds AmpC " +
+      "stability and Pseudomonas reach with a zwitterionic structure. " +
+      "Fifth-gen ceftaroline and ceftobiprole achieve MRSA activity by " +
+      "binding the PBP2a allosteric site. None reliably cover ESBL, " +
+      "anaerobes, or enterococci.",
+    keypoints: [
+      "Ceftriaxone 2 g IV daily: gold-standard for pneumococcal meningitis, CAP, gonorrhea, neuro-Lyme.",
+      "Ceftazidime: anti-pseudomonal but weak Gram-positive; cefepime preferred when both matter.",
+      "Cefepime is the AmpC-stable workhorse (IDSA 2024) — first-line for Enterobacter, Serratia, Citrobacter.",
+      "Ceftaroline: the only β-lactam reliably active against MRSA; FDA-approved for SSTI/CAP.",
+      "Cefepime neurotoxicity (encephalopathy, NCSE) in renal impairment — dose-reduce aggressively.",
+    ],
+    bedside:
+      "Ceftriaxone is the most-prescribed inpatient β-lactam globally — " +
+      "convenient OD dosing, broad utility, and CSF penetration suffice for " +
+      "most community pneumonia and meningitis. The AmpC trap (Enterobacter, " +
+      "K. aerogenes, Citrobacter, Serratia, M. morganii, P. rettgeri) " +
+      "demands cefepime instead — ceftriaxone can fail mid-course as " +
+      "inducible AmpC derepresses. Ceftaroline (Corey 2010) restored " +
+      "β-lactam access to MRSA but remains a niche second-line agent.",
+    foundational:
+      "Third-gen R1 side chains (oxyimino group on " +
+      "ceftriaxone/cefotaxime/ceftazidime) sterically protect against many " +
+      "class A β-lactamases but invite hydrolysis by CTX-M ESBLs. Cefepime's " +
+      "quaternary-nitrogen N4-methyl-pyrrolidinium creates a zwitterion that " +
+      "traverses outer-membrane porins rapidly and resists AmpC binding. " +
+      "Ceftaroline carries a 1,2,4-thiadiazole + pyridinium-thiazole that — " +
+      "uniquely — binds an allosteric pocket of MRSA PBP2a, triggering " +
+      "conformational opening of the closed active-site cleft so the " +
+      "β-lactam can acylate the catalytic serine. Ceftobiprole shares the " +
+      "allosteric strategy with slightly broader Gram-negative reach.",
+    papers: [
+      { name: "Corey et al. (CANVAS)", year: 2010,
+        finding: "Ceftaroline non-inferior to vancomycin/aztreonam for complicated SSTI including MRSA — pivotal FDA registration trial." },
+      { name: "IDSA AMR-GN", year: 2024,
+        finding: "Cefepime preferred over ceftriaxone for moderate AmpC-producer infection; carbapenem for severe disease or shock." },
+    ],
+  },
+
+  "Carbapenems": {
+    title:  "Carbapenems — Broadest-spectrum β-lactams",
+    family: "class",
+    alias:  ["meropenem", "ertapenem", "imipenem", "carbapenem class"],
+    summary:
+      "Ertapenem, meropenem, imipenem-cilastatin, doripenem — broadest " +
+      "β-lactams in routine use. Hydrolytically stable to most β-lactamases " +
+      "including ESBLs and AmpC; bind PBP1/2/3 across both Gram-positive and " +
+      "Gram-negative organisms. First-line for serious ESBL infection " +
+      "(MERINO), AmpC organism bacteremia, and broad empiric coverage in " +
+      "septic shock with prior MDR risk.",
+    keypoints: [
+      "Meropenem 1–2 g IV q8h (extended infusion) — workhorse for ESBL, AmpC, and polymicrobial sepsis.",
+      "Ertapenem OD dosing — outpatient-friendly but no Pseudomonas, Acinetobacter, or enterococcal activity.",
+      "Imipenem-cilastatin: paired with renal dehydropeptidase inhibitor; seizure risk in renal impairment.",
+      "Defeated by carbapenemases (KPC, NDM, VIM, OXA-48) — switch to ceftaz-avi, mero-vab, or cefiderocol.",
+      "Carbapenem-sparing strategies (cefepime for AmpC, fosfomycin for ESBL cystitis) reduce CRE selection.",
+    ],
+    bedside:
+      "MERINO (Harris JAMA 2018) cemented carbapenems as standard for ESBL " +
+      "bacteremia: meropenem 4% vs piperacillin-tazobactam 12% 30-day " +
+      "mortality. The carbapenem-MIC argument disappears when the inoculum " +
+      "is high (endovascular, abscess, deep-tissue). Ertapenem's once-daily " +
+      "dose is OPAT-friendly but is wrong for ICU sepsis where Pseudomonas " +
+      "matters — meropenem is the broader spectrum default for hospital " +
+      "empiric coverage.",
+    foundational:
+      "Carbapenems share a five-membered ring fused to the β-lactam, with " +
+      "the sulfur of penicillin replaced by carbon and an unusual " +
+      "trans-6-hydroxyethyl side chain. That stereochemistry sterically " +
+      "blocks the active-site serine of most β-lactamases (TEM, SHV, AmpC, " +
+      "CTX-M) — the enzyme cannot productively acylate. Carbapenemases " +
+      "(class A KPC, class B MBL, class D OXA-48) evolved widened or " +
+      "repositioned active-site geometry to accommodate the carbapenem. " +
+      "Once inside, carbapenems bind PBP2 (Gram-negatives) and PBP1/3 " +
+      "(Gram-positives) with high affinity, driving rapid lysis.",
+    papers: [
+      { name: "MERINO RCT", year: 2018,
+        finding: "Meropenem 4% vs piperacillin-tazobactam 12% mortality for ESBL bacteremia — established carbapenem as standard." },
+      { name: "TANGO I", year: 2018,
+        finding: "Meropenem-vaborbactam non-inferior to piperacillin-tazobactam for complicated UTI including ESBL pathogens." },
+    ],
+  },
+
+  "Monobactams": {
+    title:  "Monobactams — Aztreonam, the MBL-stable β-lactam",
+    family: "class",
+    alias:  ["aztreonam", "monobactam class"],
+    summary:
+      "Aztreonam — the sole clinically available monobactam. A single " +
+      "β-lactam ring without a fused partner ring binds PBP3 selectively " +
+      "in Gram-negative bacteria. Pseudomonas, Enterobacterales, and " +
+      "Haemophilus covered; no Gram-positive or anaerobic activity. " +
+      "Crucially, aztreonam IS a β-lactam (monobactam = single β-lactam " +
+      "ring) but survives metallo-β-lactamases — the lifeboat against " +
+      "NDM/VIM/IMP.",
+    keypoints: [
+      "Aztreonam 2 g IV q8h — Gram-negative-only β-lactam with anti-pseudomonal activity.",
+      "Safe in true IgE-mediated penicillin allergy (no shared R1 side chain except with ceftazidime).",
+      "Metallo-β-lactamase-stable: pairs with ceftaz-avi for MBL-producing CRE awaiting cefiderocol.",
+      "Hydrolyzed by ESBL, AmpC, KPC, OXA-48 — needs avibactam to shield co-resident enzymes.",
+      "No activity against Gram-positives, anaerobes, or Acinetobacter — narrow but reliable.",
+    ],
+    bedside:
+      "Aztreonam fills two narrow niches: severe Gram-negative infection " +
+      "in confirmed IgE-mediated penicillin allergy where carbapenem " +
+      "cross-reactivity is feared, and MBL-producing CRE where every other " +
+      "β-lactam fails. Falcone (2022) reported 24% mortality with ceftaz-avi " +
+      "+ aztreonam vs 52% with other regimens for MBL bacteremia. The " +
+      "pairing exploits aztreonam's MBL stability while avibactam shields " +
+      "it from co-resident class A/C/D serine enzymes.",
+    foundational:
+      "Aztreonam IS a β-lactam — a monobactam carries a single β-lactam " +
+      "ring without the fused thiazolidine (penicillin), dihydrothiazine " +
+      "(cephalosporin), or pyrroline (carbapenem) partner. The N1 sulfonate " +
+      "replaces the fused-ring carboxylate as the recognition handle for " +
+      "PBP3 in Gram-negatives. Metallo-β-lactamase active sites evolved to " +
+      "accommodate the bicyclic fused substrates of " +
+      "penicillins/cephalosporins/carbapenems — the open Zn²⁺ pocket is " +
+      "geometrically tuned to those scaffolds and simply does not " +
+      "productively engage a monocyclic monobactam. Aztreonam survives MBL " +
+      "hydrolysis on this geometric grounds, not by lacking the β-lactam " +
+      "itself.",
+    papers: [
+      { name: "Falcone et al.", year: 2022,
+        finding: "Ceftaz-avi + aztreonam: 24% mortality vs 52% other regimens in MBL-producing CRE bacteremia cohort." },
+      { name: "REVISIT trial", year: 2024,
+        finding: "Aztreonam-avibactam non-inferior to meropenem ± colistin for serious Gram-negative infection including MBL producers." },
+    ],
+  },
+
   /* ============= RESISTANCE — CL-6 M-3 enzymes + target processes ======== */
 
   "OXA-48": {
