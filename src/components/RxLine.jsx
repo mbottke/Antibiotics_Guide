@@ -23,6 +23,7 @@
 
 import React, { useMemo } from "react";
 import { ArrowRight, Plus } from "lucide-react";
+import { DecisionAttributionDrawer } from "./DecisionAttributionDrawer.jsx";
 import { AGENT_RX } from "../data/drugs.js";
 import { renderGloss, renderRich } from "./rich-text.jsx";
 import { Cite } from "./primitives.jsx";
@@ -62,14 +63,40 @@ const _TONE_FOR = {
 function FootMark({ idx, step }) {
   const tone = _TONE_FOR[step.type] || _TONE_FOR.note;
   const color = step.sev === "high" ? "var(--ox)" : step.sev === "med" ? "var(--amber)" : "var(--ink2)";
+  /* Wave 5 PR-14 — clickable trace-decision affordance. Self-contained
+     state + drawer overlay (no prop drilling needed). Mechanism cross-
+     link to MechanismDrawer (PR-7a) wires up in PR-14b once that lands. */
+  const [open, setOpen] = React.useState(false);
   return (
-    <sup style={{
-      display:"inline-flex", alignItems:"center", justifyContent:"center",
-      minWidth:14, height:14, padding:"0 4px", marginLeft:3,
-      fontSize:9, fontFamily:"var(--mono)", fontWeight:700,
-      color:"#fff", background:color, borderRadius:7, verticalAlign:"super",
-      lineHeight:1,
-    }} title={tone.label + ": " + step.reason}>{idx}</sup>
+    <>
+      <sup
+        role="button"
+        tabIndex={0}
+        onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(true); }}
+        onKeyDown={(e) => {
+          if(e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        title={`Trace decision — ${tone.label}: ${step.reason}`}
+        aria-label={`Trace decision · ${tone.label} on ${step.agent}`}
+        style={{
+          display:"inline-flex", alignItems:"center", justifyContent:"center",
+          minWidth:14, height:14, padding:"0 4px", marginLeft:3,
+          fontSize:9, fontFamily:"var(--mono)", fontWeight:700,
+          color:"#fff", background:color, borderRadius:7, verticalAlign:"super",
+          lineHeight:1, cursor:"pointer", border:"none",
+        }}
+      >
+        {idx}
+      </sup>
+      <DecisionAttributionDrawer
+        step={step}
+        open={open}
+        onClose={() => setOpen(false)}
+      />
+    </>
   );
 }
 
