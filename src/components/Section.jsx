@@ -36,9 +36,12 @@ function Section({ kicker, title, icon: Icon, children, sticky, testId, id }) {
       <div style={{
         background:"var(--panel)", border:"1px solid var(--line)", borderRadius:12,
         padding: sticky ? "18px 18px 16px" : 16,
+        /* Wave 6 W6-B · resting card elevation. Subtle by default; the
+           "sticky" Start section (anchored first impression) gets the
+           e2 shadow + the oxblood top stripe to feel anchored. */
+        boxShadow: sticky ? "var(--shadow-e2)" : "var(--shadow-e1)",
         ...(sticky ? {
           borderTop:"3px solid var(--ox)",
-          boxShadow: "0 1px 0 var(--line2), 0 2px 12px -8px rgba(15,76,129,0.18)",
         } : {}),
       }}>
         {children}

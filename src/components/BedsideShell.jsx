@@ -12,6 +12,7 @@ import { AnswerCanvas } from "./AnswerCanvas.jsx";
 import { FontSizeControl } from "./FontSizeControl.jsx";
 import { SettingsModal } from "./SettingsModal.jsx";
 import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay.jsx";
+import { OnboardingModal } from "./OnboardingModal.jsx";
 import { SYNDROMES } from "../data/syndromes.js";
 
 function _synName(id) {
@@ -209,6 +210,11 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
           own open state via a global keydown listener so it can surface
           from anywhere in the bedside surface without prop drilling. */}
       <KeyboardShortcutsOverlay />
+
+      {/* Wave 6 W6-D · first-visit onboarding modal. Auto-shows on the
+          very first visit; persists dismissal to localStorage so it
+          never interrupts the workflow path again. */}
+      <OnboardingModal />
     </div>
   );
 }

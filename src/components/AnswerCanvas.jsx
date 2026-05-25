@@ -309,17 +309,23 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
 
   return (
     <div style={{ marginTop: 6 }}>
-      {/* Header strip — syndrome name, risks, edit-case affordance */}
-      <div data-bedside-header-strip="true" style={{
+      {/* Header strip — syndrome name, risks, edit-case affordance.
+          Wave 6 W6-B · elevation + reveal so the page begins with a
+          gentle settle rather than snapping in. The serif title gets
+          a tighter tracking + bigger size; the kicker keeps the
+          mono uppercase but with the new -.04em letterspacing tweak
+          coming from the shared rx-h1 family. */}
+      <div data-bedside-header-strip="true" className="rx-reveal" style={{
         display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12,
-        padding:"14px 18px", background:"var(--ox-softer)", border:"1px solid var(--ox-line)",
-        borderRadius:12, marginBottom: 16,
+        padding:"18px 22px", background:"var(--ox-softer)", border:"1px solid var(--ox-line)",
+        borderRadius:14, marginBottom: 18,
+        boxShadow:"var(--shadow-e1)",
       }}>
         <div style={{ minWidth:0, flex:1 }}>
-          <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".14em", textTransform:"uppercase", color:"var(--ox)", fontWeight:700, marginBottom:3 }}>
+          <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".14em", textTransform:"uppercase", color:"var(--ox)", fontWeight:700, marginBottom:6 }}>
             <Crosshair size={11} style={{ verticalAlign:"-1px", marginRight:5 }}/>The answer
           </div>
-          <div style={{ fontFamily:"var(--serif)", fontSize:21, fontWeight:600, color:"var(--ink)", letterSpacing:"-.01em", lineHeight:1.2 }}>
+          <div style={{ fontFamily:"var(--serif)", fontSize:26, fontWeight:600, color:"var(--ink)", letterSpacing:"-.018em", lineHeight:1.14 }}>
             {s.name}
           </div>
           <div style={{ fontSize:12.5, color:"var(--ink2)", marginTop:5, lineHeight:1.5 }}>
@@ -387,14 +393,16 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               <button
                 key={item.id}
                 type="button"
+                className="rx-lift rx-cta-glow"
                 onClick={() => _onSpineClick(item.id)}
                 style={{
                   flex: "0 0 auto",
                   fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".04em",
                   color: "var(--ink2)",
                   background: "var(--panel)", border: "1px solid var(--line)",
-                  borderRadius: 999, padding: "4px 10px", cursor: "pointer",
+                  borderRadius: 999, padding: "4px 12px", cursor: "pointer",
                   whiteSpace: "nowrap",
+                  boxShadow: "var(--shadow-e0)",
                 }}>
                 {item.label}
               </button>
@@ -430,6 +438,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               role="tab"
               aria-selected={active}
               aria-controls={`layer-panel-${t.id}`}
+              className="rx-lift rx-cta-glow"
               onClick={() => _selectLayerTab(t.id)}
               style={{
                 flex: "0 0 auto",
@@ -439,8 +448,9 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                 background: active ? "var(--ox)" : "var(--panel)",
                 border: `1px solid ${active ? "var(--ox)" : "var(--line)"}`,
                 borderRadius: 999,
-                padding: "5px 12px", cursor: "pointer",
-                transition: "background .12s, color .12s",
+                padding: "5px 13px", cursor: "pointer",
+                boxShadow: active ? "var(--shadow-e2)" : "var(--shadow-e0)",
+                transition: "background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out)",
               }}
             >
               {t.label}
