@@ -10,11 +10,41 @@
      {
        patient: { age:72, sex:"M", mrsaRisk:true, scr:<back-calc>, on:true },
        syndrome: "cap",
+       currentRegimen: ["Cefepime", "Vancomycin (IV)"] | null,
+       findings: [{ kind: "culture", organism: "esbl" }, ...],
        chips: [{ kind, label, raw }, ...],   // what the parser claimed
        rump: "..."                            // the input minus claimed spans
      }
 
+   Wave 5 PR-5c adds three engine-feeding extractors on top of the v1
+   chip surface:
+
+     • currentRegimen  Drug names extracted from "on X", "started on Y",
+                       "day N of Z", "switched to Q", and "broadened to R"
+                       phrases. Resolved via DRUG_RX_UNION (derived from
+                       AGENT_RX — no duplication) so the parser sees the
+                       same canonical names the regimen engine reasons
+                       over. Fed to composeAnswer's optional second
+                       parameter to seed de-escalation analysis.
+
+     • findings        Snapshot-refine triggers for refineOnNewFinding:
+                         "BCx grew ESBL E. coli"  → culture (org=esbl)
+                         "despite cefepime"       → deterioration
+                         "source controlled"      → source-controlled
+                       Each finding carries the original phrase so the
+                       Reassessment panel can render the chip with the
+                       user's own words.
+
+     • new risk chips  "recent hospital stay" → hcaqRisk
+                       "peritoneal dialysis"  → onPD
+                       Lone "fever" without a more specific syndrome is
+                       surfaced as a soft chip but NEVER routed to a
+                       syndrome — it must not swallow febrile-neutropenia,
+                       TSS, or any other specific febrile pattern.
+
    Inpatient Antibiotic Guide — module graph documented in README.md. */
+
+import { AGENT_RX } from "../data/drugs.js";
 
 /* ---------- syndrome keyword map ----------
    Ordered: more specific phrases come first so "septic shock" hits sepsis
@@ -41,6 +71,7 @@ const SYN_KEYWORDS = [
   [/\bsevere\s*sepsis\b/i,                       "sepsis",             { severe:true }],
   [/\bhealthcare-?associated\s*sepsis\b|\bhcap\s*sepsis\b|\bhca[-\s]?sepsis\b|\bhcaq\b/i, "sepsis-hcaq", {}],
   [/\babdominal\s*sepsis\b|\bsepsis.{0,40}abdominal\s*source\b|\bintra-?abdominal\s*sepsis\b/i, "sepsis-abdominal", {}],
+  [/\bgram-?negative\s*sepsis\b|\bgnr\s*sepsis\b/i, "sepsis", { esblRisk: true }],
 
   /* === Respiratory === */
   [/\bzoonotic.{0,30}pneumonia\b|\bq\s*fever\b|\bpsittacosis\b|\btularemia\b|\bleptospir/i, "zoonotic-pna", {}],
@@ -176,6 +207,10 @@ const RISK_PATTERNS = [
   { rx: /\bsepti?c?\s*shock\b/i,                                        set: { severe:true },    label: "Septic shock" },
   { rx: /\bshock\b/i,                                                   set: { severe:true },    label: "Shock" },
   { rx: /\bicu\b|\bintubated\b|\bvasopressor/i,                         set: { severe:true },    label: "ICU / critical" },
+  { rx: /\brecent(?:ly)?\s+(?:hospital(?:ized|ization|\s+stay|\s+admit(?:ted|ssion)?)|admitted|discharged)\b|\b(?:prior|recent)\s+admission\b|\b30-?day\s+(?:admit|readmit)/i,
+    set: { hcaqRisk:true },    label: "Recent healthcare contact" },
+  { rx: /\bperitoneal\s+dialysis\b|\bon\s+pd\b(?![a-z])|\bpd\s+catheter\b/i,
+    set: { onPD:true },        label: "On peritoneal dialysis" },
 ];
 
 /* ---------- β-lactam allergy patterns ----------
@@ -210,6 +245,85 @@ const RX = {
   hd:      /\b(?:on\s*hd|hemodialys|h\s*\/\s*d|esrd\s*on\s*hd|dialys)/i,
 };
 
+/* ---------- DRUG_RX_UNION — drug-name detector derived from AGENT_RX --------
+   Wave 5 PR-5c · the parser sees drugs through the SAME registry the regimen
+   engine reasons over. This eliminates the drift trap called out in the plan:
+   a new agent added to AGENT_RX is automatically visible to both the engine
+   AND the parser without a second source edit.
+
+   findDrugs(text) scans the input and returns canonical FORMULARY names in
+   AGENT_RX-declaration order (specific-first), deduplicated. Used to populate
+   currentRegimen from "on X" / "started on Y" / "despite Z" tails. */
+const DRUG_RX_UNION = {
+  findDrugs(text){
+    if(!text || typeof text !== "string") return [];
+    const out = [];
+    AGENT_RX.forEach(({ rx, canon }) => {
+      if(rx.test(text) && !out.includes(canon)) out.push(canon);
+    });
+    return out;
+  },
+};
+
+/* ---------- ORG_KEYWORDS — organism phrasing → outer-14 organism id --------
+   Wave 5 PR-5c · only used inside culture-finding contexts ("BCx grew ..."
+   etc.) so the same word ("ESBL") that flags a colonization risk earlier in
+   the input is also recognized as an isolate identity later. Specifics
+   (ESBL / KPC / NDM) precede generals (E. coli / klebsiella) so the more
+   informative tag wins.
+
+   The id space matches the 14 outer organisms in data/organisms.js — the
+   same vocabulary refineOnNewFinding's culture path consumes via orgLookup. */
+const ORG_KEYWORDS = [
+  [/\besbl(?:[-\s]?(?:e|producing|positive))?\b/i,                   "esbl"],
+  [/\bkpc\b|\boxa-?48\b|carbapenemase[-\s]producing\s+enterobac/i,   "cre"],
+  [/\bndm\b|\bvim\b|\bimp\b(?![a-z])|metallo-?β?-?lactamase|\bmbl\b/i, "cre"],
+  [/\bcre\b|carbapenem-?resistant\s+enterobac/i,                     "cre"],
+  [/\bampc\b/i,                                                      "ampc"],
+  [/\bmrsa\b/i,                                                      "mrsa"],
+  [/\bmssa\b/i,                                                      "mssa"],
+  [/\bvre\b|vancomycin-?resistant\s+entero/i,                        "vre"],
+  [/\bpseudomonas\s*aeruginosa\b|\bpseudomonas\b|\bpsa\b/i,          "pseudo"],
+  [/\bacinetobacter\b|\bcrab\b|\ba\.?\s*baumannii\b/i,               "crab"],
+  [/\bstenotrophomonas\b|\bs\.?\s*maltophilia\b/i,                   "steno"],
+  [/\be\.?\s*coli\b|\bescherichia\s*coli\b|\bklebsiella\b|\bproteus\b|enterobact[a-z]*/i, "entero"],
+  [/\be\.?\s*faecium\b|enterococcus\s+faecium/i,                     "vre"],
+  [/\be\.?\s*faecalis\b|enterococcus\s+faecalis\b|\benterococcus\b/i,"efaecalis"],
+  [/\bpneumococcus\b|s\.?\s*pneumoniae\b|streptococcus\s+pneumoniae|group\s+a\s+strep|\bstrep(?:tococcal|tococcus)?\b/i, "strep"],
+  [/\bs\.?\s*aureus\b|staph(?:ylococcus)?\s+aureus/i,                "mssa"],
+  [/\bbacteroides\b|\banaerobe[s]?\b/i,                              "anaerobe"],
+  [/\blegionella\b|\bmycoplasma\b|\bchlamydia\b|atypical/i,          "atypical"],
+];
+
+function _detectOrgs(text){
+  if(!text || typeof text !== "string") return [];
+  const out = [];
+  ORG_KEYWORDS.forEach(([rx, id]) => {
+    if(rx.test(text) && !out.includes(id)) out.push(id);
+  });
+  return out;
+}
+
+/* ---------- FINDING_RX — snapshot-refine triggers from free text ----------
+   Wave 5 PR-5c · each match produces a finding object the Reassessment panel
+   feeds into refineOnNewFinding. Capture groups are intentionally permissive
+   (greedy to end-of-clause); narrowing happens via DRUG_RX_UNION / _detectOrgs
+   so a misplaced word never crashes the parser.
+
+   Order matters: CULTURE_RX must match before ON_REG_RX so "BCx grew X on
+   day 2 of cefepime" gets the culture finding AND the current regimen — the
+   two patterns work on disjoint text slices because the culture-tail is
+   consumed before regimen detection runs.
+
+   ON_REG_RX is intentionally NOT used to set findings; it only seeds the
+   currentRegimen array. The clinical finding is the culture/deterioration/
+   source-control event — the regimen is just context. */
+const CULTURE_RX  = /\b(?:bcx|ucx|ecx|(?:blood|sputum|urine|endotracheal|tissue|wound|csf|peritoneal)\s+(?:cultures?|cx)|cultures?)\s+(?:grew|positive\s+for|with)\s+([^.;\n]+)/i;
+const ON_REG_RX   = /\b(?:currently\s+on|started\s+on|switched\s+to|broad(?:ened)?\s+to|on\s+day\s+\d+\s+of|day\s+\d+\s+of|getting|receiving|on)\s+([^.;\n]+)/gi;
+const DESPITE_RX  = /\bdespite\s+([^.;\n]+)/i;
+const SRC_CTRL_RX = /\bsource[-\s]controll?ed\b|\bdrained\b|\bsource\s+controll?\b/i;
+const FEVER_RX    = /\bfever(?:ish|s)?\b|\bfebrile\b|\bt\s*max\b|\btemp(?:erature)?\s*[≥>=]\s*3\d/i;
+
 /* Push a chip and grow the consumed-span list. */
 function _claim(state, raw, chip) {
   if(!raw) return;
@@ -236,11 +350,13 @@ function parseCase(text) {
   const state = {
     patient: {},
     syndrome: null,
+    currentRegimen: null,
+    findings: [],
     chips: [],
     spans: [],
   };
   if(!text || typeof text !== "string") {
-    return { patient: state.patient, syndrome: null, chips: [], rump: "" };
+    return { patient: state.patient, syndrome: null, currentRegimen: null, findings: [], chips: [], rump: "" };
   }
 
   // 1. Demographics — try combined "72M" first, fall back to separate tokens.
@@ -314,16 +430,93 @@ function parseCase(text) {
     }
   }
 
-  // 7. Mark patient context as "on" if we parsed any patient field — the
+  // 7. Cultures — "BCx grew ESBL E. coli" / "sputum cx positive for MRSA".
+  // Run BEFORE the regimen extractor so the post-"grew" tail does not get
+  // double-consumed by ON_REG_RX (which would also match "on" mid-tail).
+  let cultureTail = null;
+  {
+    const cm = text.match(CULTURE_RX);
+    if(cm){
+      cultureTail = cm[1];
+      _claim(state, cm[0], { kind:"finding", label:`Culture: ${cm[1].trim()}` });
+      const orgs = _detectOrgs(cm[1]);
+      if(orgs.length){
+        orgs.forEach(orgId => state.findings.push({ kind:"culture", organism: orgId, raw: cm[0] }));
+      } else {
+        // organism not in our vocabulary — still flag the finding shape so the
+        // Reassessment panel can prompt the user to pick from the org picker.
+        state.findings.push({ kind:"culture", organism: null, raw: cm[0] });
+      }
+    }
+  }
+
+  // 8. Current regimen — "on X" / "started on Y" / "day N of Z" / "switched to Q".
+  // Multiple "on" phrases may co-occur in one description ("on cefepime and
+  // vancomycin, started on metronidazole today"); we collect each tail and
+  // run DRUG_RX_UNION against the union.
+  {
+    const tails = [];
+    // Reset lastIndex — ON_REG_RX is /g/.
+    ON_REG_RX.lastIndex = 0;
+    let onm;
+    while((onm = ON_REG_RX.exec(text)) !== null){
+      const tail = onm[1];
+      // Skip the culture tail so "BCx grew X on day 2 of cefepime" doesn't
+      // re-match the post-"grew" segment for currentRegimen.
+      if(cultureTail && cultureTail.includes(tail)) continue;
+      tails.push(tail);
+    }
+    const despMatch = text.match(DESPITE_RX);
+    if(despMatch) tails.push(despMatch[1]);
+    if(tails.length){
+      const allDrugs = [];
+      tails.forEach(t => DRUG_RX_UNION.findDrugs(t).forEach(d => {
+        if(!allDrugs.includes(d)) allDrugs.push(d);
+      }));
+      if(allDrugs.length){
+        state.currentRegimen = allDrugs;
+        _claim(state, allDrugs.join(", "), { kind:"regimen", label:`On: ${allDrugs.join(", ")}` });
+      }
+    }
+    if(despMatch){
+      state.findings.push({ kind:"deterioration", raw: despMatch[0] });
+      _claim(state, despMatch[0], { kind:"finding", label:`Despite: ${despMatch[1].trim()}` });
+    }
+  }
+
+  // 9. Source-control finding — "source controlled" / "drained".
+  {
+    const sm = text.match(SRC_CTRL_RX);
+    if(sm){
+      state.findings.push({ kind:"source-controlled", raw: sm[0] });
+      _claim(state, sm[0], { kind:"finding", label:"Source controlled" });
+    }
+  }
+
+  // 10. Lone-fever last-resort. Surfaces a soft chip but NEVER assigns a
+  // syndrome — the plan's architectural trap: lone "fever" must not swallow
+  // febrile-neutropenia / TSS / shock / any specific syndrome. Fires only
+  // when no syndrome has been identified AND no severe/shock context was
+  // already set; the chip prompts the user to add a more specific tag.
+  if(!state.syndrome && !state.patient.severe){
+    const fm = text.match(FEVER_RX);
+    if(fm){
+      _claim(state, fm[0], { kind:"finding", label:"Fever — needs source" });
+    }
+  }
+
+  // 11. Mark patient context as "on" if we parsed any patient field — the
   // bedside surface implicitly activates the patient bar.
   if(Object.keys(state.patient).length > 0) state.patient.on = true;
 
   return {
     patient: state.patient,
     syndrome: state.syndrome,
+    currentRegimen: state.currentRegimen,
+    findings: state.findings,
     chips: state.chips,
     rump: _rump(text, state.spans),
   };
 }
 
-export { parseCase, SYN_KEYWORDS, RISK_PATTERNS, ALLERGY_PATTERNS, HEPATIC_PATTERNS, RX };
+export { parseCase, SYN_KEYWORDS, RISK_PATTERNS, ALLERGY_PATTERNS, HEPATIC_PATTERNS, RX, DRUG_RX_UNION, ORG_KEYWORDS };
