@@ -1115,6 +1115,411 @@ const MECHANISMS = {
       "trapping the PBP irreversibly acylated.",
   },
 
+  /* ============= RESISTANCE — efflux, porins, uptake (Wave 5 CL-6 M-4) === */
+
+  "MexAB-OprM": {
+    title:  "MexAB-OprM — Pseudomonas RND efflux pump",
+    family: "resistance",
+    alias:  ["RND efflux", "Pseudomonas multi-drug efflux"],
+    summary:
+      "Tripartite resistance-nodulation-division (RND) efflux pump in " +
+      "Pseudomonas aeruginosa: MexA periplasmic adapter, MexB inner-membrane " +
+      "transporter, OprM outer-membrane channel. Constitutively expressed at " +
+      "baseline; nalB / mexR loss-of-function mutants hyperproduce the system " +
+      "and elevate MICs to β-lactams, fluoroquinolones, tetracyclines, " +
+      "macrolides, and chloramphenicol simultaneously.",
+    keypoints: [
+      "Tripartite assembly: MexA adapter, MexB transporter, OprM outer-membrane channel.",
+      "Broad substrate range: β-lactams, FQs, tetracyclines, macrolides, chloramphenicol.",
+      "Hyperexpression via mexR / nalB loss-of-function mutations during therapy.",
+      "Proton-motive-force-driven; substrates captured from periplasm or membrane bilayer.",
+      "Combines with AmpC and OprD loss to give pan-β-lactam Pseudomonas resistance.",
+    ],
+    bedside:
+      "MexAB-OprM is why mid-course MIC creep in Pseudomonas bacteremia is " +
+      "common: cefepime or pip-tazo selects nalB mutants that hyperexpress " +
+      "the pump and lift MICs across multiple classes at once. Combination " +
+      "therapy (β-lactam + aminoglycoside or FQ) for the first 48–72 h slows " +
+      "the on-treatment emergence; de-escalate after culture and clinical " +
+      "stability. Surveillance MICs at 72 h catch the shift before clinical failure.",
+    foundational:
+      "RND efflux pumps are proton-antiporters: the inner-membrane MexB " +
+      "subunit uses the proton-motive force to capture substrates from the " +
+      "periplasmic face or membrane bilayer and shuttle them through the " +
+      "OprM channel directly into the external medium, bypassing the periplasm. " +
+      "MexA wraps the assembly into a continuous conduit. Substrate promiscuity " +
+      "comes from a large hydrophobic binding pocket that recognizes shape and " +
+      "lipophilicity rather than a specific pharmacophore.",
+  },
+
+  "OprD loss": {
+    title:  "OprD loss — Pseudomonas carbapenem porin",
+    family: "resistance",
+    alias:  ["OprD2", "porin OprD", "imipenem porin loss"],
+    summary:
+      "OprD is the basic-amino-acid / carbapenem-selective outer-membrane " +
+      "porin of Pseudomonas aeruginosa. Loss-of-function mutations or " +
+      "transcriptional downregulation raise imipenem MICs roughly 16-fold; " +
+      "meropenem is less dependent on OprD. Combined with derepressed AmpC " +
+      "the phenotype becomes clinical carbapenem resistance without any " +
+      "carbapenemase gene.",
+    keypoints: [
+      "Imipenem-selective porin — meropenem uses additional entry routes.",
+      "Loss alone gives ~16-fold imipenem MIC rise; meropenem rises ~4-fold.",
+      "AmpC derepression plus OprD loss = clinical pan-carbapenem resistance.",
+      "Frame-shift, IS-element insertion, or nfxC downregulation all observed.",
+      "Mechanism for carbapenem resistance without any acquired carbapenemase gene.",
+    ],
+    bedside:
+      "OprD loss is the silent reason a Pseudomonas isolate carbapenem-tests " +
+      "resistant on a unit with zero carbapenemase carriage. Phenotype: " +
+      "imipenem-R, meropenem-intermediate, ceftazidime-S. Switch to a " +
+      "ceftolozane-tazobactam or ceftazidime-avibactam regimen — these bypass " +
+      "the porin issue entirely. Carbapenemase PCR will be negative; that " +
+      "does not mean the strain is carbapenem-treatable.",
+    foundational:
+      "OprD is a 16-stranded β-barrel porin selective for basic amino acids " +
+      "and small zwitterionic carbapenems whose dimensions match the channel " +
+      "constriction zone. Imipenem traverses almost exclusively via OprD; " +
+      "meropenem additionally uses OpdP and other channels. Insertion-sequence " +
+      "disruption of the oprD ORF, or downregulation by mexT activation " +
+      "(nfxC phenotype), closes the entry route. Outer-membrane permeability " +
+      "becomes the rate-limiting step and MICs rise even though AmpC and " +
+      "PBP affinity are unchanged.",
+  },
+
+  "mgrB lipid-A modification": {
+    title:  "mgrB inactivation — colistin resistance",
+    family: "resistance",
+    alias:  ["colistin resistance", "mgrB inactivation", "phoPQ derepression"],
+    summary:
+      "mgrB encodes a small membrane peptide that negatively regulates the " +
+      "PhoPQ two-component system. Inactivation of mgrB (insertion sequence, " +
+      "premature stop, deletion) DEREPRESSES PhoPQ, which activates PmrAB and " +
+      "the arnBCADTEF operon, decorating lipid A with L-Ara4N. The cationic " +
+      "sugar masks the negative charge polymyxins need to bind. Classic in " +
+      "Klebsiella pneumoniae KPC-CRE.",
+    keypoints: [
+      "mgrB is a NEGATIVE regulator — inactivation DEREPRESSES PhoPQ signaling.",
+      "Derepressed PhoPQ → PmrAB → arnBCADTEF → L-Ara4N decoration of lipid A.",
+      "L-Ara4N masks lipid A's negative charge; polymyxin electrostatic binding fails.",
+      "Predominantly Klebsiella, often on a KPC-CRE background — last-line agent lost.",
+      "IS5-like insertions in mgrB are the commonest inactivating lesion clinically.",
+    ],
+    bedside:
+      "Colistin-resistant KPC-CRE is the dead-end isolate. mgrB inactivation " +
+      "is the dominant route, and once present, polymyxin-based salvage is " +
+      "dead. Confirm the carbapenemase identity and pivot to ceftazidime- " +
+      "avibactam, meropenem-vaborbactam, or cefiderocol depending on " +
+      "susceptibility. Plasmid-borne mcr-1 (phosphoethanolamine-transferase) " +
+      "is the second route — clinically the same problem, different gene.",
+    foundational:
+      "PhoPQ senses low Mg²⁺, low pH, and antimicrobial peptides. The " +
+      "phosphorylated PhoP response regulator activates pmrAB, which drives " +
+      "the arnBCADTEF cluster: ArnA + ArnB synthesize UDP-L-Ara4N, ArnT " +
+      "transfers it onto the lipid A 4'-phosphate. The added 4-amino-4-deoxy- " +
+      "L-arabinose neutralizes the lipid A phosphate charge that polymyxins " +
+      "and cationic antimicrobial peptides electrostatically engage. mgrB " +
+      "normally restrains this signaling; its loss is constitutive lipid A " +
+      "remodeling.",
+  },
+
+  "MLSB methylation": {
+    title:  "MLSB methylation — erm 23S rRNA methylase",
+    family: "resistance",
+    alias:  ["erm", "23S A2058 methylation", "macrolide methylase"],
+    summary:
+      "erm-family methyltransferases monomethylate or dimethylate adenine " +
+      "A2058 of the 23S rRNA in the 50S subunit's peptidyl-transferase exit " +
+      "tunnel. Methylation sterically blocks the shared binding pocket for " +
+      "Macrolides, Lincosamides, and Streptogramin B antibiotics — the MLSB " +
+      "cross-resistance phenotype. Expression is either inducible (D-test " +
+      "positive) or constitutive.",
+    keypoints: [
+      "Single methylation event at 23S A2058 confers cross-resistance to M, L, S-B.",
+      "Inducible erm: macrolide induces; clindamycin appears susceptible but fails.",
+      "D-test (erythromycin disk next to clindamycin) flattens the clinda zone if inducible.",
+      "Constitutive erm: clindamycin-R outright; reliably flagged by routine AST.",
+      "erm(A), erm(B), erm(C) dominate in staphylococci, streptococci, enterococci.",
+    ],
+    bedside:
+      "The single most common clindamycin trap: an apparently susceptible " +
+      "clindamycin MIC on an erythromycin-resistant S. aureus or GAS isolate " +
+      "is inducibly resistant if the D-test flattens. Treating necrotizing " +
+      "fasciitis or staphylococcal toxic shock with clindamycin in that " +
+      "setting risks on-therapy failure as the population selects for " +
+      "constitutive expression. Every micro lab runs the D-test by default; read it.",
+    foundational:
+      "The 50S ribosome peptidyl-transferase exit tunnel narrows at 23S " +
+      "domain V. Macrolides (14-, 15-, 16-membered lactones), lincosamides " +
+      "(clindamycin), and streptogramin B (quinupristin) all dock at " +
+      "overlapping sites flanking adenine 2058. erm methyltransferases add " +
+      "one or two methyl groups to A2058's N6 amine; the methyl group " +
+      "sterically excludes the antibiotic ring. Inducible expression uses a " +
+      "leader peptide whose ribosome-stalling on a low-dose macrolide " +
+      "switches mRNA folding to expose the erm start codon.",
+  },
+
+  "cfr": {
+    title:  "cfr — 23S A2503 methylase (PhLOPSa)",
+    family: "resistance",
+    alias:  ["cfr gene", "23S A2503 methylation", "PhLOPSa resistance"],
+    summary:
+      "cfr (chloramphenicol-florfenicol resistance) encodes a radical-SAM " +
+      "rRNA methyltransferase that adds a methyl group to C8 of adenine " +
+      "A2503 in the 23S rRNA. The modification sits in the peptidyl- " +
+      "transferase center and confers PhLOPSa cross-resistance: Phenicols, " +
+      "Lincosamides, Oxazolidinones, Pleuromutilins, Streptogramin A. " +
+      "Plasmid-mobile; the dominant transferable linezolid-resistance hot spot.",
+    keypoints: [
+      "Single A2503 methylation gives cross-resistance to five antibiotic classes.",
+      "Plasmid-borne — horizontally transferable across staphylococci and enterococci.",
+      "Dominant cause of transferable linezolid resistance worldwide.",
+      "Distinct from erm A2058 methylation; the two confer non-overlapping resistance.",
+      "Surveillance signal: an unexplained linezolid-R enterococcus warrants cfr PCR.",
+    ],
+    bedside:
+      "A linezolid-resistant enterococcus or staphylococcus on therapy is " +
+      "almost always cfr-mediated (transferable) or a 23S G2576T point " +
+      "mutation (vertical). Plasmid-borne cfr is the public-health worry: " +
+      "it spreads. Pivot to tedizolid (may retain partial activity), " +
+      "daptomycin, or quinupristin-dalfopristin depending on the species and " +
+      "site. Notify infection control — cfr outbreaks have closed wards.",
+    foundational:
+      "Cfr is a radical-S-adenosylmethionine (SAM) enzyme: a [4Fe-4S] " +
+      "cluster reductively cleaves SAM to a 5'-deoxyadenosyl radical that " +
+      "abstracts a hydrogen from C8 of A2503, then transfers a methyl group " +
+      "from a second SAM. The C8-methyl projects into the peptidyl-transferase " +
+      "A-site cleft where phenicols, oxazolidinones, lincosamides, " +
+      "pleuromutilins, and streptogramin A all dock. One modification, five " +
+      "drug classes blocked — a remarkable resistance return on a single " +
+      "methylation event.",
+  },
+
+  "gyrA / parC mutations": {
+    title:  "gyrA / parC — fluoroquinolone target mutations",
+    family: "resistance",
+    alias:  ["FQ resistance", "quinolone target mutation", "gyrA QRDR"],
+    summary:
+      "Fluoroquinolones inhibit DNA gyrase (gyrA/gyrB) and topoisomerase IV " +
+      "(parC/parE). Resistance arises from point mutations in the quinolone- " +
+      "resistance-determining region (QRDR): gyrA codons 83 and 87 " +
+      "(E. coli numbering), parC codons 80 and 84. Single mutations give " +
+      "intermediate MICs; double mutants give high-level resistance. PMQR " +
+      "genes (qnr, aac(6')-Ib-cr) add lower-level plasmid-borne resistance.",
+    keypoints: [
+      "gyrA QRDR codons 83 (Ser→Leu) and 87 (Asp→Asn) are the canonical hot spots.",
+      "parC QRDR codons 80 and 84 are the topoisomerase IV counterparts.",
+      "Single mutation: intermediate MIC; gyrA + parC double mutant: high-level resistance.",
+      "PMQR (qnr, aac(6')-Ib-cr, qepA) is plasmid-borne and gives lower-level resistance.",
+      "Gram-negatives mutate gyrA first; Gram-positives mutate parC first.",
+    ],
+    bedside:
+      "A ciprofloxacin MIC at the susceptibility breakpoint on an E. coli " +
+      "or Pseudomonas isolate often hides a single QRDR mutation that " +
+      "selects for the second mutation under FQ pressure — and on-therapy " +
+      "MIC creep follows. For Pseudomonas bacteremia or pyelonephritis with " +
+      "borderline FQ MICs, avoid monotherapy. PMQR carriage drives " +
+      "low-grade resistance that breeds the high-grade chromosomal mutants.",
+    foundational:
+      "Fluoroquinolones bind the gyrase-DNA cleavage complex, trapping " +
+      "double-strand DNA breaks. The QRDR is a helix lining the drug-binding " +
+      "pocket; substitution of bulky aliphatic for the wild-type Ser-83 or " +
+      "of asparagine for the negatively charged Asp-87 disrupts the water- " +
+      "metal-ion bridge that quinolones use to coordinate the active-site " +
+      "magnesium. Stepwise selection: a first mutation modestly raises MIC, " +
+      "antibiotic exposure selects survivors that acquire a second mutation, " +
+      "and clinical resistance emerges.",
+  },
+
+  "Siderophore iron acquisition": {
+    title:  "Siderophore uptake — cefiderocol Trojan horse",
+    family: "resistance",
+    alias:  ["cefiderocol uptake", "Trojan-horse cephalosporin", "TonB-dependent uptake"],
+    summary:
+      "Cefiderocol is a siderophore-conjugated cephalosporin: a catechol " +
+      "moiety mimics the bacterial siderophore enterobactin, binds ferric " +
+      "iron, and is actively imported via TonB-dependent outer-membrane " +
+      "iron transporters (PiuA, CirA, FiuA). Active uptake bypasses porin " +
+      "loss and efflux entirely, achieving periplasmic concentrations that " +
+      "outpace β-lactamase hydrolysis.",
+    keypoints: [
+      "Catechol side chain chelates Fe³⁺; ferric-cefiderocol complex hijacks iron uptake.",
+      "TonB-dependent transporters (PiuA, CirA, FiuA) pull the drug into the periplasm.",
+      "Bypasses porin loss and RND efflux — the two Gram-negative permeability defenses.",
+      "Active against MBL-producing CRE, CRAB, and Stenotrophomonas.",
+      "Resistance: PBP3 mutations (mainly Enterobacterales) or iron-transporter loss.",
+    ],
+    bedside:
+      "Cefiderocol is the unimolecular answer to MBL-producing CRE, " +
+      "carbapenem-resistant Acinetobacter, and difficult Stenotrophomonas. " +
+      "The CREDIBLE-CR signal of higher mortality in the CRAB subgroup " +
+      "tempered enthusiasm but the agent remains the cleanest Trojan-horse " +
+      "strategy clinically available. Failure to respond should prompt " +
+      "PBP3 mutation suspicion and ID consultation.",
+    foundational:
+      "Bacteria scavenge iron with siderophores — high-affinity Fe³⁺ " +
+      "chelators secreted into the environment then re-imported via outer- " +
+      "membrane TonB-dependent transporters (TBDTs). The TBDT-ligand " +
+      "complex is energized by the inner-membrane TonB-ExbBD system, which " +
+      "transduces proton-motive force across the periplasm. Cefiderocol's " +
+      "catechol moiety mimics enterobactin chemistry; the ferric-drug " +
+      "complex docks at PiuA, CirA, or FiuA and is pulled into the periplasm " +
+      "where the cephalosporin engages PBP3.",
+  },
+
+  "Porin loss (Enterobacterales)": {
+    title:  "OmpF / OmpC loss — Enterobacterales porin",
+    family: "resistance",
+    alias:  ["OmpF loss", "OmpC loss", "Enterobacterales porin loss"],
+    summary:
+      "Downregulation or loss of the major Enterobacterales porins OmpF " +
+      "and OmpC narrows β-lactam entry into the periplasm in Klebsiella, " +
+      "E. coli, and Enterobacter. Alone, it raises MICs modestly. Combined " +
+      "with AmpC hyperproduction or ESBL carriage, periplasmic drug " +
+      "concentrations crash below the β-lactamase saturation threshold — " +
+      "the phenotypic signature of much non-carbapenemase CRE.",
+    keypoints: [
+      "OmpF is the larger, more permeable trimer; OmpC narrows under osmotic stress.",
+      "Porin loss alone gives 2- to 4-fold β-lactam MIC rise — clinically modest solo.",
+      "Combined with AmpC or ESBL, porin loss tips a susceptible isolate into resistance.",
+      "Non-carbapenemase CRE often combines porin loss with ESBL/AmpC + outer-membrane defects.",
+      "Regulated by EnvZ-OmpR two-component system; mutations or IS insertions both observed.",
+    ],
+    bedside:
+      "A Klebsiella isolate with elevated carbapenem MIC but negative " +
+      "carbapenemase PCR is the textbook porin-loss case. The phenotype " +
+      "still warrants carbapenem-stewardship caution: high-dose, extended- " +
+      "infusion meropenem may succeed in mild disease, but for bacteremia " +
+      "or shock pivot to a novel β-lactam or pair with an aminoglycoside. " +
+      "Susceptibility reports lag the periplasmic reality.",
+    foundational:
+      "Enterobacterales express two major non-specific porins as " +
+      "homotrimers in the outer membrane: OmpF (larger, hydrophilic, " +
+      "preferred under low osmolarity) and OmpC (smaller pore, dominant " +
+      "under high osmolarity). β-lactams diffuse through these channels " +
+      "into the periplasm. Loss-of-function or transcriptional downregulation " +
+      "via the EnvZ-OmpR two-component sensor narrows the entry rate. " +
+      "Coupled with periplasmic β-lactamase production, the steady-state " +
+      "periplasmic drug concentration falls below the PBP-binding threshold.",
+  },
+
+  "Efflux MATE / SMR": {
+    title:  "MATE / SMR efflux — secondary transporters",
+    family: "resistance",
+    alias:  ["NorM", "QacA", "SMR family efflux"],
+    summary:
+      "Two secondary-active efflux families beyond the RND pumps. " +
+      "Multidrug And Toxic compound Extrusion (MATE; e.g., NorM in " +
+      "S. aureus and V. cholerae) uses Na⁺ or H⁺ antiport. Small Multidrug " +
+      "Resistance (SMR; QacA/B in staphylococci, EmrE in E. coli) uses " +
+      "proton antiport on a minimalist four-helix bundle. Substrate range: " +
+      "quaternary-ammonium biocides, dyes, some fluoroquinolones.",
+    keypoints: [
+      "MATE pumps (NorM, MepA) Na⁺ or H⁺ antiport; FQs, dyes, aminoglycosides.",
+      "SMR pumps (QacA/B, EmrE) — smallest known efflux family, four-helix bundle.",
+      "Plasmid-borne qac genes link biocide tolerance to clinical antibiotic resistance.",
+      "Subclinical drivers of stepwise FQ-MIC creep alongside QRDR mutations.",
+      "Chlorhexidine-tolerant S. aureus typically carries qacA/B on staphylococcal plasmids.",
+    ],
+    bedside:
+      "The clinical relevance is indirect but real: hospital biocide " +
+      "stewardship (chlorhexidine bathing protocols) selects for qacA/B- " +
+      "carrying staphylococci that may co-carry mecA. Universal " +
+      "chlorhexidine bathing in the ICU is still net-positive, but " +
+      "rising biocide MICs deserve surveillance. For the individual " +
+      "patient: MATE/SMR contribute marginally to FQ MIC creep but rarely drive failure.",
+    foundational:
+      "MATE family transporters fold into a 12-transmembrane-helix bundle " +
+      "and use the inwardly directed Na⁺ or H⁺ gradient to drive substrate " +
+      "expulsion via a rocker-switch alternating-access mechanism. SMR " +
+      "transporters are the smallest known antibiotic-efflux pumps — only " +
+      "four transmembrane helices assembled as antiparallel homodimers, " +
+      "using proton antiport. Both families share broad substrate " +
+      "promiscuity for cationic and lipophilic compounds, including " +
+      "quaternary-ammonium biocides such as benzalkonium chloride.",
+  },
+
+  "MIC inoculum effect": {
+    title:  "Inoculum effect — in-vitro MIC rises with cell density",
+    family: "resistance",
+    alias:  ["high-inoculum effect", "inoculum-dependent MIC"],
+    summary:
+      "Phenomenon where the measured MIC rises substantially as the " +
+      "starting bacterial inoculum increases above the CLSI-standardized " +
+      "5 × 10⁵ CFU/mL. The canonical example is piperacillin-tazobactam " +
+      "versus ESBL-producing E. coli or Klebsiella: standard-inoculum MIC " +
+      "may report susceptible, but a 10⁷ CFU/mL abscess inoculum overwhelms " +
+      "tazobactam's β-lactamase inhibition. Drives clinical failures.",
+    keypoints: [
+      "MIC rises ≥ 8-fold when inoculum increases from 10⁵ to 10⁷ CFU/mL.",
+      "Pip-tazo vs ESBL is the canonical case — MERINO documented the clinical harm.",
+      "Mechanism: high-inoculum β-lactamase output saturates the inhibitor.",
+      "Abscesses, endocarditis vegetations, biofilms run effective inocula > 10⁹ CFU/g.",
+      "Not captured by routine AST; the 'susceptible' label hides the source-level reality.",
+    ],
+    bedside:
+      "The most under-appreciated reason 'in-vitro-susceptible' regimens " +
+      "fail in deep-source infections. A pip-tazo-S ESBL E. coli BSI on " +
+      "the report can fail clinically because the source (intra-abdominal " +
+      "abscess, obstructed pyelonephritis) carries an inoculum that " +
+      "consumes tazobactam. The lesson: source-control the high-inoculum " +
+      "compartment, and for ESBL bacteremia use a carbapenem regardless of MIC.",
+    foundational:
+      "CLSI standardizes broth microdilution at 5 × 10⁵ CFU/mL precisely " +
+      "because the inoculum effect is mechanism-dependent and would " +
+      "otherwise scramble cross-lab MIC comparisons. β-lactams suffer the " +
+      "largest inoculum effect because periplasmic β-lactamase output " +
+      "scales linearly with cell density; at high inoculum the enzyme " +
+      "burst rapidly hydrolyzes the drug before it can saturate PBPs. " +
+      "Inhibitor-protected β-lactams (pip-tazo, amox-clav) lose ratio " +
+      "advantage when inhibitor concentration becomes the limiting reagent.",
+    papers: [
+      { name: "MERINO RCT", year: 2018,
+        finding: "Pip-tazo for ESBL BSI: 12% vs 4% mortality vs meropenem; high-inoculum effect implicated." },
+    ],
+  },
+
+  "Daptomycin surfactant sequestration": {
+    title:  "Daptomycin surfactant binding — pulmonary failure",
+    family: "resistance",
+    alias:  ["daptomycin pulmonary failure", "surfactant binding"],
+    summary:
+      "Daptomycin is a calcium-bound lipopeptide that inserts into bacterial " +
+      "membranes via its hydrophobic decanoyl tail. In the alveolus, " +
+      "pulmonary surfactant (phosphatidylcholine + phosphatidylglycerol) " +
+      "forms micellar structures that sequester the calcium-bound drug, " +
+      "dropping bioavailability at the alveolar surface by more than 90%. " +
+      "Daptomycin is therefore CONTRAINDICATED for pneumonia.",
+    keypoints: [
+      "Surfactant phosphatidylcholine micelles sequester the calcium-daptomycin complex.",
+      "Alveolar bioavailability drops > 90% — drug cannot reach pulmonary pathogens.",
+      "Silverman 2005 J Infect Dis is the mechanistic landmark for this finding.",
+      "Pneumonia is a hard contraindication; bacteremia with pulmonary metastasis is fine.",
+      "Linezolid or ceftaroline are the appropriate MRSA-pneumonia alternatives.",
+    ],
+    bedside:
+      "The single most high-yield daptomycin pearl: never use it for " +
+      "pneumonia. A MRSA bacteremia with hematogenous pulmonary nodules " +
+      "still treats fine with daptomycin (the bug is in the vasculature, " +
+      "not the alveolus). True bacterial pneumonia requires linezolid " +
+      "(best lung penetration) or ceftaroline. Mis-prescription of " +
+      "daptomycin for HCAP is a recurring board-question hazard and a real-world error.",
+    foundational:
+      "Daptomycin's mechanism requires a four-molecule oligomer to assemble " +
+      "in the bacterial membrane, depolarize it via potassium efflux, and " +
+      "trigger membrane dysfunction. The decanoyl tail and calcium coordination " +
+      "are essential to membrane insertion. Pulmonary surfactant lipids " +
+      "phosphatidylcholine (PC) and phosphatidylglycerol (PG) form " +
+      "thermodynamically favored micelles around the calcium-lipopeptide " +
+      "complex; the drug is sequestered in surfactant rather than partitioning " +
+      "into bacterial membranes. The block is purely physical, not enzymatic.",
+    papers: [
+      { name: "Silverman et al. J Infect Dis", year: 2005,
+        finding: "Pulmonary surfactant inhibits daptomycin in vitro and explains clinical pneumonia failures." },
+    ],
+  },
+
 };
 
 /* Build alias map once at module load. Case-insensitive lookup against
