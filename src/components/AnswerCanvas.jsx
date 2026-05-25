@@ -44,6 +44,30 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
   const _onOpenMechanism = (key) => setMechanismKey(key);
   const _closeMechanism = () => setMechanismKey(null);
 
+  /* Wave 5 CL-5 · layer-group tab strip (PR-12).
+     The `group` field on every LAYERS entry routes layers into
+     6 tabs: Core / Risks / Duration / Local / Special / Evidence.
+     Default tab = "all" so the canvas surfaces every authored layer
+     on initial load (mirrors the user's "I know it's likely there"
+     framing); tab clicks narrow the view to a single group when the
+     clinician wants focused reading. State persists in localStorage
+     so a user's preferred reading rhythm survives a page refresh. */
+  const _readLayerTab = () => {
+    try {
+      if (typeof window === "undefined") return "all";
+      const v = window.localStorage?.getItem("ab_layer_tab");
+      return v && /^(core|risks|duration|local|special|evidence|all)$/.test(v) ? v : "all";
+    } catch (e) { return "all"; }
+  };
+  const _writeLayerTab = (v) => {
+    try {
+      if (typeof window === "undefined") return;
+      window.localStorage?.setItem("ab_layer_tab", v);
+    } catch (e) {}
+  };
+  const [layerTab, setLayerTab] = useState(_readLayerTab);
+  const _selectLayerTab = (v) => { setLayerTab(v); _writeLayerTab(v); };
+
   /* Phase D3.1 cross-section selection state — multi-tier aware.
        picksByTier  — { [tierLabel]: agentText | null } — one pick
                       per tier (Core / Add MRSA / Add resistant-GNR
@@ -379,6 +403,52 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         </nav>
       )}
 
+      {/* Wave 5 CL-5 · layer-group tab strip (PR-12).
+          6 tabs route layers by their `group` field. Default tab =
+          Core. Show-all toggles back to the legacy single-scroll
+          canvas — the full picture stays one click away. Active tab
+          persists per-site to localStorage. */}
+      <div role="tablist" aria-label="Answer-canvas groups" style={{
+        display: "flex", gap: 4, overflowX: "auto", flexWrap: "wrap",
+        marginBottom: 14, paddingBottom: 6,
+        borderBottom: "1px solid var(--line2)",
+      }}>
+        {[
+          { id: "core",     label: "Core" },
+          { id: "risks",    label: "Risks" },
+          { id: "duration", label: "Duration" },
+          { id: "local",    label: "Local" },
+          { id: "special",  label: "Special" },
+          { id: "evidence", label: "Evidence" },
+          { id: "all",      label: "Show all" },
+        ].map(t => {
+          const active = layerTab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-controls={`layer-panel-${t.id}`}
+              onClick={() => _selectLayerTab(t.id)}
+              style={{
+                flex: "0 0 auto",
+                fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
+                letterSpacing: ".06em", textTransform: "uppercase",
+                color: active ? "#fff" : "var(--ink2)",
+                background: active ? "var(--ox)" : "var(--panel)",
+                border: `1px solid ${active ? "var(--ox)" : "var(--line)"}`,
+                borderRadius: 999,
+                padding: "5px 12px", cursor: "pointer",
+                transition: "background .12s, color .12s",
+              }}
+            >
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Depth layers — registry-driven. Every layer below the
           header strip and spine is rendered by `LAYERS.map(...)`.
           The order of LAYERS dictates the render order; each entry's
@@ -386,10 +456,18 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           `render(_shared)` function produces the JSX. The previous
           inline JSX block (~340 LoC, hand-maintained against the
           spine predicates) is gone — drift between spine and
-          rendered content is structurally impossible. */}
-      {LAYERS.map((L, i) =>
-        L.when(_shared) ? <React.Fragment key={i}>{L.render(_shared)}</React.Fragment> : null
-      )}
+          rendered content is structurally impossible.
+
+          Wave 5 CL-5 — layers are now filtered by `group` when a tab
+          other than "all" is active; "all" preserves the full
+          single-scroll canvas. */}
+      <div role="tabpanel" id={`layer-panel-${layerTab}`} aria-label={`Answer canvas — ${layerTab}`}>
+        {LAYERS.map((L, i) => {
+          if (!L.when(_shared)) return null;
+          if (layerTab !== "all" && L.group !== layerTab) return null;
+          return <React.Fragment key={i}>{L.render(_shared)}</React.Fragment>;
+        })}
+      </div>
 
       {/* ACTIONS */}
       <div style={{ display:"flex", gap:10, flexWrap:"wrap", marginTop:18 }}>

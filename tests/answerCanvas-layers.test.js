@@ -233,3 +233,18 @@ describe("AnswerCanvas layer render functions", () => {
     expect(layer.when(makeSharedBag({ ans: { ...makeSharedBag().ans, pearls: ["a pearl"] } }))).toBe(true);
   });
 });
+
+/* Wave 5 CL-5 · layer-group tab strip contract.
+   The PR-12 tab strip routes layers by their `group` field. To keep
+   the experience whole, every tab must have at least one layer that
+   CAN render under some realistic shared bag. A group that has zero
+   layers would render an empty tab — bad UX. */
+describe("AnswerCanvas LAYERS — layer-group tab coverage (Wave 5 CL-5)", () => {
+  const TAB_GROUPS = ["core", "risks", "duration", "local", "special", "evidence"];
+  for (const group of TAB_GROUPS) {
+    it(`group "${group}" has at least one layer`, () => {
+      const inGroup = LAYERS.filter((L) => L.group === group);
+      expect(inGroup.length, `group "${group}" has zero layers — empty tab`).toBeGreaterThanOrEqual(1);
+    });
+  }
+});
