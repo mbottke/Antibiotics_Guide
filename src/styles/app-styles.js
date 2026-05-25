@@ -19,13 +19,20 @@ const CSS = `
    <link> in index.html. This block keeps only .rx-root's applied base styles. */
 .rx-root{
   font-family:var(--sans); color:var(--ink); background:var(--paper);
-  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
   line-height:1.55; min-height:100%;
 }
 .rx-root *,.rx-root *::before,.rx-root *::after{box-sizing:border-box;}
-.rx-mono{font-family:var(--mono); font-variant-numeric:tabular-nums; font-feature-settings:"tnum";}
+/* Mono — tabular numerals + opt-in stylistic alternates ("cv01" = alt
+   one, "cv09" = alt zero on IBM Plex Mono). Browsers silently ignore
+   any feature the active font doesn't ship, so this is graceful. */
+.rx-mono{font-family:var(--mono); font-variant-numeric:tabular-nums; font-feature-settings:"tnum","cv01","cv09";}
 .rx-serif{font-family:var(--serif);}
 .rx-root :focus-visible{outline:2px solid var(--ox); outline-offset:2px; border-radius:3px;}
+/* Selection wash — when a clinician highlights text, the selection
+   uses the oxblood family rather than the OS default blue. */
+.rx-root ::selection{background:var(--ox-soft); color:var(--ox-deep);}
 
 /* ─────────────────────────────── Wave 6 W6-B · motion + reveal ────────────────
    Two keyframes, three reveal classes, two interaction utilities. Building
@@ -117,23 +124,46 @@ const CSS = `
 
 /* ----------------------------- LAYOUT ----------------------------- */
 .rx-main{padding:26px 0 80px;}
-/* Wave 6 W6-B · display typography polish.
-   • Tightened tracking on the serif display ramp (better at large size).
-   • Locked line-height so headings breathe on dense pages without
-     fighting the surrounding body text.
-   • h1 introduced for the rare full-page hero context where h2 was being
-     pressed into double-duty. */
-.rx-h1{font-family:var(--serif); font-size:38px; font-weight:600; letter-spacing:-.022em; line-height:1.08; margin:0 0 10px; color:var(--ink);}
-.rx-h2{font-family:var(--serif); font-size:26px; font-weight:600; letter-spacing:-.016em; line-height:1.18; margin:0 0 5px;}
-.rx-lede{color:var(--ink2); font-size:14.5px; margin:0 0 22px; max-width:80ch; line-height:1.6;}
-.rx-h3{font-family:var(--serif); font-size:18.5px; font-weight:600; margin:34px 0 13px; letter-spacing:-.01em; line-height:1.3; display:flex; align-items:center; gap:9px;}
+/* ─────────────────────────── Editorial type ramp ────────────────────────────
+   Wave 6 W6-B aesthetic · magazine / Apple-keynote rhythm + breath.
+
+   The serif display ramp leans on Lora's drawing — slightly tighter
+   tracking at larger sizes, slightly tighter line-height so headings
+   sit as a single optical block before the body text begins.
+
+   USAGE
+     .rx-display          — rare full-page or hero showstopper (56px serif)
+     .rx-h1               — page-level title (42px serif)
+     .rx-h2               — section-level heading (28px serif)
+     .rx-h3               — sub-section, inline-flex icon slot (20px serif)
+     .rx-h4               — small sans heading, inline-flex icon (13.5px sans)
+     .rx-lede             — long-form intro paragraph (16px, max 78ch)
+     .rx-byline           — italic serif standfirst / standalone caption
+     .rx-eyebrow          — mono uppercase kicker label (10.5px)
+     .rx-overline         — quieter eyebrow for nested sections (9.5px)
+     .rx-numeric-display  — italic serif tabular numerals for durations / MICs
+     .rx-num / .rx-dose / .rx-mic — inline numeric data rows (kept)
+     .rx-dropcap          — opt-in magazine-grade first-letter (.rx-dropcap)
+   These classes are additive — existing call sites continue to work. */
+.rx-display{font-family:var(--serif); font-size:56px; font-weight:600; letter-spacing:-.028em; line-height:1.04; color:var(--ink); margin:0 0 12px;}
+.rx-h1{font-family:var(--serif); font-size:42px; font-weight:600; letter-spacing:-.024em; line-height:1.08; color:var(--ink); margin:0 0 10px;}
+.rx-h2{font-family:var(--serif); font-size:28px; font-weight:600; letter-spacing:-.018em; line-height:1.16; color:var(--ink); margin:0 0 6px;}
+.rx-h3{font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:-.012em; line-height:1.28; color:var(--ink); margin:32px 0 12px; display:flex; align-items:center; gap:10px;}
 .rx-h3 .ic{color:var(--ox); display:flex;}
-.rx-h4{font-family:var(--sans); font-size:13px; font-weight:700; letter-spacing:.01em; margin:20px 0 9px; display:flex; align-items:center; gap:7px;}
+.rx-h4{font-family:var(--sans); font-size:13.5px; font-weight:700; letter-spacing:.005em; line-height:1.35; margin:18px 0 8px; display:flex; align-items:center; gap:7px;}
 .rx-h4 .ic{color:var(--ox); display:flex;}
+.rx-lede{color:var(--ink2); font-size:16px; margin:0 0 24px; max-width:78ch; line-height:1.65;}
+.rx-byline{font-family:var(--serif); font-style:italic; font-weight:400; font-size:16px; color:var(--ink2); line-height:1.5; max-width:62ch; margin:0;}
+.rx-eyebrow{font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--ox); margin:0 0 8px; display:inline-flex; align-items:center; gap:6px;}
+.rx-overline{font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 6px;}
+.rx-numeric-display{font-family:var(--serif); font-style:italic; font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; font-size:18px; font-weight:500; letter-spacing:-.01em; color:var(--ink);}
 /* Numeric data — dose strings, mg/kg, ml/min, MIC values, half-life
    columns. Tabular figures lock the column position so eyes scan
    vertical numeric stacks without micro-saccades. */
 .rx-num,.rx-dose,.rx-mic,[data-tabular="true"]{font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; letter-spacing:-.002em;}
+/* Optional first-letter dropcap — opt-in only. Apply to a paragraph
+   when a single feature lead deserves a magazine-grade entrance. */
+.rx-dropcap::first-letter{font-family:var(--serif); font-weight:600; font-size:3em; line-height:0.85; float:left; padding-right:8px; padding-top:6px; color:var(--ox-deep);}
 .rx-disc{display:flex; gap:10px; align-items:flex-start; background:var(--ox-soft); border:1px solid var(--ox-line);
   border-radius:10px; padding:12px 14px; margin:0 0 24px; font-size:12.5px; color:var(--ox-deep); line-height:1.55;}
 .rx-disc svg{flex:0 0 auto; margin-top:1px;}
