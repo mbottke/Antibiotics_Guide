@@ -173,25 +173,48 @@ localStorage.
 | #96 | PR-5a · `composeAnswer(currentRegimen)` + `refineOnNewFinding` engine | ✅ merged |
 | #97 | PR-5b · `regimenCompare` four-dimensional symmetric diff | ✅ merged |
 | #98 | PR-5c · `case-parser` `DRUG_RX_UNION` + `currentRegimen` / `findings` + 50-utterance corpus | ✅ merged |
-| #99 | PR-6a · diagnostics-stewardship foundation + 10 sentinel syndromes | 🟦 draft |
-| —   | PR-6b–f · diagnostics content tranches (parallel agents, ~107 syndromes) | ⏳ queued |
-| —   | PR-7 / PR-8 / PR-9 / PR-10 · mechanisms · OPAT · PK/PD · microbiome chips | ⏳ planned |
-| —   | PR-11 · React Testing Library harness | ⏳ planned |
-| —   | PR-12 / PR-13 / PR-14 · navigation simplification + cross-cutting paths + attribution drawer | ⏳ planned |
+| #99 | PR-6a · diagnostics-stewardship foundation + 10 sentinel syndromes | ✅ merged |
+| #100 | PR-6b · diagnostics aggregator refactor (multi-author scaffold) | ✅ merged |
+| #101–105 | PR-6c–f · diagnostics tranches B + C + D + E (~98 syndromes) | ✅ merged |
+| #103 | PR-7a · mechanisms foundation + `MechanismDrawer` + 7 sentinels | ✅ merged |
+| #106 | PR-8a · OPAT foundation + `OPATBlock` + 8 sentinel profiles | ✅ merged |
+| #107 | PR-9 · `PkPdBlock` visualization layer | ✅ merged |
+| #108 | PR-10 · microbiome chips + opt-in collateral-damage sort | ✅ merged |
+| #110 | PR-13 · Regimens compare sub-tab (cross-cutting paths) | ✅ merged |
+| #111 | PR-13c · Agent filter bar (spectrum + microbiome chips) | ✅ merged |
+| #109 | PR-14 · `DecisionAttributionDrawer` — trace this decision | ✅ merged |
+| #112 | PR-11 · React Testing Library harness (RTL + jsdom) | ✅ merged |
+| #114 | R3 · sentinel refresh + audit-gate strengthening + new tests | ✅ merged |
+| #115 | R2 expanded · shared utils + WCAG focus trap across 6 components | ✅ merged |
+| #116 | R4 · OPAT RTL tests + mechanism alias audit + OPAT route audit | 🟦 draft |
+| —   | PR-7b / PR-8b / PR-12 · mechanism wiring · OPAT demotion · layer-group tabs | ⏳ planned |
+
+**Coverage at this snapshot:** 108/108 syndromes (100%) for diagnostics; 117 syndromes
+catalogued at apex authoring across regimen + duration + monitoring + rationale +
+objections; 32/32 FORMULARY drugs (100%) for the PR-4 pkpd/timeToEffect/cdiffScore/
+mdrPressure/kinetics schema.
 
 ### Test surface
 
-`npm run test` covers **16 files, 3,389 unit + integrity + audit tests**. Notable
-Wave 5 additions:
+`npm run test` covers **23 files, 4,160 unit + integrity + audit + RTL tests** as of
+R4. Notable Wave 5 additions:
 
 - `tests/answerCanvas-layers.test.js` — LAYERS registry shape contract.
-- `tests/refineOnNewFinding.test.js` — snapshot-refine engine determinism + purity.
-- `tests/regimenCompare.test.js` — four-dimensional symmetry + winner contracts.
-- `tests/case-parser-corpus.test.js` — 50-utterance parser-coverage corpus (≥ 47 must
-  route to a meaningful caseState; current 49/50).
+- `tests/layers-invariants.test.js` — layer-group enum, id-order snapshot,
+  minimal-bag predicate short-circuit.
+- `tests/refineOnNewFinding.test.js` + `tests/refineCompose-roundtrip.test.js` —
+  snapshot-refine engine determinism, purity, and end-to-end `composeAnswer →
+  refineOnNewFinding` integration round-trip.
+- `tests/regimenCompare.test.js` + `tests/regimenCompare-toxicity.test.js` —
+  four-dimensional symmetry + winner contracts + toxicity tally semantics.
+- `tests/case-parser-corpus.test.js` — 50-utterance parser-coverage corpus.
 - `tests/content-audit.test.js` — apex schema gates for every authored surface
   (regimenContent, syndromeDecision, combinedRisks, FORMULARY pkpd/microbiome,
-  diagnostics).
+  diagnostics, mechanisms, OPAT) plus R3 typo-resistance probes (matchAgent regex
+  round-trip, pkpd.target anchor regex, timeToEffect bounds, mechanism alias
+  uniqueness, OPAT route shape).
+- `tests/rtl/` — `// @vitest-environment jsdom` component sentinels for
+  `MonitoringBlock`, `DurationBlock`, `DiagnosticsBlock`, `OPATBlock`.
 
 ### Architectural traps locked in by the audit
 
