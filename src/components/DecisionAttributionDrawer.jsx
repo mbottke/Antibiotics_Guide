@@ -41,7 +41,7 @@
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { AlertTriangle, BookOpen, Crosshair, Info, X } from "lucide-react";
+import { AlertTriangle, BookOpen, CheckCircle2, Crosshair, Info, X } from "lucide-react";
 import { RichText as _RichText } from "./util/richText.jsx";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 
