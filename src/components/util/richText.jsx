@@ -15,7 +15,7 @@
                accentBg="rgba(15, 76, 129, 0.08)" />
 
    Honors the same shape every call site used:
-     • parseBold splits on /\*\*([^*]+)\*\*/ greedy alternation.
+     • parseBold splits on the bold-emphasis regex (greedy alternation).
      • Bold runs render bold + accentColor; optional accentBg pads
        them with 0 3px and rounds the corners.
      • Plain runs render unchanged.
