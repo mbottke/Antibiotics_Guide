@@ -1,12 +1,46 @@
 /* component · rich-text renderers — drug-class + glossary inline popovers.
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowRight, CornerDownRight } from "lucide-react";
+import { ArrowRight, BookOpen, CornerDownRight } from "lucide-react";
 import { classData, glossData } from "../engines/clinical.js";
 import { RANK_LAB, RX_TOKEN } from "../data/drugs.js";
 import { GLOSS_TOKEN } from "../data/content.js";
+import { getMechanism } from "../data/mechanisms.js";
 
-function ClassChip({ phrase, onDrug }){
+/* Wave 5 CL-3 · mechanism wiring. When the chip's phrase resolves through
+   getMechanism (drug class for ClassChip, resistance term for TermChip),
+   render a "Read the mechanism" button in the popover footer. Clicking it
+   calls the threaded onOpenMechanism(key) handler so the parent canvas
+   can mount its MechanismDrawer. Graceful fallback: when getMechanism
+   returns null, no button is rendered. */
+function MechanismFooter({ phrase, onOpenMechanism, onAfter }) {
+  if(!onOpenMechanism || !phrase) return null;
+  const entry = getMechanism(phrase);
+  if(!entry) return null;
+  return (
+    <button
+      type="button"
+      className="rx-clspop-mech"
+      title={"Open " + entry.title + " mechanism"}
+      style={{
+        display: "flex", alignItems: "center", gap: 6,
+        marginTop: 8, padding: "5px 8px",
+        background: "var(--paper2)", border: "1px solid var(--line)",
+        borderRadius: 5, cursor: "pointer",
+        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+        color: "var(--ox)", letterSpacing: ".06em",
+        textTransform: "uppercase", width: "100%",
+      }}
+      onClick={e => { e.stopPropagation(); onOpenMechanism(phrase); if(onAfter) onAfter(); }}
+    >
+      <BookOpen size={11} aria-hidden />
+      <span style={{ flex: 1, textAlign: "left" }}>Read the mechanism</span>
+      <ArrowRight size={11} aria-hidden />
+    </button>
+  );
+}
+
+function ClassChip({ phrase, onDrug, onOpenMechanism }){
   const data = classData(phrase);
   if(!data) return phrase;
   const [open, setOpen] = React.useState(false);
@@ -55,19 +89,24 @@ function ClassChip({ phrase, onDrug }){
               </button>
             ))}
           </span>
+          <MechanismFooter
+            phrase={phrase}
+            onOpenMechanism={onOpenMechanism}
+            onAfter={() => setOpen(false)}
+          />
         </span>
       )}
     </span>
   );
 }
 
-function renderRx(text, onDrug){
+function renderRx(text, onDrug, onOpenMechanism){
   if(typeof text !== "string") return text;
   const out = []; let last = 0, m, i = 0; RX_TOKEN.lastIndex = 0;
   while((m = RX_TOKEN.exec(text)) !== null){
     if(m.index > last) out.push(text.slice(last, m.index));
     if(m[1] != null) out.push(<b key={i++}>{m[2]}</b>);
-    else out.push(<ClassChip key={i++} phrase={m[3]} onDrug={onDrug} />);
+    else out.push(<ClassChip key={i++} phrase={m[3]} onDrug={onDrug} onOpenMechanism={onOpenMechanism} />);
     last = m.index + m[0].length;
     if(m.index === RX_TOKEN.lastIndex) RX_TOKEN.lastIndex++;
   }
@@ -75,7 +114,7 @@ function renderRx(text, onDrug){
   return out;
 }
 
-function TermChip({ phrase, onDrug }){
+function TermChip({ phrase, onDrug, onOpenMechanism }){
   const data = glossData(phrase);
   if(!data) return phrase;
   const [open, setOpen] = React.useState(false);
@@ -124,19 +163,24 @@ function TermChip({ phrase, onDrug }){
             </button>
           )}
           {data.see && <span className="rx-gloss-see"><CornerDownRight size={12}/> {data.see}</span>}
+          <MechanismFooter
+            phrase={phrase}
+            onOpenMechanism={onOpenMechanism}
+            onAfter={() => setOpen(false)}
+          />
         </span>
       )}
     </span>
   );
 }
 
-function renderGloss(text, onDrug){
+function renderGloss(text, onDrug, onOpenMechanism){
   if(typeof text !== "string") return text;
   const out = []; let last = 0, m, i = 0; GLOSS_TOKEN.lastIndex = 0;
   while((m = GLOSS_TOKEN.exec(text)) !== null){
     if(m.index > last) out.push(text.slice(last, m.index));
     if(m[1] != null) out.push(<b key={i++}>{m[2]}</b>);
-    else out.push(<TermChip key={i++} phrase={m[3]} onDrug={onDrug} />);
+    else out.push(<TermChip key={i++} phrase={m[3]} onDrug={onDrug} onOpenMechanism={onOpenMechanism} />);
     last = m.index + m[0].length;
     if(m.index === GLOSS_TOKEN.lastIndex) GLOSS_TOKEN.lastIndex++;
   }
@@ -144,13 +188,13 @@ function renderGloss(text, onDrug){
   return out;
 }
 
-function renderRich(text, onDrug){
-  const nodes = renderRx(text, onDrug);
+function renderRich(text, onDrug, onOpenMechanism){
+  const nodes = renderRx(text, onDrug, onOpenMechanism);
   if(!Array.isArray(nodes)) return nodes;
   const out = []; let k = 0;
   nodes.forEach(n => {
     if(typeof n === "string"){
-      const sub = renderGloss(n, onDrug);
+      const sub = renderGloss(n, onDrug, onOpenMechanism);
       (Array.isArray(sub) ? sub : [sub]).forEach(x => out.push(typeof x === "string" ? x : React.cloneElement(x, { key: "r" + (k++) })));
     } else {
       out.push(React.cloneElement(n, { key: "r" + (k++) }));

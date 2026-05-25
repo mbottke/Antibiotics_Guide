@@ -15,14 +15,16 @@ export const startLayer = {
   spineLabel: "Start",
   when: () => true,
   render: (shared) => {
-    const { ans, allergy, coreRefinements, onDrug, dose, setTierPick, s } = shared;
+    const { ans, allergy, coreRefinements, onDrug, onOpenMechanism, dose, setTierPick, s } = shared;
     return (
       <Section kicker="Start now" icon={Crosshair} sticky id="ans-start">
         <RxLine kind="core" tier={ans.core} refinements={coreRefinements} onDrug={onDrug}
+          onOpenMechanism={onOpenMechanism}
           ctx={ans.ctx} d={ans.d} synId={s.id}
           onAgentSelect={setTierPick(ans.core.k)} />
         {ans.adds.map((a, i) => (
           <RxLine key={i} kind="add" tier={a} refinements={[]} onDrug={onDrug}
+            onOpenMechanism={onOpenMechanism}
             ctx={ans.ctx} d={ans.d} synId={s.id}
             onAgentSelect={setTierPick(a.k)} />
         ))}
