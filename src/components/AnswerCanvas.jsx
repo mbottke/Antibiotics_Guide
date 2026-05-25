@@ -316,19 +316,37 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           mono uppercase but with the new -.04em letterspacing tweak
           coming from the shared rx-h1 family. */}
       <div data-bedside-header-strip="true" className="rx-reveal" style={{
-        display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12,
-        padding:"18px 22px", background:"var(--ox-softer)", border:"1px solid var(--ox-line)",
-        borderRadius:14, marginBottom: 18,
-        boxShadow:"var(--shadow-e1)",
+        position:"relative",
+        display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:16,
+        padding:"30px 28px 26px", background:"linear-gradient(180deg, var(--ox-softer) 0%, rgba(252, 246, 245, 0.55) 100%)",
+        border:"1px solid var(--ox-line)",
+        borderRadius:16, marginBottom: 22,
+        boxShadow:"var(--shadow-e2)",
+        overflow:"hidden",
       }}>
-        <div style={{ minWidth:0, flex:1 }}>
-          <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".14em", textTransform:"uppercase", color:"var(--ox)", fontWeight:700, marginBottom:6 }}>
-            <Crosshair size={11} style={{ verticalAlign:"-1px", marginRight:5 }}/>The answer
+        {/* Wave 6 W6-B bold · oxblood vertical hairline as the magazine
+            punctuation. Anchors the eye to the title block and gives the
+            hero a confident, deliberate edge. */}
+        <span aria-hidden style={{
+          position:"absolute", left:0, top:18, bottom:18, width:3,
+          background:"var(--ox)", borderRadius:"0 2px 2px 0",
+        }} />
+        <div style={{ minWidth:0, flex:1, paddingLeft:8 }}>
+          <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".22em", textTransform:"uppercase", color:"var(--ox)", fontWeight:700, marginBottom:10 }}>
+            <Crosshair size={11} style={{ verticalAlign:"-1px", marginRight:6 }}/>The answer
           </div>
-          <div style={{ fontFamily:"var(--serif)", fontSize:26, fontWeight:600, color:"var(--ink)", letterSpacing:"-.018em", lineHeight:1.14 }}>
+          <div style={{
+            fontFamily:"var(--serif)", fontSize:38, fontWeight:600,
+            color:"var(--ink)", letterSpacing:"-.024em", lineHeight:1.06,
+            marginBottom:6,
+          }}>
             {s.name}
           </div>
-          <div style={{ fontSize:12.5, color:"var(--ink2)", marginTop:5, lineHeight:1.5 }}>
+          <div style={{
+            fontFamily:"var(--serif)", fontSize:14.5, fontStyle:"italic",
+            color:"var(--ink2)", marginTop:8, lineHeight:1.5, fontWeight:400,
+            maxWidth:"62ch",
+          }}>
             {s.line}
             {ans.ctx.on && (
               <>
@@ -377,13 +395,20 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           aria-label="Answer sections"
           data-bedside-spine="true"
           style={{
+            /* Wave 6 W6-B bold · glass-style sticky spine. Stronger
+               saturation + blur than the previous treatment makes the
+               sticky bar feel like a real materialized surface, not
+               half-transparent paper. Inset 1px highlight on top
+               sells the "frosted glass" affordance. */
             position: "sticky", top: 0, zIndex: 5,
-            margin: "-2px -2px 12px",
-            padding: "6px 6px",
-            background: "color-mix(in srgb, var(--paper) 88%, transparent)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            borderBottom: "1px solid var(--line)",
+            margin: "-2px -2px 14px",
+            padding: "9px 10px",
+            background: "color-mix(in srgb, var(--paper) 72%, transparent)",
+            backdropFilter: "saturate(170%) blur(16px)",
+            WebkitBackdropFilter: "saturate(170%) blur(16px)",
+            border: "1px solid var(--line)",
+            borderRadius: 12,
+            boxShadow: "0 1px 0 rgba(255,255,255,.7) inset, var(--shadow-e1)",
           }}>
           <div style={{
             display: "flex", gap: 6, overflowX: "auto",
@@ -417,9 +442,14 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           canvas — the full picture stays one click away. Active tab
           persists per-site to localStorage. */}
       <div role="tablist" aria-label="Answer-canvas groups" style={{
-        display: "flex", gap: 4, overflowX: "auto", flexWrap: "wrap",
-        marginBottom: 14, paddingBottom: 6,
-        borderBottom: "1px solid var(--line2)",
+        /* Wave 6 W6-B bold · framed tab strip — soft floor + tray
+           padding so the tabs feel held, not painted into the page. */
+        display: "flex", gap: 6, overflowX: "auto", flexWrap: "wrap",
+        marginBottom: 18, padding: "8px 10px",
+        background: "var(--paper2)",
+        border: "1px solid var(--line)",
+        borderRadius: 12,
+        boxShadow: "var(--shadow-e0)",
       }}>
         {[
           { id: "core",     label: "Core" },
@@ -472,11 +502,26 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           other than "all" is active; "all" preserves the full
           single-scroll canvas. */}
       <div role="tabpanel" id={`layer-panel-${layerTab}`} aria-label={`Answer canvas — ${layerTab}`}>
-        {LAYERS.map((L, i) => {
-          if (!L.when(_shared)) return null;
-          if (layerTab !== "all" && L.group !== layerTab) return null;
-          return <React.Fragment key={i}>{L.render(_shared)}</React.Fragment>;
-        })}
+        {(() => {
+          /* Wave 6 W6-B bold · staggered first-paint reveal. Each
+             visible layer cascades in with a 60ms ladder so the page
+             arrives orchestrated rather than snapping. The wrapper
+             carries the .rx-reveal-fast class so the animation only
+             plays on mount; subsequent re-renders use the snapshot
+             from below the cascade. */
+          const visible = LAYERS.filter((L) =>
+            L.when(_shared) && (layerTab === "all" || L.group === layerTab),
+          );
+          return visible.map((L, i) => (
+            <div
+              key={L.id + "-" + i}
+              className="rx-reveal-fast"
+              style={{ animationDelay: `${Math.min(i * 60, 480)}ms` }}
+            >
+              {L.render(_shared)}
+            </div>
+          ));
+        })()}
       </div>
 
       {/* ACTIONS */}
