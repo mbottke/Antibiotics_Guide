@@ -30,6 +30,7 @@ import { SITE_PENETRATION } from "../src/data/sitePenetration.js";
 import { GUIDELINES, EVOLVING, TRIAL_DETAIL } from "../src/data/evidence.js";
 import { TRIAL_TO_SYNDROMES, getSyndromesForTrial, _ORPHAN_IDS } from "../src/data/evidenceMap.js";
 import { DIAGNOSTICS } from "../src/data/diagnostics.js";
+import { MECHANISMS, getMechanism } from "../src/data/mechanisms.js";
 
 /* -------- limits and known vocabularies ------------------------- */
 
@@ -1307,6 +1308,126 @@ describe("content-audit · diagnostics.js entries (Wave 5 PR-6)", () => {
     console.log(`[content-audit] diagnostics coverage: ${covered}/${total} syndromes (${(ratio * 100).toFixed(1)}%)`);
     expect(covered).toBeGreaterThanOrEqual(1);   // floor; raised as PR-6 tranches land
   });
+});
+
+/* ============================================================
+   Wave 5 PR-7 · mechanisms drawer schema audit. Validates the
+   foundational-science content surface against the schema doc-
+   blocked in src/data/mechanisms.js. PR-7a seeds 7 entries
+   (5 resistance mechanisms + 2 class-level deep dives); PR-7b-c
+   will broaden to the full 17 drug classes + ~10 resistance
+   mechanisms per the plan's decision-locked seed scope.
+   ============================================================ */
+
+const MECH_LIMITS = {
+  summaryMaxWords:       60,
+  keypointsMin:           3,
+  keypointsMax:           6,
+  keypointMaxWords:      24,
+  bedsideMaxWords:       80,
+  foundationalMaxWords: 100,
+  trialFindingMaxWords:  35,
+};
+const MECH_FAMILIES = new Set(["class", "resistance"]);
+
+describe("content-audit · mechanisms.js entries (Wave 5 PR-7)", () => {
+  const keys = Object.keys(MECHANISMS);
+
+  test("at least one mechanism entry exists (PR-7a seed)", () => {
+    expect(keys.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("every key resolves through getMechanism (case-insensitive)", () => {
+    for(const k of keys) {
+      expect(getMechanism(k), `getMechanism("${k}") should resolve`).toBeTruthy();
+      expect(getMechanism(k.toUpperCase()), `getMechanism("${k.toUpperCase()}") should resolve`).toBeTruthy();
+      expect(getMechanism(k.toLowerCase()), `getMechanism("${k.toLowerCase()}") should resolve`).toBeTruthy();
+    }
+    expect(getMechanism("definitely-not-a-mechanism")).toBeNull();
+    expect(getMechanism("")).toBeNull();
+    expect(getMechanism(null)).toBeNull();
+  });
+
+  test("every alias resolves to its parent entry", () => {
+    for(const k of keys) {
+      const entry = MECHANISMS[k];
+      if(!Array.isArray(entry.alias)) continue;
+      for(const a of entry.alias) {
+        const resolved = getMechanism(a);
+        expect(resolved, `alias "${a}" must resolve`).toBeTruthy();
+        expect(resolved.title, `alias "${a}" should resolve to "${entry.title}"`).toBe(entry.title);
+      }
+    }
+  });
+
+  for(const key of keys) {
+    const entry = MECHANISMS[key];
+    const label = `[mechanism | ${key}]`;
+
+    test(`${label} — title + family + summary present`, () => {
+      expect(typeof entry.title, `${label}.title must be a string`).toBe("string");
+      expect(entry.title.length, `${label}.title cannot be empty`).toBeGreaterThan(0);
+
+      expect(MECH_FAMILIES.has(entry.family),
+        `${label}.family "${entry.family}" must be class|resistance`).toBe(true);
+
+      expect(typeof entry.summary, `${label}.summary must be a string`).toBe("string");
+      const wcSum = wordCount(entry.summary);
+      expect(wcSum,
+        `${label}.summary has ${wcSum} words (max ${MECH_LIMITS.summaryMaxWords})`)
+        .toBeLessThanOrEqual(MECH_LIMITS.summaryMaxWords);
+    });
+
+    test(`${label} — keypoints shape and length`, () => {
+      expect(Array.isArray(entry.keypoints), `${label}.keypoints must be an array`).toBe(true);
+      expect(entry.keypoints.length, `${label}.keypoints needs ≥ ${MECH_LIMITS.keypointsMin}`)
+        .toBeGreaterThanOrEqual(MECH_LIMITS.keypointsMin);
+      expect(entry.keypoints.length, `${label}.keypoints capped at ${MECH_LIMITS.keypointsMax}`)
+        .toBeLessThanOrEqual(MECH_LIMITS.keypointsMax);
+
+      for(let i = 0; i < entry.keypoints.length; i++) {
+        const kp = entry.keypoints[i];
+        expect(typeof kp, `${label}.keypoints[${i}] must be a string`).toBe("string");
+        const wc = wordCount(kp);
+        expect(wc,
+          `${label}.keypoints[${i}] has ${wc} words (max ${MECH_LIMITS.keypointMaxWords}): "${kp}"`)
+          .toBeLessThanOrEqual(MECH_LIMITS.keypointMaxWords);
+      }
+    });
+
+    test(`${label} — bedside + foundational word caps`, () => {
+      if(entry.bedside) {
+        expect(typeof entry.bedside, `${label}.bedside must be a string`).toBe("string");
+        const wc = wordCount(entry.bedside);
+        expect(wc, `${label}.bedside has ${wc} words (max ${MECH_LIMITS.bedsideMaxWords})`)
+          .toBeLessThanOrEqual(MECH_LIMITS.bedsideMaxWords);
+      }
+      if(entry.foundational) {
+        expect(typeof entry.foundational, `${label}.foundational must be a string`).toBe("string");
+        const wc = wordCount(entry.foundational);
+        expect(wc, `${label}.foundational has ${wc} words (max ${MECH_LIMITS.foundationalMaxWords})`)
+          .toBeLessThanOrEqual(MECH_LIMITS.foundationalMaxWords);
+      }
+    });
+
+    test(`${label} — papers shape (optional)`, () => {
+      if(entry.papers === undefined) return;
+      expect(Array.isArray(entry.papers), `${label}.papers must be an array when present`).toBe(true);
+      for(let i = 0; i < entry.papers.length; i++) {
+        const p = entry.papers[i];
+        expect(typeof p.name, `${label}.papers[${i}].name must be a string`).toBe("string");
+        if(p.year !== undefined) {
+          expect(typeof p.year, `${label}.papers[${i}].year must be a number`).toBe("number");
+        }
+        if(p.finding !== undefined) {
+          expect(typeof p.finding, `${label}.papers[${i}].finding must be a string`).toBe("string");
+          const wc = wordCount(p.finding);
+          expect(wc, `${label}.papers[${i}].finding has ${wc} words (max ${MECH_LIMITS.trialFindingMaxWords})`)
+            .toBeLessThanOrEqual(MECH_LIMITS.trialFindingMaxWords);
+        }
+      }
+    });
+  }
 });
 
 /* ============================================================
