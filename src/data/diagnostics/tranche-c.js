@@ -272,8 +272,8 @@ export const TRANCHE_C_DIAGNOSTICS = {
   "asymp-bact": {
     cultures: [
       { sev: "required",
-        what: "Reserve urine culture for **pregnancy** (screen at 12–16 weeks) and **pre-urologic procedure** with mucosal trauma — **do not order in any other asymptomatic patient**, including delirium, falls, foul urine, or catheter change.",
-        why:  "IDSA 2019: these are the only two indications where treating ASB changes outcomes; ordering outside them drives the cascade to harm." },
+        what: "Reserve urine culture for **pregnancy** (12–16 weeks) and **pre-urologic procedure** with mucosal trauma — **do not order otherwise** (delirium, falls, foul urine, catheter change are not indications).",
+        why:  "IDSA 2019: only these two indications where treating ASB changes outcomes; ordering outside drives the cascade to harm." },
     ],
     biomarkers: [
       { sev: "consider",
