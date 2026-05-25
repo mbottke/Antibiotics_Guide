@@ -28,6 +28,14 @@ const CSS = `
 .rx-root :focus-visible{outline:2px solid var(--ox); outline-offset:2px; border-radius:3px;}
 @media (prefers-reduced-motion: reduce){
   .rx-root *,.rx-root *::before,.rx-root *::after{transition-duration:.01ms!important; animation-duration:.01ms!important; scroll-behavior:auto!important;}
+  /* Wave 6 W6-B · global motion reduction across portal-mounted modals + drawers
+     (SettingsModal, KeyboardShortcutsOverlay, OnboardingModal, MechanismDrawer,
+     DecisionAttributionDrawer all render into document.body — outside .rx-root).
+     Honors the OS-level a11y preference end-to-end. */
+  [role="dialog"] *,[role="dialog"] *::before,[role="dialog"] *::after,
+  [aria-modal="true"] *,[aria-modal="true"] *::before,[aria-modal="true"] *::after{
+    transition-duration:.01ms!important; animation-duration:.01ms!important;
+  }
 }
 .rx-wrap{max-width:1180px; margin:0 auto; padding:0 22px;}
 
