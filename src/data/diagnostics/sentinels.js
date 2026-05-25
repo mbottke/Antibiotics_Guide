@@ -10,6 +10,7 @@
 
 export const SENTINEL_DIAGNOSTICS = {
 
+
   /* === Sepsis / septic shock — empiric umbrella, broad workup ============= */
   sepsis: {
     cultures: [
@@ -58,8 +59,11 @@ export const SENTINEL_DIAGNOSTICS = {
       { sev: "trigger",
         what: "Sputum Gram stain + culture when a good-quality sample is obtainable before antibiotics.",
         why:  "Helps in severe CAP, prior MRSA / Pseudomonas, structural lung disease, or treatment failure." },
-      { sev: "trigger",
-        what: "Urinary antigen for **S. pneumoniae** and **Legionella** in severe CAP or epidemiologic risk.",
+      { sev: "required",
+        what: "Urinary antigen for **S. pneumoniae** and **Legionella** in severe / ICU CAP (ATS/IDSA 2019).",
+        why:  "Severe CAP demands antigen testing to catch atypicals empiric coverage may miss; outcome data supports the rule." },
+      { sev: "consider",
+        what: "Same urinary antigen panel in moderate CAP with epidemiologic risk (recent travel, hotel/cruise exposure, outbreak).",
         why:  "Legionella antigen only detects serogroup 1 (~70–80% of disease); negative does not rule out." },
     ],
     biomarkers: [
@@ -134,8 +138,8 @@ export const SENTINEL_DIAGNOSTICS = {
     ],
     imaging: [
       { sev: "required",
-        what: "**Transesophageal echo** (TEE) — sensitivity for endocarditis exceeds 90% vs ~50% for TTE in SAB.",
-        why:  "Endocarditis upgrades duration to 6 weeks and may require surgery; TTE is not sufficient to rule out." },
+        what: "Echocardiogram in every SAB — **TEE unless very-low-risk** by VIRSTA / POSITIVE score; TTE alone is insufficient when risk is elevated.",
+        why:  "TEE sensitivity ~95% vs TTE ~50% in SAB; 2023 AHA endorses risk-stratified TTE-first only for the lowest-risk subgroup." },
       { sev: "trigger",
         what: "Whole-body PET-CT or focused MRI if BCx persist > 72 h or there is unexplained metastatic seeding.",
         why:  "Identifies occult endovascular focus, vertebral osteomyelitis, septic emboli, or psoas abscess." },
@@ -175,8 +179,8 @@ export const SENTINEL_DIAGNOSTICS = {
         what: "Transthoracic echo first; **TEE** in all adults with high suspicion or negative/equivocal TTE.",
         why:  "TEE sensitivity ~95% native, ~90% prosthetic vs TTE ~50–70%; defines vegetations, abscess, leaflet integrity." },
       { sev: "trigger",
-        what: "Cardiac CT or PET-CT for prosthetic-valve IE or perivalvular complications.",
-        why:  "Identifies abscess, pseudoaneurysm, and graft involvement that change surgical timing." },
+        what: "Cardiac CT or **FDG-PET/CT** for prosthetic-valve IE > 3 months — major Duke-ISCVID 2023 criterion.",
+        why:  "FDG-PET/CT was upgraded to a major criterion in 2023 Duke-ISCVID; identifies perivalvular abscess + pseudoaneurysm that change surgical timing." },
       { sev: "trigger",
         what: "Brain MRI in left-sided IE with neurologic symptoms (mycotic aneurysm, septic emboli).",
         why:  "Embolic events change anticoagulation, surgical timing, and risk-of-rebleed calculus." },
@@ -305,6 +309,5 @@ export const SENTINEL_DIAGNOSTICS = {
         why:  "Toxic megacolon (colonic dilation > 6 cm) is a surgical emergency; delay drives mortality > 50%." },
     ],
   },
-
 
 };
