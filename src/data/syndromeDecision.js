@@ -137,105 +137,19 @@
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 
-const SYNDROME_DECISION = {
+import { DECISION_PARTIALS } from "./syndromes/_index.js";
 
-  /* ===========================================================
-     CYSTITIS — uncomplicated lower-tract UTI. Short courses,
-     simple monitoring. IDSA 2010 (Gupta). ========================= */
-  cystitis: {
-    duration: {
-      headline: "Match the agent — 3 d TMP-SMX, 5 d nitrofurantoin, single dose fosfomycin.",
-      evidence: "IDSA 2010 — agent-specific short courses; no advantage to extension in uncomplicated cystitis",
-      branches: [
-        { label: "Nitrofurantoin",  days: "5 d",      matchAgent: /nitrofurantoin/i,
-          detail: "Full 5-day course; do **not** extend even if late response" },
-        { label: "TMP-SMX",         days: "3 d",      matchAgent: /TMP-?\s?SMX|trimethoprim/i,
-          detail: "Shortest first-line; covers early pyelo if dx wrong" },
-        { label: "Fosfomycin",      days: "1 dose",   matchAgent: /fosfomycin/i,
-          detail: "Single 3 g sachet; repeat dosing **does not** improve cure" },
-        { label: "β-lactam (cefpodoxime, cefdinir)", days: "5–7 d",
-          matchAgent: /cefpodoxime|cefdinir|β-?lactam|amoxicillin-?clavulanate/i,
-          detail: "Lower cure than first-line; do not extend beyond 7 d" },
-      ],
-      stopWhen: [
-        "Symptoms resolved (dysuria, urgency, frequency, suprapubic pain)",
-        "No fever, no flank pain, no nausea/vomiting",
-        "Course completed (5 d / 3 d / single dose by agent)",
-      ],
-      extendIf: [
-        { text: "**Fever or flank pain develops** → treat as pyelonephritis (different drug + 7+ d)",
-          matchCtx: { severe: true } },
-        "Recurrent within 4 wk → 7-day course + culture-direct",
-        "Indwelling catheter unchanged — change catheter first",
-      ],
-    },
-    monitoring: {
-      headline: "Symptoms-only follow-up in most; reculture for recurrence within 4 weeks.",
-      items: [
-        { sev: "required", what: "Symptom check at 48–72 h",
-          why: "Persistent symptoms → reculture + alternative agent" },
-        { sev: "trigger",  what: "Reculture **if** symptoms persist or recur within 4 wk",
-          why: "Identifies resistant organism or upper-tract progression" },
-        { sev: "trigger",  what: "**Workup pyelonephritis** if fever / flank / vomiting",
-          why: "Lower-tract drug fails; needs IV β-lactam + 7+ d",
-          matchBranch: ["Nitrofurantoin", "Fosfomycin"],
-          matchCtx: { severe: true } },
-        { sev: "consider", what: "Post-treatment urine culture in pregnancy",
-          why: "ASB clearance documentation; reduces preterm birth risk" },
-      ],
-    },
-    rationale: {
-      driver: "Uncomplicated cystitis is overwhelmingly E. coli — Gupta (IDSA 2010) anchors agent-specific short courses that exploit pharmacokinetics: nitrofurantoin 5 d (urinary concentration), TMP-SMX 3 d (rapid bactericidal at empiric MICs < 20% local resistance), fosfomycin single 3 g dose (bladder reservoir effect). Fluoroquinolones are deliberately not first-line — collateral resistance damage to enteric flora plus tendon/aortic/QT toxicity outweigh modest cure-rate advantages. β-lactams (cefpodoxime, cefdinir) achieve lower cure rates and never extend past 7 d. Symptomatic improvement at 48–72 h confirms the choice; recurrence within 4 wk triggers reculture and pyelonephritis re-eval, not reflexive extension.",
-      guideline: "balance",
-      rejected: "Reflexive 7–10 d β-lactam courses were deliberately rejected — Huttner (JAMA 2018) and Gupta both demonstrate nitrofurantoin 5 d and TMP-SMX 3 d non-inferior to longer regimens with lower AE rates. Empiric fluoroquinolone was tempered: Nicolle (IDSA 2019) and Gupta restrict FQ to second-line because of tendon, aortic, and CNS toxicity plus collateral C. difficile and ESBL selection pressure that outlasts the patient's prescription." },
-    objections: [
-      { q: "Why 3 d TMP-SMX not 7 d — surely longer is safer?",
-        a: "Gupta (IDSA 2010) [cite:talan] meta-analysis showed TMP-SMX 3 d non-inferior to 7-d regimens with substantially lower AE rates in uncomplicated cystitis. Huttner (JAMA 2018, n=513) confirmed nitrofurantoin 5 d achieved 70% cure vs 58% with single-dose fosfomycin — short agent-specific courses match drug kinetics. Extending past the agent-specific duration adds adverse events (rash, GI, CDI risk) without raising cure rates [cite:stew]." },
-      { q: "Why not fluoroquinolone first-line — it's broad and oral?",
-        a: "FQs are deliberately reserved as second-line in uncomplicated cystitis per Gupta IDSA 2010 [cite:talan] — Nicolle (IDSA 2019) and the FDA black-box warnings cite tendon rupture, aortic dissection, QT prolongation, and CNS toxicity. Collateral resistance damage (C. difficile, ESBL selection) outlasts the prescription [cite:stew]. Nitrofurantoin 5 d, TMP-SMX 3 d, or fosfomycin single dose deliver equivalent cure with substantially better safety [cite:cdi]." },
-      { q: "Why avoid nitrofurantoin in CrCl < 30 mL/min?",
-        a: "Nitrofurantoin requires renal excretion to achieve therapeutic urinary concentration — at CrCl < 30 mL/min the drug accumulates systemically while urinary levels drop below MIC, driving peripheral neuropathy and pulmonary toxicity without curing the UTI [cite:mono]. IDSA 2010 [cite:talan] and AGS Beers criteria flag this threshold. Switch to fosfomycin single dose or short-course β-lactam (cefpodoxime) when CrCl < 30." },
-    ],
-    research: {
-      headline: "Short courses anchored by agent-specific kinetics + trial-grade evidence; longer courses give no benefit.",
-      trials: [
-        { name: "Gupta IDSA 2010 review",
-          n: "Meta-analysis (multiple RCTs)",
-          question: "What is the optimal duration for each first-line cystitis agent?",
-          finding: "TMP-SMX 3 d, nitrofurantoin 5 d, fosfomycin single dose — all non-inferior to longer regimens with lower adverse-event rates",
-          bias: "Older trials predate widespread TMP-SMX resistance — local antibiogram should guide" },
-        { name: "Huttner JAMA 2018",
-          n: "513",
-          question: "Nitrofurantoin 5 d vs fosfomycin single dose in uncomplicated cystitis",
-          finding: "Nitrofurantoin clinical cure 70% vs fosfomycin 58% at 28 d — nitrofurantoin superior; favors 5-day over single-dose strategy",
-          bias: "European population — U.S. resistance patterns may differ" },
-        { name: "Vazquez NEJM 2024 GAIN",
-          n: "1,200",
-          question: "Gepotidacin vs nitrofurantoin in uncomplicated cystitis",
-          finding: "Gepotidacin non-inferior — new oral option for resistant strains; not first-line until antibiogram-driven",
-          bias: "Sponsored by GSK; long-term resistance trajectory unknown" },
-      ],
-      guidelines: [
-        { society: "IDSA",
-          year: 2010,
-          topic: "Uncomplicated cystitis + pyelonephritis (Gupta)",
-          keypoint: "Agent-specific short courses preferred; avoid FQ first-line due to collateral resistance damage" },
-        { society: "AUA",
-          year: 2022,
-          topic: "Recurrent UTI in women",
-          keypoint: "Prophylaxis options (daily, post-coital, methenamine) + vaginal estrogen for post-menopausal" },
-        { society: "EAU",
-          year: 2024,
-          topic: "Urological infections",
-          keypoint: "Fosfomycin first-line in many European centers due to resistance patterns; aligns with U.S. IDSA" },
-      ],
-      openQuestions: [
-        "Methenamine non-inferiority vs daily antibiotic prophylaxis (ALTAR 2022 supports)",
-        "Cranberry products — meta-analyses inconsistent; modest benefit at best",
-        "Asymptomatic bacteriuria in non-pregnant — definitively NOT to treat (IDSA 2019)",
-      ],
-    },
-  },
+/* Wave 5 PR-1 — the cystitis, sepsis, and cap entries migrated to
+   src/data/syndromes/<id>.js as sentinel modules. The merged
+   SYNDROME_DECISION at the bottom of this file spreads
+   DECISION_PARTIALS over SYNDROME_DECISION_INLINE so every downstream
+   consumer — the five getSyndromeX helpers, evidenceMap.js, the
+   AnswerCanvas depth layers, and the content-audit test — continues
+   to read the same dictionary shape. PR-2 migrates the remaining
+   114 syndromes the same way; the inline shim shrinks to empty when
+   the migration completes. */
+
+const SYNDROME_DECISION_INLINE = {
 
   /* ===========================================================
      S. AUREUS BACTEREMIA — the canonical multi-branch decision.
@@ -378,137 +292,6 @@ const SYNDROME_DECISION = {
   },
 
   /* ===========================================================
-     SEPSIS — community / undifferentiated. Surviving Sepsis 2021
-     + BALANCE 2024 drive the duration story. Source control is
-     the determining factor; antibiotic duration is the second
-     decision behind it. =============================================  */
-  sepsis: {
-    duration: {
-      headline: "7 d after source control for most bacteremic sepsis; longer if endovascular / immunocompromised / undrained.",
-      evidence: "BALANCE 2024 (NEJM) — 7 vs 14 d non-inferior in controlled-source GNR bacteremia; Yahav 2019 same pattern",
-      branches: [
-        { label: "Source controlled, stable bacteremia", days: "7 d",
-          detail: "From first negative BCx; BALANCE bands cover community + healthcare GNR bacteremia" },
-        { label: "Endovascular / undrained source", days: "14–28 d",
-          detail: "From source control if achievable; otherwise from clinical clearance; ID input drives the call" },
-        { label: "Immunocompromised host", days: "14 d",
-          detail: "Neutropenia, transplant, biologic — extend to cover delayed clearance + relapse risk" },
-        { label: "Septic shock — slower kinetics", days: "10–14 d",
-          detail: "Persistent SIRS / vasopressor need at day 5 → consider extended course + source reassessment" },
-      ],
-      stopWhen: [
-        "Source controlled (drainage / removal / source-directed therapy)",
-        "All blood cultures negative ≥ 48 h",
-        "Afebrile ≥ 48 h",
-        "Off vasopressors; lactate normalized",
-        "Clinical improvement (WBC trending, end-organ recovery)",
-        "Minimum 7 d from first negative BCx if bacteremic",
-      ],
-      extendIf: [
-        "Persistent bacteremia > 48 h on appropriate therapy",
-        "Undrained / unidentified source",
-        { text: "**Endocarditis or endovascular infection** confirmed — 4–6 wk regimen replaces sepsis duration" },
-        { text: "**Severe shock / multi-organ failure** at presentation — extend to 10–14 d",
-          matchCtx: { severe: true } },
-        /* "Immunocompromised host" — bullet stays visible at default
-           emphasis. No matchCtx because the case parser does not yet
-           capture an immune-status field (neutropenia, transplant,
-           biologic, chronic steroid). Adding a future `immunocompromised`
-           ctx field would enable elevation here without changing the
-           text. Using mrsaRisk / esblRisk as proxies would be
-           clinically misleading (resistance-history flags ≠ immune
-           status), per PR #11 review feedback. */
-        "**Immunocompromised host** — neutropenia, transplant, biologic; extend minimum to 14 d",
-      ],
-    },
-    monitoring: {
-      headline: "BCx q48h, lactate trend, source workup, narrow-on-cultures by day 3.",
-      items: [
-        { sev: "required", what: "**Blood cultures q48h** until clearance documented",
-          why: "Persistent BCx triggers endovascular workup + source re-search" },
-        { sev: "required", what: "**Lactate clearance** within first 6 h; serial monitoring until normalized",
-          why: "Lactate trend predicts mortality independent of antibiotic response" },
-        { sev: "required", what: "**Source workup** — imaging, line/catheter assessment, surgical eval as indicated",
-          why: "Antibiotic failure most often reflects untreated source, not wrong drug" },
-        { sev: "required", what: "**Narrow + de-escalate at 48–72 h** on culture data",
-          why: "Continued broad therapy drives resistance + collateral damage without benefit" },
-        { sev: "trigger", what: "**TEE within 5–7 d** if S. aureus / enterococcal / candidemia",
-          why: "Endocarditis changes duration to 4–6 wk + may need surgery",
-          matchAgent: /vancomycin|cefazolin|ampicillin|daptomycin/i },
-        { sev: "trigger", what: "**Daily SCr** while on vanco + pip-tazo (AKI signal)",
-          why: "Combination AKI rate RR ~1.5; consider cefepime substitution",
-          matchCtx: { any: [{ crcl: { lt: 60 } }, { age: { gte: 75 } }] } },
-        { sev: "trigger", what: "**Bedside dialysis coordination** for HD patients on antibiotics",
-          why: "Dialytic clearance fundamentally alters dosing; ID + nephrology partnership",
-          matchCtx: { hd: true } },
-        { sev: "consider", what: "Procalcitonin trend (Q48h) if duration debate at day 5+",
-          why: "Falling PCT supports shorter course; rising PCT supports source re-eval" },
-        { sev: "consider", what: "MRSA nares PCR at presentation — guides empiric narrowing",
-          why: "Negative result enables early vanco stop in non-pneumonic sepsis",
-          matchAgent: /vancomycin/i },
-      ],
-    },
-    rationale: {
-      driver: "Sepsis mortality is driven by speed + adequacy of early therapy plus source control — every hour delay raises mortality, and inadequate empiric coverage doubles it. The empiric backbone covers the substrate (community → broad β-lactam; HCAQ → anti-pseudomonal + MRSA); duration follows BALANCE — 7 d for source-controlled GNR bacteremia, longer only if endovascular, undrained, or immunocompromised. Daily reassessment with mandated de-escalation at 48–72 h is the stewardship contract.",
-      guideline: "ssc",
-      rejected: "Empiric vancomycin + pip-tazo is deliberately tempered when alternatives fit — the combination roughly doubles AKI risk vs cefepime + vancomycin without survival benefit. Reflexive 14-d duration was rejected by BALANCE: 7 d non-inferior in controlled-source GNR bacteremia, so the default is now short with a defined stop date." },
-    objections: [
-      { q: "Why 7 d and not 14 d for bacteremic sepsis?",
-        a: "BALANCE (NEJM 2025, n=3,608) established 7 d non-inferior to 14 d for 90-d mortality (14.5% vs 14.4%) in source-controlled bloodstream infection, including most GNR bacteremia [cite:balance]. The default is now short with a defined stop date once source is controlled. Reserve 14+ d only for endovascular focus, undrained source, S. aureus bacteremia, or immunocompromise — where BALANCE excluded patients." },
-      { q: "Why vanco + cefepime instead of vanco + pip-tazo?",
-        a: "Observational data (Luther 2018 meta, Schreier 2022) show vanco + pip-tazo roughly doubles AKI vs vanco + cefepime or vanco + meropenem, with no survival benefit — debate continues over assay interference vs true injury [cite:ssc]. When both broad-Gram-negative and MRSA cover are needed, cefepime is the safer β-lactam pairing. Reserve pip-tazo when anaerobic coverage is the decisive feature." },
-      { q: "Why broad empirics — can't we wait for cultures?",
-        a: "Surviving Sepsis 2021 mandates antibiotics within 1 h of suspected septic shock (Class I) — Kumar's 2006 cohort showed each hour delay raises mortality ~7%, and inadequate empiric coverage roughly doubles it [cite:ssc]. The empiric breadth is matched to the substrate (community → ceftriaxone backbone; HCAQ → anti-pseudomonal + MRSA) and narrowed aggressively at 48-72 h on culture data — daily de-escalation review is the stewardship contract." },
-      { q: "Why MRSA cover empirically in a stable host?",
-        a: "MRSA cover is added empirically only when risk factors are present — recent broad antibiotic exposure (90 d), prior MRSA isolate, healthcare exposure, IVDU, or septic shock with skin/soft-tissue source [cite:ssc]. Reflexive vancomycin in low-risk community sepsis invites AKI from the pip-tazo combination without clinical benefit. MRSA nares PCR (NPV ~96% for non-pulmonary sources) enables 24-48 h vanco stop when negative." },
-    ],
-    research: {
-      headline: "BALANCE 2024 established 7-day non-inferiority in controlled-source GNR bacteremia; source control remains paramount.",
-      trials: [
-        { name: "BALANCE NEJM 2024",
-          n: "3,608",
-          question: "7 vs 14 d antibiotic duration in GNR bacteremia",
-          finding: "7 d non-inferior to 14 d at the 4% margin for 90-d mortality; supports short course in controlled-source sepsis",
-          bias: "Excluded immunocompromised + endovascular focus; results don't generalize there" },
-        { name: "Yahav CID 2019",
-          n: "604",
-          question: "7 vs 14 d in GNR bacteremia (Israeli cohort)",
-          finding: "7 d non-inferior; first major RCT in short-course GNR bacteremia; foundation for BALANCE design",
-          bias: "Single-region cohort; underrepresented Pseudomonas + ESBL" },
-        { name: "Surviving Sepsis Campaign 2021",
-          n: "Guideline",
-          question: "Hour-1 antibiotic delivery + bundle compliance",
-          finding: "Hour-1 antibiotic + lactate + cultures + 30 ml/kg fluid + vasopressors — each component independently associated with reduced mortality",
-          bias: "Bundle compliance + selection effects; mortality benefit replicated across registries" },
-        { name: "PROCESS / ARISE / PROMISE 2014–15",
-          n: "4,179 (combined)",
-          question: "Early goal-directed therapy vs usual care",
-          finding: "EGDT non-superior in modern usual care; shifted focus to early antibiotics + lactate + fluids without invasive monitoring",
-          bias: "Replicated across three continents; high-quality evidence" },
-      ],
-      guidelines: [
-        { society: "SSC",
-          year: 2021,
-          topic: "Surviving Sepsis Campaign (Evans)",
-          keypoint: "Hour-1 antibiotics + 30 ml/kg fluid + vasopressors for MAP < 65; norepinephrine first-line vasopressor" },
-        { society: "IDSA",
-          year: 2024,
-          topic: "Empiric antibiotic selection in sepsis (Tamma)",
-          keypoint: "Tailor empiric coverage to local antibiogram + host risk; de-escalate at 48–72 h on culture data" },
-        { society: "ATS",
-          year: 2023,
-          topic: "Sepsis quality bundles",
-          keypoint: "Implementation of bundles drives population-level mortality reduction; CMS SEP-1 metric standardizes" },
-      ],
-      openQuestions: [
-        "Vasopressin as first-line vs norepinephrine — observational + small RCTs suggest equivalent",
-        "Restrictive vs liberal fluid resuscitation — CLOVERS 2023 showed no difference; practice evolving",
-        "Procalcitonin-guided de-escalation — modest LOS benefit; not standard despite multiple RCTs",
-      ],
-    },
-  },
-
-  /* ===========================================================
      SEPSIS — Healthcare-associated. Prior colonization + recent
      antibiotic exposure expand the empiric breadth and the
      duration considerations. ========================================= */
@@ -617,121 +400,6 @@ const SYNDROME_DECISION = {
         "Optimal duration in HCAQ Pseudomonas bacteremia — 7 d data weaker than community",
         "Routine MRSA empiric coverage in HCAQ — antibiogram-driven; institutional variation",
         "De-escalation timing thresholds — 48 vs 72 h debated",
-      ],
-    },
-  },
-
-  /* ===========================================================
-     CAP — IDSA / ATS 2019 (Metlay). 5 d standard if afebrile +
-     stable + tolerating oral; longer for atypicals + complicated. = */
-  cap: {
-    duration: {
-      headline: "5 d standard if afebrile + stable + tolerating oral by 48–72 h; longer for atypicals + complications.",
-      evidence: "IDSA / ATS 2019 — 5-day course non-inferior in uncomplicated CAP (Tansarli 2018 meta-analysis)",
-      branches: [
-        { label: "Uncomplicated CAP, stable + oral", days: "5 d",
-          detail: "Counts from first effective dose; criteria for stop are AND-joined (afebrile, oral, stable)" },
-        { label: "Severe CAP / ICU + appropriate response", days: "7 d",
-          detail: "Extended slightly for ICU substrate; reassess for further extension only on clinical grounds" },
-        { label: "Legionella / atypical confirmed", days: "10–14 d",
-          detail: "Azithro 5–10 d adequate; FQ 7–14 d standard; longer if immunocompromised",
-          matchAgent: /doxycycline/i },
-        { label: "Necrotizing / cavitary / abscess", days: "3–6 wk",
-          detail: "Treat until radiographic resolution of cavity; drainage if available; oral step-down acceptable" },
-      ],
-      stopWhen: [
-        "Afebrile ≥ 48 h",
-        "Stable vitals (RR, HR, SBP normalizing)",
-        "Tolerating oral / step-down complete",
-        "WBC trending toward normal",
-        "Mental status returning to baseline (especially in elderly)",
-        "Minimum 5 d completed",
-      ],
-      extendIf: [
-        { text: "**Severe CAP / ICU** at presentation — extend to 7 d minimum",
-          matchCtx: { severe: true } },
-        { text: "**MRSA / Pseudomonas** identified — extend per pathogen (7–14 d typical)",
-          matchCtx: { any: [{ mrsaRisk: true }, { pseudoRisk: true }] } },
-        "Cavitary disease, lung abscess, or empyema — 3–6 wk + drainage",
-        "Immunocompromised host — extend to 7–10 d minimum",
-        "Inadequate response by day 3 — workup for missed pathogen / abscess / wrong drug",
-      ],
-    },
-    monitoring: {
-      headline: "Clinical response by 48–72 h; imaging only if non-response; oral step-down when stable.",
-      items: [
-        { sev: "required", what: "**Clinical reassessment at 48–72 h** — fever, oxygenation, mental status, oral tolerance",
-          why: "Non-responders by 72 h require pathogen + diagnosis re-eval, not duration extension alone" },
-        { sev: "required", what: "**IV → PO switch** when stable + tolerating oral",
-          why: "Earlier step-down reduces line complications + length of stay without affecting outcome" },
-        { sev: "trigger", what: "**MRSA nares PCR** if empiric vanco started",
-          why: "Negative result enables early vanco stop (NPV ~96% for MRSA pneumonia)",
-          matchAgent: /vancomycin|linezolid/i },
-        { sev: "trigger", what: "**Repeat imaging** at day 4–7 only if no clinical response",
-          why: "Radiographic lag normal; image-driven extension without clinical change rarely helpful" },
-        { sev: "trigger", what: "**Hydrocortisone 200 mg/d IV × 4–8 d** for severe CAP without shock — CAPE-COD",
-          why: "CAPE-COD NEJM 2023 — 28-d mortality 6.2% vs 11.9%; excludes influenza + immunocompromised + septic shock",
-          matchCtx: { severe: true } },
-        { sev: "trigger", what: "**Atypical workup** (Legionella urine antigen, mycoplasma PCR) if non-response by 72 h",
-          why: "Missed atypical drives empiric β-lactam failure; targeted therapy changes course" },
-        { sev: "consider", what: "Procalcitonin trend if duration debate at day 5",
-          why: "Falling PCT supports stopping; rising PCT supports re-workup" },
-        { sev: "consider", what: "**Influenza / COVID PCR** if seasonally relevant",
-          why: "Viral co-infection drives antibiotic non-response; antivirals change course" },
-      ],
-    },
-    rationale: {
-      driver: "Most CAP is pneumococcus, H. influenzae, or atypicals — empiric ceftriaxone + azithromycin (or a respiratory FQ) cover this substrate for ward patients; severe / ICU adds MRSA + Pseudomonas only when risk factors are present (recent abx, prior MRSA/Pseudo isolate, structural lung disease). Severe non-influenza CAP also gets hydrocortisone 200 mg/d × 4–8 d (CAPE-COD). The 5-day floor holds when the patient is afebrile + stable + tolerating oral by 48–72 h; complications (cavitation, MRSA, Pseudo) extend duration.",
-      guideline: "cap",
-      rejected: "Empiric vancomycin is deliberately NOT added in stable CAP — baseline MRSA-pneumonia incidence is < 10% absent recent abx exposure, severe COPD, or known colonization; reflexive vanco invites AKI from the pip-tazo combination without clinical benefit. Routine macrolide combination in non-severe ward CAP was tempered by Postma (NEJM 2015) showing β-lactam alone non-inferior." },
-    objections: [
-      { q: "Why not narrow to amoxicillin alone — atypical coverage matters?",
-        a: "For ward-admitted moderate CAP, β-lactam alone (amoxicillin or ceftriaxone) is non-inferior to β-lactam + macrolide per Postma (NEJM 2015, n=2,283) — most U.S. centers retain the combination only for severe / ICU CAP per IDSA / ATS 2019 [cite:cap]. Atypical coverage matters most in severe disease and confirmed Legionella; routine empiric macrolide adds QTc + GI burden without survival benefit at the moderate severity band." },
-      { q: "Why 5 d not 7 d — patient still spiking on day 3?",
-        a: "The 5-d floor applies only when AND-joined criteria are met by 48-72 h: afebrile, stable vitals, tolerating oral, WBC trending toward normal. A patient still spiking at day 3 fails the stop criteria and triggers re-workup (missed atypical, abscess, wrong organism, viral co-infection), not reflexive extension. Tansarli (2018 meta, n=5,403) backs 5 d in responders [cite:cap]; non-response is its own pivot point." },
-      { q: "Why add steroids in severe CAP without shock?",
-        a: "CAPE-COD (NEJM 2023, n=800) showed hydrocortisone 200 mg/d × 4-8 d in severe non-shock CAP reduces 28-d mortality from 11.9% to 6.2% [cite:capecod]. Excludes influenza (signal of harm) and immunocompromised; severe sepsis with shock has its own steroid pathway. The signal is settled enough to apply in severe non-influenza CAP — this is one of the few practice-changing CAP results in a decade." },
-      { q: "Why MRSA cover only with risk factors?",
-        a: "Baseline MRSA pneumonia incidence is < 10% in CAP absent recent broad antibiotics, severe COPD with prior MRSA, or known nasal colonization — IDSA / ATS 2019 reserves empiric vancomycin for risk-positive substrate [cite:cap]. Reflexive vancomycin invites AKI from the pip-tazo combination without survival benefit; MRSA nares PCR enables 24-48 h vanco stop when negative (NPV ~96% for pneumonia)." },
-    ],
-    research: {
-      headline: "5-day short course is non-inferior in stable patients; severe CAP carries CAPE-COD steroid signal.",
-      trials: [
-        { name: "Tansarli + Mylonakis 2018",
-          n: "Meta (5,403)",
-          question: "Short-course (≤ 6 d) vs long-course (≥ 7 d) antibiotics for CAP",
-          finding: "Short-course non-inferior for clinical cure + mortality; reduced AE incidence",
-          bias: "Pooled heterogeneous severity; severe CAP underrepresented" },
-        { name: "CAP-IT NEJM 2021",
-          n: "824 children",
-          question: "3 d vs 7 d amoxicillin in pediatric CAP",
-          finding: "3 d non-inferior to 7 d at the lower clinical-failure margin; supports ultra-short in mild pediatric CAP",
-          bias: "Pediatric outpatient cohort; not applicable to adult inpatient or severe disease" },
-        { name: "CAPE-COD NEJM 2023",
-          n: "800",
-          question: "Hydrocortisone in severe CAP",
-          finding: "200 mg/d × 4–8 d hydrocortisone reduced 28-d mortality 6% vs 12%; benefit limited to severe non-shock cases",
-          bias: "French ICU cohort; excluded influenza + immunocompromised — apply selectively" },
-        { name: "FLUOROQUINOLONE-CAP (Postma NEJM 2015)",
-          n: "2,283",
-          question: "Strategy comparison — β-lactam vs β-lactam+macrolide vs FQ",
-          finding: "β-lactam alone non-inferior in moderately severe ward-admitted CAP — supports avoidance of routine macrolide combo in non-severe",
-          bias: "Severe / ICU CAP excluded; atypical coverage debate continues" },
-      ],
-      guidelines: [
-        { society: "IDSA / ATS",
-          year: 2019,
-          topic: "CAP in adults (Metlay)",
-          keypoint: "5-day standard; combination β-lactam + macrolide for severe; cover MRSA / Pseudo only if risk factors" },
-        { society: "BTS",
-          year: 2023,
-          topic: "CAP update",
-          keypoint: "Aligned with IDSA — emphasizes severity scoring (CURB-65 / SMART-COP) for site-of-care + escalation" },
-      ],
-      openQuestions: [
-        "Routine procalcitonin-guided stopping — meta-analyses show modest LOS benefit; not standard",
-        "Glucocorticoid use in severe CAP — CAPE-COD supports; influenza + immunocompromised remain excluded",
-        "Atypical coverage in moderate CAP — Postma supports β-lactam alone; many U.S. centers still combine",
       ],
     },
   },
@@ -10754,7 +10422,12 @@ const SYNDROME_DECISION = {
 
 };
 
-/* Lookup helpers — used by DurationBlock + MonitoringBlock. Return
+/* Merge the per-syndrome modules over the inline shim. DECISION_PARTIALS
+   wins on collision, but PR-1 guarantees the migrated keys (cystitis,
+   sepsis, cap) are gone from SYNDROME_DECISION_INLINE, so the spread is
+   effectively a disjoint union. Once PR-2 completes, the inline shim
+   is empty and SYNDROME_DECISION == DECISION_PARTIALS. */
+const SYNDROME_DECISION = { ...SYNDROME_DECISION_INLINE, ...DECISION_PARTIALS };
 
 /* Lookup helpers — used by DurationBlock + MonitoringBlock + ResearchBlock.
    Return null when the syndrome has no authored content, which signals the

@@ -78,171 +78,19 @@
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 
-const REGIMEN_CONTENT = {
+import { REGIMEN_PARTIALS } from "./syndromes/_index.js";
 
-  /* ===========================================================
-     CYSTITIS — IDSA 2010 (Gupta) defines the first-line trio;
-     β-lactams are explicitly worse and reserved for failures
-     or contraindications. =========================================== */
-  cystitis: {
-    "First-line": [
-      {
-        rx: /nitrofurantoin/i,
-        pickIf: "Uncomplicated cystitis, CrCl ≥ 30, no fever or flank pain.",
-        whyPick: [
-          "**IDSA-preferred** for 40+ years and counting",
-          "**60× urinary concentration** with minimal systemic exposure",
-          "**< 5% national E. coli resistance** despite decades of use",
-          "Spares gut + vaginal flora — lowest collateral damage",
-          "Safe in 1st & 2nd trimester pregnancy",
-        ],
-        watchOut: [
-          { sev: "stop", text: "**CrCl < 30** — urine concentration drops below MIC",
-            matchCtx: { crcl: { lt: 30 } } },
-          { sev: "stop", text: "**Pyelonephritis** / fever / flank pain — zero tissue penetration",
-            matchCtx: { severe: true } },
-          { sev: "stop", text: "**Term pregnancy (≥ 38 wk)** — neonatal hemolysis risk" },
-          { sev: "stop", text: "**G6PD deficiency** — acute hemolysis" },
-          { sev: "warn", text: "**Long courses (months)** — pulmonary fibrosis, hepatotoxicity" },
-        ],
-      },
-      {
-        rx: /fosfomycin/i,
-        pickIf: "Best adherence — one sachet, done. Use when nitrofurantoin is out.",
-        whyPick: [
-          "**Single 3 g PO dose** — best adherence in the trio",
-          "Covers most **ESBL E. coli** and **VRE**",
-          "Preserves fluoroquinolones for upper-tract disease",
-          "Safe across pregnancy and in **CrCl < 30**",
-          "Right pick when nitrofurantoin is contraindicated",
-        ],
-        watchOut: [
-          { sev: "warn", text: "**Cure rate 5–10 pp lower** than 5-day nitrofurantoin" },
-          { sev: "stop", text: "**Pyelonephritis / febrile UTI** — lower-tract drug only" },
-          { sev: "warn", text: "Diarrhea in **~10%**" },
-          { sev: "note", text: "Repeat dosing does **not** improve cystitis outcomes — single dose is the regimen" },
-          { sev: "note", text: "Avoid if local E. coli **fosfomycin resistance > 10%**" },
-        ],
-      },
-      {
-        rx: /TMP-?\s?SMX|trimethoprim/i,
-        pickIf: "Shortest course (3 d). Only first-line that also treats early pyelo.",
-        whyPick: [
-          "**Shortest course — 3 days PO**",
-          "Achieves **urinary + tissue** concentrations (covers early pyelo if dx is wrong)",
-          "Cheap, oral, well-tolerated",
-          "Pick when local E. coli resistance **< 20%** and no sulfa allergy",
-        ],
-        watchOut: [
-          { sev: "stop", text: "**Local E. coli resistance ≥ 20%** — do not use empirically (check antibiogram)" },
-          { sev: "stop", text: "**Sulfa allergy** (SJS/TEN history is absolute)" },
-          { sev: "stop", text: "**3rd trimester pregnancy** — kernicterus" },
-          { sev: "warn", text: "**Hyperkalemia** with ACE-I, ARB, spironolactone" },
-          { sev: "warn", text: "Boosts **warfarin INR**; raises **methotrexate**, **sulfonylureas**, **phenytoin**" },
-        ],
-      },
-    ],
-    "Second-line": [
-      {
-        rx: /β-?lactam|cefpodoxime|cefdinir/i,
-        pickIf: "First-line trio is out (CrCl < 30 + sulfa allergy + fosfo unavailable).",
-        whyPick: [
-          "**Oral narrow-ish spectrum** — better stewardship than fluoroquinolones",
-          "Useful when nitrofurantoin fails (CrCl < 30) **AND** TMP-SMX is contraindicated",
-          "**Pregnancy-safe across all trimesters** — first-choice when alternatives are out",
-          "**Cefpodoxime** has the strongest cystitis data; cefdinir / cefuroxime acceptable substitutes",
-        ],
-        watchOut: [
-          { sev: "warn", text: "**Cure rates 5–15 pp lower** than first-line; higher relapse" },
-          { sev: "warn", text: "Do **not extend beyond 7 days** — no benefit, amplifies collateral resistance" },
-          { sev: "note", text: "Cross-reactivity with **severe** penicillin allergy ~1%; rash alone is not a contraindication",
-            matchCtx: { blAllergy: "severe" } },
-          { sev: "note", text: "Promotes **C. difficile** and ESBL selection more than nitrofurantoin / fosfomycin" },
-        ],
-      },
-      {
-        rx: /amoxicillin-?clavulanate|augmentin/i,
-        pickIf: "Cephalosporins contraindicated and antibiogram supports empiric use.",
-        whyPick: [
-          "**Oral, well-absorbed** — covers most community E. coli **when antibiogram allows**",
-          "Useful when both cephalosporins and the first-line trio are out",
-          "**Pregnancy-safe** — broadest-tolerated UTI agent in pregnancy",
-        ],
-        watchOut: [
-          { sev: "stop", text: "**Empiric resistance often > 30%** in community E. coli — verify antibiogram" },
-          { sev: "warn", text: "GI intolerance + antibiotic-associated diarrhea common — counsel before starting" },
-          { sev: "warn", text: "**Cholestatic hepatitis** — rare but classic, may appear weeks after course" },
-        ],
-      },
-    ],
-  },
+/* Wave 5 PR-1 — the cystitis, sepsis, and cap entries migrated to
+   src/data/syndromes/<id>.js as sentinel modules. The merged
+   REGIMEN_CONTENT at the bottom of this file spreads
+   REGIMEN_PARTIALS over REGIMEN_CONTENT_INLINE so every downstream
+   consumer — lookupOptionContent, tierHasContent, RegimenOptions,
+   AnswerCanvas, and the content-audit test — continues to read the
+   same dictionary shape. PR-2 migrates the remaining 114 syndromes
+   the same way; the inline shim shrinks to empty when the migration
+   completes. */
 
-  /* ===========================================================
-     SEPSIS (community / undifferentiated) — Surviving Sepsis 2021.
-     The Hour-1 bundle drives empiric breadth: cover Pseudomonas,
-     add MRSA by risk, escalate by colonization. The β-lactam
-     backbone is a single class recommendation in the source text
-     (one card), so the trio comparison lives inside whyPick. ====== */
-  sepsis: {
-    "Broad empiric": [
-      {
-        rx: /antipseudomonal|piperacillin|cefepime|meropenem/i,
-        pickIf: "Septic shock / severe sepsis — pick ONE β-lactam, give in Hour-1.",
-        whyPick: [
-          "**Pip-tazo** — broadest community cover (gut anaerobes + Pseudomonas)",
-          "**Cefepime** — cleanest Pseudomonas; no anaerobes; pair with metronidazole if gut source",
-          "**Meropenem** — pick if **prior ESBL** or recent broad β-lactam exposure",
-          "All three: **extended-infusion** at MIC ≥ 4 mg/L; **load full dose** even with AKI",
-          "Add **vancomycin** for hypotension, indwelling line, prior MRSA, recent admission",
-        ],
-        watchOut: [
-          { sev: "stop", text: "**Anaphylaxis to penicillin** — cefepime/meropenem OK; pip-tazo avoid" },
-          { sev: "warn", text: "**Pip-tazo + vancomycin → AKI** signal (RR ~1.5); use cefepime if renal-fragile" },
-          { sev: "warn", text: "**Cefepime neurotoxicity** if CrCl < 60 and dose not reduced — myoclonus, NCSE" },
-          { sev: "warn", text: "**Meropenem ↓ valproate levels** by 60–90% — seizure risk in epilepsy" },
-          { sev: "note", text: "**De-escalate at 48–72 h** once cultures back; don't ride the broad regimen" },
-        ],
-      },
-    ],
-    "Add MRSA": [
-      {
-        rx: /vancomycin|linezolid/i,
-        pickIf: "Hypotension, indwelling line, prior MRSA, or recent hospitalization.",
-        whyPick: [
-          "**Vancomycin** — first-line; cheap, bactericidal, IDSA AUC 400–600 target",
-          "**Linezolid** alternative for **VRE** coverage or vancomycin failure / intolerance",
-          "Load **25–30 mg/kg ABW** vancomycin once for septic shock — don't underdose",
-          "Stop the MRSA agent at 48 h if MRSA nares **negative** and no source",
-        ],
-        watchOut: [
-          { sev: "warn", text: "**Vanco + pip-tazo AKI signal** — monitor SCr q24h; consider cefepime backbone" },
-          { sev: "warn", text: "**Vanco AUC > 600** — nephrotoxicity rises sharply; trough alone underdoses" },
-          { sev: "stop", text: "**Linezolid + SSRI/MAOI** — serotonin syndrome; stop SSRI or switch agent" },
-          { sev: "warn", text: "**Linezolid > 14 d** — cytopenias, peripheral + optic neuropathy, lactic acidosis" },
-          { sev: "note", text: "**MRSA nares PCR NPV ~96%** for pneumonia — discontinue early if negative" },
-        ],
-      },
-    ],
-    "Add resistant-GNR cover": [
-      {
-        rx: /carbapenem|novel/i,
-        pickIf: "Prior ESBL/CRE/Pseudomonas isolate, recent abroad travel, ICU exposure.",
-        whyPick: [
-          "**Meropenem** — ESBL workhorse; bactericidal, CSF-penetrating, broadly used",
-          "**Ceftolozane-tazo / ceftaz-avi / imipenem-relebactam** — for DTR-Pseudomonas, KPC-CRE",
-          "Pick the **novel β-lactam** that matches the colonizing mechanism (KPC vs MBL vs OXA)",
-          "Get ID on board early — drug selection determines mortality in CRE bacteremia",
-        ],
-        watchOut: [
-          { sev: "warn", text: "**Meropenem ↓ valproate** by 60–90% — never combine in epilepsy" },
-          { sev: "warn", text: "**Imipenem seizure** risk in CrCl < 30; meropenem cleaner" },
-          { sev: "stop", text: "**MBL producers** (NDM, IMP, VIM) — ceftaz-avi inactive; aztreonam + ceftaz-avi or cefiderocol" },
-          { sev: "note", text: "**Carbapenem-sparing** in ESBL UTI: pip-tazo at MIC ≤ 16 acceptable (MERINO debate)" },
-          { sev: "note", text: "**Antibiogram-driven** — never empiric without colonization data or ID input" },
-        ],
-      },
-    ],
-  },
+const REGIMEN_CONTENT_INLINE = {
 
   /* ===========================================================
      SEPSIS — Healthcare-associated. Empirics expand for prior
@@ -446,65 +294,6 @@ const REGIMEN_CONTENT = {
           { sev: "warn", text: "**Fluconazole misses** C. glabrata (intermediate) and C. krusei (resistant)" },
           { sev: "warn", text: "Echinocandins **don't cover** Cryptococcus or molds (Aspergillus)" },
           { sev: "note", text: "Step down to PO fluconazole once species + sensitivities known" },
-        ],
-      },
-    ],
-  },
-
-  /* ===========================================================
-     CAP — IDSA/ATS 2019 (Metlay). Macrolides for atypical
-     coverage; FQs alternative; β-lactams cover S. pneumoniae. ===== */
-  cap: {
-    "Inpatient, non-ICU": [
-      {
-        rx: /ceftriaxone.*azithromycin|ceftriaxone\s*\+.*azithromycin/i,
-        pickIf: "Hospitalized CAP, no shock, no Pseudomonas / MRSA risk.",
-        whyPick: [
-          "**IDSA/ATS 2019 first-line** for non-ICU inpatient CAP",
-          "Ceftriaxone covers S. pneumoniae (incl. PCN-resistant) + H. influenzae",
-          "Azithromycin covers **Mycoplasma, Chlamydia, Legionella**",
-          "**Macrolide adjunctive benefit** in pneumococcal bacteremia (immune modulation)",
-          "Switch to oral on clinical improvement — same total course (5 d typical)",
-        ],
-        watchOut: [
-          { sev: "warn", text: "**QT prolongation** — check baseline ECG with methadone/ondansetron/quinolones" },
-          { sev: "warn", text: "Macrolide-resistant Mycoplasma rising in some regions — clinical failure → switch to FQ" },
-          { sev: "note", text: "Duration: **5 days** if afebrile by 48–72 h, stable, oral intake (IDSA)" },
-          { sev: "note", text: "Levofloxacin monotherapy is the FQ-allergic / macrolide-intolerant alternative" },
-        ],
-      },
-    ],
-    "Severe / ICU": [
-      {
-        rx: /β-?lactam.*azithromycin|β-?lactam.*macrolide/i,
-        pickIf: "ICU CAP — preferred combo for immune modulation in pneumococcal disease.",
-        whyPick: [
-          "**β-lactam + macrolide** — IDSA-preferred over β-lactam + FQ in ICU CAP",
-          "Macrolide associated with **lower mortality** in severe pneumococcal CAP (observational)",
-          "Covers atypicals — Legionella is up to **5% of severe CAP**",
-          "Use **ampicillin-sulbactam** if aspiration risk (anaerobic cover)",
-        ],
-        watchOut: [
-          { sev: "warn", text: "**QT prolongation** — pair with other QT drugs cautiously" },
-          { sev: "warn", text: "If **MRSA risk** (necrotizing CAP, post-influenza, prior MRSA), add vancomycin/linezolid" },
-          { sev: "warn", text: "If **Pseudomonas risk** (bronchiectasis, recent abx), use pip-tazo / cefepime backbone" },
-          { sev: "note", text: "Don't forget steroids: dexamethasone 6 mg × 5 d in severe CAP without shock (CAPE-COD)" },
-        ],
-      },
-      {
-        rx: /respiratory\s+FQ|levofloxacin|moxifloxacin/i,
-        pickIf: "Severe penicillin/macrolide allergy, or oral-only option needed for step-down.",
-        whyPick: [
-          "**Single-agent option** covers pneumococcus + atypicals — useful in PCN-allergic ICU patients",
-          "**High oral bioavailability** (~99%) — seamless IV-to-PO switch",
-          "Covers Legionella — equivalent to macrolide for atypicals",
-        ],
-        watchOut: [
-          { sev: "warn", text: "**Tendinopathy / aortic dissection** — avoid in elderly + steroids + connective tissue dz" },
-          { sev: "warn", text: "**QT prolongation** + dysglycemia in diabetics" },
-          { sev: "warn", text: "**Masks TB** — culture if cavitary disease before starting" },
-          { sev: "warn", text: "Risk of **C. difficile** higher than β-lactam+macrolide combos" },
-          { sev: "note", text: "FDA black box for non-life-threatening infections — reserve for true need" },
         ],
       },
     ],
@@ -3750,6 +3539,13 @@ const REGIMEN_CONTENT = {
   },
 
 };
+
+/* Merge the per-syndrome modules over the inline shim. REGIMEN_PARTIALS
+   wins on collision, but PR-1 guarantees the migrated keys (cystitis,
+   sepsis, cap) are gone from REGIMEN_CONTENT_INLINE, so the spread is
+   effectively a disjoint union. Once PR-2 completes, the inline shim
+   is empty and REGIMEN_CONTENT == REGIMEN_PARTIALS. */
+const REGIMEN_CONTENT = { ...REGIMEN_CONTENT_INLINE, ...REGIMEN_PARTIALS };
 
 /* Look up content for a given option. Returns the matched entry or
    null. The renderer treats null as "no decision content" and renders
