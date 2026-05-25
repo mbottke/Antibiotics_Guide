@@ -53,7 +53,7 @@ function _RichText({ text, accentColor }) {
 
 function _ruleTone(type, sev) {
   if(type === "eliminate") return { color: "#b91c1c", bg: "rgba(185, 28, 28, 0.08)", line: "rgba(185, 28, 28, 0.25)", label: "Eliminate", Icon: AlertTriangle };
-  if(type === "substitute") return { color: "var(--ox)", bg: "rgba(15, 76, 129, 0.08)", line: "var(--ox-line)", label: "Substitute", Icon: Crosshair };
+  if(type === "substitute") return { color: "var(--ox)", bg: "var(--ox-soft)", line: "var(--ox-line)", label: "Substitute", Icon: Crosshair };
   if(type === "flag")      return { color: "var(--amber)", bg: "var(--amber-soft)", line: "var(--amber-line)", label: "Flag", Icon: AlertTriangle };
   return { color: "var(--ink2)", bg: "var(--paper2)", line: "var(--line)", label: "Note", Icon: Info };
 }
@@ -235,7 +235,7 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
                 display: "inline-flex", alignItems: "center", gap: 6,
                 fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
                 letterSpacing: ".06em", textTransform: "uppercase",
-                color: "var(--ox)", background: "rgba(15, 76, 129, 0.08)",
+                color: "var(--ox)", background: "var(--ox-soft)",
                 border: "1px solid var(--ox-line)",
                 padding: "5px 10px", borderRadius: 5, cursor: "pointer",
               }}
