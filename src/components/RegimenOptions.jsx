@@ -106,12 +106,12 @@ function MicrobiomeChips({ optionText }) {
   const sig = _extractMicrobiomeSignals(optionText);
   if(!sig) return null;
 
-  const cdiffTone = sig.cdiffMax >= 5 ? { color: "#b91c1c", bg: "rgba(185,28,28,0.10)", line: "rgba(185,28,28,0.30)" }
+  const cdiffTone = sig.cdiffMax >= 5 ? { color: "var(--red)", bg: "var(--red-soft)", line: "var(--red-line)" }
                   : sig.cdiffMax >= 4 ? { color: "var(--amber)", bg: "var(--amber-soft)", line: "var(--amber-line)" }
                   : sig.cdiffMax >= 1 ? { color: "var(--ink2)", bg: "var(--paper2)", line: "var(--line)" }
                   : null;
 
-  const mdrTone = sig.mdrTop === "high" ? { color: "#b91c1c", bg: "rgba(185,28,28,0.10)", line: "rgba(185,28,28,0.30)" }
+  const mdrTone = sig.mdrTop === "high" ? { color: "var(--red)", bg: "var(--red-soft)", line: "var(--red-line)" }
                 : sig.mdrTop === "med"  ? { color: "var(--amber)", bg: "var(--amber-soft)", line: "var(--amber-line)" }
                 : sig.mdrTop === "low"  ? { color: "var(--ink2)", bg: "var(--paper2)", line: "var(--line)" }
                 : null;
@@ -183,9 +183,9 @@ function RouteBadge({ route }) {
 function severityStyle(sev) {
   if(sev === "stop") return {
     Icon: XCircle,
-    color: "#b91c1c",
-    bg: "rgba(185, 28, 28, 0.08)",
-    line: "rgba(185, 28, 28, 0.25)",
+    color: "var(--red)",
+    bg: "var(--red-soft)",
+    line: "var(--red-line)",
   };
   if(sev === "warn") return {
     Icon: AlertTriangle,
@@ -416,7 +416,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
         <div
           id={`allergy-warn-${synId}-${option.text.slice(0,20).replace(/\W+/g,"-")}`}
           style={{
-            background:"#b91c1c", color:"#fff",
+            background:"var(--red)", color:"#fff",
             margin:"-11px -12px 8px",
             padding:"4px 10px",
             borderRadius:"10px 10px 0 0",

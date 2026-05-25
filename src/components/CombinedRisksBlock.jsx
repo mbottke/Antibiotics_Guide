@@ -20,38 +20,10 @@ import React from "react";
 import { AlertTriangle, Link2, ShieldAlert, Info } from "lucide-react";
 import { Section } from "./Section.jsx";
 import { detectCombinedRisks } from "../data/combinedRisks.js";
+import { parseBold, RichText } from "./util/richText.jsx";
 
 /* Shared bold-callout parser — same shape used in DurationBlock /
    MonitoringBlock / RegimenOptions. */
-function parseBold(text) {
-  if(!text) return [];
-  const parts = [];
-  const re = /\*\*([^*]+)\*\*/g;
-  let last = 0, m;
-  while((m = re.exec(text)) !== null) {
-    if(m.index > last) parts.push({ text: text.slice(last, m.index), bold: false });
-    parts.push({ text: m[1], bold: true });
-    last = m.index + m[0].length;
-  }
-  if(last < text.length) parts.push({ text: text.slice(last), bold: false });
-  return parts;
-}
-function RichText({ text, accentColor, accentBg }) {
-  return (
-    <>
-      {parseBold(text).map((p, i) => p.bold ? (
-        <span key={i} style={{
-          fontWeight: 700,
-          color: accentColor,
-          background: accentBg || "transparent",
-          padding: accentBg ? "0 3px" : 0,
-          borderRadius: accentBg ? 3 : 0,
-        }}>{p.text}</span>
-      ) : <span key={i}>{p.text}</span>)}
-    </>
-  );
-}
-
 /* Severity → visual style. Mirrors the watchOut palette from
    RegimenOptions / MonitoringBlock so the whole app speaks one
    severity vocabulary. */

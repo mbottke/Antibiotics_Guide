@@ -12,30 +12,7 @@
 import React from "react";
 import { Baby, CheckCircle2, AlertTriangle, XCircle, Heart } from "lucide-react";
 import { Section } from "./Section.jsx";
-
-function parseBold(text) {
-  if(!text) return [];
-  const parts = [];
-  const re = /\*\*([^*]+)\*\*/g;
-  let last = 0, m;
-  while((m = re.exec(text)) !== null) {
-    if(m.index > last) parts.push({ text: text.slice(last, m.index), bold: false });
-    parts.push({ text: m[1], bold: true });
-    last = m.index + m[0].length;
-  }
-  if(last < text.length) parts.push({ text: text.slice(last), bold: false });
-  return parts;
-}
-
-function RichText({ text, accentColor }) {
-  return (
-    <>
-      {parseBold(text).map((p, i) => p.bold ? (
-        <span key={i} style={{ fontWeight: 700, color: accentColor }}>{p.text}</span>
-      ) : <span key={i}>{p.text}</span>)}
-    </>
-  );
-}
+import { RichText } from "./util/richText.jsx";
 
 function pregSafetyStyle(s) {
   if(s === "yes") return {

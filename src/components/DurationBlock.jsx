@@ -24,38 +24,10 @@ import React from "react";
 import { Clock, Check, AlertTriangle, ArrowUpRight, Calendar } from "lucide-react";
 import { Section } from "./Section.jsx";
 import { matchesCtx } from "../engines/ctxMatch.js";
+import { parseBold, RichText } from "./util/richText.jsx";
 
 /* Bold-callout parser. Same as RegimenOptions — splits a string on
    **…** segments and returns chunks the renderer can accent. */
-function parseBold(text) {
-  if(!text) return [];
-  const parts = [];
-  const re = /\*\*([^*]+)\*\*/g;
-  let last = 0, m;
-  while((m = re.exec(text)) !== null) {
-    if(m.index > last) parts.push({ text: text.slice(last, m.index), bold: false });
-    parts.push({ text: m[1], bold: true });
-    last = m.index + m[0].length;
-  }
-  if(last < text.length) parts.push({ text: text.slice(last), bold: false });
-  return parts;
-}
-
-function RichText({ text, accentColor, accentBg }) {
-  return (
-    <>
-      {parseBold(text).map((p, i) => p.bold ? (
-        <span key={i} style={{
-          fontWeight: 700,
-          color: accentColor,
-          background: accentBg || "transparent",
-          padding: accentBg ? "0 3px" : 0,
-          borderRadius: accentBg ? 3 : 0,
-        }}>{p.text}</span>
-      ) : <span key={i}>{p.text}</span>)}
-    </>
-  );
-}
 
 function SubLabel({ icon: Icon, text, color = "var(--ink2)" }) {
   return (
