@@ -34,8 +34,8 @@ export const TRANCHE_E_DIAGNOSTICS = {
   "tubo-ovarian": {
     cultures: [
       { sev: "required",
-        what: "Endocervical NAAT for **N. gonorrhoeae** and **C. trachomatis**; HIV and syphilis serology at presentation.",
-        why:  "Drives partner-notification and confirms PID etiology; co-infection rates exceed 20% in young patients." },
+        what: "Endocervical NAAT for **N. gonorrhoeae**, **C. trachomatis**, and **M. genitalium**; HIV and syphilis serology at presentation.",
+        why:  "TOA is the severe end of the PID spectrum — same STI panel as PID; partner-notification and resistance-guided therapy follow." },
       { sev: "required",
         what: "Two sets of peripheral blood cultures before antibiotics in febrile or septic patients.",
         why:  "Bacteremia identifies anaerobic, GNR, or streptococcal pathogens that change empiric coverage." },
