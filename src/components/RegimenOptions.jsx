@@ -30,6 +30,128 @@ import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { lookupOptionContent } from "../data/regimenContent.js";
 import { doseAdjustments } from "../engines/dosing.js";
 import { matchesCtx } from "../engines/ctxMatch.js";
+import { AGENT_RX, DRUG_ALIASES, FORMULARY } from "../data/drugs.js";
+
+/* Wave 5 PR-10 — microbiome collateral-damage signals.
+   FORMULARY lookup keyed by canonical FORMULARY name; AGENT_RX is the
+   same regex registry used by the case parser and refine engine, so
+   "ceftriaxone" / "ceftriaxone or cefotaxime" / "zosyn" all resolve
+   identically here.
+
+   Codex review fix (PR #108): several AGENT_RX canons (e.g.
+   "Linezolid / tedizolid", "Amoxicillin-clavulanate") are not
+   FORMULARY drug names. DRUG_ALIASES maps FORMULARY → SPX-style
+   alias; we reverse it to look up FORMULARY records by either spelling. */
+const _DRUG_BY_NAME = (() => {
+  const m = {};
+  FORMULARY.forEach(c => c.drugs.forEach(d => { m[d.name] = d; }));
+  return m;
+})();
+/* Reverse alias map: alias-name → canonical FORMULARY name. Built once.
+   Used as the second fallback when an AGENT_RX canon (e.g.
+   "Linezolid / tedizolid") doesn't directly index FORMULARY. */
+const _ALIAS_TO_FORMULARY = (() => {
+  const m = {};
+  Object.keys(DRUG_ALIASES).forEach((k) => { m[DRUG_ALIASES[k]] = k; });
+  return m;
+})();
+/* Match AGENT_RX hits against the regex variants on each FORMULARY drug.
+   Slower fallback that walks the regex set if neither direct nor alias
+   lookup hits — guarantees no silent drops as long as the canon was
+   matched in the source text. */
+function _resolveDrug(canon) {
+  if(_DRUG_BY_NAME[canon]) return _DRUG_BY_NAME[canon];
+  const aliased = _ALIAS_TO_FORMULARY[canon];
+  if(aliased && _DRUG_BY_NAME[aliased]) return _DRUG_BY_NAME[aliased];
+  const direct = AGENT_RX.find(a => a.canon === canon);
+  if(direct) {
+    const hit = FORMULARY.find(c => c.drugs.find(d => direct.rx.test(d.name)));
+    if(hit) return hit.drugs.find(d => direct.rx.test(d.name));
+  }
+  return null;
+}
+
+function _extractMicrobiomeSignals(optionText) {
+  if(typeof optionText !== "string" || !optionText) return null;
+  const hits = new Set();
+  AGENT_RX.forEach(({ rx, canon }) => { if(rx.test(optionText)) hits.add(canon); });
+  if(hits.size === 0) return null;
+  let cdiffMax = 0, cdiffSum = 0, scored = 0;
+  const mdrCount = { low: 0, med: 0, high: 0 };
+  let mdrUnknown = 0;
+  for(const name of hits) {
+    const d = _resolveDrug(name);
+    if(!d) { mdrUnknown++; continue; }
+    if(typeof d.cdiffScore === "number") {
+      cdiffSum += d.cdiffScore;
+      if(d.cdiffScore > cdiffMax) cdiffMax = d.cdiffScore;
+      scored++;
+    }
+    if(d.mdrPressure && Object.prototype.hasOwnProperty.call(mdrCount, d.mdrPressure)) {
+      mdrCount[d.mdrPressure]++;
+    } else {
+      mdrUnknown++;
+    }
+  }
+  if(scored === 0 && Object.values(mdrCount).every(v => v === 0)) return null;
+  return {
+    cdiffMax,
+    cdiffAvg: scored ? cdiffSum / scored : 0,
+    mdrTop: mdrCount.high > 0 ? "high" : mdrCount.med > 0 ? "med" : mdrCount.low > 0 ? "low" : null,
+  };
+}
+
+function MicrobiomeChips({ optionText }) {
+  const sig = _extractMicrobiomeSignals(optionText);
+  if(!sig) return null;
+
+  const cdiffTone = sig.cdiffMax >= 5 ? { color: "#b91c1c", bg: "rgba(185,28,28,0.10)", line: "rgba(185,28,28,0.30)" }
+                  : sig.cdiffMax >= 4 ? { color: "var(--amber)", bg: "var(--amber-soft)", line: "var(--amber-line)" }
+                  : sig.cdiffMax >= 1 ? { color: "var(--ink2)", bg: "var(--paper2)", line: "var(--line)" }
+                  : null;
+
+  const mdrTone = sig.mdrTop === "high" ? { color: "#b91c1c", bg: "rgba(185,28,28,0.10)", line: "rgba(185,28,28,0.30)" }
+                : sig.mdrTop === "med"  ? { color: "var(--amber)", bg: "var(--amber-soft)", line: "var(--amber-line)" }
+                : sig.mdrTop === "low"  ? { color: "var(--ink2)", bg: "var(--paper2)", line: "var(--line)" }
+                : null;
+
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
+      {cdiffTone && (
+        <span
+          title={`C. difficile risk score (1 = lowest, 5 = highest). Regimen worst: ${sig.cdiffMax}.`}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 3,
+            fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700,
+            letterSpacing: ".06em", textTransform: "uppercase",
+            color: cdiffTone.color, background: cdiffTone.bg,
+            border: "1px solid " + cdiffTone.line,
+            padding: "1px 6px", borderRadius: 4,
+            whiteSpace: "nowrap",
+          }}
+        >
+          C.diff {sig.cdiffMax}
+        </span>
+      )}
+      {mdrTone && (
+        <span
+          title={`MDR-selection pressure on gut microbiome. Regimen worst: ${sig.mdrTop}.`}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 3,
+            fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700,
+            letterSpacing: ".06em", textTransform: "uppercase",
+            color: mdrTone.color, background: mdrTone.bg,
+            border: "1px solid " + mdrTone.line,
+            padding: "1px 6px", borderRadius: 4,
+            whiteSpace: "nowrap",
+          }}
+        >
+          MDR {sig.mdrTop}
+        </span>
+      )}
+    </span>
+  );
+}
 
 /* Bold-callout parser. Splits a string on **…** segments and returns
    an array of { text, bold } chunks. The renderer wraps bold chunks
@@ -359,6 +481,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
               whiteSpace:"nowrap",
             }}>Recommended</span>
           )}
+          <MicrobiomeChips optionText={option.text} />
         </div>
         {selected && (
           <span style={{
@@ -421,6 +544,41 @@ function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx
 
   const contentFor = (text) => lookupOptionContent(synId, tierLabel, text);
 
+  /* Wave 5 PR-10 — opt-in microbiome sort toggle. Default OFF (preserves
+     e2e screenshot baselines + clinical autonomy: clinicians pick
+     regimen by efficacy first, microbiome impact second). When ON,
+     options re-rank by ascending cdiffMax. The recommendation badge
+     stays on whichever option was previously recommended — we sort
+     the cards, not the recommendation. The choice persists per session
+     via localStorage so a site-level preference survives refresh. */
+  const [sortByCollateral, setSortByCollateral] = useState(() => {
+    try {
+      if(typeof window === "undefined") return false;
+      const v = window.localStorage?.getItem("ab_microbiome_sort_default");
+      return v === "1" || v === "true";
+    } catch(e) { return false; }
+  });
+
+  const sortByCollateralPersist = (val) => {
+    setSortByCollateral(val);
+    try {
+      if(typeof window === "undefined") return;
+      window.localStorage?.setItem("ab_microbiome_sort_default", val ? "1" : "0");
+    } catch(e) { /* private-mode storage failure — UI still works */ }
+  };
+
+  const orderedOptions = useMemo(() => {
+    if(!sortByCollateral) return options.map((o, i) => ({ option: o, originalIndex: i }));
+    return options
+      .map((o, i) => ({ option: o, originalIndex: i, sig: _extractMicrobiomeSignals(o.text) }))
+      .sort((a, b) => {
+        const ax = a.sig ? a.sig.cdiffMax : 99;
+        const bx = b.sig ? b.sig.cdiffMax : 99;
+        if(ax !== bx) return ax - bx;
+        return a.originalIndex - b.originalIndex;
+      });
+  }, [options, sortByCollateral]);
+
   if(options.length === 0) return null;
 
   // 1 option → single card; 2 → side-by-side; 3+ → auto-fit grid.
@@ -433,29 +591,54 @@ function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx
              :                        "repeat(auto-fit, minmax(220px, 1fr))";
 
   return (
-    <div
-      role={options.length > 1 ? "radiogroup" : undefined}
-      aria-label={options.length > 1 ? "Regimen options" : undefined}
-      data-testid="regimen-options"
-      style={{
-        display:"grid",
-        gap:11,
-        gridTemplateColumns: cols,
-        marginTop: 4,
-      }}>
-      {options.map((opt, i) => (
-        <OptionCard key={i}
-          option={opt}
-          selected={i === pickedIdx}
-          primary={options.length > 1 && i === recommendedIdx}
-          accent={accent}
-          onSelect={() => userPicked(i)}
-          renderText={renderText}
-          content={contentFor(opt.text)}
-          ctx={ctx}
-          d={d}
-          synId={synId} />
-      ))}
+    <div data-testid="regimen-options-wrapper">
+      {options.length > 1 && (
+        <div style={{
+          display: "flex", justifyContent: "flex-end", alignItems: "center",
+          gap: 8, marginBottom: 8,
+        }}>
+          <label style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            fontFamily: "var(--mono)", fontSize: 9.5, fontWeight: 600,
+            color: "var(--ink2)", letterSpacing: ".05em",
+            textTransform: "uppercase", cursor: "pointer",
+            userSelect: "none",
+          }}>
+            <input
+              type="checkbox"
+              checked={sortByCollateral}
+              onChange={(e) => sortByCollateralPersist(e.target.checked)}
+              aria-label="Rank by collateral damage (C. difficile + MDR pressure)"
+              style={{ accentColor: "var(--ox)" }}
+            />
+            Rank by collateral damage
+          </label>
+        </div>
+      )}
+      <div
+        role={options.length > 1 ? "radiogroup" : undefined}
+        aria-label={options.length > 1 ? "Regimen options" : undefined}
+        data-testid="regimen-options"
+        style={{
+          display:"grid",
+          gap:11,
+          gridTemplateColumns: cols,
+          marginTop: 4,
+        }}>
+        {orderedOptions.map(({ option: opt, originalIndex }, displayIdx) => (
+          <OptionCard key={originalIndex}
+            option={opt}
+            selected={originalIndex === pickedIdx}
+            primary={options.length > 1 && originalIndex === recommendedIdx}
+            accent={accent}
+            onSelect={() => userPicked(originalIndex)}
+            renderText={renderText}
+            content={contentFor(opt.text)}
+            ctx={ctx}
+            d={d}
+            synId={synId} />
+        ))}
+      </div>
     </div>
   );
 }
