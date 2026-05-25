@@ -1308,3 +1308,88 @@ describe("content-audit · diagnostics.js entries (Wave 5 PR-6)", () => {
     expect(covered).toBeGreaterThanOrEqual(1);   // floor; raised as PR-6 tranches land
   });
 });
+
+/* ============================================================
+   Wave 5 R3 · audit-gate strengthening — typo-resistance probes
+   that catch silent failures the prior shape audits missed.
+   ============================================================ */
+
+describe("content-audit · matchAgent regex round-trip (Wave 5 R3)", () => {
+  /* Every monitoring item with a matchAgent regex must match at least
+     one canonical drug name in the recognized agent vocabulary:
+       FORMULARY        — the primary antibacterial formulary
+       KNOWN_ADJUNCTS   — known non-formulary mentions (rifampin
+                          adjunct, antifungals, antivirals) that
+                          appear in regimen content but not in
+                          FORMULARY's drug rows.
+     A typo (e.g. /Daptp/i) silently never elevates the monitoring
+     item — invisible to the user and to CI. This probe catches it.
+
+     Items whose matchAgent intentionally matches non-recognized text
+     opt out with `_matchAgentLoose: true`. */
+  const KNOWN_ADJUNCTS = [
+    "Rifampin", "Rifampin (adjunct)",
+    "Voriconazole", "Isavuconazole",
+    "Caspofungin", "Micafungin", "Anidulafungin",
+    "Amphotericin B", "Liposomal amphotericin",
+    "Fluconazole", "Posaconazole",
+    "Acyclovir", "Ganciclovir", "Valganciclovir",
+  ];
+  const allDrugNames = [
+    ...FORMULARY.flatMap(c => c.drugs.map(d => d.name)),
+    ...KNOWN_ADJUNCTS,
+  ];
+
+  for(const synId of Object.keys(SYNDROME_DECISION)) {
+    const entry = SYNDROME_DECISION[synId];
+    const items = entry.monitoring?.items;
+    if(!Array.isArray(items)) continue;
+    for(let i = 0; i < items.length; i++) {
+      const it = items[i];
+      if(!it.matchAgent) continue;
+      if(it._matchAgentLoose === true) continue;
+      test(`[${synId} | monitoring[${i}]] matchAgent matches a known drug name`, () => {
+        const hit = allDrugNames.some(name => it.matchAgent.test(name));
+        expect(hit, `monitoring item "${it.what}" matchAgent ${it.matchAgent} matches no recognized drug (silently dead — add to KNOWN_ADJUNCTS or set _matchAgentLoose: true if intentional)`)
+          .toBe(true);
+      });
+    }
+  }
+});
+
+describe("content-audit · FORMULARY pkpd.target regex sanity (Wave 5 R3)", () => {
+  /* PR-4 added FORMULARY.pkpd.target as a free-form string. Without a
+     content gate any unitless target ("fT > MIC 50") would slip past.
+     Require any populated target to mention at least one of the
+     standard PK/PD anchor terms. */
+  const anchors = /\b(MIC|AUC|Cmax|fT|%T|target attainment)\b/;
+  const allDrugs = FORMULARY.flatMap(c => c.drugs.map(d => d));
+  for(const d of allDrugs) {
+    if(!d.pkpd || typeof d.pkpd.target !== "string") continue;
+    test(`[${d.name}].pkpd.target mentions a PK/PD anchor (MIC/AUC/Cmax/fT/%T)`, () => {
+      expect(anchors.test(d.pkpd.target),
+        `"${d.pkpd.target}" omits the anchor term that gives the value meaning`)
+        .toBe(true);
+    });
+  }
+});
+
+describe("content-audit · FORMULARY timeToEffect bounds (Wave 5 R3)", () => {
+  /* timeToEffect format `<lo>(–<hi>)? (h|d)`. Bound the value to
+     0.5–14 d so a misauthored "1 h" for vancomycin (would-be silent)
+     trips. The regex side validates the format; the numeric clamp
+     catches semantic miscoding. */
+  const fmt = /^(\d+(?:\.\d+)?)(?:–(\d+(?:\.\d+)?))?\s*(h|d)$/;
+  const allDrugs = FORMULARY.flatMap(c => c.drugs.map(d => d));
+  for(const d of allDrugs) {
+    if(!d.timeToEffect) continue;
+    test(`[${d.name}].timeToEffect format + bounds`, () => {
+      const m = fmt.exec(d.timeToEffect);
+      expect(m, `"${d.timeToEffect}" must match <lo>(–<hi>)? (h|d)`).toBeTruthy();
+      const hi = Number(m[2] ?? m[1]);
+      const unitH = m[3] === "h" ? hi : hi * 24;
+      expect(unitH, `"${d.timeToEffect}" out of bounds 0.5–14 d`).toBeGreaterThanOrEqual(0.5);
+      expect(unitH, `"${d.timeToEffect}" out of bounds 0.5–14 d`).toBeLessThanOrEqual(14 * 24);
+    });
+  }
+});
