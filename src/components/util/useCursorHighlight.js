@@ -58,9 +58,16 @@ export function useCursorHighlight(ref, opts) {
   useEffect(() => {
     const el = ref && ref.current;
     if(!el) return undefined;
-    if(!enabled) return undefined;
-    if(_matches(REDUCED_MOTION_QUERY)) return undefined;
-    if(_matches(COARSE_POINTER_QUERY)) return undefined;
+    /* Reset --cursor-active on every disabled / preference-mismatch
+       early-exit. Without this, a card that was highlighted on the
+       last mousemove keeps its glow forever when the effect is
+       subsequently gated off (Codex P2 finding on #136). The mouse-
+       leave handler can't run because the listener was removed by
+       the prior effect cleanup. */
+    if(!enabled || _matches(REDUCED_MOTION_QUERY) || _matches(COARSE_POINTER_QUERY)) {
+      el.style.setProperty("--cursor-active", "0");
+      return undefined;
+    }
 
     const onMove = (e) => {
       // getBoundingClientRect is safe in jsdom (returns zeros) and in
@@ -83,6 +90,9 @@ export function useCursorHighlight(ref, opts) {
     return () => {
       el.removeEventListener("mousemove", onMove);
       el.removeEventListener("mouseleave", onLeave);
+      /* Reset active state on cleanup so a re-render that flips the
+         effect off doesn't leave the host inline-styled highlighted. */
+      el.style.setProperty("--cursor-active", "0");
     };
   }, [ref, enabled]);
 }
