@@ -199,8 +199,17 @@ function refineRegimen(texts, ctx, d){
    trail, the de-escalation plan, and the surrounding context (source
    control, evidence, target organisms, duration). Pure; safe to call every
    render; returns null when the syndrome is unknown or unset so the canvas
-   can show the "pick a presentation" empty state instead. */
-function composeAnswer(caseState){
+   can show the "pick a presentation" empty state instead.
+
+   Wave 5 PR-5a — optional `currentRegimen` parameter. When the caller
+   passes an array of agent canonical names (e.g. ["Cefepime",
+   "Vancomycin (IV)"]), the engine treats those as the empiric baseline
+   for de-escalation analysis and downstream patches; the assembled
+   `core`/`adds`/`refinement` still reflect the syndrome's modeled
+   regimen so the answer can show the contrast between "what's running"
+   and "what the protocol would prescribe." Omitting the argument
+   preserves the legacy behavior verbatim. */
+function composeAnswer(caseState, currentRegimen = null){
   if(!caseState || !caseState.syndrome) return null;
   const s = SYNDROMES.find(x => x.id === caseState.syndrome);
   if(!s) return null;
@@ -210,7 +219,10 @@ function composeAnswer(caseState){
   const { core, adds, others } = buildRegimen(s, ctx);
   const activeTexts = [core.rx, ...adds.map(a => a.rx)];
   const refinement = refineRegimen(activeTexts, ctx, d);
-  const empiricAgents = regimenAgents(activeTexts);
+  const derivedEmpiric = regimenAgents(activeTexts);
+  const empiricAgents = Array.isArray(currentRegimen) && currentRegimen.length
+    ? currentRegimen.slice()
+    : derivedEmpiric;
   const deesc = deescalationPlan(s, empiricAgents);
   return {
     syndrome: s,
@@ -230,6 +242,228 @@ function composeAnswer(caseState){
     sourceControl: SRC_CONTROL[s.id] || null,
     evidence: synEvidence(s),
   };
+}
+
+/* ============================================================================
+   refineOnNewFinding — the snapshot-refine engine. Pure function that
+   takes (currentRegimen, newFinding, syndrome, ctx) and returns a
+   structured patch the AnswerCanvas can merge into the rendered answer
+   without persisting anything to caseState.
+
+   The patch shape:
+     {
+       steps:         [{ type, agent, replacement?, sev, reason, cite? }, ...]
+                      — refinement steps to APPEND to the canvas's existing
+                      refinement list. Same shape as refineRegimen's steps.
+       replaceLayers: { duration?, monitoring? }
+                      — when present, the AnswerCanvas swaps the named
+                      layer's data for this version. e.g. source-controlled
+                      finding replaces duration with the BALANCE 7-day band.
+       addLayers:     [{ id, group, title, body }, ...]
+                      — ephemeral layers the canvas renders ABOVE the
+                      registry order, surfacing the finding itself.
+       dropLayers:    [layerId, ...]
+                      — registry layer ids the canvas should hide.
+                      (Empty in PR-5a; reserved for future findings that
+                      obviate an existing layer.)
+     }
+
+   The finding-kind vocabulary covers the five most common course events:
+     · culture        — { kind:"culture", organism: <orgId>, susceptibility? }
+     · resistance     — { kind:"resistance", organism?, mechanism: <esbl|kpc|mbl|mrsa-vri|vre> }
+     · allergy        — { kind:"allergy", reaction: <anaphylaxis|sjs|rash>, agent? }
+     · source-controlled — { kind:"source-controlled" }
+     · deterioration  — { kind:"deterioration", severity: <shock|failing> }
+
+   Unknown kinds yield an empty patch ({ steps:[], replaceLayers:{},
+   addLayers:[], dropLayers:[] }) — the canvas re-renders unchanged.
+   The contract is snapshot-only: nothing persists to caseState, nothing
+   writes to the URL hash, nothing saves to localStorage. The patch
+   lives in component-local state and is dropped on tab close. */
+function refineOnNewFinding(currentRegimen, newFinding, syndrome, ctx){
+  const empty = { steps: [], replaceLayers: {}, addLayers: [], dropLayers: [] };
+  if(!Array.isArray(currentRegimen) || !newFinding || !newFinding.kind) return empty;
+  const regimen = currentRegimen.slice();
+  const steps = [];
+  const replaceLayers = {};
+  const addLayers = [];
+  const dropLayers = [];
+
+  if(newFinding.kind === "culture" && newFinding.organism){
+    const lk = orgLookup(newFinding.organism);
+    if(lk){
+      const directed = (lk.directed || []).find(d => d && d.first);
+      const directedAgent = directed ? directed.first : null;
+      const uncovered = regimen.filter(n => !drugCoversOrg(n, newFinding.organism));
+      uncovered.forEach(a => steps.push({
+        type: "eliminate",
+        agent: a,
+        sev: "high",
+        reason: `${a} does not reliably cover ${lk.label} — substitute when susceptibility data permit.`,
+        cite: "amrgn",
+      }));
+      if(directedAgent){
+        steps.push({
+          type: "substitute",
+          agent: "directed therapy",
+          replacement: directedAgent,
+          sev: "high",
+          reason: `${lk.label} confirmed in culture — narrow to ${directedAgent} per directed-therapy guidance.`,
+          cite: "amrgn",
+        });
+      }
+      addLayers.push({
+        id: "ans-finding-culture",
+        group: "core",
+        title: `Culture: ${lk.label}`,
+        body: directedAgent
+          ? `New finding — ${lk.label} grew in culture. Directed therapy: ${directedAgent}.`
+          : `New finding — ${lk.label} grew in culture. Narrow per susceptibility.`,
+      });
+    }
+  }
+
+  else if(newFinding.kind === "resistance" && newFinding.mechanism){
+    const has = (n) => regimen.includes(n);
+    const mech = newFinding.mechanism;
+    if(mech === "esbl" && !has("Meropenem") && !has("Ertapenem")){
+      steps.push({
+        type: "substitute",
+        agent: "β-lactam Gram-negative cover",
+        replacement: "Meropenem",
+        sev: "high",
+        reason: "ESBL confirmed — pip-tazo / cefepime unreliable at inoculum (MERINO 2018); switch to carbapenem.",
+        cite: "merino",
+      });
+      addLayers.push({
+        id: "ans-finding-resistance",
+        group: "risks",
+        title: "ESBL detected",
+        body: "Switch to a carbapenem (meropenem first-line; ertapenem acceptable for non-Pseudomonas sources). MERINO 2018 showed pip-tazo inferior in ESBL BSI even at MIC ≤ 16.",
+      });
+    } else if(mech === "kpc"){
+      steps.push({
+        type: "substitute",
+        agent: "carbapenem",
+        replacement: "Ceftazidime-avibactam OR meropenem-vaborbactam",
+        sev: "high",
+        reason: "KPC-CRE confirmed — novel β-lactam required; carbapenem monotherapy inadequate.",
+        cite: "amrgn",
+      });
+      addLayers.push({
+        id: "ans-finding-resistance",
+        group: "risks",
+        title: "KPC-CRE detected",
+        body: "Novel β-lactam first-line per IDSA AMR-GN 2024. ID consult mandatory; aztreonam pairing required if MBL co-resistance suspected.",
+      });
+    } else if(mech === "mbl"){
+      steps.push({
+        type: "substitute",
+        agent: "carbapenem / cephalosporin",
+        replacement: "Cefiderocol OR aztreonam + ceftazidime-avibactam",
+        sev: "high",
+        reason: "MBL (NDM/VIM/IMP) inactivates all β-lactams except cefiderocol and the aztreonam + ceftaz-avi combination.",
+        cite: "amrgn",
+      });
+      addLayers.push({
+        id: "ans-finding-resistance",
+        group: "risks",
+        title: "MBL-CRE detected",
+        body: "Cefiderocol or aztreonam + ceftaz-avi (combination provides cross-coverage). ID + pharmacy partnership mandatory.",
+      });
+    } else if(mech === "mrsa-vri"){
+      if(has("Vancomycin (IV)")){
+        steps.push({
+          type: "substitute",
+          agent: "Vancomycin (IV)",
+          replacement: "Daptomycin OR ceftaroline",
+          sev: "high",
+          reason: "Vancomycin-intermediate or persistent MRSA — switch to daptomycin (8–10 mg/kg) or salvage with ceftaroline; ID consult.",
+          cite: "amrgn",
+        });
+      }
+      addLayers.push({
+        id: "ans-finding-resistance",
+        group: "risks",
+        title: "MRSA with elevated vanco MIC",
+        body: "Vancomycin MIC ≥ 2 mg/L or persistent bacteremia → switch agent. Daptomycin first-line for non-pulmonary; ceftaroline salvage; combination therapy for endocarditis / persistent BSI.",
+      });
+    }
+  }
+
+  else if(newFinding.kind === "allergy" && newFinding.reaction){
+    const r = newFinding.reaction;
+    const agent = newFinding.agent || "current agent";
+    if(r === "anaphylaxis" || r === "sjs"){
+      steps.push({
+        type: "eliminate",
+        agent,
+        sev: "high",
+        reason: `Severe reaction (${r}) — discontinue immediately. Substitute to a non-cross-reacting class; consider aztreonam for Gram-negative needs.`,
+        cite: "mono",
+      });
+      addLayers.push({
+        id: "ans-finding-allergy",
+        group: "risks",
+        title: `Severe reaction: ${r}`,
+        body: `Discontinue ${agent}. Severe penicillin allergy retains ~1% cross-reactivity with cephalosporins (lower with cefazolin/ceftriaxone vs cefepime); aztreonam is the safe Gram-negative anchor. Document the reaction explicitly.`,
+      });
+    } else if(r === "rash"){
+      steps.push({
+        type: "flag",
+        agent,
+        sev: "med",
+        reason: `Rash on ${agent} — assess severity. Mild morbilliform may continue with daily review; pruritic, spreading, or mucosal involvement → discontinue and substitute.`,
+      });
+    }
+  }
+
+  else if(newFinding.kind === "source-controlled"){
+    replaceLayers.duration = {
+      headline: "Source controlled → enter the BALANCE 7-day band; reassess for stop.",
+      evidence: "BALANCE 2024 — 7-day non-inferior to 14-day in source-controlled GNR bacteremia.",
+      branches: [
+        { label: "Source controlled, stable bacteremia", days: "7 d",
+          detail: "Count from first negative BCx; AND-joined stop criteria (afebrile, BCx neg, off pressors)." },
+      ],
+      stopWhen: [
+        "Afebrile ≥ 48 h",
+        "BCx negative ≥ 48 h",
+        "Off vasopressors; lactate normalized",
+        "Minimum 7 d from first negative BCx if bacteremic",
+      ],
+      extendIf: [],
+    };
+    addLayers.push({
+      id: "ans-finding-source-controlled",
+      group: "duration",
+      title: "Source control achieved",
+      body: "Re-enter the BALANCE 7-day band. Daily review against the AND-joined stop criteria; stop on the earlier of (a) all criteria met + minimum 7 d, or (b) day 14.",
+    });
+  }
+
+  else if(newFinding.kind === "deterioration"){
+    const sev = newFinding.severity || "failing";
+    steps.push({
+      type: "flag",
+      agent: "regimen",
+      sev: "high",
+      reason: sev === "shock"
+        ? "Deterioration to shock — broaden empiric coverage (add MRSA / Pseudomonas / anaerobic per source), re-image for missed focus, ID consult."
+        : "Clinical failure on current regimen — reassess source control (imaging, drainage, line removal), confirm susceptibility, broaden empirically if not already maximal, ID consult.",
+      cite: "ssc",
+    });
+    addLayers.push({
+      id: "ans-finding-deterioration",
+      group: "risks",
+      title: sev === "shock" ? "Deterioration to shock" : "Clinical failure",
+      body: sev === "shock"
+        ? "Surviving Sepsis 2021 — broaden empiric within Hour-1, repeat lactate q2-4h until normalized, imaging for missed focus. The wrong drug at the right time is the most common cause of failure."
+        : "Failure-to-improve checklist: (1) source control — imaging, drainage, hardware; (2) susceptibility — culture data, MIC, mechanism; (3) penetration — site-appropriate agent at adequate dose; (4) host — immune state, deep-seated focus, endocarditis.",
+    });
+  }
+
+  return { steps, replaceLayers, addLayers, dropLayers };
 }
 
 /* ============================================================================
@@ -336,4 +570,4 @@ function applyReassessment(empiric, caseState){
   return out;
 }
 
-export { buildRegimen, regimenAgents, refineAgents, refineOptionGroups, refineRegimen, deescalationPlan, composeAnswer, applyReassessment, _extractDurationDays };
+export { buildRegimen, regimenAgents, refineAgents, refineOptionGroups, refineRegimen, deescalationPlan, composeAnswer, refineOnNewFinding, applyReassessment, _extractDurationDays };
