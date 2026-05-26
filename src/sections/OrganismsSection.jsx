@@ -207,7 +207,7 @@ function W8SubHead({ kicker, title, lede, icon, id, important = false }) {
         letterSpacing: "-0.018em", margin: 0, fontWeight: 700,
         color: "var(--ink)", display: "flex", alignItems: "center", gap: 12,
       }}>
-        {icon && <span style={{ color: CYAN_BRIGHT, display: "inline-flex" }}>{icon}</span>}
+        {icon && <span style={{ color: "var(--ox)", display: "inline-flex" }}>{icon}</span>}
         {title}
         {important && <Sparkle size={13} color={CYAN_BRIGHT} style={{ marginLeft: 6, opacity: 0.95 }} />}
       </h3>
@@ -265,7 +265,7 @@ function W8TaxonomicRail({ counts, activeId, onSelect, totalOrgs }) {
         color: "var(--ink2)", lineHeight: 1.35, marginBottom: 8,
       }}>
         <span className="rx-mixed-pair">
-          <span className="rx-pair-bold" style={{ color: CYAN_BRIGHT, fontFamily: "var(--mono)", fontSize: 22 }}>{totalOrgs}</span>
+          <span className="rx-pair-bold" style={{ color: "var(--ox)", fontFamily: "var(--mono)", fontSize: 22 }}>{totalOrgs}</span>
           <span className="rx-pair-light">organisms · {SUPERGROUPS.length} groups</span>
         </span>
       </div>
@@ -458,7 +458,7 @@ function W8DirectedCard({ org, supergroup, openDrug, highlight, anchorId, delay,
         }} />
         <div style={{
           fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.24em",
-          textTransform: "uppercase", color: CYAN_BRIGHT, marginBottom: 4,
+          textTransform: "uppercase", color: "var(--ox)", marginBottom: 4,
           display: "inline-flex", alignItems: "center", gap: 6,
         }}>
           <span className="rx-light-ring-cyan" aria-hidden="true" />

@@ -113,9 +113,9 @@ function OutpatientShell({ onSwitchInpatient }) {
           marginBottom: 14,
           display: "inline-flex", alignItems: "center", gap: 6,
         }}>
-          <Stethoscope size={11} aria-hidden style={{ verticalAlign:"-1px", marginRight:5, color:"var(--electric-lime, var(--ox))" }}/>
+          <Stethoscope size={11} aria-hidden style={{ verticalAlign:"-1px", marginRight:5, color:"var(--ox)" }}/>
           Outpatient surface · planned
-          <Sparkle size={10} color="var(--electric-lime, var(--ox))" />
+          <Sparkle size={10} color="var(--ox)" />
         </div>
 
         {/* W11 · 96px italic-serif headline. The big editorial mark
@@ -174,7 +174,7 @@ function OutpatientShell({ onSwitchInpatient }) {
           borderRadius: "10px 3px 10px 3px",
           fontSize: 13, color:"var(--ink2)", lineHeight: 1.55,
         }}>
-          <Hospital size={13} aria-hidden style={{ verticalAlign:"-2px", marginRight:6, color:"var(--neon-cyan, var(--ox))" }}/>
+          <Hospital size={13} aria-hidden style={{ verticalAlign:"-2px", marginRight:6, color:"var(--ox)" }}/>
           For now the Inpatient surface is the functional tool. Switch back using the bar
           above, or with the button below.
         </div>

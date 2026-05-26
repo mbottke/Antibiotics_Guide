@@ -75,7 +75,7 @@ function Cite({ id, onClick }) {
           fontFamily: "var(--serif)",
           fontStyle: "italic",
           fontVariantNumeric: "tabular-nums",
-          color: "var(--neon-cyan, var(--ox-bright, var(--ox)))",
+          color: "var(--ox)",
           marginLeft: 4,
         }}>{"\u2019" + String(g.year).slice(2)}</span>
       )}

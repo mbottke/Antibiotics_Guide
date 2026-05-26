@@ -37,36 +37,41 @@ const NOTCH = 12;
 const CLIP_PATH = `polygon(${NOTCH}px 0, 100% 0, 100% calc(100% - ${NOTCH}px), calc(100% - ${NOTCH}px) 100%, 0 100%, 0 ${NOTCH}px)`;
 
 const VARIANT = {
+  // W12 a11y · banner TEXT (`color`) must clear 4.5:1 on the pale tinted
+  // bg, so the readable label uses the darker semantic counterpart
+  // (red / amber / ox / stable-sage). The neon hue continues to drive
+  // the tile gradient + outer glow (decorative roles), which is where
+  // the look-here pop actually lives.
   required: {
-    color: "var(--vivid-red, var(--red, #d33))",
+    color: "var(--red, #d33)",
     bg:    "var(--red-soft, rgba(211, 51, 51, 0.08))",
     line:  "var(--red-line, rgba(211, 51, 51, 0.32))",
     glow:  "0 0 0 1px rgba(211, 51, 51, 0.18), 0 6px 18px -8px rgba(211, 51, 51, 0.45)",
     tileGradient: "linear-gradient(135deg, var(--vivid-red, #d33), var(--red, #d33))",
   },
   trigger: {
-    color: "var(--neon-amber, var(--amber, #c89))",
+    color: "var(--amber, #c89)",
     bg:    "var(--amber-soft, rgba(200, 137, 51, 0.08))",
     line:  "var(--amber-line, rgba(200, 137, 51, 0.32))",
     glow:  "0 0 0 1px rgba(200, 137, 51, 0.18), 0 6px 18px -8px rgba(200, 137, 51, 0.45)",
     tileGradient: "linear-gradient(135deg, var(--neon-amber, #f3a83a), var(--amber, #c89))",
   },
   consider: {
-    color: "var(--electric-blue, var(--ox, #0F4C81))",
+    color: "var(--ox, #0F4C81)",
     bg:    "var(--blue-soft, rgba(15, 76, 129, 0.08))",
     line:  "var(--blue-line, rgba(15, 76, 129, 0.32))",
     glow:  "0 0 0 1px rgba(15, 76, 129, 0.16), 0 6px 18px -8px rgba(15, 76, 129, 0.4)",
     tileGradient: "linear-gradient(135deg, var(--electric-blue, #2D7EF7), var(--ox, #0F4C81))",
   },
   stable: {
-    color: "var(--electric-lime, var(--green, #2c7a4a))",
+    color: "var(--stable-sage, var(--green, #2c7a4a))",
     bg:    "var(--green-soft, rgba(44, 122, 74, 0.08))",
     line:  "var(--green-line, rgba(44, 122, 74, 0.32))",
     glow:  "0 0 0 1px rgba(44, 122, 74, 0.16), 0 6px 18px -8px rgba(44, 122, 74, 0.4)",
     tileGradient: "linear-gradient(135deg, var(--electric-lime, #a6e22e), var(--green, #2c7a4a))",
   },
   info: {
-    color: "var(--neon-cyan, var(--ox, #0F4C81))",
+    color: "var(--ox, #0F4C81)",
     bg:    "var(--neon-cyan-soft, rgba(0, 212, 255, 0.10))",
     line:  "var(--neon-cyan-line, rgba(0, 212, 255, 0.32))",
     glow:  "0 0 0 1px rgba(0, 212, 255, 0.18), 0 6px 18px -8px rgba(0, 212, 255, 0.4)",

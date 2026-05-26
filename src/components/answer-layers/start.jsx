@@ -36,7 +36,7 @@ export const startLayer = {
         <div style={{
           fontFamily: "var(--mono)", fontSize: 9.5,
           letterSpacing: ".14em", textTransform: "uppercase",
-          color: "var(--neon-cyan, var(--ox))", fontWeight: 700,
+          color: "var(--ox)", fontWeight: 700,
           marginBottom: 8, display: "inline-flex", alignItems: "center", gap: 6,
         }}>
           <Calculator size={11} aria-hidden /> This patient
@@ -45,7 +45,7 @@ export const startLayer = {
           <div className="rx-mixed-pair" style={{ alignItems: "baseline", marginBottom: 14 }}>
             <span
               className="rx-numeric-mega"
-              style={{ fontSize: 56, lineHeight: 1, color: ans.d.crcl < 30 ? "var(--amber)" : "var(--neon-cyan, var(--ox))" }}
+              style={{ fontSize: 56, lineHeight: 1, color: ans.d.crcl < 30 ? "var(--amber)" : "var(--ox)" }}
             >
               {ans.d.crcl}
             </span>
@@ -142,7 +142,7 @@ export const startLayer = {
                       top: -8, left: -8,
                       width: 22, height: 22,
                       display: "inline-flex", alignItems: "center", justifyContent: "center",
-                      background: "var(--neon-cyan, var(--ox))",
+                      background: "var(--ox)",
                       borderRadius: "50%",
                       boxShadow: "var(--neon-cyan-glow, 0 0 0 transparent)",
                     }}

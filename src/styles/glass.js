@@ -293,7 +293,11 @@ const GLASS = `
     0 0 8px color-mix(in srgb, var(--neon-amber) 55%, transparent);
 }
 .rx-light-ring-cyan{
-  border-color: var(--neon-cyan);
+  /* W12 a11y · the cyan dot rim alone is 1.69:1 vs paper, below the
+     3:1 graphical-object floor. We darken the border to graphite (12:1)
+     so the dot's perimeter clears 3:1 in every context; the inner cyan
+     fill + cyan halo keep the visual identity intact. */
+  border-color: var(--ox);
   background:
     radial-gradient(circle at 32% 30%, rgba(255,255,255,0.85) 0%, transparent 38%),
     var(--neon-cyan);
@@ -307,7 +311,12 @@ const GLASS = `
    AND an outer 36px wider lower-alpha halo for depth. Opt-in: only when
    the input/select/textarea carries the .rx-focus-halo class. */
 .rx-focus-halo:focus-visible{
-  outline: none;
+  /* W12 a11y · cyan-only halo was 1.69:1 vs paper — the composite focus
+     indicator now layers a 2px graphite hairline OUTSIDE the cyan ring
+     so the indicator clears 3:1 against any neutral background while
+     keeping the neon-cyan glow as the dominant visual cue. */
+  outline: 2px solid var(--ox);
+  outline-offset: 4px;
   border-color: var(--neon-cyan);
   box-shadow:
     0 0 0 2px var(--neon-cyan),

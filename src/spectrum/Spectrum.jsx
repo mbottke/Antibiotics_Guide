@@ -257,7 +257,7 @@ const CSS2 = `
   background: var(--neon-cyan-soft, rgba(0, 212, 255, 0.12));
   box-shadow: inset 0 -3px 0 var(--neon-cyan, #00D4FF), 0 0 18px -6px var(--neon-cyan, #00D4FF);
 }
-.sx-orgth.sx-col-on .sx-orgbtn{ color: var(--neon-cyan, var(--ox)); font-weight: 700; }
+.sx-orgth.sx-col-on .sx-orgbtn{ color: var(--ox); font-weight: 700; }
 
 /* Subtle inset depression for cells with active coverage. We can't
    target a class on the cell from a CSS-only approach (the glyph

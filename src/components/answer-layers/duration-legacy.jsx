@@ -36,7 +36,7 @@ export const durationLegacyLayer = {
         <div style={{ fontSize: 13, color: "var(--ink)", lineHeight: 1.55 }}>
           <span className="rx-numeric-mega" style={{
             fontSize: 28, lineHeight: 1, marginRight: 6,
-            color: "var(--neon-cyan, var(--ox))",
+            color: "var(--ox)",
           }}>
             {s.duration}
           </span>

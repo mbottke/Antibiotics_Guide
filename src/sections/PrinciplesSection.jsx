@@ -289,7 +289,7 @@ function W8SubHead({ kicker, title, lede, icon, id, important = false }) {
         color: "var(--ink)",
         display: "flex", alignItems: "center", gap: 12,
       }}>
-        {icon && <span style={{ color: CYAN_BRIGHT, display: "inline-flex" }}>{icon}</span>}
+        {icon && <span style={{ color: "var(--ox)", display: "inline-flex" }}>{icon}</span>}
         {title}
         {important && <Sparkle size={13} color={CYAN_BRIGHT} style={{ marginLeft: 6, opacity: 0.95 }} />}
       </h3>
@@ -376,6 +376,13 @@ function W8StepCard({ index, heading, body, delay = 0 }) {
       }}>
         <span
           aria-hidden="true"
+          /* W12 a11y TODO · this decorative 64px outlined ordinal trips
+             axe-core because color:transparent computes as the paper bg
+             (1.03:1). aria-hidden does NOT exempt SC 1.4.3 in axe's
+             colour-contrast rule. A clean fix is an architectural one:
+             render the outlined glyph as an inline SVG (graphical, not
+             text), or move the numeral into a CSS pseudo-element. Both
+             are larger than this audit's scope — flagged for follow-up. */
           style={{
             fontFamily: "var(--serif)", fontStyle: "italic",
             fontSize: 64, lineHeight: 0.9, fontWeight: 700,
@@ -387,7 +394,10 @@ function W8StepCard({ index, heading, body, delay = 0 }) {
         >
           {String(index + 1).padStart(2, "0")}
         </span>
-        <span className="rx-counter" style={{ fontSize: 10, color: W7_KICKER }}>
+        {/* W12 a11y · 10px muted text was 4.4:1 against the panel bg
+            (just under 4.5:1) — bumped to --ink2 (~13:1) so the tiny
+            mono counter clears AA at its current size. */}
+        <span className="rx-counter" style={{ fontSize: 10, color: "var(--ink2)" }}>
           STEP / {String(index + 1).padStart(2, "0")} OF 07
         </span>
       </div>
@@ -484,7 +494,7 @@ function W8SepsisFlowDeck() {
                 <span aria-hidden="true" style={{
                   position: "absolute",
                   right: -14, top: 56, transform: "translateY(-50%)",
-                  color: CYAN_BRIGHT, display: "inline-flex",
+                  color: "var(--ox)", display: "inline-flex",
                   filter: "drop-shadow(0 0 6px rgba(0,212,255,0.4))",
                 }}>
                   <ArrowRight size={18}/>
@@ -594,7 +604,7 @@ function W8CitationCard({ id, year, body, title, journal, onOpen, delay = 0 }) {
           className="rx-numeric-mega"
           style={{
             fontSize: 42,
-            color: CYAN_BRIGHT,
+            color: "var(--ox)",
             lineHeight: 1,
             letterSpacing: "-0.01em",
           }}
@@ -617,7 +627,7 @@ function W8CitationCard({ id, year, body, title, journal, onOpen, delay = 0 }) {
         }}>{journal}</span>
         <span style={{
           fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.16em",
-          textTransform: "uppercase", color: CYAN_BRIGHT,
+          textTransform: "uppercase", color: "var(--ox)",
           display: "inline-flex", alignItems: "center", gap: 4, marginTop: 2,
         }}>
           Open evidence card <ChevronRight size={12}/>
@@ -812,7 +822,7 @@ function PrinciplesSection({
                     <div className="rx-tbranches">
                       {node.branches.map((br, bi) => (
                         <div className="rx-tbranch" key={bi}>
-                          <span className="rx-tcond"><CornerDownRight size={12} aria-hidden style={{ color: "var(--ox-bright, var(--ox))" }}/> {br.cond}</span>
+                          <span className="rx-tcond"><CornerDownRight size={12} aria-hidden style={{ color: "var(--ox)" }}/> {br.cond}</span>
                           <div className="rx-trx">{br.rx}</div>
                           <div className="rx-twhy">{br.why}</div>
                         </div>
