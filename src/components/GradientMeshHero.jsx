@@ -42,8 +42,9 @@
      />
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Pencil } from "lucide-react";
+import { useTilt } from "./util/useTilt.js";
 
 /* ---------- mesh blob configuration ----------
    Five radial-gradient blobs at distinct origin points, each with its
@@ -64,11 +65,15 @@ const BLOBS = [
    before the parallel neon-color-reframe agent lands), the fallback to
    the existing ox/amber/red token family keeps every chip visible. */
 const CHIP_TONES = {
-  cyan:    { color: "var(--neon-cyan, var(--ox))",        border: "var(--neon-cyan-line, var(--ox-line))" },
-  amber:   { color: "var(--neon-amber, var(--amber))",    border: "var(--neon-amber-line, var(--amber-line))" },
-  red:     { color: "var(--vivid-red, var(--red))",       border: "var(--vivid-red-line, var(--red-line))" },
-  lime:    { color: "var(--electric-lime, var(--ox))",    border: "var(--electric-lime-line, var(--ox-line))" },
-  neutral: { color: "var(--ink2)",                        border: "var(--line)" },
+  // W12 a11y · chip TEXT must meet body-text contrast on the glassmorphic
+  // paper-ish background. Neon hues live in the BORDERS (decorative role —
+  // glow, accent line); the readable label uses the darker semantic
+  // counterpart (ox / amber / red / stable-sage / ink2) so contrast holds.
+  cyan:    { color: "var(--ox)",            border: "var(--neon-cyan-line, var(--ox-line))" },
+  amber:   { color: "var(--amber)",         border: "var(--neon-amber-line, var(--amber-line))" },
+  red:     { color: "var(--red)",           border: "var(--vivid-red-line, var(--red-line))" },
+  lime:    { color: "var(--stable-sage)",   border: "var(--electric-lime-line, var(--ox-line))" },
+  neutral: { color: "var(--ink2)",          border: "var(--line)" },
 };
 
 /* ---------- keyframes ----------
@@ -116,8 +121,45 @@ export function GradientMeshHero({
   const chips = Array.isArray(patientChips) ? patientChips : [];
   const kickerText = kicker || "Bedside / The Answer";
 
+  // Wave 9 · subtle 3D tilt + cursor-driven mesh blob shift on hover.
+  // The hero leans 3 degrees toward the cursor (intensity tuned LOW so
+  // the typography never reads as warped) and each mesh blob translates
+  // ~6% opposite the cursor via the --mesh-x / --mesh-y CSS vars below.
+  const heroRef = useRef(null);
+  useTilt(heroRef, { intensity: 3, perspective: 1400 });
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if(!el) return undefined;
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    if(window.matchMedia("(pointer: coarse)").matches) return undefined;
+    el.style.setProperty("--mesh-x", "0%");
+    el.style.setProperty("--mesh-y", "0%");
+    const onMove = (e) => {
+      const r = el.getBoundingClientRect();
+      if(r.width === 0 || r.height === 0) return;
+      const px = (e.clientX - r.left) / r.width - 0.5;
+      const py = (e.clientY - r.top) / r.height - 0.5;
+      // ±6% inverted (opposite cursor = depth illusion).
+      el.style.setProperty("--mesh-x", (-px * 6).toFixed(2) + "%");
+      el.style.setProperty("--mesh-y", (-py * 6).toFixed(2) + "%");
+    };
+    const onLeave = () => {
+      el.style.setProperty("--mesh-x", "0%");
+      el.style.setProperty("--mesh-y", "0%");
+    };
+    el.addEventListener("mousemove", onMove, { passive: true });
+    el.addEventListener("mouseleave", onLeave, { passive: true });
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+
   return (
     <section
+      ref={heroRef}
       data-gradient-mesh-hero="true"
       className={className}
       style={{
@@ -154,12 +196,19 @@ export function GradientMeshHero({
           aria-hidden="true"
           style={{
             position: "absolute",
-            inset: 0,
+            // Wave 9 · the inset reaches into the hero by the cursor-
+            // driven --mesh-x / --mesh-y offset so the blobs shift
+            // gently opposite the pointer for a depth illusion.
+            top: "var(--mesh-y, 0%)",
+            left: "var(--mesh-x, 0%)",
+            right: "calc(-1 * var(--mesh-x, 0%))",
+            bottom: "calc(-1 * var(--mesh-y, 0%))",
             pointerEvents: "none",
             background: `radial-gradient(circle at ${blob.x} ${blob.y}, ${blob.color} 0%, transparent ${blob.size})`,
             filter: "blur(48px)",
             animation: blob.animation,
             willChange: "transform",
+            transition: "top var(--duration-slow, 300ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), left var(--duration-slow, 300ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), right var(--duration-slow, 300ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), bottom var(--duration-slow, 300ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1))",
             zIndex: 0,
           }}
         />
@@ -229,7 +278,7 @@ export function GradientMeshHero({
               letterSpacing: ".24em",
               textTransform: "uppercase",
               fontWeight: 700,
-              color: "var(--neon-cyan, var(--ox))",
+              color: "var(--ox)",
               marginBottom: 22,
             }}
           >
@@ -346,7 +395,7 @@ export function GradientMeshHero({
                 fontWeight: 700,
                 letterSpacing: ".1em",
                 textTransform: "uppercase",
-                color: "var(--neon-cyan, var(--ox))",
+                color: "var(--ox)",
                 background: "rgba(255,255,255,0.7)",
                 backdropFilter: "blur(12px) saturate(160%)",
                 WebkitBackdropFilter: "blur(12px) saturate(160%)",

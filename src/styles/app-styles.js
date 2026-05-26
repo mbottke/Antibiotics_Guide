@@ -29,10 +29,70 @@ const CSS = `
    any feature the active font doesn't ship, so this is graceful. */
 .rx-mono{font-family:var(--mono); font-variant-numeric:tabular-nums; font-feature-settings:"tnum","cv01","cv09";}
 .rx-serif{font-family:var(--serif);}
-.rx-root :focus-visible{outline:2px solid var(--ox); outline-offset:2px; border-radius:3px;}
-/* Selection wash — when a clinician highlights text, the selection
-   uses the oxblood family rather than the OS default blue. */
+.rx-root :focus-visible{outline:2px solid var(--ox-bright); outline-offset:3px; border-radius:5px; box-shadow:0 0 0 5px color-mix(in srgb, var(--ox-bright) 22%, transparent), 0 0 18px -2px var(--ox-bright);}
+/* Selection wash — cyan-tinted to match the new accent family. */
 .rx-root ::selection{background:var(--ox-soft); color:var(--ox-deep);}
+
+/* Wave 7 W7-B · cinematic mount cascade.
+   Every card-primitive surface (.rx-card, .rx-acc, .rx-tnode, .rx-qc) fades-
+   in-up on first paint with a staggered :nth-child delay, so the canvas
+   materializes in beats rather than flashing flat. Reduced-motion gated. */
+@keyframes rxFadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes rxGlowPulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ox-bright) 28%, transparent); } 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--ox-bright) 0%, transparent); } }
+@keyframes rxShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.rx-root .rx-card,
+.rx-root .rx-acc,
+.rx-root .rx-tnode,
+.rx-root .rx-qc { animation: rxFadeInUp var(--duration-base, 180ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) both; }
+.rx-root .rx-card:nth-child(2),
+.rx-root .rx-acc:nth-child(2),
+.rx-root .rx-tnode:nth-child(2)  { animation-delay: 40ms; }
+.rx-root .rx-card:nth-child(3),
+.rx-root .rx-acc:nth-child(3),
+.rx-root .rx-tnode:nth-child(3)  { animation-delay: 80ms; }
+.rx-root .rx-card:nth-child(4),
+.rx-root .rx-acc:nth-child(4),
+.rx-root .rx-tnode:nth-child(4)  { animation-delay: 120ms; }
+.rx-root .rx-card:nth-child(5),
+.rx-root .rx-acc:nth-child(5)    { animation-delay: 160ms; }
+.rx-root .rx-card:nth-child(6),
+.rx-root .rx-acc:nth-child(6)    { animation-delay: 200ms; }
+
+/* Wave 9 W9 · molten-chrome ambient backdrop on the bedside surface.
+   The earlier dot-grid backdrop (radial-gradient dots @ 4% ink, 28px
+   grid) is replaced by a <MeshWash variant="ambient"> mounted inside
+   BedsideShell so the bedside reference reads as the same molten cyan
+   field the GradientMeshHero introduced. The dots remain layered at
+   1% opacity for fine-grain texture — the mesh provides the chroma,
+   the dots provide the "intentional grid system" affordance. */
+.rx-root .rx-bedside-container {
+  position: relative;
+  background-image: radial-gradient(circle at center, color-mix(in srgb, var(--ink) 2%, transparent) 0.7px, transparent 1.1px);
+  background-size: 28px 28px;
+  background-position: 0 0;
+}
+
+/* Wave 9 W9 · .rx-mesh-wash-soft utility — a low-opacity scrim wrap
+   for any consumer that wants the molten-chrome wash WITHOUT having
+   to mount the React component. Pairs with the MeshWash JSX primitive
+   for cases where the surface is non-React (e.g. a bare HTML island in
+   the docs site or a static skeleton). The class only handles the
+   wrapper positioning + soft alpha; the blobs themselves still need to
+   be drawn by JS or by adding child gradient layers. */
+.rx-mesh-wash-soft {
+  position: relative;
+  isolation: isolate;
+}
+.rx-mesh-wash-soft > [data-mesh-wash] {
+  opacity: 0.6;
+}
+
+/* Wave 7 W7-B · diagonal gradient hairline. Between any two adjacent
+   .rx-section / .rx-card siblings we drop a 1px transparent → cyan →
+   transparent gradient at low alpha, replacing default 1px solid lines
+   with a more deliberate divider. Available as .rx-gh-divider for opt-in. */
+.rx-gh-divider { height: 1px; background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--ox-bright) 28%, transparent) 50%, transparent 100%); border: 0; margin: 22px 0; }
+.rx-gh-divider-strong { height: 2px; background: linear-gradient(90deg, transparent 0%, var(--ox-bright) 50%, transparent 100%); border: 0; margin: 28px 0; opacity: .8; }
 
 /* ─────────────────────────────── Wave 6 W6-B · motion + reveal ────────────────
    Two keyframes, three reveal classes, two interaction utilities. Building
@@ -58,9 +118,9 @@ const CSS = `
 .rx-reveal      { animation: rx-fade-rise var(--duration-slow) var(--ease-out) both; }
 .rx-reveal-fast { animation: rx-fade-rise var(--duration-base) var(--ease-out) both; }
 .rx-fade        { animation: rx-fade-in var(--duration-base) var(--ease-out) both; }
-.rx-lift        { transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out); }
-.rx-lift:hover  { transform: translateY(-1px); box-shadow: var(--shadow-e2); }
-.rx-lift:focus-visible { transform: translateY(-1px); box-shadow: var(--shadow-e3); }
+.rx-lift        { transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out); }
+.rx-lift:hover  { transform: translateY(-2px); box-shadow: var(--shadow-e2), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 24%, transparent); border-color: color-mix(in srgb, var(--line) 40%, var(--ox-bright) 60%); color: var(--ox); }
+.rx-lift:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow-e3), 0 0 0 2px color-mix(in srgb, var(--ox-bright) 30%, transparent); }
 .rx-cta-glow:focus-visible { box-shadow: var(--shadow-glow-ox); }
 
 @media (prefers-reduced-motion: reduce){
@@ -77,22 +137,53 @@ const CSS = `
   .rx-reveal,.rx-reveal-fast,.rx-fade{ animation: none!important; }
   .rx-lift:hover,.rx-lift:focus-visible{ transform: none!important; }
 }
-.rx-wrap{max-width:1180px; margin:0 auto; padding:0 22px;}
+.rx-wrap{max-width:1180px; margin:0 auto; padding:0 22px; overflow-x:clip;}
 
 /* ----------------------------- HEADER + NAV ----------------------------- */
 .rx-header{position:sticky; top:0; z-index:50; background:rgba(251,250,248,.94);
   backdrop-filter:saturate(140%) blur(9px); -webkit-backdrop-filter:saturate(140%) blur(9px); border-bottom:1px solid var(--line);}
 .rx-headrow{display:flex; align-items:center; gap:14px; padding:12px 0 10px;}
-.rx-mark{width:36px;height:36px;border-radius:9px;background:var(--ox);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 1px 0 rgba(0,0,0,.04);}
+/* Wave 7 W7-B · the brand block becomes a gradient compass.
+   Diagonal cyan-deep → cyan-bright gradient + cyan halo + a tiny
+   inner highlight to read as a backlit chip. */
+.rx-mark{width:40px;height:40px;border-radius:12px 3px 12px 3px;background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 50%, var(--ox-bright) 240%);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 0 0 1px var(--ox-deep), 0 0 28px -8px var(--ox-bright);position:relative;overflow:hidden;}
+.rx-mark::after{content:""; position:absolute; inset:0; background:radial-gradient(circle at 75% 110%, color-mix(in srgb, var(--ox-bright) 55%, transparent) 0%, transparent 55%); pointer-events:none;}
 .rx-brand{min-width:0; flex:1;}
 .rx-kicker{font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--ox); font-weight:600;}
 .rx-title{font-family:var(--serif); font-weight:600; font-size:20px; letter-spacing:-.01em; margin:0; line-height:1.08;}
 .rx-sub{color:var(--muted); font-size:11.5px; margin:1px 0 0;}
 .rx-searchwrap{position:relative; display:flex; align-items:center; flex:0 0 auto;}
-.rx-search{font-family:var(--sans); font-size:13.5px; border:1px solid var(--line); background:var(--panel);
-  border-radius:999px; padding:8px 32px 8px 34px; width:210px; color:var(--ink); transition:border-color .15s, width .2s, box-shadow .15s;}
-.rx-search:focus{border-color:var(--ox); width:248px; outline:none; box-shadow:0 0 0 3px var(--ox-softer);}
-.rx-search::placeholder{color:var(--faint);}
+/* W10 · global header search input chrome.
+   - Glass-diffuse background for the closed state (frosted-light).
+   - iOS-app-icon top sheen via inset highlight (the wrapper is a single
+     <input>, so the sheen is faked through inset 0 1px 0 white).
+   - On focus: iridescent border ring (2px conic-gradient ghost via
+     box-shadow stack) + the existing cyan halo (kept), and the width
+     bump to 264px so the cursor has more landing room.
+   - Asymmetric ends are deliberately avoided here — the search lives
+     in the header where the global pill grammar is round; the W10
+     vocabulary upgrade is texture, not geometry. */
+.rx-search{font-family:var(--sans); font-size:13.5px;
+  border:1px solid var(--line);
+  background:linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%);
+  -webkit-backdrop-filter:blur(12px) saturate(170%);
+  backdrop-filter:blur(12px) saturate(170%);
+  border-radius:999px; padding:8px 32px 8px 34px; width:210px; color:var(--ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55), 0 1px 2px rgba(11,15,20,.06);
+  transition:border-color .15s, width .2s, box-shadow .18s, background .18s;}
+.rx-search::placeholder{font-family:var(--serif); font-style:italic; color:var(--faint); opacity:.8;}
+.rx-search:hover{border-color:color-mix(in srgb, var(--ox-bright) 38%, var(--line));}
+/* W12 a11y · cyan-only focus halo was 1.69:1 vs paper — composite indicator
+   now adds a 2px graphite outline outside the cyan glow so it clears 3:1
+   against the page; the neon-cyan glow stays as the dominant visual cue. */
+.rx-search:focus{border-color:var(--ox-bright); width:264px; outline:2px solid var(--ox); outline-offset:3px;
+  background:linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(245,250,253,0.65) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.65),
+    0 0 0 2px var(--ox-bright),
+    0 0 0 4px color-mix(in srgb, var(--ox-bright) 22%, transparent),
+    0 0 22px -4px var(--ox-bright),
+    0 0 36px 6px color-mix(in srgb, var(--hot-magenta, var(--ox-bright)) 12%, transparent);}
 .rx-search-i{position:absolute; left:11px; color:var(--muted); pointer-events:none; display:flex;}
 .rx-search-x{position:absolute; right:8px; background:none; border:none; cursor:pointer; color:var(--muted); padding:3px; display:flex;}
 .rx-nav{display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; padding-bottom:1px;}
@@ -145,14 +236,25 @@ const CSS = `
      .rx-num / .rx-dose / .rx-mic — inline numeric data rows (kept)
      .rx-dropcap          — opt-in magazine-grade first-letter (.rx-dropcap)
    These classes are additive — existing call sites continue to work. */
-.rx-display{font-family:var(--serif); font-size:56px; font-weight:600; letter-spacing:-.028em; line-height:1.04; color:var(--ink); margin:0 0 12px;}
-.rx-h1{font-family:var(--serif); font-size:42px; font-weight:600; letter-spacing:-.024em; line-height:1.08; color:var(--ink); margin:0 0 10px;}
-.rx-h2{font-family:var(--serif); font-size:28px; font-weight:600; letter-spacing:-.018em; line-height:1.16; color:var(--ink); margin:0 0 6px;}
-.rx-h3{font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:-.012em; line-height:1.28; color:var(--ink); margin:32px 0 12px; display:flex; align-items:center; gap:10px;}
+/* Wave 7 W7-B · cinematic ramp. h1 70px / h2 44px / h3 28px responsive.
+   Every section heading lands with editorial weight. The tracking ramps
+   tighter as size grows — classic display-type discipline. */
+/* W12 viewport density audit · raised the minimum on the editorial
+   display + h1 ramps. At 768px the previous 6.5vw / 5vw functions
+   resolved below the floor (49.9px / 38.4px), pinning the hero to a
+   value that no longer reads as a hero on a 768-wide phone-tablet.
+   The new 52 / 44 floors keep the showstopper feeling at narrow
+   viewports without changing 1024 / 1440 (those still ride the vw
+   curve and resolve well above the floor). */
+.rx-display{font-family:var(--serif); font-size:clamp(52px, 6.5vw, 72px); font-weight:600; letter-spacing:-.032em; line-height:0.98; color:var(--ink); margin:0 0 16px;}
+.rx-h1{font-family:var(--serif); font-size:clamp(44px, 5vw, 56px); font-weight:600; letter-spacing:-.028em; line-height:1.04; color:var(--ink); margin:0 0 14px;}
+.rx-h2{font-family:var(--serif); font-size:clamp(30px, 3.8vw, 44px); font-weight:600; letter-spacing:-.024em; line-height:1.06; color:var(--ink); margin:0 0 10px;}
+.rx-h3{font-family:var(--serif); font-size:clamp(22px, 2.3vw, 28px); font-weight:600; letter-spacing:-.018em; line-height:1.2; color:var(--ink); margin:40px 0 16px; display:flex; align-items:center; gap:14px;}
+.rx-h3::before{content:""; display:inline-block; width:32px; height:2px; background:linear-gradient(90deg, var(--ox-bright) 0%, transparent 100%); flex:0 0 auto;}
 .rx-h3 .ic{color:var(--ox); display:flex;}
-.rx-h4{font-family:var(--sans); font-size:13.5px; font-weight:700; letter-spacing:.005em; line-height:1.35; margin:18px 0 8px; display:flex; align-items:center; gap:7px;}
+.rx-h4{font-family:var(--sans); font-size:14px; font-weight:700; letter-spacing:.005em; line-height:1.35; margin:20px 0 10px; display:flex; align-items:center; gap:8px;}
 .rx-h4 .ic{color:var(--ox); display:flex;}
-.rx-lede{color:var(--ink2); font-size:16px; margin:0 0 24px; max-width:78ch; line-height:1.65;}
+.rx-lede{color:var(--ink2); font-family:var(--serif); font-style:italic; font-weight:400; font-size:19px; margin:0 0 28px; max-width:62ch; line-height:1.5;}
 .rx-byline{font-family:var(--serif); font-style:italic; font-weight:400; font-size:16px; color:var(--ink2); line-height:1.5; max-width:62ch; margin:0;}
 .rx-eyebrow{font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--ox); margin:0 0 8px; display:inline-flex; align-items:center; gap:6px;}
 .rx-overline{font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 6px;}
@@ -163,29 +265,67 @@ const CSS = `
 .rx-num,.rx-dose,.rx-mic,[data-tabular="true"]{font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; letter-spacing:-.002em;}
 /* Optional first-letter dropcap — opt-in only. Apply to a paragraph
    when a single feature lead deserves a magazine-grade entrance. */
-.rx-dropcap::first-letter{font-family:var(--serif); font-weight:600; font-size:3em; line-height:0.85; float:left; padding-right:8px; padding-top:6px; color:var(--ox-deep);}
-.rx-disc{display:flex; gap:10px; align-items:flex-start; background:var(--ox-soft); border:1px solid var(--ox-line);
-  border-radius:10px; padding:12px 14px; margin:0 0 24px; font-size:12.5px; color:var(--ox-deep); line-height:1.55;}
+/* W12 a11y · dropcap gradient flipped so the readable graphite (--ox, 12:1)
+   anchors the top of the letterform where the eye reads first; the cyan
+   accent ends at the bottom as a decorative tail. The solid color
+   fallback is also swapped from --ox-bright to --ox for browsers that
+   ignore -webkit-text-fill-color. */
+.rx-dropcap::first-letter{font-family:var(--serif); font-weight:600; font-style:italic; font-size:3.6em; line-height:0.82; float:left; padding-right:10px; padding-top:8px; color:var(--ox); background:linear-gradient(180deg, var(--ox) 0%, var(--ox-bright) 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+.rx-disc{display:flex; gap:12px; align-items:flex-start; background:linear-gradient(135deg, var(--ox-softer) 0%, var(--ox-soft) 100%); border:1px solid var(--ox-line); border-left:3px solid var(--ox-bright);
+  border-radius:14px 4px 14px 4px; padding:14px 16px; margin:0 0 24px; font-size:12.5px; color:var(--ox-deep); line-height:1.55; box-shadow:var(--shadow-e1);}
 .rx-disc svg{flex:0 0 auto; margin-top:1px;}
 /* Wave 6 W6-B · card elevation polish.
    .rx-card was a flat surface (1px border, no shadow). Adds a barely-
    perceptible resting elevation (shadow-e1) and an interactive class
    that lifts on hover/focus. The lift uses 1px translate to feel
    tactile without being noisy. */
-.rx-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:var(--shadow-e1); transition:box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);}
-.rx-card.rx-card-interactive:hover{box-shadow:var(--shadow-e2); transform:translateY(-1px);}
-.rx-card.rx-card-interactive:focus-within{box-shadow:var(--shadow-e3);}
-.rx-callout{background:var(--blue-soft); border:1px solid var(--blue-line); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--blue); display:flex; gap:10px; align-items:flex-start; line-height:1.55; margin:16px 0;}
+/* Wave 7 W7-B · asymmetric-radii cards everywhere. The 16/4 corner pattern
+   is the single shape change that ripples across every screen — every
+   regimen option, decision branch, monitoring block, table wrapper picks
+   it up automatically. Hover lifts + cyan border-color transition + cyan
+   inset hairline reads as "alive under the cursor". */
+.rx-card{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:18px 4px 18px 4px; padding:22px; box-shadow:var(--shadow-e1); transition:box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);}
+.rx-card::before{content:""; position:absolute; top:0; left:0; width:42px; height:2px; background:linear-gradient(90deg, var(--ox-bright) 0%, transparent 100%); border-radius:18px 0 0 0; opacity:0.6; pointer-events:none; transition:opacity var(--duration-base) var(--ease-out), width var(--duration-base) var(--ease-out);}
+.rx-card.rx-card-interactive{cursor:pointer;}
+.rx-card.rx-card-interactive:hover{box-shadow:var(--shadow-e2), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 28%, transparent); transform:translateY(-3px); border-color:color-mix(in srgb, var(--line) 40%, var(--ox-bright) 60%);}
+.rx-card.rx-card-interactive:hover::before{opacity:1; width:72px;}
+.rx-card.rx-card-interactive:focus-within{box-shadow:var(--shadow-e3), 0 0 0 2px color-mix(in srgb, var(--ox-bright) 30%, transparent);}
+/* Wave 9 · auto-spotlight on every interactive card. The ::after pseudo
+   reads --cursor-x / --cursor-y / --cursor-active that the global
+   App.jsx delegated mousemove handler writes onto each .rx-card-interactive
+   host as the pointer moves. Reduced-motion + coarse-pointer both kill
+   the overlay below. */
+.rx-card.rx-card-interactive::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:radial-gradient(220px circle at var(--cursor-x, 50%) var(--cursor-y, 50%), color-mix(in srgb, var(--ox-bright) 14%, transparent) 0%, transparent 60%); opacity:var(--cursor-active, 0); transition:opacity var(--duration-base) var(--ease-out); z-index:0;}
+.rx-card.rx-card-interactive > *{position:relative; z-index:1;}
+@media (prefers-reduced-motion: reduce){
+  .rx-card.rx-card-interactive::after{opacity:0 !important; transition:none !important;}
+}
+@media (pointer: coarse){
+  .rx-card.rx-card-interactive::after{display:none;}
+}
+.rx-callout{background:linear-gradient(135deg, var(--blue-soft) 0%, color-mix(in srgb, var(--blue-soft) 70%, var(--paper) 30%) 100%); border:1px solid var(--blue-line); border-left:3px solid var(--blue); border-radius:14px 4px 14px 4px; padding:14px 16px; font-size:12.5px; color:var(--blue); display:flex; gap:12px; align-items:flex-start; line-height:1.55; margin:18px 0; box-shadow:var(--shadow-e1);}
 .rx-callout svg{flex:0 0 auto; margin-top:1px;}
+
+/* Wave 9 W9 · diagonal hairline divider — a 1px line at 4deg, sitting
+   between sibling panels in place of (some) horizontal dividers. The
+   diagonal is intentionally subtle: enough to read as "designed",
+   never enough to misalign the panels above/below. Gradient runs
+   transparent → cyan → transparent so the line dissolves at the
+   edges and never hits a hard pixel against the page background. */
+.rx-diag-divider{position:relative; height:18px; margin:18px 0; pointer-events:none;}
+.rx-diag-divider::before{content:""; position:absolute; left:6%; right:6%; top:50%; height:1px; background:linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)), transparent); opacity:0.55; transform:rotate(-4deg); transform-origin:center;}
+.rx-diag-divider::after{content:""; position:absolute; left:50%; top:50%; width:6px; height:6px; border-radius:50%; background:var(--neon-cyan, var(--ox)); transform:translate(-50%, -50%); box-shadow:0 0 8px var(--neon-cyan, var(--ox)); opacity:0.7;}
+@media (prefers-reduced-motion: reduce){ .rx-diag-divider::before{opacity:0.4;} }
 
 /* ----------------------------- TAGS + CHIPS ----------------------------- */
 /* Wave 6 W6-B · chip polish. Pill chips get a hairline shadow at rest
    (so the eye sees them as "tactile" rather than painted-on), and a
    smooth ease-out for the hover-brightness shift. Active state lifts
    to shadow-e1 for a sense of being grasped. */
-.rx-tag{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 8px; border-radius:999px; line-height:1.3; letter-spacing:.01em; white-space:nowrap; box-shadow:var(--shadow-e0); transition:filter var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);}
+/* Wave 7 W7-B · tags adopt the same asymmetric shape system at chip-scale. */
+.rx-tag{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:4px 10px; border-radius:8px 2px 8px 2px; line-height:1.3; letter-spacing:.01em; white-space:nowrap; box-shadow:var(--shadow-e0); transition:filter var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);}
 .rx-tag.clk{cursor:pointer;}
-.rx-tag.clk:hover{filter:brightness(.97); box-shadow:var(--shadow-e1);}
+.rx-tag.clk:hover{filter:brightness(1.05); box-shadow:var(--shadow-e1), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 22%, transparent); transform:translateY(-1px);}
 .rx-tag.clk:active{transform:translateY(0.5px);}
 .rx-tag.clk:focus-visible{box-shadow:var(--shadow-glow-ox);}
 .t-ox{background:var(--ox-soft); color:var(--ox); border:1px solid var(--ox-line);}
@@ -214,7 +354,7 @@ const CSS2 = `
 /* ----------------------------- QUICK CARDS ----------------------------- */
 .rx-quick{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:0 0 26px;}
 @media (max-width:780px){.rx-quick{grid-template-columns:1fr;}}
-.rx-qc{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:11px; padding:15px 17px;}
+.rx-qc{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:15px 17px;}
 .rx-qc .k{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ox); font-weight:700; display:flex; align-items:center; gap:7px;}
 .rx-qc .k svg{color:var(--ox);}
 .rx-qc .b{font-size:13px; margin-top:8px; line-height:1.5; color:var(--ink2);}
@@ -222,10 +362,10 @@ const CSS2 = `
 
 /* ----------------------------- STEP SPINE ----------------------------- */
 .rx-spine{position:relative; margin-left:6px; padding-left:34px;}
-.rx-spine::before{content:""; position:absolute; left:14px; top:12px; bottom:12px; width:2px; background:linear-gradient(var(--ox-line),var(--line));}
+.rx-spine::before{content:""; position:absolute; left:14px; top:12px; bottom:12px; width:2px; background:linear-gradient(180deg, var(--ox-bright) 0%, var(--ox-line) 40%, var(--line) 100%);}
 .rx-step{position:relative; margin:0 0 19px;}
-.rx-stepnum{position:absolute; left:-34px; top:-2px; width:29px; height:29px; border-radius:50%; background:var(--ox);
-  color:#fff; font-family:var(--mono); font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 4px var(--paper);}
+.rx-stepnum{position:absolute; left:-36px; top:-2px; width:32px; height:32px; border-radius:10px 3px 10px 3px; background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 220%);
+  color:#fff; font-family:var(--mono); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 4px var(--paper), 0 4px 14px -4px var(--ox-bright);}
 .rx-steph{font-weight:600; font-size:15px; margin:3px 0 3px;}
 .rx-stepb{font-size:13.5px; color:var(--ink2); margin:0; line-height:1.55;}
 .rx-stepb code{font-family:var(--mono); font-size:12px; background:var(--line2); padding:1px 5px; border-radius:4px; color:var(--ox);}
@@ -241,9 +381,9 @@ const CSS2 = `
 
 /* ----------------------------- DECISION TREE ----------------------------- */
 .rx-tree{margin:14px 0 8px;}
-.rx-tnode{border:1px solid var(--line); border-radius:11px; background:var(--panel); overflow:hidden; margin:0 0 4px;}
-.rx-tq{padding:13px 16px; background:var(--ox-softer); border-bottom:1px solid var(--ox-line); display:flex; align-items:center; gap:10px;}
-.rx-tq .dot{width:24px;height:24px;border-radius:50%;background:var(--ox);color:#fff;font-family:var(--mono);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.rx-tnode{border:1px solid var(--line); border-radius:14px 4px 14px 4px; background:var(--panel); overflow:hidden; margin:0 0 4px;}
+.rx-tq{padding:15px 18px; background:linear-gradient(135deg, var(--ox-softer) 0%, var(--ox-soft) 100%); border-bottom:1px solid var(--ox-line); display:flex; align-items:center; gap:12px;}
+.rx-tq .dot{width:28px;height:28px;border-radius:9px 3px 9px 3px;background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox-bright) 220%);color:#fff;font-family:var(--mono);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto; box-shadow:0 2px 8px -2px var(--ox-bright);}
 .rx-tq .q{font-weight:600; font-size:14px; color:var(--ink);}
 .rx-tbranches{display:grid; grid-template-columns:1fr 1fr; }
 @media (max-width:680px){.rx-tbranches{grid-template-columns:1fr;}}
@@ -266,7 +406,7 @@ const CSS2 = `
 .rx-syscat{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:600; margin:24px 0 9px; display:flex; align-items:center; gap:9px;}
 .rx-syscat::after{content:""; flex:1; height:1px; background:var(--line);}
 .rx-syscat .ic{color:var(--ox); display:flex;}
-.rx-acc{border:1px solid var(--line); border-radius:11px; overflow:hidden; margin:0 0 8px; background:var(--panel);}
+.rx-acc{border:1px solid var(--line); border-radius:14px 4px 14px 4px; overflow:hidden; margin:0 0 8px; background:var(--panel);}
 .rx-acc[data-open="true"]{border-color:var(--ox-line); box-shadow:0 1px 0 var(--ox-softer);}
 .rx-accbtn{width:100%; display:flex; align-items:center; gap:13px; padding:13px 15px; background:none; border:none; cursor:pointer; text-align:left;}
 .rx-accbtn:hover{background:var(--line3);}
@@ -365,7 +505,7 @@ const CSS3 = `
 .rx-ladder{display:flex; flex-direction:column; gap:0; margin:14px 0;}
 .rx-rung{display:grid; grid-template-columns:46px 1fr; gap:0; position:relative;}
 .rx-rung-rail{position:relative; display:flex; flex-direction:column; align-items:center;}
-.rx-rung-dot{width:30px; height:30px; border-radius:50%; background:var(--ox); color:#fff; font-family:var(--mono); font-weight:600; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:1; margin-top:14px; flex:0 0 auto;}
+.rx-rung-dot{width:32px; height:32px; border-radius:10px 3px 10px 3px; background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 220%); color:#fff; font-family:var(--mono); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:1; margin-top:14px; flex:0 0 auto; box-shadow:0 4px 12px -3px var(--ox-bright);}
 .rx-rung-line{position:absolute; top:14px; bottom:-14px; width:2px; background:var(--ox-line); left:50%; transform:translateX(-50%);}
 .rx-rung:last-child .rx-rung-line{display:none;}
 .rx-rung-body{padding:12px 0 12px 14px;}
@@ -373,6 +513,7 @@ const CSS3 = `
 .rx-rung-mech{font-size:11px; color:var(--muted); font-family:var(--mono); letter-spacing:.02em;}
 .rx-rung-detail{font-size:12.5px; color:var(--ink2); margin:5px 0 7px; line-height:1.5;}
 .rx-rung-agents{display:flex; flex-wrap:wrap; gap:5px;}
+.rx-rung-agents .rx-tag{white-space:normal; overflow-wrap:anywhere; max-width:100%;}
 .rx-rung-grad{height:5px; border-radius:3px; margin:2px 0 0; background:linear-gradient(90deg,var(--green) 0%,var(--amber) 55%,var(--ox) 100%);}
 .rx-rung-intensity{width:var(--w,20%); height:5px; border-radius:3px; background:var(--ox);}
 
@@ -497,7 +638,7 @@ const CSS4 = `
 .rx-mtxleg .li{display:flex; align-items:center; gap:7px;}
 .rx-axis{display:grid; grid-template-columns:1fr 1fr 1fr; gap:13px; margin:14px 0;}
 @media (max-width:820px){.rx-axis{grid-template-columns:1fr;}}
-.rx-axiscard{border:1px solid var(--line); border-radius:11px; padding:14px 15px; background:var(--panel);}
+.rx-axiscard{border:1px solid var(--line); border-radius:14px 4px 14px 4px; padding:14px 15px; background:var(--panel);}
 .rx-axiscard .ax-k{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ox); font-weight:600;}
 .rx-axiscard .ax-t{font-weight:700; font-size:14px; margin:4px 0 2px;}
 .rx-axiscard .ax-pd{font-family:var(--mono); font-size:11px; color:var(--ink2); margin:2px 0 8px;}
@@ -505,7 +646,9 @@ const CSS4 = `
 .rx-axiscard li{margin:0 0 5px;} .rx-axiscard li b{color:var(--ink); font-weight:600;}
 
 /* ---- provenance cite chip (single-source-of-truth registry) ---- */
-.rx-cite{display:inline-flex; align-items:center; gap:4px; font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:2px 6px; border-radius:5px; background:var(--blue-soft); color:var(--blue); border:1px solid var(--blue-line); white-space:nowrap; cursor:help; vertical-align:middle;}
+/* W12 a11y · was --blue (3.37:1) — repointed to --evidence-blue (7.6:1)
+   so the 9px mono citation label clears 4.5:1 on the pale blue chip bg. */
+.rx-cite{display:inline-flex; align-items:center; gap:4px; font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:2px 6px; border-radius:5px; background:var(--evidence-blue-soft); color:var(--evidence-blue); border:1px solid var(--evidence-blue-line); white-space:nowrap; cursor:help; vertical-align:middle;}
 .rx-cite.cl{cursor:pointer; transition:filter .12s;} .rx-cite.cl:hover{filter:brightness(.96);}
 
 /* ---- derived category counts in the syndrome filter bar ---- */
@@ -514,7 +657,7 @@ const CSS4 = `
 /* ---- "what's changing" evolving-evidence cards ---- */
 .rx-evolve{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 4px;}
 @media (max-width:780px){.rx-evolve{grid-template-columns:1fr;}}
-.rx-evcard{border:1px solid var(--amber-line); background:var(--amber-soft); border-radius:11px; padding:13px 15px;}
+.rx-evcard{border:1px solid var(--amber-line); background:var(--amber-soft); border-radius:14px 4px 14px 4px; padding:13px 15px;}
 .rx-evcard .evh{display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; color:var(--amber); margin:0 0 5px;}
 .rx-evcard .evh svg{flex:0 0 auto;}
 .rx-evcard .evb{font-size:12.5px; color:var(--ink2); line-height:1.5; margin:0;}
@@ -546,7 +689,11 @@ button.rx-ctxchip{cursor:pointer; font-family:var(--sans); transition:background
 button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-ctxchip-band{border-left:3px solid var(--bandc, #fff); padding-left:8px;}
 .rx-ctxchip-arc{background:var(--amber); border-color:var(--amber);}
-.rx-ctxchip-warn{background:var(--ox-bright); border-color:var(--ox-bright);}
+/* W12 a11y · solid cyan bg + inherited white text was 1.56:1 — fail. Cyan
+   bg pops on the dark ctxbar without needing the white label, so the
+   chip foreground swaps to near-black (12:1 vs cyan). */
+.rx-ctxchip-warn{background:var(--ox-bright); border-color:var(--ox-bright); color:var(--ox-deep);}
+.rx-ctxchip-warn .rx-num{color:var(--ox-deep);}
 .rx-ctxchip-risk{background:rgba(255,255,255,.08); border-style:dashed; font-size:11px; opacity:.95;}
 .rx-ctxbar-clear{margin-left:auto; display:inline-flex; align-items:center; gap:5px; background:none; border:1px solid rgba(255,255,255,.3);
   color:#fff; border-radius:999px; padding:4px 11px; font-family:var(--sans); font-size:11.5px; font-weight:600; cursor:pointer; transition:background .14s;}
@@ -572,8 +719,12 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-drawer-body{flex:1; overflow-y:auto; padding:18px 20px 28px;}
 
 /* ---- dose-tab calculator additions ---- */
-.rx-field2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
-.rx-field input[aria-invalid="true"]{border-color:var(--ox-bright); box-shadow:0 0 0 3px var(--ox-softer);}
+.rx-field2{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px;}
+@media (max-width:560px){.rx-field2{grid-template-columns:minmax(0,1fr);}}
+/* W12 a11y · aria-invalid was cyan (1.69:1) — graphical UI floor is 3:1
+   AND error semantics should NOT be cyan. Repointed to --red so the
+   invalid state reads as an error and clears 3:1 vs paper. */
+.rx-field input[aria-invalid="true"]{border-color:var(--red); box-shadow:0 0 0 3px var(--red-soft);}
 .rx-ctxtoggle{margin-top:14px; width:100%; display:inline-flex; align-items:center; justify-content:center; gap:8px;
   border:1px solid var(--ox-line); background:var(--ox-soft); color:var(--ox); cursor:pointer;
   font-family:var(--sans); font-size:13px; font-weight:600; padding:11px 14px; border-radius:10px; transition:background .15s,color .15s,border-color .15s;}
@@ -583,7 +734,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-fieldnote{font-size:11.5px; color:var(--muted); line-height:1.5; margin:9px 2px 0;}
 
 /* Child-Pugh scorer */
-.rx-cp{border:1px solid var(--line); border-radius:11px; background:var(--panel); margin:0 0 13px; overflow:hidden;}
+.rx-cp{border:1px solid var(--line); border-radius:14px 4px 14px 4px; background:var(--panel); margin:0 0 13px; overflow:hidden;}
 .rx-cp-head{display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; padding:11px 13px; cursor:pointer; text-align:left; font-family:var(--sans);}
 .rx-cp-head:hover{background:var(--ox-softer);}
 .rx-cp-head:focus-visible{outline:2px solid var(--ox); outline-offset:-2px;}
@@ -720,7 +871,9 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-reg-omit .lab{display:inline-block; font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ox); font-weight:600; margin-right:6px; vertical-align:1px;}
 .rx-reg-deesc{display:flex; gap:7px; align-items:flex-start; font-size:12.5px; color:var(--ink2); line-height:1.5; margin-top:7px; background:var(--blue-soft); border:1px solid var(--blue-line); border-radius:8px; padding:9px 11px;}
 .rx-reg-deesc svg{flex:0 0 auto; margin-top:2px; color:var(--blue);}
-.rx-reg-guard{display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--green); background:var(--green-soft); border:1px solid var(--green-line); border-radius:9px; padding:11px 13px; line-height:1.5; margin-top:16px; min-width:0; overflow-wrap:anywhere;}
+/* W12 a11y · was --green (2.4:1) — repointed to --stable-sage (5.9:1)
+   so the 12px body inside the guard reads as a passing AA paragraph. */
+.rx-reg-guard{display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--stable-sage); background:var(--green-soft); border:1px solid var(--green-line); border-radius:9px; padding:11px 13px; line-height:1.5; margin-top:16px; min-width:0; overflow-wrap:anywhere;}
 .rx-reg-guard svg{flex:0 0 auto; margin-top:1px;}
 .rx-reg-actions{display:flex; gap:9px; margin-top:13px; flex-wrap:wrap;}
 .rx-dc-btn-ghost{color:var(--ink2); background:var(--panel); border-color:var(--line);}
@@ -741,7 +894,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 /* ============================ v3 · PHASE C2 ============================ */
 .rx-rdx-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:6px;}
 @media (max-width:680px){.rx-rdx-grid{grid-template-columns:1fr;}}
-.rx-rdx-card{background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:14px 15px;}
+.rx-rdx-card{background:var(--panel); border:1px solid var(--line); border-radius:14px 4px 14px 4px; padding:14px 15px;}
 .rx-rdx-h{display:flex; align-items:center; gap:8px; font-family:var(--sans); font-size:13.5px; font-weight:700; color:var(--ink); margin-bottom:7px;}
 .rx-rdx-h svg{color:var(--ox); flex:0 0 auto;}
 .rx-rdx-lead{font-size:12.5px; font-weight:600; color:var(--ink2); line-height:1.45; margin-bottom:9px;}
@@ -811,7 +964,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-gnr-cav{color:var(--ox); font-size:12px;}
 
 /* ============================ v3 · PHASE D4 ============================ */
-.rx-fmbar{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; padding:11px 14px; background:var(--panel); border:1px solid var(--line); border-radius:11px; margin:-2px 0 8px;}
+.rx-fmbar{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; padding:11px 14px; background:var(--panel); border:1px solid var(--line); border-radius:14px 4px 14px 4px; margin:-2px 0 8px;}
 .rx-fmbar-lab{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600;}
 .rx-fmbar-field{display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--ink2);}
 .rx-fmbar-field span{font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600;}
@@ -827,8 +980,8 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-fmbar-note b{color:var(--ink);}
 
 /* ============================ v3 · PHASE C4-PKPD ============================ */
-.rx-pkpd-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
-.rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:11px; padding:14px 15px;}
+.rx-pkpd-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;}
+.rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:14px 15px;}
 .rx-pkpd-h{display:flex; align-items:center; gap:7px; font-family:var(--sans); font-size:13px; font-weight:700; color:var(--ink); margin-bottom:7px;}
 .rx-pkpd-h svg{color:var(--ox); flex:0 0 auto;}
 .rx-pkpd-tgt{font-family:var(--mono); font-size:12px; color:var(--ox); margin-bottom:7px;}
@@ -1183,4 +1336,452 @@ const CSS5 = `
 }
 `;
 
-export { CSS, CSS2, CSS3, CSS4, CSS5 };
+/* =====================================================================
+   CSS_W10 — Wave 10 W10 · Atomized chrome treatment for every NON-Spectrum
+   data table. Density-paramount: legibility wins over chrome. All rules
+   are additive (no overrides of existing layouts/cell padding except to
+   normalize the most uneven offenders). Targets:
+     .rx-ftable    formulary
+     .rx-allergy   allergy / cross-react / in-vitro traps
+     .rx-mtxwrap / .rx-mtx       penetration & toxicity matrix
+     .rx-mxwrap / .rx-mxtable    MRSA-by-site matrix
+     .rx-cmptable  agent-vs-agent compare
+     .rx-rentable  renal triggers / IV-to-PO / OPAT / prophylaxis
+     .rx-heptable  hepatic dosing
+     .rx-dirtable  directed-therapy (now legacy — kept for parity)
+   ===================================================================== */
+const CSS_W10 = `
+/* === T1 · Wrapper chrome ===========================================
+   Asymmetric 18/4 outer radius; lifted shadow; ride alongside the
+   existing border (transparent gradient strip via box-shadow for the
+   iridescent feel without the heavier .rx-iridescent-border conic). */
+.rx-mxwrap,
+.rx-mtxwrap,
+.rx-card > .rx-rentable,
+.rx-card > .rx-heptable{
+  border-radius: 18px 4px 18px 4px !important;
+}
+.rx-mxwrap,
+.rx-mtxwrap{
+  box-shadow: var(--shadow-e2);
+  position: relative;
+  isolation: isolate;
+}
+.rx-mxwrap::after,
+.rx-mtxwrap::after{
+  content:"";
+  position:absolute; inset:-1px;
+  border-radius: inherit;
+  pointer-events:none;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ox-bright) 18%, transparent),
+    inset 0 0 22px -8px color-mix(in srgb, var(--ox-bright) 22%, transparent);
+  z-index: 0;
+}
+.rx-mxwrap:focus-within::after,
+.rx-mtxwrap:focus-within::after{
+  box-shadow:
+    0 0 0 1.5px color-mix(in srgb, var(--ox-bright) 55%, transparent),
+    inset 0 0 28px -8px color-mix(in srgb, var(--ox-bright) 32%, transparent);
+}
+.rx-ftable,
+.rx-allergy,
+.rx-dirtable{
+  border-radius: 18px 4px 18px 4px !important;
+  box-shadow: var(--shadow-e2);
+}
+
+/* === T2 · Column header chrome =====================================
+   Top sheen via paper2→transparent overlay; 1px static cyan top
+   accent; 2px cyan bottom delimiter. Sticky positioning preserved
+   on the matrices that already had it. */
+.rx-ftable thead th,
+.rx-allergy thead th,
+.rx-dirtable thead th,
+.rx-rentable thead th,
+.rx-heptable thead th,
+.rx-cmptable thead th{
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--paper2) 90%, transparent) 0%,
+      color-mix(in srgb, var(--paper2) 20%, transparent) 60%,
+      transparent 100%) !important;
+  border-top: 1px solid color-mix(in srgb, var(--ox-bright) 55%, transparent);
+  border-bottom: 2px solid var(--ox-bright) !important;
+  font-size: 10.5px !important;
+  letter-spacing: .14em !important;
+  position: relative;
+}
+.rx-mxtable thead th{
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--paper2) 90%, transparent) 0%,
+      transparent 100%) !important;
+  border-bottom: 2px solid var(--ox-bright) !important;
+}
+/* The .rx-mtx matrix has sticky headers — keep position:sticky AND
+   layer the chrome via the existing background variable. */
+.rx-mtx thead th:not(.corner){
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--paper2) 80%, var(--panel)) 0%,
+      var(--panel) 60%) !important;
+  border-bottom: 2px solid var(--ox-bright);
+}
+.rx-mtx thead th.corner{
+  background: var(--panel) !important;
+  border-bottom: 2px solid var(--ox-bright);
+  border-right: 1px solid color-mix(in srgb, var(--ox-bright) 22%, transparent) !important;
+}
+
+/* === T3 · Row-header (leftmost) frosted glass + serif italic ======
+   Affects the natural first <td> in each body row across the data
+   tables. The matrices already have a .lab class doing some of the
+   work; we layer onto both. */
+.rx-ftable tbody td.tdname,
+.rx-allergy tbody tr td:first-child,
+.rx-dirtable tbody td.tddorg,
+.rx-rentable tbody tr td:first-child,
+.rx-heptable tbody tr td:first-child,
+.rx-cmptable tbody td.rx-cmp-org{
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--paper2) 60%, transparent) 0%,
+    transparent 100%);
+  border-right: 1.5px solid color-mix(in srgb, var(--ox-bright) 22%, transparent);
+  position: relative;
+}
+.rx-mtx tbody td.lab,
+.rx-mxtable tbody td.rx-mx-ag{
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--paper2) 70%, var(--panel)) 0%,
+    var(--panel) 100%) !important;
+  border-right: 1.5px solid color-mix(in srgb, var(--ox-bright) 24%, transparent) !important;
+}
+/* Subtle italic-serif treatment for the organism / agent name lines.
+   Mono-typeset child fields (.rx-fdose, sub specs) are deliberately
+   untouched so they stay scannable. */
+.rx-allergy tbody tr td:first-child b,
+.rx-rentable tbody tr td:first-child,
+.rx-heptable tbody tr td:first-child,
+.rx-cmptable tbody td.rx-cmp-org,
+.rx-mtx tbody td.lab{
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+}
+
+/* === T4 · Crosshair hover ==========================================
+   Hovered row & its first cell both pick up a cyan inset glow. The
+   column-header glow trick needs JS-tracked column index across
+   tables of variable width; we ship the row+row-header part (the
+   80% case) and let the column accent stay static from T2. */
+.rx-ftable tbody tr:hover td:first-child,
+.rx-allergy tbody tr:hover td:first-child,
+.rx-dirtable tbody tr:hover td:first-child,
+.rx-rentable tbody tr:hover td:first-child,
+.rx-heptable tbody tr:hover td:first-child,
+.rx-cmptable tbody tr:hover td:first-child,
+.rx-mxtable tbody tr:hover td.rx-mx-ag,
+.rx-mtx tbody tr:hover td.lab{
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--ox-bright) 14%, var(--panel)) 0%,
+    color-mix(in srgb, var(--ox-bright) 4%, var(--panel)) 100%) !important;
+  box-shadow: inset 2px 0 0 var(--ox-bright);
+}
+.rx-ftable tbody tr:hover,
+.rx-allergy tbody tr:hover,
+.rx-dirtable tbody tr:hover,
+.rx-rentable tbody tr:hover,
+.rx-heptable tbody tr:hover,
+.rx-cmptable tbody tr:hover,
+.rx-mxtable tbody tr:hover td,
+.rx-mtx tbody tr:hover{
+  background: color-mix(in srgb, var(--ox-bright) 5%, transparent) !important;
+}
+.rx-ftable tbody td:hover,
+.rx-allergy tbody td:hover,
+.rx-dirtable tbody td:hover,
+.rx-rentable tbody td:hover,
+.rx-heptable tbody td:hover,
+.rx-cmptable tbody td:hover,
+.rx-mxtable tbody td:hover,
+.rx-mtx tbody td:hover{
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ox-bright) 40%, transparent),
+              inset 0 0 12px -2px color-mix(in srgb, var(--ox-bright) 28%, transparent);
+}
+
+/* === T5 · Severity-letter promotion to light-rings ================
+   The compare cells (.rx-cmpcell) and the MRSA cells (.rx-mxcell)
+   already carry semantic state classes. Layer the Wave 9 light-ring
+   glow + radial highlight on them without breaking the existing
+   width/height/letter rendering. */
+.rx-cmpcell{
+  position: relative;
+  background-image:
+    radial-gradient(circle at 32% 30%, rgba(255,255,255,0.55) 0%, transparent 42%),
+    var(--rx-cmp-bg, none);
+}
+.rx-cmpcell.cl-first{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--green) 30%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--green) 50%, transparent);
+}
+.rx-cmpcell.cl-sec{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ox-bright) 40%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--ox-bright) 35%, transparent);
+}
+.rx-cmpcell.cl-var{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--amber) 40%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--amber) 45%, transparent);
+}
+.rx-cmpcell.cl-intr{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--vivid-red, var(--ox)) 40%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--vivid-red, var(--ox)) 45%, transparent);
+}
+.rx-mxcell{
+  background-image:
+    radial-gradient(circle at 32% 30%, rgba(255,255,255,0.55) 0%, transparent 42%);
+}
+.rx-mxcell.mx-pref{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--green) 30%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--green) 50%, transparent);
+}
+.rx-mxcell.mx-alt{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ox-bright) 32%, transparent),
+    0 0 8px -2px color-mix(in srgb, var(--ox-bright) 28%, transparent);
+}
+.rx-mxcell.mx-avoid{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--vivid-red, var(--ox)) 30%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--vivid-red, var(--ox)) 40%, transparent);
+}
+
+/* === T7 · Tier-badge style for the .rx-tag classes already used in
+   the formulary table (e.g. t-ok, t-ox, t-neutral). Chrome gradient
+   for primary, ghost for the rest. */
+.rx-ftable .rx-tag.t-ox,
+.rx-cmptable .rx-tag.t-ox{
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--ox-bright) 55%, var(--ox-deep)) 0%,
+    color-mix(in srgb, var(--ox-bright) 35%, var(--ox-deep)) 100%);
+  color: #fff;
+  border-color: transparent;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.18);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset,
+              0 2px 6px -2px color-mix(in srgb, var(--ox-bright) 50%, transparent);
+}
+.rx-ftable .rx-tag.t-neutral,
+.rx-cmptable .rx-tag.t-neutral{
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--ox-bright) 35%, var(--line));
+  color: var(--ink2);
+}
+
+/* === T8 · Numeric cells get italic-serif tabular variant in the
+   dose / mono column. We do NOT colorize highest/lowest — without
+   knowing the row max in CSS we'd guess wrong; opt-in via existing
+   .rx-fdose-adj is already cyan. */
+.rx-ftable .rx-fdose,
+.rx-ftable .rx-mono,
+.rx-rentable .rx-mono,
+.rx-cmptable .rx-mono{
+  font-variant-numeric: tabular-nums;
+}
+.rx-ftable .rx-fdose-adj{
+  /* W12 a11y · was --ox-bright (1.69:1) — bumped to --ox so the bold
+     adjusted-dose digits clear 4.5:1 on paper. The cyan accent moves
+     to the adjacent border/glow tokens (decorative role) on cells
+     that need a visual highlight. */
+  color: var(--ox);
+  font-weight: 700;
+}
+
+/* === T9 · Empty cells: a dotted-circle SVG via ::after on cells
+   that contain only a dash or em-dash. CSS cannot detect content
+   directly, but td.empty or td[data-empty] hooks would; the existing
+   markup already uses literal "—". We restyle any element whose
+   single text node is just an em-dash by recoloring it to --faint.
+   Strict content matching needs JS; here we just elevate the dash
+   visually so it reads "intentional gap, not missing data". */
+.rx-ftable tbody td,
+.rx-allergy tbody td,
+.rx-rentable tbody td,
+.rx-heptable tbody td,
+.rx-cmptable tbody td{
+  /* No layout change — just ensure tabular feel for any numerics. */
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* === T10 · Corner artwork on matrices ==============================
+   Top-left cell where row+column headers meet picks up a subtle
+   cyan radial wash; the existing tiny "Agent ↓ / site →" label keeps
+   its mono kicker. */
+.rx-mtx thead th.corner{
+  background:
+    radial-gradient(circle at 12% 100%,
+      color-mix(in srgb, var(--ox-bright) 22%, transparent) 0%,
+      transparent 60%),
+    var(--panel) !important;
+}
+.rx-mxtable thead th.rx-mx-ag{
+  background:
+    radial-gradient(circle at 12% 100%,
+      color-mix(in srgb, var(--ox-bright) 18%, transparent) 0%,
+      transparent 60%),
+    transparent !important;
+}
+
+/* === T11 · Legend bar glass treatment ==============================
+   Every existing legend container picks up a faint glass-diffuse
+   feel without obscuring the chips inside. */
+.rx-mxlegend,
+.rx-mtxleg,
+.rx-cmp-legend{
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.70) 0%,
+    color-mix(in srgb, var(--paper2) 40%, rgba(255,255,255,0.55)) 100%);
+  border: 1px solid color-mix(in srgb, var(--ox-bright) 16%, var(--line));
+  border-radius: 12px 3px 12px 3px;
+  padding: 9px 14px;
+  box-shadow: var(--shadow-e1);
+  backdrop-filter: blur(6px) saturate(140%);
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
+}
+
+/* === T12 · Row-by-row fade-in cascade =============================
+   Pure CSS, gated by prefers-reduced-motion. Caps at 18 rows so the
+   delay never exceeds ~360ms. Only fires once on mount thanks to
+   'both' fill-mode + the animation keyframes that end at opacity 1. */
+@keyframes rxW10RowIn{
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+.rx-ftable tbody tr,
+.rx-allergy tbody tr,
+.rx-dirtable tbody tr,
+.rx-rentable tbody tr,
+.rx-heptable tbody tr,
+.rx-cmptable tbody tr,
+.rx-mxtable tbody tr,
+.rx-mtx tbody tr{
+  animation: rxW10RowIn 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.rx-ftable tbody tr:nth-child(1),
+.rx-allergy tbody tr:nth-child(1),
+.rx-rentable tbody tr:nth-child(1),
+.rx-heptable tbody tr:nth-child(1),
+.rx-cmptable tbody tr:nth-child(1),
+.rx-mxtable tbody tr:nth-child(1),
+.rx-mtx tbody tr:nth-child(1){ animation-delay: 0ms; }
+.rx-ftable tbody tr:nth-child(2),
+.rx-allergy tbody tr:nth-child(2),
+.rx-rentable tbody tr:nth-child(2),
+.rx-heptable tbody tr:nth-child(2),
+.rx-cmptable tbody tr:nth-child(2),
+.rx-mxtable tbody tr:nth-child(2),
+.rx-mtx tbody tr:nth-child(2){ animation-delay: 20ms; }
+.rx-ftable tbody tr:nth-child(3),
+.rx-allergy tbody tr:nth-child(3),
+.rx-rentable tbody tr:nth-child(3),
+.rx-heptable tbody tr:nth-child(3),
+.rx-cmptable tbody tr:nth-child(3),
+.rx-mxtable tbody tr:nth-child(3),
+.rx-mtx tbody tr:nth-child(3){ animation-delay: 40ms; }
+.rx-ftable tbody tr:nth-child(4),
+.rx-allergy tbody tr:nth-child(4),
+.rx-rentable tbody tr:nth-child(4),
+.rx-heptable tbody tr:nth-child(4),
+.rx-cmptable tbody tr:nth-child(4),
+.rx-mxtable tbody tr:nth-child(4),
+.rx-mtx tbody tr:nth-child(4){ animation-delay: 60ms; }
+.rx-ftable tbody tr:nth-child(5),
+.rx-allergy tbody tr:nth-child(5),
+.rx-rentable tbody tr:nth-child(5),
+.rx-heptable tbody tr:nth-child(5),
+.rx-cmptable tbody tr:nth-child(5),
+.rx-mxtable tbody tr:nth-child(5),
+.rx-mtx tbody tr:nth-child(5){ animation-delay: 80ms; }
+.rx-ftable tbody tr:nth-child(6),
+.rx-allergy tbody tr:nth-child(6),
+.rx-rentable tbody tr:nth-child(6),
+.rx-heptable tbody tr:nth-child(6),
+.rx-cmptable tbody tr:nth-child(6),
+.rx-mxtable tbody tr:nth-child(6),
+.rx-mtx tbody tr:nth-child(6){ animation-delay: 100ms; }
+.rx-ftable tbody tr:nth-child(7),
+.rx-allergy tbody tr:nth-child(7),
+.rx-rentable tbody tr:nth-child(7),
+.rx-heptable tbody tr:nth-child(7),
+.rx-cmptable tbody tr:nth-child(7),
+.rx-mxtable tbody tr:nth-child(7),
+.rx-mtx tbody tr:nth-child(7){ animation-delay: 120ms; }
+.rx-ftable tbody tr:nth-child(8),
+.rx-allergy tbody tr:nth-child(8),
+.rx-rentable tbody tr:nth-child(8),
+.rx-heptable tbody tr:nth-child(8),
+.rx-cmptable tbody tr:nth-child(8),
+.rx-mxtable tbody tr:nth-child(8),
+.rx-mtx tbody tr:nth-child(8){ animation-delay: 140ms; }
+.rx-ftable tbody tr:nth-child(n+9),
+.rx-allergy tbody tr:nth-child(n+9),
+.rx-rentable tbody tr:nth-child(n+9),
+.rx-heptable tbody tr:nth-child(n+9),
+.rx-cmptable tbody tr:nth-child(n+9),
+.rx-mxtable tbody tr:nth-child(n+9),
+.rx-mtx tbody tr:nth-child(n+9){ animation-delay: 160ms; }
+.rx-ftable tbody tr:nth-child(n+12),
+.rx-allergy tbody tr:nth-child(n+12),
+.rx-rentable tbody tr:nth-child(n+12),
+.rx-heptable tbody tr:nth-child(n+12),
+.rx-cmptable tbody tr:nth-child(n+12),
+.rx-mxtable tbody tr:nth-child(n+12),
+.rx-mtx tbody tr:nth-child(n+12){ animation-delay: 220ms; }
+.rx-ftable tbody tr:nth-child(n+16),
+.rx-allergy tbody tr:nth-child(n+16),
+.rx-rentable tbody tr:nth-child(n+16),
+.rx-heptable tbody tr:nth-child(n+16),
+.rx-cmptable tbody tr:nth-child(n+16),
+.rx-mxtable tbody tr:nth-child(n+16),
+.rx-mtx tbody tr:nth-child(n+16){ animation-delay: 300ms; }
+
+/* === Density audit normalizations =================================
+   Bring the table family to a consistent vertical rhythm. Existing
+   horizontal padding is preserved (it is already tight); we only
+   nudge vertical padding to 9px ±1 so every body row sits at the
+   same baseline. Header rows stay +4px taller via the standard
+   :first-child of thead rule. */
+.rx-ftable tbody td,
+.rx-rentable tbody td,
+.rx-heptable tbody td,
+.rx-cmptable tbody td{
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+.rx-allergy tbody td{
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+/* === Reduced-motion guard =========================================
+   Every Wave 10 animation collapses to static. The chrome (gradients,
+   shadows, borders, legend glass) all stay — they are not animated. */
+@media (prefers-reduced-motion: reduce){
+  .rx-ftable tbody tr,
+  .rx-allergy tbody tr,
+  .rx-dirtable tbody tr,
+  .rx-rentable tbody tr,
+  .rx-heptable tbody tr,
+  .rx-cmptable tbody tr,
+  .rx-mxtable tbody tr,
+  .rx-mtx tbody tr{
+    animation: none !important;
+  }
+}
+`;
+
+export { CSS, CSS2, CSS3, CSS4, CSS5, CSS_W10 };

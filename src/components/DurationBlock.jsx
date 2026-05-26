@@ -114,20 +114,25 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
 
   return (
     <Section kicker="Duration · When to stop" icon={Clock} glyph="duration" testId="duration-block">
-      {/* Headline + evidence */}
+      {/* Headline + evidence — Wave 10: rx-glass-bleed adds the inner
+          cyan edge-light + 1px outer halo so the bottom-line duration
+          directive carries the same frosted-glass register as the
+          monitoring + diagnostics headlines. The accent background
+          stays underneath; the bleed is purely additive. */}
       {headline && (
-        <div style={{
+        <div className="rx-glass-bleed" style={{
           background: accentBg,
           border: "1px solid var(--ox-line)",
           borderRadius: 7,
           padding: "8px 11px",
           marginBottom: 12,
+          position: "relative",
         }}>
-          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600 }}>
+          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600, position: "relative", zIndex: 2 }}>
             <RichText text={headline} accentColor={accent} />
           </div>
           {evidence && (
-            <div style={{ fontSize: 11, lineHeight: 1.45, color: "var(--ink2)", marginTop: 4, fontStyle: "italic" }}>
+            <div style={{ fontSize: 11, lineHeight: 1.45, color: "var(--ink2)", marginTop: 4, fontStyle: "italic", position: "relative", zIndex: 2 }}>
               <RichText text={evidence} accentColor={accent} />
             </div>
           )}
@@ -165,6 +170,11 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                   type={interactive ? "button" : undefined}
                   onClick={interactive ? toggle : undefined}
                   aria-pressed={interactive ? active : undefined}
+                  /* Wave 11 — clickable branch tiles opt in to the global
+                     cursor-spotlight + focus-halo so they react with the
+                     same polish as every other major interactive surface.
+                     Static (non-interactive) tiles stay inert. */
+                  className={interactive ? "rx-card-interactive rx-focus-halo" : undefined}
                   style={{
                     textAlign: "left",
                     background: active ? accentBg : "var(--paper2)",
@@ -174,7 +184,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                     padding: "8px 10px 8px 9px",
                     display:"flex", flexDirection:"column", gap:4,
                     cursor: interactive ? "pointer" : "default",
-                    transition: "background .12s, border-color .12s",
+                    transition: "background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
                     boxShadow: active ? "inset 0 0 0 1px var(--ox-line)" : "none",
                   }}>
                   <div style={{ display:"flex", alignItems:"baseline", gap:8, justifyContent:"space-between" }}>
@@ -223,15 +233,35 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
               fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".08em",
               textTransform:"uppercase", fontWeight:700, color: "var(--ink2)",
             }}>First effective dose</span>
+            {/* Wave 10 — rx-focus-halo wraps the date input in the depth
+                cyan halo on keyboard focus, matching the focus treatment
+                used by inputs across the rest of the canvas. */}
             <input
+              className="rx-focus-halo"
               type="date"
               value={startDate || ""}
               onChange={(e) => onStartDateChange(e.target.value || null)}
+              /* W10 · cyan focus halo + asymmetric 8/2 corners + soft
+                  glass tint — matches the wider input chrome system. */
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--neon-cyan, var(--ox-bright))";
+                e.currentTarget.style.boxShadow = "0 0 0 2px var(--neon-cyan, var(--ox-bright)), 0 0 14px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 30%, transparent)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--line)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
               style={{
                 fontFamily:"var(--mono)", fontSize:12,
-                padding:"3px 6px", borderRadius:4,
-                border:"1px solid var(--line)", background:"var(--panel)",
+                padding:"5px 9px",
+                borderRadius:"8px 2px 8px 2px",
+                border:"1px solid var(--line)",
+                background:"linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%)",
+                backdropFilter:"blur(10px) saturate(160%)",
+                WebkitBackdropFilter:"blur(10px) saturate(160%)",
                 color:"var(--ink)",
+                outline:"none",
+                transition:"border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
               }} />
           </label>
           <div style={{ fontSize: 12, color: "var(--ink2)", textAlign: "right" }}>
@@ -313,7 +343,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                       border: ctxFires ? "1px solid var(--amber-line)" : "none",
                       borderLeft: ctxFires ? "3px solid var(--amber)" : "none",
                       borderRadius: ctxFires ? 5 : 0,
-                      transition: "background .12s, border-color .12s",
+                      transition: "background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
                     }}>
                       <AlertTriangle size={11} aria-hidden style={{ color:"var(--amber)", flexShrink: 0, marginTop: 3 }} />
                       <span style={{ flex: 1 }}>

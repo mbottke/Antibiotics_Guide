@@ -53,12 +53,20 @@ function ChecklistItem({ item, matched }) {
       borderLeft: "3px solid " + (matched ? sty.color : sty.line),
       borderRadius: 6,
       boxShadow: matched ? "inset 0 0 0 1px " + sty.line : "none",
-      transition: "border-color .12s, box-shadow .12s",
+      transition: "border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-fast, .12s) var(--ease-out, ease)",
     }}>
+      {/* W10 · neon light-ring leads the severity column so OPAT speaks
+          the same severity grammar as Monitoring / Diagnostics — three
+          deliberate glow levels (red / amber / cyan) above the icon. */}
       <div style={{
         display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
         paddingTop: 1,
       }}>
+        <span className={
+          item.sev === "required" ? "rx-light-ring-red"
+          : item.sev === "trigger" ? "rx-light-ring-amber"
+          : "rx-light-ring-cyan"
+        } aria-hidden style={{ width: 6, height: 6, borderWidth: 1.5, marginBottom: 1, opacity: 0.85 }} />
         <sty.Icon size={12} color={sty.color} aria-hidden />
         <span style={{
           fontFamily: "var(--mono)", fontSize: 8, fontWeight: 700,
@@ -100,6 +108,7 @@ function AgentsTable({ agents }) {
       width: "100%", minWidth: 480,
       borderCollapse: "collapse", fontSize: 11.5,
       border: "1px solid var(--line)", borderRadius: 6, overflow: "hidden",
+      fontVariantNumeric: "tabular-nums",
     }}>
       <thead>
         <tr style={{ background: "var(--paper2)" }}>
@@ -188,12 +197,16 @@ function OPATBlock({ opat, ctx }) {
       {matchedTotal > 0 && (
         <div style={{ marginBottom: 10, display: "flex", justifyContent: "flex-end" }}>
           <span style={{
-            display: "inline-flex", alignItems: "center", gap: 5,
+            display: "inline-flex", alignItems: "center", gap: 6,
             fontFamily: "var(--mono)", fontSize: 9, letterSpacing: ".08em",
             textTransform: "uppercase", fontWeight: 600, color: accent,
             background: accentBg, padding: "2px 7px", borderRadius: 4,
             border: "1px solid var(--ox-line)",
           }}>
+            {/* Wave 10 — cyan light-ring on the matches counter, matching
+                MonitoringBlock + DiagnosticsBlock so the entire "matched
+                for this patient" grammar speaks with one neon dot. */}
+            <span className="rx-light-ring-cyan" aria-hidden style={{ width: 8, height: 8 }} />
             {matchedTotal} {matchedTotal === 1 ? "match" : "matches"} for selection
           </span>
         </div>

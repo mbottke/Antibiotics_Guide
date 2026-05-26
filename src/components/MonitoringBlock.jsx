@@ -25,6 +25,7 @@ import { Section } from "./Section.jsx";
 import { matchesCtx } from "../engines/ctxMatch.js";
 import { RichText } from "./util/richText.jsx";
 import { severityStyle } from "./util/severityStyle.js";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
 
 /* Does this item match the current cross-section selection?
    Returns true when ANY of:
@@ -62,13 +63,22 @@ function MonitoringItem({ item, matched }) {
       borderLeft: "3px solid " + (matched ? sty.color : sty.line),
       borderRadius: 6,
       boxShadow: matched ? "inset 0 0 0 1px " + sty.line : "none",
-      transition: "border-color .12s, box-shadow .12s",
+      transition: "border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-fast, .12s) var(--ease-out, ease)",
     }}>
-      {/* Severity badge */}
+      {/* Severity badge — W10 · the required/trigger/consider tiers each
+          get a neon light-ring leading the column so the severity ladder
+          reads as three deliberate glow levels (red alert / amber
+          escalation / cyan consider) on top of the existing icon-color
+          channel. Layout untouched (still 12px icon + 8px mono label). */}
       <div style={{
         display:"flex", flexDirection:"column", alignItems:"center", gap:3,
         paddingTop: 1,
       }}>
+        <span className={
+          item.sev === "required" ? "rx-light-ring-red"
+          : item.sev === "trigger" ? "rx-light-ring-amber"
+          : "rx-light-ring-cyan"
+        } aria-hidden style={{ width: 6, height: 6, borderWidth: 1.5, marginBottom: 1, opacity: 0.85 }} />
         <sty.Icon size={12} color={sty.color} aria-hidden />
         <span style={{
           fontFamily:"var(--mono)", fontSize:8, fontWeight:700,
@@ -133,27 +143,36 @@ function MonitoringBlock({ monitoring, pickedAgents = [], pickedBranch, ctx }) {
       {matchedCount > 0 && (
         <div style={{ marginBottom: headline || items.length ? 10 : 0, display:"flex", justifyContent:"flex-end" }}>
           <span style={{
-            display:"inline-flex", alignItems:"center", gap:5,
+            display:"inline-flex", alignItems:"center", gap:6,
             fontFamily:"var(--mono)", fontSize:9, letterSpacing:".08em",
             textTransform:"uppercase", fontWeight:600, color: accent,
             background: accentBg, padding:"2px 7px", borderRadius:4,
             border:"1px solid var(--ox-line)",
           }}>
+            {/* Wave 10 — cyan light-ring announces "live filter is active"
+                with the same neon-dot vocabulary the rest of the canvas
+                uses for severity tier dots. Reduced-motion drops the ring's
+                pulse; the dot stays visible. */}
+            <span className="rx-light-ring-cyan" aria-hidden style={{ width: 8, height: 8 }} />
             {matchedCount} {matchedCount === 1 ? "match" : "matches"} for selection
           </span>
         </div>
       )}
 
-      {/* Headline */}
+      {/* Headline — Wave 10: rx-glass-bleed adds the inner cyan edge-light
+          on the headline panel so the bottom-line monitoring directive
+          carries the same frosted-glass register as the rest of the
+          Wave 9 surfaces. The headline keeps its accent background; the
+          bleed is additive (only the inner edge picks up the cyan glow). */}
       {headline && (
-        <div style={{
+        <div className="rx-glass-bleed" style={{
           background: accentBg,
           border: "1px solid var(--ox-line)",
           borderRadius: 7,
           padding: "8px 11px",
           marginBottom: items.length ? 12 : 0,
         }}>
-          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600 }}>
+          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600, position: "relative", zIndex: 2 }}>
             <RichText text={headline} accentColor={accent} />
           </div>
         </div>
@@ -162,13 +181,44 @@ function MonitoringBlock({ monitoring, pickedAgents = [], pickedBranch, ctx }) {
       {/* Items grouped by severity. Within each severity bucket, matched
           items float to the top (still visible alongside the rest — never
           hidden). The "MATCHES" chip on a matched row, plus the elevated
-          left-border accent, makes the relevant items leap out. */}
-      {items.length > 0 && (
+          left-border accent, makes the relevant items leap out.
+
+          Wave 12 W12 · when the layer renders ≥ 8 items, break the single
+          unified <ul> into three severity sub-lists separated by cyan-blue
+          gradient hairlines. The hairline lives BETWEEN ul groups (never
+          inside one) so screen readers still walk a clean list-of-lists.
+          Below 8 items the original single-ul layout stays. */}
+      {items.length > 0 && items.length < 8 && (
         <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:5 }}>
           {required.map((d, i) => <MonitoringItem key={"r"+i} item={d.item} matched={d.matched} />)}
           {trigger .map((d, i) => <MonitoringItem key={"t"+i} item={d.item} matched={d.matched} />)}
           {consider.map((d, i) => <MonitoringItem key={"c"+i} item={d.item} matched={d.matched} />)}
         </ul>
+      )}
+      {items.length >= 8 && (
+        <>
+          {required.length > 0 && (
+            <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:5 }}>
+              {required.map((d, i) => <MonitoringItem key={"r"+i} item={d.item} matched={d.matched} />)}
+            </ul>
+          )}
+          {required.length > 0 && (trigger.length > 0 || consider.length > 0) && (
+            <GradientHairline variant="cyan-blue" style={{ opacity: .4, margin: "24px 0" }} />
+          )}
+          {trigger.length > 0 && (
+            <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:5 }}>
+              {trigger.map((d, i) => <MonitoringItem key={"t"+i} item={d.item} matched={d.matched} />)}
+            </ul>
+          )}
+          {trigger.length > 0 && consider.length > 0 && (
+            <GradientHairline variant="cyan-blue" style={{ opacity: .4, margin: "24px 0" }} />
+          )}
+          {consider.length > 0 && (
+            <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:5 }}>
+              {consider.map((d, i) => <MonitoringItem key={"c"+i} item={d.item} matched={d.matched} />)}
+            </ul>
+          )}
+        </>
       )}
     </Section>
   );

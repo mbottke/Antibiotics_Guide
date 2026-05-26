@@ -172,6 +172,7 @@ function PkPdRow({ name, pkpd, timeToEffect }) {
           <div style={{
             fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink2)",
             lineHeight: 1.45, minWidth: 0, flex: "1 1 220px",
+            fontVariantNumeric: "tabular-nums",
           }}>
             {pkpd.target}
           </div>
@@ -204,17 +205,23 @@ function PkPdBlock({ agents }) {
 
   return (
     <Section kicker="PK/PD · How killing happens" icon={Activity} testId="pkpd-block">
-      <div style={{
+      {/* Wave 10 — the explainer note picks up rx-glass-bleed so the
+          kinetic-class scope-line carries the same frosted-glass header
+          chrome the rest of the answer-canvas headline panels use. */}
+      <div className="rx-glass-bleed" style={{
         background: "var(--paper2)",
         border: "1px solid var(--line)",
         borderRadius: 7,
         padding: "8px 11px",
         marginBottom: 10,
         fontSize: 11.5, lineHeight: 1.5, color: "var(--ink2)",
+        position: "relative",
       }}>
-        Visualizes the kinetic class of each agent in the regimen. The bar shape
-        tells you whether to extend the infusion (time-dependent), front-load
-        the dose (concentration-dependent), or target an AUC (vancomycin / FQ).
+        <span style={{ position: "relative", zIndex: 2 }}>
+          Visualizes the kinetic class of each agent in the regimen. The bar shape
+          tells you whether to extend the infusion (time-dependent), front-load
+          the dose (concentration-dependent), or target an AUC (vancomycin / FQ).
+        </span>
       </div>
 
       <div>

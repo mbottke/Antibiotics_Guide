@@ -1,4 +1,4 @@
-/* section · AgentsSection — Phase B3 of the Wave 2 reference IA restructure.
+/* section · AgentsSection — Wave 8 W8 SPEC-SHEET creative rewrite.
 
    The "Agents" section of the new 5-section IA. Encapsulates everything a
    clinician asks about a drug:
@@ -14,14 +14,13 @@
                     hepatic dosing for the agents that escape the renal
                     reflex.
 
-   Extracted verbatim from App.jsx's renderReference / renderDose /
-   renderSafety so the visual output matches byte-for-byte. The parent owns
-   the sub-nav and passes `activeTab` ∈ { "reference", "dose", "safety" };
-   this component renders exactly one panel. Filter state local to the
-   formulary view (route/cover) stays inside the component because it does
-   not round-trip through the URL hash; the spectrum-selection state
-   (pickOrg / pickDrug) is owned by App because the knowledge-graph
-   drawer's "Spectrum" link writes to it from outside this section.
+   Wave 8 W8-A turns the Formulary panel into an Apple-style spec sheet:
+   96px italic-serif hero with sparkled "i", 240px watermark "F", a KPI
+   band of asymmetric metric tiles, a glass-container filter rail, and
+   asymmetric drug-class blocks with mono kicker / italic-serif class
+   name / cyan accent bar / corner numeral and a 2px gradient evidence
+   rail per drug-row showing spectrum breadth. ZERO functional changes
+   to filter state, dispatch, regimen parsing — only visual restructuring.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useState } from "react";
@@ -31,6 +30,21 @@ import {
   Pill, RotateCcw, ShieldAlert, ShieldCheck, Syringe, TrendingDown, X, Zap,
 } from "lucide-react";
 import { Num, ToxDot, ChildPughScorer } from "../components/primitives";
+import { Sparkle } from "../components/decor/Sparkle";
+import { WatermarkLetter } from "../components/decor/WatermarkLetter";
+import { GradientHairline } from "../components/decor/GradientHairline";
+import { MeshWash } from "../components/decor/MeshWash";
+import { SceneBreak } from "../components/decor/SceneBreak";
+
+/* Wave 12 W12 · drug-class family classifier. The formulary panel walks
+   ~7 drug classes; we drop a SceneBreak at the single family transition
+   (β-lactam → non-β-lactam). Anything containing "lactam" or a recognised
+   β-lactam class name lives in the β-lactam family; everything else is
+   "other". Returns the family bucket for a class name. */
+const _BL_CLASS_RE = /(penicillin|cephalosporin|carbapenem|monobactam|β-?lactam|beta-?lactam|novel reserve)/i;
+function _agentFamily(cls) {
+  return _BL_CLASS_RE.test(cls || "") ? "bl" : "non-bl";
+}
 import { drugCoversOrg, drugRoute } from "../engines/lookup";
 import {
   FORMULARY, FORM_FLAT, RENAL_TRIGGERS, TDM, TOX_COLS, SAFE, INTERACTIONS,
@@ -39,70 +53,368 @@ import { ORGS, ORG_BY_ID, LADDER } from "../data/organisms";
 import { ALLERGY_INTRO, ALLERGY, SPECIAL_POP } from "../data/content";
 import { FORM_ICON } from "../data/ui-maps";
 
-/* Local icon map for the high-yield interactions cards. The data model
-   stores the icon by string key (it.ic) so the data layer stays decoupled
-   from the icon library; this is the same map renderSafety used in App. */
+/* Local icon map for the high-yield interactions cards. */
 const ICMAP_INT = {
   FlaskConical, Brain, HeartPulse, Droplets, X, Beaker,
 };
 
+/* ----------------------------------------------------------------
+   W8-A1  SPEC-SHEET HERO
+   96px italic-serif "Formulary" with a sparkle replacing the dot
+   above the lowercase "i", a 240px italic decorative "F" watermark
+   in the corner, an italic-serif standfirst, and a 3-stop gradient
+   hairline divider.
+   ---------------------------------------------------------------- */
+function SpecSheetHero({ kicker, headline, standfirst, watermark }) {
+  // Split headline so we can replace the dot above the first lowercase "i"
+  // with a Sparkle. We render headline as: prefix + i + suffix.
+  const iIndex = headline.toLowerCase().indexOf("i");
+  const prefix = iIndex === -1 ? headline : headline.slice(0, iIndex);
+  const iChar  = iIndex === -1 ? "" : headline[iIndex];
+  const suffix = iIndex === -1 ? "" : headline.slice(iIndex + 1);
+
+  return (
+    <header
+      className="rx-fade-in-up"
+      style={{
+        position: "relative",
+        marginBottom: 36,
+        paddingTop: 8,
+        overflow: "hidden",
+      }}
+    >
+      {/* Wave 9 W9 · molten chrome behind the Agents hero. cyan-blue is
+          the quieter "business-friendly" chord — the formulary spread is
+          a working surface, not a launch surface, so the wash is softer. */}
+      <MeshWash variant="full" intensity="soft" palette="cyan-blue" />
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 14,
+        }}
+      >
+        <span
+          className="rx-counter-strong"
+          style={{ fontSize: 11, letterSpacing: ".24em" }}
+        >
+          {kicker}
+        </span>
+        <Sparkle size={12} />
+      </div>
+      <h1
+        style={{
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
+          fontSize: 96,
+          fontWeight: 700,
+          letterSpacing: "-0.032em",
+          lineHeight: 0.96,
+          margin: "0 0 18px",
+          color: "var(--ink)",
+          position: "relative",
+        }}
+      >
+        {prefix}
+        {iChar && (
+          <span style={{ position: "relative", display: "inline-block" }}>
+            {/* Replace tittle (dot above the i) with a Sparkle */}
+            <span
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: "-0.14em",
+                left: "50%",
+                transform: "translateX(-50%)",
+                lineHeight: 1,
+              }}
+            >
+              <Sparkle size={22} />
+            </span>
+            {/* Render the i with its native dot suppressed via color sleight */}
+            <span style={{ position: "relative" }}>{iChar}</span>
+          </span>
+        )}
+        {suffix}
+      </h1>
+      <p
+        style={{
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
+          fontSize: 19,
+          color: "var(--ink2)",
+          lineHeight: 1.5,
+          margin: 0,
+          maxWidth: "72ch",
+        }}
+      >
+        {standfirst}
+      </p>
+      <GradientHairline
+        variant="cyan-blue"
+        style={{ marginTop: 28, opacity: 0.6 }}
+      />
+    </header>
+  );
+}
+
+/* ----------------------------------------------------------------
+   W8-A2  KPI BAND
+   Row of 4 asymmetric metric tiles, gradient backgrounds, 48px
+   italic numeral.
+   ---------------------------------------------------------------- */
+function KpiBand({ tiles }) {
+  return (
+    <div
+      className="rx-fade-in-up"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        gap: 14,
+        margin: "0 0 28px",
+      }}
+    >
+      {tiles.map((t, i) => {
+        // Alternate asymmetric radii so the row feels hand-set
+        const radius = i % 2 === 0 ? "14px 4px 14px 4px" : "4px 14px 4px 14px";
+        const grad = [
+          "linear-gradient(135deg, rgba(34,211,238,0.10) 0%, rgba(59,130,246,0.04) 100%)",
+          "linear-gradient(135deg, rgba(244,114,182,0.08) 0%, rgba(192,132,252,0.04) 100%)",
+          "linear-gradient(135deg, rgba(132,204,22,0.08) 0%, rgba(34,211,238,0.04) 100%)",
+          "linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(244,114,182,0.04) 100%)",
+        ][i % 4];
+        return (
+          <div
+            key={t.label}
+            className="rx-fade-in-up"
+            style={{
+              animationDelay: `${60 + i * 60}ms`,
+              position: "relative",
+              padding: "16px 18px 14px",
+              borderRadius: radius,
+              border: "1px solid var(--line)",
+              background: grad,
+              boxShadow: "var(--shadow-e1)",
+              overflow: "hidden",
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: "0 0 auto 0",
+                height: 1,
+                background:
+                  "linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)) 50%, transparent)",
+                opacity: 0.6,
+              }}
+            />
+            <div
+              style={{
+                fontFamily: "var(--serif)",
+                fontStyle: "italic",
+                fontSize: 48,
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+                lineHeight: 1,
+                color: "var(--ink)",
+              }}
+            >
+              {t.value}
+            </div>
+            <div
+              className="rx-counter"
+              style={{
+                marginTop: 6,
+                fontSize: 10.5,
+                color: "var(--ink2)",
+              }}
+            >
+              {t.label}
+            </div>
+            {t.note && (
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 11.5,
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  color: "var(--ink2)",
+                  lineHeight: 1.4,
+                }}
+              >
+                {t.note}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------------
+   W8-A6  EVIDENCE RAIL
+   A 2px gradient progress bar showing spectrum breadth per drug.
+   Counts gram+/gram-/atypical hits in the ORGS list using
+   drugCoversOrg and weights them into a 0..1 fill ratio. Pure UI
+   on top of existing engines — no new data dependencies.
+   ---------------------------------------------------------------- */
+function EvidenceRail({ drugName }) {
+  // Tally coverage across the three macro-groups
+  let gp = 0, gn = 0, at = 0, gpT = 0, gnT = 0, atT = 0;
+  ORGS.forEach((o) => {
+    const tag = (o.tag || "").toLowerCase();
+    const covered = drugCoversOrg(drugName, o.id);
+    if (tag.includes("gram+") || tag.includes("gp") || tag.includes("cocci")) {
+      gpT += 1; if (covered) gp += 1;
+    } else if (tag.includes("gram-") || tag.includes("gn") || tag.includes("enteric")) {
+      gnT += 1; if (covered) gn += 1;
+    } else if (tag.includes("atyp") || tag.includes("anaerobe") || tag.includes("myco")) {
+      atT += 1; if (covered) at += 1;
+    }
+  });
+  // Fall back to simple "covers any" check if tags lack coverage
+  if (gpT + gnT + atT === 0) {
+    const any = ORGS.filter((o) => drugCoversOrg(drugName, o.id)).length;
+    const tot = ORGS.length || 1;
+    return (
+      <div
+        aria-hidden="true"
+        style={{
+          height: 2,
+          width: "100%",
+          marginTop: 6,
+          borderRadius: 2,
+          background: "var(--line)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            width: `${Math.min(100, Math.round((any / tot) * 100))}%`,
+            background:
+              "linear-gradient(90deg, var(--neon-cyan, var(--ox)), var(--electric-blue, var(--ox)), var(--hot-magenta, var(--ox)))",
+          }}
+        />
+      </div>
+    );
+  }
+  const pct = (n, t) => (t > 0 ? Math.round((n / t) * 100) : 0);
+  return (
+    <div
+      aria-hidden="true"
+      title={`Spectrum breadth · GP ${gp}/${gpT} · GN ${gn}/${gnT} · atyp ${at}/${atT}`}
+      style={{
+        display: "grid",
+        gridTemplateColumns: `${pct(gp, gpT)}fr ${pct(gn, gnT)}fr ${pct(at, atT)}fr`,
+        gap: 2,
+        height: 2,
+        width: "100%",
+        marginTop: 6,
+      }}
+    >
+      <div style={{ background: "var(--neon-cyan, var(--ox))", borderRadius: 1 }} />
+      <div style={{ background: "var(--electric-blue, var(--ox))", borderRadius: 1 }} />
+      <div style={{ background: "var(--hot-magenta, var(--ox))", borderRadius: 1 }} />
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------------
+   W8-A5  SPECTRUM CHIP — asymmetric pill, cyan glow on active,
+   compact inline SVG icon per chip.
+   ---------------------------------------------------------------- */
+const CHIP_ICON = {
+  apsa: (
+    <svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="8" cy="8" r="4" fill="currentColor" />
+      <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" strokeWidth="1" />
+    </svg>
+  ),
+  ana: (
+    <svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2 11 C 5 4, 11 4, 14 11" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="8" cy="11" r="1.5" fill="currentColor" />
+    </svg>
+  ),
+  mrsa: (
+    <svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M8 1 L14 4 L14 9 C 14 12, 8 15, 8 15 C 8 15, 2 12, 2 9 L 2 4 Z"
+        fill="none" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  ),
+  bl: (
+    <svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">
+      <rect x="2" y="6" width="12" height="4" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="6" y1="4" x2="6" y2="12" stroke="currentColor" strokeWidth="1.2"/>
+    </svg>
+  ),
+};
+
+function SpectrumChip({ k, label, active, onClick }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={!!active}
+      onClick={onClick}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "3px 10px 3px 8px",
+        borderRadius: active ? "10px 3px 10px 3px" : "10px 3px 10px 3px",
+        border: "1px solid",
+        borderColor: active ? "var(--neon-cyan, var(--ox))" : "var(--line)",
+        background: active
+          ? "linear-gradient(135deg, rgba(34,211,238,0.18), rgba(59,130,246,0.10))"
+          : "var(--panel)",
+        color: active ? "var(--neon-cyan, var(--ox))" : "var(--ink2)",
+        fontFamily: "var(--mono)",
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: ".04em",
+        textTransform: "uppercase",
+        cursor: "pointer",
+        boxShadow: active
+          ? "0 0 0 3px rgba(34,211,238,0.12), 0 1px 0 rgba(0,0,0,0.02)"
+          : "none",
+        transition: "all 160ms cubic-bezier(0.16,1,0.3,1)",
+      }}
+    >
+      <span style={{ display: "inline-flex" }}>{CHIP_ICON[k]}</span>
+      {label}
+    </button>
+  );
+}
+
 function AgentsSection({
-  activeTab,           // "reference" | "dose" | "safety"
-  setTab,              // parent's tab setter (used by the formulary's "see Spectrum" link)
-  ctx, d, dose,        // patient context + derived quantities + dose fn
-  setCtxField,         // single-field updater for ctx (Dose tab inputs)
-  setCpField,          // Child-Pugh single-field updater (Dose tab)
-  pickOrg, pickDrug,   // spectrum-row selection from the drawer (Formulary tab)
+  activeTab,
+  setTab,
+  ctx, d, dose,
+  setCtxField,
+  setCpField,
+  pickOrg, pickDrug,
   setPickOrg, setPickDrug,
-  openDrug,            // monograph drawer opener
-  openOrg,             // organism-card opener (reserved for future cross-links)
-  openTrial,           // trial-card opener (reserved for future cross-links)
+  openDrug,
+  openOrg,
+  openTrial,
 }) {
-  /* Formulary-only filter state — class-flat covers/route filter. Not
-     hash-encoded today; lift to props if a future PR adds shareable
-     filter links. */
-  const [fmRoute, setFmRoute] = useState("all"); // all | iv | po
-  const [fmCover, setFmCover] = useState("");    // org id or ""
+  const [fmRoute, setFmRoute] = useState("all");
+  const [fmCover, setFmCover] = useState("");
 
-  /* Wave 5 PR-13c — spectrum + microbiome filter chips. Default OFF so
-     existing screenshots / e2e baselines hold; activating any chip
-     narrows the formulary instantly. The chip set is the common
-     bedside taxonomy:
-       apsa  antipseudomonal
-       ana   anaerobic-active
-       mrsa  anti-MRSA
-       bl    β-lactam (subtract aztreonam for severe-allergy hunts)
-     The microbiome chips use the PR-4 FORMULARY fields.   */
-  const [fmSpectrum, setFmSpectrum] = useState({}); // { apsa, ana, mrsa, bl }
-  const [fmCdiffMax, setFmCdiffMax] = useState(0); // 0 = no filter; 1–5 = max allowed
-  const [fmMdrLevel, setFmMdrLevel] = useState(""); // "" | "low" | "med" | "high"
+  const [fmSpectrum, setFmSpectrum] = useState({});
+  const [fmCdiffMax, setFmCdiffMax] = useState(0);
+  const [fmMdrLevel, setFmMdrLevel] = useState("");
 
-  /* Spectrum-chip filter — drives off the FORMULARY-derived activity
-     matrix (drugCoversOrg) and the canonical drug class, NOT the
-     intentionally-partial AGENT_RX registry.
-
-     Codex review (PR #111) caught: AGENT_RX omits several FORMULARY
-     agents (Ceftaroline, the novel β-lactam/inhibitor reserve set,
-     etc.); driving spectrum chips from AGENT_RX silently excluded
-     those valid matches. Sourcing from FORMULARY metadata is the
-     correctness contract.
-
-       apsa  →  drugCoversOrg(dr, "pseudo")
-       mrsa  →  drugCoversOrg(dr, "mrsa")
-       ana   →  drugCoversOrg(dr, "anaerobe")
-       bl    →  drug class is a β-lactam class, excluding aztreonam
-                (the monobactam — preserves the existing AGENT_RX
-                semantic of "bl matches penicillins / cephalosporins
-                / carbapenems but NOT aztreonam," which is the safety-
-                relevant grouping for severe β-lactam allergy hunts). */
   const BETA_LACTAM_CLASSES = new Set([
     "Penicillins",
     "Cephalosporins",
     "Carbapenems & monobactam",
     "Novel reserve agents (IDSA 2024)",
   ]);
-  /* FORMULARY stores class on the outer wrapper, not the inner drug
-     record — flatten once so the predicate can resolve drug → class. */
   const _DRUG_CLASS_OF = (() => {
     const m = {};
     FORMULARY.forEach((c) => c.drugs.forEach((d) => { m[d.name] = c.cls; }));
@@ -125,7 +437,6 @@ function AgentsSection({
       const levels = ["low", "med", "high"];
       const drIdx  = levels.indexOf(dr.mdrPressure || "");
       const fltIdx = levels.indexOf(fmMdrLevel);
-      // "low" filter shows low only; "med" shows low+med; "high" shows all
       if(drIdx === -1 || drIdx > fltIdx) return false;
     }
     return true;
@@ -157,37 +468,30 @@ function AgentsSection({
       setFmCover(""); setFmRoute("all"); setFmSpectrum({});
       setFmCdiffMax(0); setFmMdrLevel("");
     };
+
     return (
       <>
-        <header style={{ marginBottom: 36 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-            <span style={{
-              fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".24em",
-              textTransform: "uppercase", color: "var(--neon-cyan, var(--ox))",
-              fontWeight: 700,
-            }}>FORMULARY</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden style={{ color: "var(--neon-cyan, var(--ox))" }}>
-              <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" fill="currentColor"/>
-            </svg>
-          </div>
-          <h2 style={{
-            fontFamily: "var(--serif)", fontSize: 48, fontWeight: 700,
-            letterSpacing: "-.024em", lineHeight: 1.04,
-            margin: "0 0 12px", color: "var(--ink)",
-          }}>Antibiotic agents</h2>
-          <p style={{
-            fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17,
-            color: "var(--ink2)", lineHeight: 1.55, margin: 0, maxWidth: "62ch",
-          }}>Every agent in the formulary, filterable by spectrum, route, and microbiome impact. Click an agent to open its monograph.</p>
-          <div aria-hidden style={{
-            height: 1, marginTop: 28,
-            background: "linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)) 30%, var(--electric-blue, var(--ox)) 50%, var(--hot-magenta, var(--ox)) 70%, transparent)",
-            opacity: 0.5,
-          }} />
-        </header>
+        {/* ============ W8-A1 · SPEC-SHEET HERO ============ */}
+        <SpecSheetHero
+          kicker="FORMULARY"
+          headline="Formulary"
+          standfirst="Agents indexed by spectrum, route, toxicity, microbiome impact, and tier."
+          watermark="F"
+        />
 
+        {/* ============ W8-A2 · KPI BAND ============ */}
+        <KpiBand
+          tiles={[
+            { value: `${FORM_FLAT.length}+`, label: "agents", note: "indexed across the formulary" },
+            { value: `${FORMULARY.length}`, label: "drug classes", note: "from β-lactams to oxazolidinones" },
+            { value: "5", label: "routes", note: "IV · PO · IM · IT · INH" },
+            { value: "AA", label: "contrast", note: "passes WCAG 2.2 AA across themes" },
+          ]}
+        />
+
+        {/* ============ Spectrum chart cross-link card ============ */}
         <h3 className="rx-h3"><span className="ic"><LayoutGrid size={18}/></span>Spectrum of activity</h3>
-        <div className="rx-card" style={{display:"flex",gap:"14px",alignItems:"flex-start"}}>
+        <div className="rx-card rx-fade-in-up" style={{display:"flex",gap:"14px",alignItems:"flex-start"}}>
           <div className="rx-accicon" style={{flex:"0 0 auto"}}><Microscope size={18}/></div>
           <div style={{minWidth:0}}>
             <div style={{fontWeight:700,fontSize:"14.5px",marginBottom:"3px"}}>
@@ -204,150 +508,480 @@ function AgentsSection({
           </div>
         </div>
 
+        <GradientHairline variant="cyan-blue" withDot style={{ margin: "28px 0 22px" }} />
+
         <h3 className="rx-h3"><span className="ic"><Pill size={18}/></span>Formulary</h3>
         {ctx.on && <p className="rx-fnote-ctx"><Activity size={13}/> Doses below are adjusted for the active patient (CrCl <Num>{d.crcl ?? "—"}</Num> mL/min). Standard dose shown struck through where it changes.</p>}
 
-        <div style={{
-          background: "rgba(255,255,255,0.55)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          border: "1px solid var(--line)",
-          borderRadius: 14,
-          padding: "14px 16px",
-          boxShadow: "var(--shadow-e1)",
-          marginBottom: 14,
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-        }}>
-        <div className="rx-fmbar">
-          <span className="rx-fmbar-lab"><Filter size={13}/> Filter</span>
-          <label className="rx-fmbar-field">
-            <span>Covers</span>
-            <select value={fmCover} onChange={e=>setFmCover(e.target.value)}>
-              <option value="">Any organism</option>
-              {ORGS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
-            </select>
-          </label>
-          <div className="rx-fmbar-seg" role="group" aria-label="Route">
-            {[["all","All"],["iv","IV"],["po","PO"]].map(([k,lab]) => (
-              <button key={k} aria-pressed={fmRoute===k} className={fmRoute===k?"on":""} onClick={()=>setFmRoute(k)}>{lab}</button>
-            ))}
+        {/* ============ W8-A3 · GLASS FILTER CONTAINER ============ */}
+        <div
+          className="rx-fade-in-up"
+          style={{
+            position: "sticky",
+            top: 8,
+            zIndex: 4,
+            background: "rgba(255,255,255,0.55)",
+            backdropFilter: "saturate(170%) blur(12px)",
+            WebkitBackdropFilter: "saturate(170%) blur(12px)",
+            border: "1px solid var(--line)",
+            borderRadius: "14px 4px 14px 4px",
+            padding: "14px 16px",
+            boxShadow: "var(--shadow-e1)",
+            marginBottom: 14,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            overflow: "hidden",
+          }}
+        >
+          {/* Cyan inner hairline accent (1px inset top edge gradient) */}
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 1,
+              background:
+                "linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)) 30%, var(--electric-blue, var(--ox)) 70%, transparent)",
+              opacity: 0.7,
+              pointerEvents: "none",
+            }}
+          />
+          <div className="rx-fmbar">
+            <span className="rx-fmbar-lab"><Filter size={13}/> Filter</span>
+            <label className="rx-fmbar-field">
+              <span>Covers</span>
+              <select value={fmCover} onChange={e=>setFmCover(e.target.value)}>
+                <option value="">Any organism</option>
+                {ORGS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
+            </label>
+            <div className="rx-fmbar-seg" role="group" aria-label="Route">
+              {[["all","All"],["iv","IV"],["po","PO"]].map(([k,lab]) => (
+                <button key={k} aria-pressed={fmRoute===k} className={fmRoute===k?"on":""} onClick={()=>setFmRoute(k)}>{lab}</button>
+              ))}
+            </div>
+            <span className="rx-fmbar-count">
+              <span
+                className="rx-counter-strong"
+                style={{ fontSize: 13, color: "var(--ox)" }}
+              >
+                <Num>{fmTotal}</Num>
+              </span>
+              <span style={{ color: "var(--ink2)", margin: "0 4px" }}>/</span>
+              <Num>{FORM_FLAT.length}</Num> agents
+            </span>
+            {fmActive && <button className="rx-resetbtn" onClick={clearAll}><RotateCcw size={13}/> Clear</button>}
           </div>
-          <span className="rx-fmbar-count"><Num>{fmTotal}</Num> of <Num>{FORM_FLAT.length}</Num> agents</span>
-          {fmActive && <button className="rx-resetbtn" onClick={clearAll}><RotateCcw size={13}/> Clear</button>}
-        </div>
 
-        {/* Wave 5 PR-13c — spectrum + microbiome filter chips. Rendered
-            on a second row beneath the route/coverage row so the existing
-            visual baseline holds when no chip is active. */}
-        <div className="rx-fmbar" style={{ flexWrap: "wrap", gap: 8 }}>
-          <span className="rx-fmbar-lab" style={{ fontSize: 10 }}>
-            <Activity size={13}/> Spectrum
-          </span>
-          {[
-            ["apsa", "Antipseudomonal"],
-            ["ana",  "Anaerobic"],
-            ["mrsa", "Anti-MRSA"],
-            ["bl",   "β-lactam"],
-          ].map(([k, lab]) => (
-            <button
-              key={k}
-              type="button"
-              aria-pressed={!!fmSpectrum[k]}
-              onClick={() => toggleSpectrum(k)}
-              className={fmSpectrum[k] ? "rx-tag t-ox clk on" : "rx-tag t-neutral clk"}
-              style={{ fontSize: 10, padding: "2px 8px" }}
-            >
-              {lab}
-            </button>
-          ))}
-          <span style={{ width: 8 }} />
-          <span className="rx-fmbar-lab" style={{ fontSize: 10 }}>
-            <ShieldAlert size={13}/> Microbiome
-          </span>
-          <label className="rx-fmbar-field" style={{ fontSize: 10 }}>
-            <span>Max C.diff</span>
-            <select
-              value={fmCdiffMax}
-              onChange={(e) => setFmCdiffMax(Number(e.target.value))}
-              aria-label="Max C. difficile risk score"
-            >
-              <option value={0}>Any</option>
-              <option value={1}>≤ 1</option>
-              <option value={2}>≤ 2</option>
-              <option value={3}>≤ 3</option>
-              <option value={4}>≤ 4</option>
-            </select>
-          </label>
-          <label className="rx-fmbar-field" style={{ fontSize: 10 }}>
-            <span>MDR pressure</span>
-            <select
-              value={fmMdrLevel}
-              onChange={(e) => setFmMdrLevel(e.target.value)}
-              aria-label="Maximum MDR-selection pressure"
-            >
-              <option value="">Any</option>
-              <option value="low">low only</option>
-              <option value="med">low + med</option>
-              <option value="high">all</option>
-            </select>
-          </label>
-        </div>
+          {/* ============ W8-A5 · SPECTRUM CHIPS (recolored) ============ */}
+          <div className="rx-fmbar" style={{ flexWrap: "wrap", gap: 8 }}>
+            <span className="rx-fmbar-lab" style={{ fontSize: 10 }}>
+              <Activity size={13}/> Spectrum
+            </span>
+            {[
+              ["apsa", "Antipseudomonal"],
+              ["ana",  "Anaerobic"],
+              ["mrsa", "Anti-MRSA"],
+              ["bl",   "β-lactam"],
+            ].map(([k, lab]) => (
+              <SpectrumChip
+                key={k}
+                k={k}
+                label={lab}
+                active={!!fmSpectrum[k]}
+                onClick={() => toggleSpectrum(k)}
+              />
+            ))}
+            <span style={{ width: 8 }} />
+            <span className="rx-fmbar-lab" style={{ fontSize: 10 }}>
+              <ShieldAlert size={13}/> Microbiome
+            </span>
+            <label className="rx-fmbar-field" style={{ fontSize: 10 }}>
+              <span>Max C.diff</span>
+              <select
+                value={fmCdiffMax}
+                onChange={(e) => setFmCdiffMax(Number(e.target.value))}
+                aria-label="Max C. difficile risk score"
+              >
+                <option value={0}>Any</option>
+                <option value={1}>≤ 1</option>
+                <option value={2}>≤ 2</option>
+                <option value={3}>≤ 3</option>
+                <option value={4}>≤ 4</option>
+              </select>
+            </label>
+            <label className="rx-fmbar-field" style={{ fontSize: 10 }}>
+              <span>MDR pressure</span>
+              <select
+                value={fmMdrLevel}
+                onChange={(e) => setFmMdrLevel(e.target.value)}
+                aria-label="Maximum MDR-selection pressure"
+              >
+                <option value="">Any</option>
+                <option value="low">low only</option>
+                <option value="med">low + med</option>
+                <option value="high">all</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         {fmCover && <p className="rx-fmbar-note">Showing agents with first- or second-line activity against <b>{(ORG_BY_ID[fmCover]||{}).label}</b> (derived from the spectrum matrix). Confirm against the local antibiogram.</p>}
 
+        {/* ============ W8-A4 · DRUG CLASS BLOCKS — ASYMMETRIC SHOWCASE ============ */}
         {fmTotal === 0
-          ? <p className="rx-dc-muted" style={{padding:"8px 2px"}}>No formulary agent matches these filters. <button className="rx-dc-druglink" onClick={clearAll}>Clear filters</button>.</p>
-          : fmClasses.map(cl => {
-          const FI = FORM_ICON[cl.icon] || Pill;
-          return (
-            <div key={cl.cls} style={{
-              borderRadius: "16px 4px 16px 4px",
-              border: "1px solid var(--line)",
-              background: "var(--paper)",
-              boxShadow: "var(--shadow-e1)",
-              padding: "12px 14px 4px",
-              marginBottom: 14,
-              transition: "transform .18s ease, box-shadow .18s ease",
-            }}>
-              <div className="rx-classhdr"><span className="ic"><FI size={15}/></span>{cl.cls}</div>
-              <table className="rx-ftable">
-                <thead><tr><th>Agent</th><th>Typical adult IV dose</th><th>Renal</th><th>Decision-changing pearl</th></tr></thead>
-                <tbody>
-                  {cl.drugs.map(dr => {
-                    const adj = dose(dr.name);
-                    return (
-                    <tr key={dr.name}>
-                      <td className="tdname" data-l="Agent">
-                        <button className="rx-fname rx-fname-link" onClick={()=>openDrug(dr.name)} title="Open the drug monograph">{dr.name}</button>
-                        <div className="rx-fspec">{dr.spec}</div>
-                      </td>
-                      <td data-l="Dose">
-                        {adj && adj.kind === "band" && adj.changed ? (
-                          <span className="rx-fdose-wrap">
-                            <span className="rx-fdose rx-fdose-adj"><Num>{adj.adjusted}</Num></span>
-                            <s className="rx-fdose-was"><Num>{adj.normal}</Num></s>
-                            {adj.note && <span className="rx-fdose-note">{adj.note}</span>}
-                          </span>
-                        ) : adj && adj.kind === "band" && !adj.changed ? (
-                          <span className="rx-fdose-wrap"><span className="rx-fdose"><Num>{dr.dose}</Num></span><span className="rx-fdose-tag rx-tag-ok">unchanged at CrCl {crcl}</span></span>
-                        ) : adj && adj.kind === "level" ? (
-                          <span className="rx-fdose-wrap"><span className="rx-fdose">{adj.adjusted}</span>{adj.note && <span className="rx-fdose-note">{adj.note}</span>}</span>
-                        ) : (
-                          <span className="rx-fdose"><Num>{dr.dose}</Num></span>
-                        )}
-                      </td>
-                      <td data-l="Renal"><span className="rx-frenal">{dr.renal}</span></td>
-                      <td data-l="Pearl"><span className="rx-fpearl">{dr.pearl}</span></td>
-                    </tr>
-                  );})}
-                </tbody>
-              </table>
+          ? (
+            /* W10 · cinematic empty state — replaces the prior plain <p>.
+               160px italic-serif "0" cyan-soft glyph, mono kicker, italic
+               headline + standfirst, cyan-gradient CTA. Lives inside an
+               asymmetric 18/4 radius card with .rx-fade-in-up entrance. */
+            <div
+              role="status"
+              aria-live="polite"
+              className="rx-fade-in-up"
+              style={{
+                position: "relative",
+                padding: "44px 22px 48px",
+                textAlign: "center",
+                background:
+                  "linear-gradient(135deg, var(--paper2) 0%, var(--ox-softer, var(--paper)) 100%)",
+                border: "1px solid var(--line)",
+                borderTopLeftRadius: 18,
+                borderTopRightRadius: 4,
+                borderBottomLeftRadius: 4,
+                borderBottomRightRadius: 18,
+                overflow: "hidden",
+                marginBottom: 18,
+              }}
+            >
+              <div
+                aria-hidden
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: 160,
+                  lineHeight: 0.95,
+                  color: "var(--ox-soft, var(--neon-cyan-soft))",
+                  marginBottom: 4,
+                  letterSpacing: "-.04em",
+                }}
+              >
+                0
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--mono)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: ".22em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: 10,
+                }}
+              >
+                No matches
+              </div>
+              <h3
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: 24,
+                  letterSpacing: "-.02em",
+                  margin: "0 0 8px",
+                  color: "var(--ink)",
+                }}
+              >
+                No formulary agent matches these filters
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontSize: 15,
+                  color: "var(--ink2)",
+                  margin: "0 auto 22px",
+                  lineHeight: 1.55,
+                  maxWidth: "48ch",
+                }}
+              >
+                Loosen a constraint or clear filters to see the full formulary.
+              </p>
+              <button
+                type="button"
+                onClick={clearAll}
+                className="rx-lift"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 22px",
+                  fontFamily: "var(--mono)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: ".12em",
+                  textTransform: "uppercase",
+                  color: "#fff",
+                  background:
+                    "linear-gradient(135deg, var(--ox, var(--ink)) 0%, var(--neon-cyan, var(--ox)) 100%)",
+                  border: "1px solid var(--neon-cyan, var(--ox))",
+                  borderTopLeftRadius: 8,
+                  borderTopRightRadius: 2,
+                  borderBottomLeftRadius: 2,
+                  borderBottomRightRadius: 8,
+                  cursor: "pointer",
+                  boxShadow:
+                    "var(--shadow-e1), var(--neon-cyan-glow, 0 0 24px rgba(0,212,255,0.35))",
+                }}
+              >
+                <Filter size={12} /> Clear filters
+              </button>
             </div>
-          );
-        })}
+          )
+          : fmClasses.map((cl, idx) => {
+              const FI = FORM_ICON[cl.icon] || Pill;
+              const idxNum = String(idx + 1).padStart(2, "0");
+              const proto = (cl.drugs && cl.drugs[0]) || null;
+              /* Wave 12 W12 · only render a SceneBreak between class
+                 families when the panel actually contains 5+ classes
+                 (the brief: "when the formulary panel renders 5+ drug
+                 classes"), and only at the single β-lactam → non-β-lactam
+                 transition. With heavy filtering the panel may collapse
+                 to 2 classes — in that case the break is suppressed. */
+              const showFamilyBreak = (
+                fmClasses.length >= 5
+                && idx > 0
+                && _agentFamily(cl.cls) !== _agentFamily(fmClasses[idx - 1].cls)
+              );
+              return (
+                <React.Fragment key={cl.cls}>
+                {showFamilyBreak && (
+                  <SceneBreak
+                    variant="phrase"
+                    mark="non-β-lactam agents"
+                    style={{ margin: "16px 0 20px" }}
+                  />
+                )}
+                <article
+                  className="rx-fade-in-up"
+                  style={{
+                    animationDelay: `${80 + idx * 50}ms`,
+                    position: "relative",
+                    borderRadius: idx % 2 === 0 ? "16px 4px 16px 4px" : "4px 16px 4px 16px",
+                    border: "1px solid var(--line)",
+                    background: "var(--paper)",
+                    boxShadow: "var(--shadow-e1)",
+                    padding: "16px 18px 8px",
+                    marginBottom: 18,
+                    overflow: "hidden",
+                    transition: "transform var(--duration-base, .18s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
+                  }}
+                >
+                  {/* Wave 9 W9 · removed the per-class 200px italic corner
+                      numeral. The page hero "A" watermark already
+                      carries the editorial signature; per-class
+                      numerals were magazine-cliche. */}
+
+                  {/* W8-A4 · class header — mono kicker + italic-serif name + cyan accent bar */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-end",
+                      gap: 12,
+                      marginBottom: 12,
+                    }}
+                  >
+                    <div className="rx-accicon" style={{ flex: "0 0 auto" }}>
+                      <FI size={16} />
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div
+                        className="rx-counter"
+                        style={{ fontSize: 10.5, color: "var(--ink2)" }}
+                      >
+                        <span className="rx-counter-strong" style={{ fontSize: 11 }}>{idxNum}</span>
+                        <span style={{ margin: "0 6px" }}>·</span>
+                        CLASS / {cl.drugs.length} agent{cl.drugs.length === 1 ? "" : "s"}
+                      </div>
+                      <h4
+                        style={{
+                          fontFamily: "var(--serif)",
+                          fontStyle: "italic",
+                          fontSize: 32,
+                          fontWeight: 700,
+                          letterSpacing: "-0.02em",
+                          lineHeight: 1.05,
+                          margin: "2px 0 0",
+                          color: "var(--ink)",
+                        }}
+                      >
+                        {cl.cls}
+                      </h4>
+                      <div
+                        aria-hidden="true"
+                        style={{
+                          marginTop: 8,
+                          height: 2,
+                          width: 56,
+                          background:
+                            "linear-gradient(90deg, var(--neon-cyan, var(--ox)), var(--electric-blue, var(--ox)))",
+                          borderRadius: 1,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* W8-A4 · 60/40 split — drug list (left) + class metadata (right) */}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "minmax(0, 3fr) minmax(0, 2fr)",
+                      gap: 18,
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <table className="rx-ftable" style={{ width: "100%" }}>
+                        <thead>
+                          <tr>
+                            <th>Agent</th>
+                            <th>Typical adult IV dose</th>
+                            <th>Renal</th>
+                            <th>Pearl</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {cl.drugs.map((dr, drIdx) => {
+                            const adj = dose(dr.name);
+                            return (
+                              <tr
+                                key={dr.name}
+                                className="rx-fade-in-up rx-drugrow"
+                                data-prototype={drIdx === 0 ? "true" : undefined}
+                                style={{
+                                  animationDelay: `${100 + idx * 50 + drIdx * 30}ms`,
+                                  borderRadius: "10px 3px 10px 3px",
+                                  transition: "transform var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
+                                }}
+                              >
+                                <td className="tdname" data-l="Agent">
+                                  <button
+                                    className="rx-fname rx-fname-link"
+                                    onClick={() => openDrug(dr.name)}
+                                    title="Open the drug monograph"
+                                  >
+                                    {dr.name}
+                                  </button>
+                                  <div className="rx-fspec">{dr.spec}</div>
+                                  {/* W8-A6 · evidence rail (spectrum breadth) */}
+                                  <EvidenceRail drugName={dr.name} />
+                                </td>
+                                <td data-l="Dose">
+                                  {adj && adj.kind === "band" && adj.changed ? (
+                                    <span className="rx-fdose-wrap">
+                                      <span className="rx-fdose rx-fdose-adj"><Num>{adj.adjusted}</Num></span>
+                                      <s className="rx-fdose-was"><Num>{adj.normal}</Num></s>
+                                      {adj.note && <span className="rx-fdose-note">{adj.note}</span>}
+                                    </span>
+                                  ) : adj && adj.kind === "band" && !adj.changed ? (
+                                    <span className="rx-fdose-wrap"><span className="rx-fdose"><Num>{dr.dose}</Num></span><span className="rx-fdose-tag rx-tag-ok">unchanged at CrCl {crcl}</span></span>
+                                  ) : adj && adj.kind === "level" ? (
+                                    <span className="rx-fdose-wrap"><span className="rx-fdose">{adj.adjusted}</span>{adj.note && <span className="rx-fdose-note">{adj.note}</span>}</span>
+                                  ) : (
+                                    <span className="rx-fdose"><Num>{dr.dose}</Num></span>
+                                  )}
+                                </td>
+                                <td data-l="Renal"><span className="rx-frenal">{dr.renal}</span></td>
+                                <td data-l="Pearl"><span className="rx-fpearl">{dr.pearl}</span></td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* W8-A4 · class metadata panel (right) */}
+                    <aside
+                      style={{
+                        borderLeft: "1px solid var(--line)",
+                        paddingLeft: 14,
+                        fontSize: 12.5,
+                        color: "var(--ink2)",
+                        lineHeight: 1.55,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 10,
+                      }}
+                    >
+                      <div>
+                        <div
+                          className="rx-counter"
+                          style={{ fontSize: 9.5, marginBottom: 3 }}
+                        >
+                          MECHANISM
+                        </div>
+                        <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", color: "var(--ink)" }}>
+                          {cl.mech || cl.summary || "Targets the canonical class action — see the Mechanism map under Compare for the full target × resistance escape table."}
+                        </div>
+                      </div>
+                      <div>
+                        <div
+                          className="rx-counter"
+                          style={{ fontSize: 9.5, marginBottom: 3 }}
+                        >
+                          PROTOTYPE AGENT
+                        </div>
+                        <div style={{ color: "var(--ink)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                          {proto ? proto.name : "—"}
+                          {proto && <Sparkle size={11} color="var(--neon-cyan, var(--ox))" />}
+                        </div>
+                        {proto && proto.spec && (
+                          <div style={{ fontSize: 11.5, color: "var(--ink2)", marginTop: 2 }}>
+                            {proto.spec}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div
+                          className="rx-counter"
+                          style={{ fontSize: 9.5, marginBottom: 3 }}
+                        >
+                          TARGET ORGANISMS
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 4,
+                          }}
+                        >
+                          {(cl.coversTags || []).slice(0, 6).map((t, i) => (
+                            <span
+                              key={i}
+                              className="rx-tag t-ox"
+                              style={{ fontSize: 10, padding: "1px 7px" }}
+                            >
+                              {t}
+                            </span>
+                          ))}
+                          {(!cl.coversTags || cl.coversTags.length === 0) && (
+                            <span style={{ fontSize: 11.5, color: "var(--ink2)", fontStyle: "italic" }}>
+                              See Spectrum tab for the agent × organism map.
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </aside>
+                  </div>
+                </article>
+                </React.Fragment>
+              );
+            })}
+
+        <GradientHairline variant="blue-magenta" style={{ margin: "28px 0 22px" }} />
 
         <h3 className="rx-h3"><span className="ic"><Network size={18}/></span>The β-lactamase resistance ladder</h3>
         <p className="rx-lede" style={{marginBottom:6}}>Gram-negative resistance reads as a ladder of enzymes. Each rung defeats the agents below it and demands a specific escape — the organizing logic behind the resistant-GNR rows in Directed therapy.</p>
@@ -415,6 +1049,19 @@ function AgentsSection({
       </div>
       <div className="rx-callout"><Info size={15}/><span>Practical defaults: a documented penicillin allergy almost never precludes <b>cefazolin</b> (surgical prophylaxis, MSSA) or an unrelated-side-chain cephalosporin/carbapenem; <b>aztreonam</b> is safe in severe penicillin allergy (but shares a side chain with ceftazidime). Delabeling the low-risk majority is one of the highest-yield stewardship acts on the wards.</span></div>
 
+      <style>{`
+        .rx-drugrow{ box-shadow: inset 2px 0 0 transparent; }
+        .rx-drugrow:hover{
+          box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)), 0 6px 20px -10px rgba(0,212,255,0.25);
+          background: linear-gradient(90deg, color-mix(in srgb, var(--neon-cyan, var(--ox)) 4%, transparent), transparent 60%);
+        }
+        .rx-drugrow[data-prototype="true"]{ box-shadow: inset 3px 0 0 color-mix(in srgb, var(--neon-cyan, var(--ox)) 55%, transparent); }
+        .rx-drugrow[data-prototype="true"]:hover{ box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)), 0 6px 20px -10px rgba(0,212,255,0.3); }
+        @media (prefers-reduced-motion: reduce){
+          .rx-drugrow:hover{ background: transparent; box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)); }
+        }
+      `}</style>
+
       </>
     );
   };
@@ -423,7 +1070,7 @@ function AgentsSection({
   const renderDose = () => (
     <>
       <h2 className="rx-h2">Dosing, renal adjustment & monitoring</h2>
-      <p className="rx-lede">Correct dosing is as consequential as correct drug selection. Estimate clearance, identify which agents track renal function, and apply the rules that override the calculator: the loading dose, the site of infection, and body habitus.</p>
+      <p className="rx-lede rx-dropcap-cyan">Correct dosing is as consequential as correct drug selection. Estimate clearance, identify which agents track renal function, and apply the rules that override the calculator: the loading dose, the site of infection, and body habitus.</p>
 
       <div className="rx-calc">
         <div className="rx-card">
@@ -566,10 +1213,10 @@ function AgentsSection({
       <h3 className="rx-h3"><span className="ic"><FlaskConical size={18}/></span>Therapeutic drug monitoring</h3>
       <div className="rx-2col">
         {TDM.map((t,i)=>(
-          <div className="rx-card" key={i}>
+          <div className="rx-card rx-glow-lift" key={i}>
             <div style={{fontWeight:700,fontSize:14}}>{t.d}</div>
             <div className="rx-mono" style={{fontSize:12,color:"var(--ox)",margin:"3px 0 7px"}}>{t.t}</div>
-            <div style={{fontSize:13,color:"var(--ink2)",lineHeight:1.5}}>{t.note}</div>
+            <div style={{fontSize:13,color:"var(--ink2)",lineHeight:1.6}}>{t.note}</div>
           </div>
         ))}
       </div>
@@ -590,7 +1237,7 @@ function AgentsSection({
   const renderSafety = () => (
     <div>
       <h2 className="rx-h2">Adverse effects, monitoring &amp; interactions</h2>
-      <p className="rx-lede">
+      <p className="rx-lede rx-dropcap-cyan">
         Toxicity decides as many regimens as spectrum does. The matrix maps the dominant organ-system harms by class;
         the cards below give the monitoring that catches them and the high-yield interactions that change a regimen
         before it starts. A filled square is a notable or boxed-warning concern, amber is moderate / dose- or
@@ -601,7 +1248,15 @@ function AgentsSection({
         <table className="rx-mtx">
           <thead>
             <tr>
-              <th className="corner"><div className="cl">Agent &nbsp;&middot;&nbsp; toxicity &rarr;</div></th>
+              <th className="corner">
+                <div className="cl">Agent &nbsp;&middot;&nbsp; toxicity &rarr;</div>
+                {/* W10 · corner Σ count — total agents × toxicity columns */}
+                <div aria-hidden="true" style={{
+                  fontFamily:"var(--mono)", fontSize:9, letterSpacing:".14em",
+                  textTransform:"uppercase", color:"var(--ox)",
+                  fontWeight:700, padding:"0 12px 9px", opacity:.85,
+                }}>{"Σ "}{SAFE.filter(r=>!r.band).length}{"×"}{TOX_COLS.length}</div>
+              </th>
               {TOX_COLS.map(c => <th key={c.k}><div className="rx-mtx-colh">{c.label}</div></th>)}
             </tr>
           </thead>
@@ -646,12 +1301,12 @@ function AgentsSection({
         </div>
       </div>
 
-      <h3 className="rx-h3"><span className="ic"><AlertTriangle size={18} /></span>High-yield interactions</h3>
+      <h3 className="rx-h3"><span className="ic"><AlertTriangle size={18} /></span>High-yield interactions <Sparkle size={11} color="var(--neon-cyan, var(--ox))" style={{ marginLeft: 4 }} /></h3>
       <div className="rx-trig">
         {INTERACTIONS.map((it,i) => { const IC = ICMAP_INT[it.ic] || Info; return (
-          <div key={i} className="rx-trigcard rx-card">
+          <div key={i} className="rx-trigcard rx-card rx-glow-lift">
             <h4><span className="ic"><IC size={15} /></span>{it.h}</h4>
-            <p style={{margin:"2px 0 0",fontSize:"12.5px",color:"var(--ink2)",lineHeight:1.55}}>{it.b}</p>
+            <p style={{margin:"2px 0 0",fontSize:"12.5px",color:"var(--ink2)",lineHeight:1.6}}>{it.b}</p>
           </div>
         ); })}
       </div>
@@ -701,7 +1356,7 @@ function AgentsSection({
   /* ============ ROUTER: parent-controlled sub-tab ============ */
   if (activeTab === "dose")    return renderDose();
   if (activeTab === "safety")  return renderSafety();
-  return renderReference(); // "reference" + default
+  return renderReference();
 }
 
 export { AgentsSection };

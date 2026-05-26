@@ -13,7 +13,7 @@
        control, computes the stop date from the syndrome duration
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   AlertTriangle, ArrowRight, Bug, Calendar, Check, Clock, Crosshair,
   FlaskConical, Pill, Scissors, Stethoscope, TrendingDown,
@@ -22,6 +22,10 @@ import { applyReassessment } from "../engines/regimen.js";
 import { ORGS, ORG_BY_ID } from "../data/organisms.js";
 import { renderRich } from "./rich-text.jsx";
 import { Section } from "./Section.jsx";
+import { NotchedBanner } from "./decor/NotchedBanner.jsx";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
+import { Sparkle } from "./decor/Sparkle.jsx";
+import { useBedsideFlowCtx } from "./util/BedsideFlowContext.js";
 
 function _bugChips(empiric) {
   // Quick-pick organisms = the syndrome's empiric `bugs` list. We show
@@ -34,6 +38,23 @@ function _bugChips(empiric) {
 }
 
 function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, hasStructuredDuration = false }) {
+  const flow = useBedsideFlowCtx();
+  /* W12 F5 · signal the flow hook every time a reassessment input flips
+     (cultures organism, clinical chip). The flow hook bumps its
+     `findingApplied` counter and downstream visual cues (layer glow +
+     spine pulse + sparkle overlay on the trigger banner) paint briefly. */
+  const triggerSignature = JSON.stringify({
+    s: caseState?.cultures?.status,
+    o: caseState?.cultures?.organism,
+    c: caseState?.clinical || {},
+  });
+  const lastSigRef = useRef(triggerSignature);
+  useEffect(() => {
+    if(lastSigRef.current === triggerSignature) return;
+    lastSigRef.current = triggerSignature;
+    if(flow && flow.signalFinding) flow.signalFinding();
+  }, [triggerSignature, flow]);
+
   if(!empiric) return null;
 
   const cultures = caseState.cultures || { status: "pending", organism: null };
@@ -70,7 +91,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
           border: `1px solid ${selected ? "var(--ox)" : "var(--ox-line)"}`,
           cursor:"pointer", whiteSpace:"nowrap",
         }}>
-        <Bug size={10}/> {o.label}
+        <Bug size={10} aria-hidden/> {o.label}
       </button>
     );
   };
@@ -93,9 +114,28 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
 
   return (
     <Section kicker="Current state" icon={Stethoscope} testId="reassessment-panel">
+      {/* Wave 10 — when ANY trigger has fired, the change-summary line is
+          promoted from flat italic to a NotchedBanner with the "trigger"
+          severity (amber). The notch + tile + uppercase label match the
+          "REGIMEN CHANGED" semantic exactly — the visual gravity equals
+          the clinical gravity. Zero triggers → no banner (no chrome). */}
       {r && r.activeTriggers.length > 0 && (
-        <div style={{ fontSize:11, color:"var(--ink2)", fontStyle:"italic", marginBottom: 10 }}>
-          {r.activeTriggers.length} trigger{r.activeTriggers.length === 1 ? "" : "s"} active — regimen has changed
+        <div style={{ marginBottom: 12, position: "relative" }}>
+          <NotchedBanner
+            severity="trigger"
+            label={`Regimen has changed · ${r.activeTriggers.length} trigger${r.activeTriggers.length === 1 ? "" : "s"} active`}
+            icon={<TrendingDown size={14} aria-hidden />}
+          />
+          {/* W12 F5 · sparkle overlay on the active-trigger banner when a
+              fresh finding was just applied. Visual-only; no reduced-motion
+              guarding needed because the Sparkle itself is static. */}
+          {flow && flow.findingApplied > 0 && !flow.reducedMotion && (
+            <Sparkle
+              size={14}
+              style={{ position: "absolute", top: -4, right: -4 }}
+              data-testid="w12-finding-sparkle"
+            />
+          )}
         </div>
       )}
       <>
@@ -106,7 +146,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
             textTransform:"uppercase", color:"var(--muted)", fontWeight:600,
             marginBottom:6, display:"flex", alignItems:"center", gap:5,
           }}>
-            <FlaskConical size={11}/> Cultures
+            <FlaskConical size={11} aria-hidden/> Cultures
           </div>
           <div style={{ display:"flex", gap:6, alignItems:"center", flexWrap:"wrap" }}>
             {[["pending","Pending"], ["back","Back"]].map(([k, lab]) => (
@@ -142,10 +182,32 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
                   value={cultures.organism || ""}
                   onChange={e => setOrganism(e.target.value || null)}
                   aria-label="Pick a cultures-back organism"
+                  /* W10 · asymmetric 10/3 corners + glass tint + cyan caret +
+                      cyan focus halo. Inline style so we don't need to inject
+                      a component-scoped stylesheet for a single dropdown. */
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "var(--neon-cyan, var(--ox-bright))";
+                    e.currentTarget.style.boxShadow = "0 0 0 2px var(--neon-cyan, var(--ox-bright)), 0 0 14px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 30%, transparent)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "var(--line)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
                   style={{
                     flex:"0 1 auto", fontFamily:"var(--sans)", fontSize:12, color:"var(--ink)",
-                    background:"var(--paper)", border:"1px solid var(--line)", borderRadius:7,
-                    padding:"5px 9px", cursor:"pointer",
+                    background:`linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%2300D4FF' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/></svg>")`,
+                    backgroundRepeat:"no-repeat, no-repeat",
+                    backgroundPosition:"0 0, right 9px center",
+                    backgroundSize:"cover, 12px 8px",
+                    border:"1px solid var(--line)",
+                    borderRadius:"10px 3px 10px 3px",
+                    padding:"7px 28px 7px 10px",
+                    cursor:"pointer",
+                    appearance:"none",
+                    WebkitAppearance:"none",
+                    MozAppearance:"none",
+                    outline:"none",
+                    transition:"border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
                   }}>
                   <option value="">— pick —</option>
                   {remaining.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
@@ -162,7 +224,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
             textTransform:"uppercase", color:"var(--muted)", fontWeight:600,
             marginBottom:6, display:"flex", alignItems:"center", gap:5,
           }}>
-            <Crosshair size={11}/> Clinical status
+            <Crosshair size={11} aria-hidden/> Clinical status
           </div>
           <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
             {clinChip("stable",            "Stable & improving", Check)}
@@ -178,7 +240,13 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
 
         {/* ----- OUTPUT: structured delta from applyReassessment -------- */}
         {r && (
-          <div data-testid="reassessment-output" style={{ marginTop: 16, paddingTop: 14, borderTop: "1px dashed var(--line2)" }}>
+          <div data-testid="reassessment-output" style={{ marginTop: 16 }}>
+            {/* Wave 10 — gradient hairline replaces the flat dashed top
+                border. The cyan-blue gradient knot signals "below this
+                line, the system has computed what's different" — same
+                separator vocabulary the rest of the answer-canvas uses
+                between question and answer phases. */}
+            <GradientHairline variant="cyan-blue" withDot style={{ margin: "0 0 14px" }} />
             <div style={{
               fontFamily:"var(--mono)", fontSize:10, letterSpacing:".12em",
               textTransform:"uppercase", color:"var(--ox-deep)", fontWeight:700,
@@ -188,12 +256,16 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
               <span>What changes today</span>
             </div>
 
+            {/* Wave 10 — NARROW TO panel picks up the rx-glass-bleed inner
+                cyan glow + outer halo so the post-cultures "this is the
+                directed regimen" reads with the headline-panel chrome
+                used by Monitoring + Duration headlines elsewhere. */}
             {r.directed && (
-              <div style={{
+              <div className="rx-glass-bleed" style={{
                 padding:"10px 12px", background:"var(--ox-softer)", border:"1px solid var(--ox-line)",
-                borderRadius:8, marginBottom:8,
+                borderRadius:8, marginBottom:8, position: "relative",
               }}>
-                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5, position: "relative", zIndex: 2 }}>
                   <Crosshair size={12} color="var(--ox)"/>
                   <span style={{ fontSize:11.5, fontWeight:700, color:"var(--ox-deep)", letterSpacing:".02em" }}>NARROW TO</span>
                   <button type="button" onClick={() => onOrg && onOrg(r.cultures.organism)}
@@ -204,17 +276,17 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
                     <Bug size={10} style={{ verticalAlign:"-1px", marginRight:3 }}/> {r.cultures.label}
                   </button>
                 </div>
-                <div style={{ fontSize:13, color:"var(--ink)", lineHeight:1.55, fontWeight:600 }}>
+                <div style={{ fontSize:13, color:"var(--ink)", lineHeight:1.55, fontWeight:600, position: "relative", zIndex: 2 }}>
                   {renderRich(r.directed.first, onDrug)}
                 </div>
                 {r.directed.alt && (
-                  <div style={{ fontSize:12, color:"var(--ink2)", marginTop:4 }}>
+                  <div style={{ fontSize:12, color:"var(--ink2)", marginTop:4, position: "relative", zIndex: 2 }}>
                     <span style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".08em", textTransform:"uppercase", color:"var(--muted)", marginRight:6 }}>ALT</span>
                     {renderRich(r.directed.alt, onDrug)}
                   </div>
                 )}
                 {r.directed.cav && (
-                  <div style={{ fontSize:11.5, color:"var(--muted)", marginTop:5, lineHeight:1.5, fontStyle:"italic" }}>
+                  <div style={{ fontSize:11.5, color:"var(--muted)", marginTop:5, lineHeight:1.5, fontStyle:"italic", position: "relative", zIndex: 2 }}>
                     <AlertTriangle size={10} style={{ verticalAlign:"-1px", marginRight:4 }}/>
                     {r.directed.cav}
                   </div>
@@ -270,7 +342,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
                         background:"var(--panel)", color:"var(--decision-start)",
                         border:"1px solid var(--decision-start-line)", cursor:"pointer",
                       }}>
-                      <Pill size={9}/> {n}
+                      <Pill size={10} aria-hidden/> {n}
                     </button>
                   ))}
                 </div>

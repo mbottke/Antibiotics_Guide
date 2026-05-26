@@ -60,7 +60,7 @@ function DosingCard({ entry }) {
           padding: "2px 6px", borderRadius: 3,
           letterSpacing: ".06em", whiteSpace: "nowrap",
         }}>
-          <Heart size={9} aria-hidden /> PREG {sty.label}
+          <Heart size={10} aria-hidden /> PREG {sty.label}
         </span>
       </div>
 
@@ -146,14 +146,17 @@ function PedsPregBlock({ entries }) {
 
   return (
     <Section kicker="Pediatric + pregnancy · Dosing modifications" icon={Baby} testId="peds-preg-block">
-      <div style={{
+      {/* Wave 10 — headline scope-note adopts rx-glass-bleed for the
+          shared bottom-line panel chrome. */}
+      <div className="rx-glass-bleed" style={{
         background: accentBg,
         border: "1px solid var(--ox-line)",
         borderRadius: 7,
         padding: "8px 11px",
         marginBottom: 10,
+        position: "relative",
       }}>
-        <div style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--ink)", fontWeight: 500 }}>
+        <div style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--ink)", fontWeight: 500, position: "relative", zIndex: 2 }}>
           <b>Scope note:</b> This guide is adult-focused. Surfacing peds + pregnancy modifications prevents reflexive adult dosing in mixed populations. For active management of pediatric or pregnant patients, consult a dedicated reference (Nelson + Bradley + ACOG).
         </div>
       </div>

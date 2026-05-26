@@ -18,11 +18,26 @@
        or any input they edit gets a lock icon and is not overwritten by
        subsequent parser updates. Reset clears every lock at once.
 
+   Wave 10 W10 forms/inputs atomized pass — every text input, select,
+   number field, and CTA inside the Case Bar adopts the Wave 9
+   vocabulary: asymmetric 10/3 input radii, cyan focus halos, glass-
+   diffuse field backgrounds, italic-serif placeholders, chrome CTA
+   for "Apply case", ghost-outline reset, and a corner mesh wash in
+   the panel header. The wrapper itself becomes a glass-diffuse
+   panel with an 18/4 asymmetric radius. ZERO functional changes —
+   every onChange / state transition is identical.
+
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { ArrowRight, Check, ChevronDown, ChevronRight, Crosshair, Lock, Plus, RotateCcw, Search, X } from "lucide-react";
 import { parseCase } from "../engines/case-parser.js";
 import { SYNDROMES, SYN_CATS } from "../data/syndromes.js";
+import { useMagnetic } from "./util/useMagnetic.js";
+import { useRipple } from "./util/useRipple.js";
+import { useBedsideFlowCtx } from "./util/BedsideFlowContext.js";
+import { MeshWash } from "./decor/MeshWash.jsx";
+import { Sparkle } from "./decor/Sparkle.jsx";
+import { Stripes } from "./decor/Stripes.jsx";
 
 const EXAMPLES = [
   "72M PNA prior MRSA CrCl 35",
@@ -66,22 +81,176 @@ const CHIP_TONE = {
 const RECENT_KEY = "abxguide_recent_cases_v1";
 const RECENT_LIMIT = 5;
 
-function Chip({ kind, label, onRemove }) {
+/* W10 · component-scoped chrome for every input/select inside the CaseBar
+   panel — asymmetric 10/3 corners, glass-diffuse fill, italic-serif
+   placeholders, cyan focus halo. Scoped to [data-w10-casebar] so it
+   never leaks to other surfaces. Idempotent injection. */
+const W10_CASEBAR_CSS = `
+[data-w10-casebar] .rx-w10-input,
+[data-w10-casebar] .rx-w10-select {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  color: var(--ink);
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.72) 0%,
+    rgba(245,250,253,0.55) 100%);
+  backdrop-filter: blur(12px) saturate(170%);
+  -webkit-backdrop-filter: blur(12px) saturate(170%);
+  border: 1px solid var(--line);
+  border-radius: 10px 3px 10px 3px;
+  padding: 10px 12px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease), background var(--duration-base, .18s) var(--ease-out, ease);
+}
+[data-w10-casebar] .rx-w10-input::placeholder {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--muted);
+  opacity: .72;
+}
+[data-w10-casebar] .rx-w10-input:hover,
+[data-w10-casebar] .rx-w10-select:hover {
+  border-color: var(--ox-line);
+}
+/* W12 a11y · cyan-only focus indicator was 1.69:1 vs paper — add a 2px
+   graphite outline outside the cyan glow so the composite clears 3:1.
+   The neon-cyan glow stays as the dominant visual cue. */
+[data-w10-casebar] .rx-w10-input:focus-visible,
+[data-w10-casebar] .rx-w10-select:focus-visible {
+  outline: 2px solid var(--ox);
+  outline-offset: 3px;
+  border-color: var(--neon-cyan, var(--ox-bright));
+  box-shadow:
+    0 0 0 2px var(--neon-cyan, var(--ox-bright)),
+    0 0 22px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 35%, transparent),
+    0 0 36px 6px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 16%, transparent);
+}
+[data-w10-casebar] .rx-w10-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  padding-right: 30px;
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%2300D4FF' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat, no-repeat;
+  background-position: 0 0, right 11px center;
+  background-size: cover, 12px 8px;
+}
+/* Chrome CTA — Apply case. Vertical metal gradient + sheen + cyan glow,
+   pairs with useMagnetic + useRipple on the host. */
+[data-w10-casebar] .rx-w10-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px 3px 12px 3px;
+  border: 1px solid color-mix(in srgb, var(--ox-deep, var(--ox)) 70%, transparent);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(180deg,
+    var(--ox-deep, #0B0F14) 0%,
+    var(--ox, #1F2937) 35%,
+    var(--ox, #1F2937) 55%,
+    var(--ox-deep, #0B0F14) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.20),
+    inset 0 -1px 0 rgba(0,0,0,0.30),
+    0 6px 14px -4px rgba(11,15,20,0.45),
+    0 0 18px -6px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 50%, transparent);
+  transition: box-shadow var(--duration-base, .18s) var(--ease-out, ease), transform var(--duration-fast, .12s) var(--ease-out, ease);
+  will-change: transform;
+}
+[data-w10-casebar] .rx-w10-cta::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -120%;
+  width: 60%; height: 100%;
+  background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.40) 50%, transparent 100%);
+  transform: skewX(-18deg);
+  pointer-events: none;
+  transition: left 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-w10-casebar] .rx-w10-cta:hover::after { left: 140%; }
+[data-w10-casebar] .rx-w10-cta:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.30),
+    inset 0 -1px 0 rgba(0,0,0,0.30),
+    0 10px 22px -6px rgba(11,15,20,0.55),
+    0 0 28px -4px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 55%, transparent);
+}
+[data-w10-casebar] .rx-w10-cta:active { transform: translateY(1px); }
+[data-w10-casebar] .rx-w10-cta:disabled {
+  opacity: .5; cursor: not-allowed;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 2px 4px rgba(11,15,20,0.20);
+}
+[data-w10-casebar] .rx-w10-cta:focus-visible {
+  outline: 2px solid var(--neon-cyan, var(--ox-bright));
+  outline-offset: 2px;
+}
+/* Ghost-outline secondary (reset / skip). */
+[data-w10-casebar] .rx-w10-ghost {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--sans); font-size: 12; color: var(--ink2);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 35%, var(--line));
+  border-radius: 10px 3px 10px 3px;
+  padding: 8px 12px; cursor: pointer;
+  transition: color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease), background var(--duration-base, .18s) var(--ease-out, ease);
+}
+[data-w10-casebar] .rx-w10-ghost:hover {
+  color: var(--ox);
+  border-color: var(--neon-cyan, var(--ox));
+  background: color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 6%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-w10-casebar] .rx-w10-cta::after { transition: none !important; }
+  [data-w10-casebar] .rx-w10-cta,
+  [data-w10-casebar] .rx-w10-ghost,
+  [data-w10-casebar] .rx-w10-input,
+  [data-w10-casebar] .rx-w10-select { transition: none !important; }
+}
+`;
+function _ensureCasebarStyles() {
+  if(typeof document === "undefined") return;
+  if(document.querySelector("style[data-w10-casebar-styles]")) return;
+  const tag = document.createElement("style");
+  tag.setAttribute("data-w10-casebar-styles", "");
+  tag.textContent = W10_CASEBAR_CSS;
+  document.head.appendChild(tag);
+}
+
+function Chip({ kind, label, onRemove, pop }) {
   const tone = CHIP_TONE[kind] || CHIP_TONE.demo;
   return (
-    <span style={{
-      display:"inline-flex", alignItems:"center", gap:5,
-      fontSize:11.5, fontWeight:600, lineHeight:1.3,
-      padding:"3px 9px", borderRadius:999, whiteSpace:"nowrap",
-      color:tone.fg, background:tone.bg, border:`1px solid ${tone.bd}`,
-    }}>
+    <span
+      className={pop ? "rx-w12-chip-pop" : undefined}
+      style={{
+        display:"inline-flex", alignItems:"center", gap:5,
+        fontSize:11.5, fontWeight:600, lineHeight:1.3,
+        padding:"3px 9px", borderRadius:999, whiteSpace:"nowrap",
+        color:tone.fg, background:tone.bg, border:`1px solid ${tone.bd}`,
+      }}>
       <span>{label}</span>
       {onRemove && (
         <button type="button" onClick={onRemove}
           aria-label={`Remove ${label}`}
           style={{ display:"inline-flex", alignItems:"center", justifyContent:"center",
             background:"none", border:"none", padding:0, marginLeft:1, cursor:"pointer", color:"inherit", opacity:.7 }}>
-          <X size={10} />
+          <X size={10} aria-hidden />
         </button>
       )}
     </span>
@@ -111,7 +280,7 @@ function LockBadge({ visible }) {
         textTransform:"uppercase", fontWeight:700,
         color:"var(--ox)",
       }}>
-      <Lock size={9} aria-hidden /> Set
+      <Lock size={10} aria-hidden /> Set
     </span>
   );
 }
@@ -146,13 +315,43 @@ function _recentLabel(r) {
 }
 
 function CaseBar({ caseState, onApply, onSkip }) {
+  _ensureCasebarStyles();
+  const flow = useBedsideFlowCtx();
   const [text, setText] = useState("");
   const [touchedAny, setTouchedAny] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [recent, setRecent] = useState(() => _readRecent());
+  const applyBtnRef = useRef(null);
+  const inputRef = useRef(null);
+  useMagnetic(applyBtnRef, { strength: 0.22, range: 90 });
+  useRipple(applyBtnRef);
+
+  /* Wave 12 F1 + F8 · invitation-pulse on the input border while
+     phase === "awaiting" + no text, plus a one-shot first-character ring
+     overlay rendered when flow.freshType flips true (the hook persists
+     the flag in sessionStorage so it never repeats per tab session). */
+  const [inputFocused, setInputFocused] = useState(false);
+  const showInvitationPulse = !flow.reducedMotion && flow.phase === "awaiting" && !text && !inputFocused;
+  const showFirstRing = !flow.reducedMotion && flow.freshType;
 
   // Parse live so the chip preview updates as the user types. Cheap and pure.
   const parsed = useMemo(() => parseCase(text), [text]);
+
+  /* W12 F2 · diff the previous chip set against the current one so newly-
+     appeared chips can be flagged for the chip-pop animation. We key by
+     label since the parser doesn't emit stable ids. Brief Set tracking
+     is cleared the first time effective render runs through. */
+  const prevChipsRef = useRef([]);
+  const newChipKeys = useMemo(() => {
+    const prev = new Set(prevChipsRef.current.map(c => `${c.kind}:${c.label}`));
+    const fresh = new Set();
+    for(const c of parsed.chips) {
+      const k = `${c.kind}:${c.label}`;
+      if(!prev.has(k)) fresh.add(k);
+    }
+    prevChipsRef.current = parsed.chips;
+    return fresh;
+  }, [parsed]);
 
   // Manual builder state. Initialised from current caseState so the user
   // can refine an already-applied case rather than starting over.
@@ -288,6 +487,7 @@ function CaseBar({ caseState, onApply, onSkip }) {
   const reset = () => {
     setText("");
     setTouchedAny(false);
+    if(flow && flow.notifyTyping) flow.notifyTyping(false);
     setManual({
       syndrome:"", age:"", sex:"", crclBand:"",
       blAllergy:"none",
@@ -302,8 +502,39 @@ function CaseBar({ caseState, onApply, onSkip }) {
   const canApply = !!(_eff.syndrome || _eff.age || _eff.mrsaRisk || _eff.pseudoRisk || _eff.esblRisk || _eff.severe || (parsed.patient && Object.keys(parsed.patient).length > 0));
 
   return (
-    <div className="rx-builder" style={{ marginBottom: 20 }}>
-      <div className="rx-builder-h"><Search size={16} /> Describe the case</div>
+    <div
+      className="rx-builder"
+      data-w10-casebar=""
+      data-w12-typing={text.length > 0 ? "true" : "false"}
+      data-w12-structured-active={touchedAny && !text ? "true" : "false"}
+      style={{
+        marginBottom: 20,
+        position: "relative",
+        /* W10 · upgrade panel radius from 13px to asymmetric 18/4 to
+            match the chip system, and overlay a subtle corner mesh wash
+            for premium accent. The base rx-builder still applies its
+            background gradient + border. */
+        borderRadius: "18px 4px 18px 4px",
+        isolation: "isolate",
+        overflow: "hidden",
+        /* W12 F2 · intensify the corner mesh wash while user is typing.
+            CSS var consumed by the MeshWash via opacity bump applied at
+            the wrapper level (mesh decor is absolutely positioned). */
+        ["--w12-corner-mesh-opacity"]: text.length > 0 ? 1 : 0.6,
+      }}>
+      {/* W10 · corner cyan-only mesh wash for top-right accent.
+          W12 · opacity ramps from 0.45 → 0.75 while typing (F2). */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          opacity: text.length > 0 ? 0.75 : 0.45,
+          transition: "opacity var(--duration-base, .18s) var(--ease-out, ease-out)",
+        }}
+      >
+        <MeshWash variant="corner" intensity="soft" palette="cyan-only" anchor="top-right" />
+      </div>
+      <div className="rx-builder-h" style={{ position: "relative", zIndex: 1 }}><Search size={16} /> Describe the case</div>
       <p className="rx-builder-sub">
         Type the case in shorthand — e.g. <em>"72M PNA prior MRSA CrCl 35"</em>. The parser shows
         exactly what it understood as chips below; correct anything before applying. Or skip
@@ -340,29 +571,42 @@ function CaseBar({ caseState, onApply, onSkip }) {
               background:"none", border:"none", padding:"3px 6px", cursor:"pointer",
               alignSelf:"center",
             }}>
-            <X size={10} />
+            <X size={10} aria-hidden />
           </button>
         </div>
       )}
 
-      <div style={{ display:"flex", gap:8, marginBottom: 10 }}>
-        <input
-          type="text"
-          value={text}
-          onChange={e => { setText(e.target.value); setTouchedAny(false); }}
-          placeholder={EXAMPLES[0]}
-          aria-label="Case description (free text)"
-          style={{
-            flex:1, minWidth:0,
-            fontFamily:"var(--sans)", fontSize:14, color:"var(--ink)",
-            background:"var(--paper)", border:"1px solid var(--line)", borderRadius:9,
-            padding:"10px 13px", outline:"none",
-          }}
-        />
+      <div
+        data-w12-free-text=""
+        style={{ display:"flex", gap:8, marginBottom: 10, position: "relative", zIndex: 1 }}
+      >
+        <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
+          <input
+            ref={inputRef}
+            type="text"
+            className={"rx-w10-input" + (showInvitationPulse ? " rx-w12-pulse-border" : "")}
+            value={text}
+            onChange={e => {
+              const v = e.target.value;
+              setText(v);
+              setTouchedAny(false);
+              if(flow && flow.notifyTyping) flow.notifyTyping(v.length > 0);
+            }}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
+            placeholder={EXAMPLES[0]}
+            aria-label="Case description (free text)"
+            style={{ width: "100%", fontSize: 14 }}
+          />
+          {showFirstRing && (
+            <span aria-hidden="true" className="rx-w12-first-ring" data-testid="w12-first-ring" />
+          )}
+        </div>
         {text && (
-          <button type="button" onClick={() => setText("")} title="Clear input" aria-label="Clear input"
-            style={{ background:"none", border:"1px solid var(--line)", borderRadius:9, padding:"0 12px", cursor:"pointer", color:"var(--muted)" }}>
-            <X size={14} />
+          <button type="button" onClick={() => { setText(""); if(flow && flow.notifyTyping) flow.notifyTyping(false); }} title="Clear input" aria-label="Clear input"
+            className="rx-w10-ghost"
+            style={{ padding: "0 12px" }}>
+            <X size={14} aria-hidden />
           </button>
         )}
       </div>
@@ -382,16 +626,48 @@ function CaseBar({ caseState, onApply, onSkip }) {
       )}
 
       {text && (
-        <div style={{ margin:"4px 0 14px" }}>
-          <div style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--muted)", fontWeight:600, marginBottom:6 }}>
+        /* W11 · parsed-chip preview block — kicker switches to neon-cyan
+           mono uppercase so it reads as a "live parser" caption, and a
+           low-opacity diagonal Stripes panel sits behind the chip group
+           to anchor the parser output as a distinct sub-zone. */
+        <div style={{ margin:"4px 0 14px", position: "relative" }}>
+          <div style={{
+            fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em",
+            textTransform:"uppercase",
+            color:"var(--ox)",
+            fontWeight:700, marginBottom:6,
+          }}>
             Parsed
-            {parsed.chips.length === 0 && <span style={{ color:"var(--muted)", marginLeft:8, textTransform:"none", letterSpacing:0, fontFamily:"var(--sans)", fontSize:12 }}>nothing recognised yet — keep typing or toggle the chips below</span>}
+            {parsed.chips.length === 0 && <span style={{ color:"var(--muted)", marginLeft:8, textTransform:"none", letterSpacing:0, fontFamily:"var(--sans)", fontSize:12, fontWeight: 500 }}>nothing recognised yet — keep typing or toggle the chips below</span>}
           </div>
           {parsed.chips.length > 0 && (
-            <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
-              {parsed.chips.map((c, i) => (
-                <Chip key={i} kind={c.kind} label={c.kind === "syndrome" ? (_synName(c.label) || c.label) : c.label} />
-              ))}
+            <div style={{ position: "relative", padding: "4px 0" }}>
+              <Stripes
+                variant="cyan"
+                width="100%"
+                height={"100%"}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  opacity: 0.06,
+                  borderRadius: 6,
+                  pointerEvents: "none",
+                }}
+              />
+              <div style={{ display:"flex", flexWrap:"wrap", gap:6, position: "relative", zIndex: 1 }}>
+                {parsed.chips.map((c, i) => {
+                  const key = `${c.kind}:${c.label}`;
+                  const pop = !flow.reducedMotion && newChipKeys.has(key);
+                  return (
+                    <Chip
+                      key={i}
+                      kind={c.kind}
+                      pop={pop}
+                      label={c.kind === "syndrome" ? (_synName(c.label) || c.label) : c.label}
+                    />
+                  );
+                })}
+              </div>
             </div>
           )}
           {parsed.rump && (
@@ -404,6 +680,12 @@ function CaseBar({ caseState, onApply, onSkip }) {
 
       <div style={{ height:1, background:"var(--line2)", margin:"4px 0 14px" }} />
 
+      {/* W12 F9 · structured-region wrapper. The parent panel has both
+          [data-w12-typing] (true while user is typing free text) and
+          [data-w12-structured-active] (true while user has touched any
+          structured chip without text). The CSS rules dim the opposite
+          region by .65 to signal soft mutual-exclusivity. */}
+      <div data-w12-structured-region="" style={{ position: "relative", zIndex: 1 }}>
       {/* Default-visible structured fields. C3 progressive disclosure
           shows ~9 fields here (syndrome / age / sex / CrCl band /
           allergy / 4 risk toggles); the less-common entries
@@ -412,7 +694,7 @@ function CaseBar({ caseState, onApply, onSkip }) {
       <div className="rx-builder-grid">
         <label className="rx-builder-field">
           <span>Presentation <LockBadge visible={touched.syndrome} /></span>
-          <select value={_eff.syndrome} onChange={e => _setField("syndrome", e.target.value)}>
+          <select className="rx-w10-select" value={_eff.syndrome} onChange={e => _setField("syndrome", e.target.value)}>
             <option value="">— pick a syndrome —</option>
             {SYN_CATS.map(cat => (
               <optgroup key={cat.id} label={cat.label}>
@@ -423,7 +705,7 @@ function CaseBar({ caseState, onApply, onSkip }) {
         </label>
         <label className="rx-builder-field">
           <span>β-lactam allergy <LockBadge visible={touched.blAllergy} /></span>
-          <select value={_eff.blAllergy} onChange={e => _setField("blAllergy", e.target.value)}>
+          <select className="rx-w10-select" value={_eff.blAllergy} onChange={e => _setField("blAllergy", e.target.value)}>
             <option value="none">None</option>
             <option value="mild">Low-risk / delayed</option>
             <option value="severe">Severe / anaphylaxis</option>
@@ -431,16 +713,16 @@ function CaseBar({ caseState, onApply, onSkip }) {
         </label>
       </div>
 
-      <div className="rx-builder-grid" style={{ marginTop: 10 }}>
+      <div className="rx-builder-grid" style={{ marginTop: 10, position: "relative", zIndex: 1 }}>
         <label className="rx-builder-field">
           <span>Age <LockBadge visible={touched.age} /></span>
-          <input type="number" min="0" max="120" value={_eff.age || ""}
+          <input className="rx-w10-input" type="number" min="0" max="120" value={_eff.age || ""}
             onChange={e => _setField("age", e.target.value === "" ? "" : Number(e.target.value))}
             placeholder="—" />
         </label>
         <label className="rx-builder-field">
           <span>Sex <LockBadge visible={touched.sex} /></span>
-          <select value={_eff.sex || ""} onChange={e => _setField("sex", e.target.value)}>
+          <select className="rx-w10-select" value={_eff.sex || ""} onChange={e => _setField("sex", e.target.value)}>
             <option value="">—</option>
             <option value="M">M</option>
             <option value="F">F</option>
@@ -448,7 +730,7 @@ function CaseBar({ caseState, onApply, onSkip }) {
         </label>
         <label className="rx-builder-field">
           <span>CrCl (mL/min) <LockBadge visible={touched.crclBand} /></span>
-          <select value={touched.crclBand ? manual.crclBand : _initialBand}
+          <select className="rx-w10-select" value={touched.crclBand ? manual.crclBand : _initialBand}
             onChange={e => _setField("crclBand", e.target.value)}>
             {CRCL_BANDS.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
           </select>
@@ -487,13 +769,13 @@ function CaseBar({ caseState, onApply, onSkip }) {
           <div className="rx-builder-grid">
             <label className="rx-builder-field">
               <span>Hepatic stage <LockBadge visible={touched.hepatic} /></span>
-              <select value={manual.hepatic} onChange={e => _setField("hepatic", e.target.value)}>
+              <select className="rx-w10-select" value={manual.hepatic} onChange={e => _setField("hepatic", e.target.value)}>
                 {HEPATIC_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
               </select>
             </label>
             <label className="rx-builder-field">
               <span>Weight (kg) <LockBadge visible={touched.weightKg} /></span>
-              <input type="number" min="0" max="400" value={manual.weightKg}
+              <input className="rx-w10-input" type="number" min="0" max="400" value={manual.weightKg}
                 onChange={e => _setField("weightKg", e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="—" />
             </label>
@@ -515,25 +797,33 @@ function CaseBar({ caseState, onApply, onSkip }) {
           </div>
         </div>
       )}
+      </div>
 
       {synName && (
         <div style={{ fontSize:12, color:"var(--ink2)", marginTop:14, marginBottom:12, padding:"6px 10px", background:"var(--ox-softer)", border:"1px solid var(--ox-line)", borderRadius:8 }}>
           <Crosshair size={11} style={{ verticalAlign:"-1px", color:"var(--ox)", marginRight:6 }} />
           Presentation: <b>{synName}</b>
+          {!flow.reducedMotion && (
+            <Sparkle
+              size={11}
+              style={{ marginLeft: 6, verticalAlign: "-1px" }}
+              data-testid="w12-syndrome-sparkle"
+            />
+          )}
         </div>
       )}
 
-      <div style={{ display:"flex", gap:10, flexWrap:"wrap", alignItems:"center", marginTop: synName ? 0 : 14 }}>
-        <button type="button" className="rx-builder-go" onClick={apply} disabled={!canApply}
-          style={{ opacity: canApply ? 1 : 0.5, cursor: canApply ? "pointer" : "not-allowed" }}>
+      <div style={{ display:"flex", gap:10, flexWrap:"wrap", alignItems:"center", marginTop: synName ? 0 : 14, position: "relative", zIndex: 1 }}>
+        <button ref={applyBtnRef} type="button"
+          className={
+            "rx-builder-go rx-w10-cta rx-magnetic rx-ripple" +
+            (!flow.reducedMotion && canApply && text.length > 0 ? " rx-shine-sweep" : "")
+          }
+          onClick={apply} disabled={!canApply}>
           <ArrowRight size={14}/> Apply case
         </button>
         {(text || touchedAny) && (
-          <button type="button" onClick={reset}
-            style={{ display:"inline-flex", alignItems:"center", gap:5,
-              fontFamily:"var(--sans)", fontSize:12, color:"var(--muted)",
-              background:"none", border:"1px solid var(--line)", borderRadius:8,
-              padding:"8px 12px", cursor:"pointer" }}>
+          <button type="button" onClick={reset} className="rx-w10-ghost">
             <RotateCcw size={12}/> Reset
           </button>
         )}

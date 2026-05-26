@@ -1,4 +1,14 @@
 /* component · rich-text renderers — drug-class + glossary inline popovers.
+
+   Wave 11 W11 atomized polish — the .rx-clspop popover panel picks up
+   the Wave 9 chrome grammar via a component-scoped <style> injection:
+   glass-diffuse background, asymmetric radius with a 4px cyan top
+   strip, and per-list-item cyan light-ring leading dots. The
+   "Read the mechanism" footer button picks up the chrome-CTA gradient
+   so it reads as the surfaced call-to-action inside the popover. ZERO
+   functional changes — the open/close logic, positioning math, and
+   keyboard contract are untouched.
+
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowRight, BookOpen, CornerDownRight } from "lucide-react";
@@ -6,6 +16,80 @@ import { classData, glossData } from "../engines/clinical.js";
 import { RANK_LAB, RX_TOKEN } from "../data/drugs.js";
 import { GLOSS_TOKEN } from "../data/content.js";
 import { getMechanism } from "../data/mechanisms.js";
+
+/* W11 · component-scoped override layer for .rx-clspop. Targets the
+   popovers via the data-w11-clspop attribute that we add below, so
+   the override is fully opt-in and never bleeds to other consumers
+   of .rx-clspop on other branches. Idempotent injection. */
+const W11_CLSPOP_CSS = `
+[data-w11-clspop] {
+  background: linear-gradient(135deg, rgba(255,255,255,0.86) 0%, rgba(245,250,253,0.74) 100%) !important;
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid var(--ox-line, var(--line)) !important;
+  border-radius: 12px 4px 12px 4px !important;
+  box-shadow:
+    var(--shadow-e3, 0 18px 36px -12px rgba(11,15,20,0.32)),
+    inset 0 1px 0 rgba(255,255,255,0.55) !important;
+  position: absolute;
+  overflow: hidden;
+}
+[data-w11-clspop]::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--neon-cyan, var(--ox)),
+    var(--electric-blue, var(--ox)),
+    var(--neon-cyan, var(--ox)));
+  pointer-events: none;
+}
+[data-w11-clspop-item] {
+  position: relative;
+}
+[data-w11-clspop-item]::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--neon-cyan, var(--ox));
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--neon-cyan, var(--ox)) 22%, transparent),
+    0 0 8px color-mix(in srgb, var(--neon-cyan, var(--ox)) 40%, transparent);
+  pointer-events: none;
+}
+[data-w11-clspop-mech] {
+  background: linear-gradient(180deg,
+    var(--ox-deep, #0B0F14) 0%,
+    var(--ox, #1F2937) 35%,
+    var(--ox, #1F2937) 55%,
+    var(--ox-deep, #0B0F14) 100%) !important;
+  color: #fff !important;
+  border: 1px solid color-mix(in srgb, var(--ox-deep, var(--ox)) 70%, transparent) !important;
+  border-radius: 8px 3px 8px 3px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.20),
+    inset 0 -1px 0 rgba(0,0,0,0.30),
+    0 4px 10px -4px rgba(11,15,20,0.45),
+    0 0 14px -6px color-mix(in srgb, var(--neon-cyan, var(--ox)) 55%, transparent) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-w11-clspop] { transition: none !important; }
+}
+`;
+function _ensureClspopStyles() {
+  if (typeof document === "undefined") return;
+  if (document.querySelector("style[data-w11-clspop-styles]")) return;
+  const tag = document.createElement("style");
+  tag.setAttribute("data-w11-clspop-styles", "");
+  tag.textContent = W11_CLSPOP_CSS;
+  document.head.appendChild(tag);
+}
 
 /* Wave 5 CL-3 · mechanism wiring. When the chip's phrase resolves through
    getMechanism (drug class for ClassChip, resistance term for TermChip),
@@ -21,10 +105,11 @@ function MechanismFooter({ phrase, onOpenMechanism, onAfter }) {
     <button
       type="button"
       className="rx-clspop-mech"
+      data-w11-clspop-mech
       title={"Open " + entry.title + " mechanism"}
       style={{
         display: "flex", alignItems: "center", gap: 6,
-        marginTop: 8, padding: "5px 8px",
+        marginTop: 8, padding: "7px 10px",
         background: "var(--paper2)", border: "1px solid var(--line)",
         borderRadius: 5, cursor: "pointer",
         fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
@@ -41,6 +126,7 @@ function MechanismFooter({ phrase, onOpenMechanism, onAfter }) {
 }
 
 function ClassChip({ phrase, onDrug, onOpenMechanism }){
+  _ensureClspopStyles();
   const data = classData(phrase);
   if(!data) return phrase;
   const [open, setOpen] = React.useState(false);
@@ -74,18 +160,18 @@ function ClassChip({ phrase, onDrug, onOpenMechanism }){
       onKeyDown={e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); open ? setOpen(false) : show(); } else if(e.key === "Escape"){ setOpen(false); } }}>
       {phrase}
       {open && pos && (
-        <span className={"rx-clspop" + (pos.up ? " up" : "")} style={{ left: pos.left + "px", top: pos.y + "px" }}
+        <span className={"rx-clspop" + (pos.up ? " up" : "")} data-w11-clspop style={{ left: pos.left + "px", top: pos.y + "px" }}
           role="dialog" aria-label={data.title + " — preferred agents"}
           onMouseEnter={show} onMouseLeave={hide} onClick={e => e.stopPropagation()}>
-          <span className="rx-clspop-h">{data.title}</span>
+          <span className="rx-clspop-h" style={{ paddingTop: 6 }}>{data.title}</span>
           {data.blurb && <span className="rx-clspop-blurb">{data.blurb}</span>}
           <span className="rx-clspop-list">
             {data.agents.map(([name, rank, why]) => (
-              <button key={name} type="button" className="rx-clspop-ag" title={"Open " + name + " monograph"}
+              <button key={name} type="button" className="rx-clspop-ag" data-w11-clspop-item title={"Open " + name + " monograph"}
                 onClick={e => { e.stopPropagation(); onDrug && onDrug(name); setOpen(false); }}>
                 <span className={"rx-clspop-rank r-" + rank}>{RANK_LAB[rank] || rank}</span>
                 <span className="rx-clspop-txt"><span className="n">{name.split(" / ")[0]}</span><span className="w">{why}</span></span>
-                <ArrowRight size={13}/>
+                <ArrowRight size={13} aria-hidden/>
               </button>
             ))}
           </span>
@@ -115,6 +201,7 @@ function renderRx(text, onDrug, onOpenMechanism){
 }
 
 function TermChip({ phrase, onDrug, onOpenMechanism }){
+  _ensureClspopStyles();
   const data = glossData(phrase);
   if(!data) return phrase;
   const [open, setOpen] = React.useState(false);
@@ -148,21 +235,21 @@ function TermChip({ phrase, onDrug, onOpenMechanism }){
       onKeyDown={e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); open ? setOpen(false) : show(); } else if(e.key === "Escape"){ setOpen(false); } }}>
       {phrase}
       {open && pos && (
-        <span className={"rx-clspop rx-glosspop" + (pos.up ? " up" : "")} style={{ left: pos.left + "px", top: pos.y + "px" }}
+        <span className={"rx-clspop rx-glosspop" + (pos.up ? " up" : "")} data-w11-clspop style={{ left: pos.left + "px", top: pos.y + "px" }}
           role="dialog" aria-label={data.full}
           onMouseEnter={show} onMouseLeave={hide} onClick={e => e.stopPropagation()}>
-          <span className="rx-clspop-h">{data.full}</span>
+          <span className="rx-clspop-h" style={{ paddingTop: 6 }}>{data.full}</span>
           <span className="rx-gloss-ab">{phrase}</span>
           <span className="rx-clspop-blurb" style={{ margin:"6px 0 0" }}>{data.def}</span>
           {data.agent && (
-            <button type="button" className="rx-clspop-ag" style={{ marginTop:8 }} title={"Open " + data.agent[0] + " monograph"}
+            <button type="button" className="rx-clspop-ag" data-w11-clspop-item style={{ marginTop:8 }} title={"Open " + data.agent[0] + " monograph"}
               onClick={e => { e.stopPropagation(); onDrug && onDrug(data.agent[0]); setOpen(false); }}>
               <span className="rx-clspop-rank r-preferred">Preferred</span>
               <span className="rx-clspop-txt"><span className="n">{data.agent[0].split(" / ")[0]}</span><span className="w">{data.agent[1]}</span></span>
               <ArrowRight size={13}/>
             </button>
           )}
-          {data.see && <span className="rx-gloss-see"><CornerDownRight size={12}/> {data.see}</span>}
+          {data.see && <span className="rx-gloss-see"><CornerDownRight size={12} aria-hidden/> {data.see}</span>}
           <MechanismFooter
             phrase={phrase}
             onOpenMechanism={onOpenMechanism}

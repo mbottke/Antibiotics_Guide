@@ -25,14 +25,20 @@ export const depthLayer = {
         background: "var(--paper2)",
         scrollMarginTop: 96,
       }}>
-        <summary style={{
-          cursor: "pointer", padding: "10px 14px",
-          fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
-          color: "var(--ox)", letterSpacing: ".08em", textTransform: "uppercase",
-          listStyle: "none", borderRadius: 8,
-          display: "flex", alignItems: "center", gap: 8,
-        }}>
-          <ChevronRight size={12} /> More depth · evidence + reference
+        {/* Wave 10 — summary picks up rx-focus-halo so keyboard tab focus
+            shows the same cyan halo as inputs everywhere else. Adopt-by-
+            class only; behavior + structure unchanged. */}
+        <summary
+          className="rx-focus-halo"
+          style={{
+            cursor: "pointer", padding: "10px 14px",
+            fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
+            color: "var(--ox)", letterSpacing: ".08em", textTransform: "uppercase",
+            listStyle: "none", borderRadius: 8,
+            display: "flex", alignItems: "center", gap: 8,
+          }}
+        >
+          <ChevronRight size={12} aria-hidden /> More depth · evidence + reference
         </summary>
         <div style={{ padding: "0 14px 14px" }}>
           <ResearchBlock research={_research} />

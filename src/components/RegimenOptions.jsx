@@ -24,7 +24,8 @@
    no markdown library — the content layer is plain JS strings.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useTilt } from "./util/useTilt.js";
 import { AlertTriangle, Check, Info, Pill, Syringe, XCircle, Zap } from "lucide-react";
 import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { lookupOptionContent } from "../data/regimenContent.js";
@@ -32,6 +33,7 @@ import { doseAdjustments } from "../engines/dosing.js";
 import { matchesCtx } from "../engines/ctxMatch.js";
 import { AGENT_RX, DRUG_ALIASES, FORMULARY } from "../data/drugs.js";
 import { parseBold, RichText } from "./util/richText.jsx";
+import { Sparkle } from "./decor/Sparkle.jsx";
 
 /* Wave 5 PR-10 — microbiome collateral-damage signals.
    FORMULARY lookup keyed by canonical FORMULARY name; AGENT_RX is the
@@ -116,13 +118,25 @@ function MicrobiomeChips({ optionText }) {
                 : sig.mdrTop === "low"  ? { color: "var(--ink2)", bg: "var(--paper2)", line: "var(--line)" }
                 : null;
 
+  /* W10 · prefix each microbiome chip with a neon light-ring whose
+     severity matches the chip tone (red for cdiffMax≥5 / MDR-high,
+     amber for the middle band, cyan for low). Structural chip layout
+     is unchanged so density stays identical; only the leading severity
+     dot becomes a deliberate glowing ring instead of an implicit
+     text-color hint. */
+  const cdiffRing = cdiffTone
+    ? (sig.cdiffMax >= 5 ? "rx-light-ring-red" : sig.cdiffMax >= 4 ? "rx-light-ring-amber" : sig.cdiffMax >= 1 ? "rx-light-ring-cyan" : null)
+    : null;
+  const mdrRing = mdrTone
+    ? (sig.mdrTop === "high" ? "rx-light-ring-red" : sig.mdrTop === "med" ? "rx-light-ring-amber" : sig.mdrTop === "low" ? "rx-light-ring-cyan" : null)
+    : null;
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
       {cdiffTone && (
         <span
           title={`C. difficile risk score (1 = lowest, 5 = highest). Regimen worst: ${sig.cdiffMax}.`}
           style={{
-            display: "inline-flex", alignItems: "center", gap: 3,
+            display: "inline-flex", alignItems: "center", gap: 4,
             fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700,
             letterSpacing: ".06em", textTransform: "uppercase",
             color: cdiffTone.color, background: cdiffTone.bg,
@@ -131,6 +145,7 @@ function MicrobiomeChips({ optionText }) {
             whiteSpace: "nowrap",
           }}
         >
+          {cdiffRing && <span className={cdiffRing} aria-hidden style={{ width: 7, height: 7, borderWidth: 1.5 }} />}
           C.diff {sig.cdiffMax}
         </span>
       )}
@@ -138,7 +153,7 @@ function MicrobiomeChips({ optionText }) {
         <span
           title={`MDR-selection pressure on gut microbiome. Regimen worst: ${sig.mdrTop}.`}
           style={{
-            display: "inline-flex", alignItems: "center", gap: 3,
+            display: "inline-flex", alignItems: "center", gap: 4,
             fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700,
             letterSpacing: ".06em", textTransform: "uppercase",
             color: mdrTone.color, background: mdrTone.bg,
@@ -147,6 +162,7 @@ function MicrobiomeChips({ optionText }) {
             whiteSpace: "nowrap",
           }}
         >
+          {mdrRing && <span className={mdrRing} aria-hidden style={{ width: 7, height: 7, borderWidth: 1.5 }} />}
           MDR {sig.mdrTop}
         </span>
       )}
@@ -171,7 +187,7 @@ function RouteBadge({ route }) {
             border:"1px solid " + (r === "iv" ? "var(--ox-line)" : "var(--line)"),
             borderRadius:4, padding:"1px 5px",
           }}>
-            <Icon size={9} aria-hidden /> {r}
+            <Icon size={10} aria-hidden /> {r}
           </span>
         );
       })}
@@ -290,7 +306,7 @@ function DecisionContent({ content, accent, ctx }) {
                   border: ctxFires ? "1px solid " + sty.line : "none",
                   borderLeft: ctxFires ? "3px solid " + sty.color : "none",
                   borderRadius: ctxFires ? 5 : 0,
-                  transition: "background .12s, border-color .12s",
+                  transition: "background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
                 }}>
                   <sty.Icon size={11} aria-hidden style={{ color: sty.color, flexShrink: 0, marginTop: 3 }} />
                   <span style={{ flex: 1 }}>
@@ -369,10 +385,16 @@ function titleCaseFirst(s) {
    members ship safely without code changes. */
 const BETA_LACTAM_RX = /\b(?:penicillin|amoxicillin|ampicillin|dicloxacillin|oxacillin|nafcillin|piperacillin|amp-?sulbactam|amox-?clav|augmentin|pip-?tazo|pip-?taz|cef\w+|carbapenem|meropenem|imipenem|ertapenem|doripenem|β-?lactam|cephalosporin|cephamycin)\b/i;
 
-function OptionCard({ option, selected, primary, onSelect, renderText, accent, content, ctx, d, synId }) {
+function OptionCard({ option, selected, primary, onSelect, renderText, accent, content, ctx, d, synId, tierId }) {
   const accentColor = accent === "add" ? "var(--amber)" : "var(--ox)";
   const accentSoft  = accent === "add" ? "var(--amber-soft)" : "var(--ox-soft)";
   const accentLine  = accent === "add" ? "var(--amber-line)" : "var(--ox-line)";
+
+  // Wave 9 · subtle 3D tilt on the regimen option card. Intensity 4
+  // keeps the lean delicate so dense bedside content never reads as
+  // skewed; the hook no-ops on reduced-motion + coarse-pointer.
+  const cardRef = useRef(null);
+  useTilt(cardRef, { intensity: 4 });
 
   /* Phase D3.3 allergy-driven card deprecation. When the patient has
      documented β-lactam anaphylaxis AND this card contains a β-lactam
@@ -388,11 +410,22 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
 
   return (
     <button
+      ref={cardRef}
       type="button"
       role="radio"
       aria-checked={selected}
       aria-describedby={showAllergyBanner ? `allergy-warn-${synId}-${option.text.slice(0,20).replace(/\W+/g,"-")}` : undefined}
+      data-tier-id={tierId != null ? String(tierId) : undefined}
       onClick={onSelect}
+      /* Wave 10 — rx-focus-halo lifts keyboard-focus ring to the same depth
+         cyan halo used by all interactive inputs across the canvas, plus
+         rx-glow-lift gives the selected card a subtle spring on hover.
+         Wave 11 — rx-card-interactive opts in to the global cursor-spotlight
+         delegated listener in App.jsx so this primary clickable card carries
+         the same neon-cyan radial halo on pointer move as every other major
+         interactive surface. All three classes are inert under
+         reduced-motion / coarse-pointer. */
+      className={"rx-focus-halo rx-card-interactive" + (selected ? " rx-glow-lift" : "")}
       style={{
         textAlign:"left",
         background: selected
@@ -404,7 +437,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
         borderRadius:10,
         padding:"11px 12px 12px",
         cursor:"pointer",
-        transition:"background .12s, border-color .12s, transform .08s",
+        transition:"background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease), transform var(--duration-fast, .12s) var(--ease-out, ease)",
         boxShadow: selected ? "inset 0 0 0 1px " + accentLine : "none",
         opacity: selected ? 1 : 0.94,
       }}>
@@ -439,15 +472,27 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
         <div style={{ display:"inline-flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
           <RouteBadge route={option.route} />
           {primary && (
+            /* W10 · the "Recommended" tier-1 badge picks up a small
+               Sparkle glyph + cyan-tinted gradient + outer halo so the
+               strongest recommendation reads as the brightest chip in
+               the row (drug-of-choice marker idiom). */
             <span style={{
-              display:"inline-flex", alignItems:"center", gap:3,
+              display:"inline-flex", alignItems:"center", gap:4,
               fontFamily:"var(--mono)", fontSize:9, letterSpacing:".08em",
               textTransform:"uppercase", fontWeight:700,
-              color:"#fff", background: accentColor,
-              border: "1px solid " + accentColor,
+              color:"#fff",
+              background: `linear-gradient(135deg, ${accentColor} 0%, color-mix(in srgb, ${accentColor} 70%, var(--neon-cyan, var(--ox-bright))) 100%)`,
+              border: "1px solid color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 40%, " + accentColor + ")",
               borderRadius: 4, padding:"2px 6px",
               whiteSpace:"nowrap",
-            }}>Recommended</span>
+              boxShadow: "0 0 10px -3px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 45%, transparent)",
+            }}>
+              {/* Wave 10 — Sparkle glyph on the "Recommended" chip so the
+                  badge carries the same "considered / curated" mark the
+                  drug-of-choice gloss uses elsewhere in the answer-canvas. */}
+              <Sparkle size={10} color="#fff" />
+              Recommended
+            </span>
           )}
           <MicrobiomeChips optionText={option.text} />
         </div>
@@ -604,7 +649,15 @@ function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx
             content={contentFor(opt.text)}
             ctx={ctx}
             d={d}
-            synId={synId} />
+            synId={synId}
+            /* Wave 12 · CH5 — `data-tier-id` lets the global :has()
+               rule in choreography.js co-spotlight any aside item
+               that carries the matching `data-tier-target`. Display
+               index (1..n) is stable per render-position so e.g.
+               coverage chips marked data-tier-target="1" brighten
+               when the user hovers tier-1. Pure decorative wiring;
+               unsupported browsers (no :has) silently skip. */
+            tierId={displayIdx + 1} />
         ))}
       </div>
     </div>

@@ -72,12 +72,21 @@ const _TONE_FOR = {
    The contract is enforced at the renderFootnotesOnly call site. */
 function FootMark({ idx, step, interactive = true }) {
   const tone = _TONE_FOR[step.type] || _TONE_FOR.note;
-  const color = step.sev === "high" ? "var(--ox)" : step.sev === "med" ? "var(--amber)" : "var(--ink2)";
+  /* W10 · promote the interactive footnote marker to a tiny chip with
+     a sev-tinted radial wash + outer cyan glow on hover/focus, so
+     "click to trace decision" reads as a first-class chip rather than
+     a flat numbered badge. The non-interactive variant keeps the flat
+     fill (no click affordance to signal). */
+  const baseColor = step.sev === "high" ? "var(--ox)" : step.sev === "med" ? "var(--amber)" : "var(--ink2)";
   const supStyle = {
     display:"inline-flex", alignItems:"center", justifyContent:"center",
     minWidth:14, height:14, padding:"0 4px", marginLeft:3,
     fontSize:9, fontFamily:"var(--mono)", fontWeight:700,
-    color:"#fff", background:color, borderRadius:7, verticalAlign:"super",
+    color:"#fff",
+    background: interactive
+      ? `radial-gradient(circle at 32% 30%, color-mix(in srgb, ${baseColor} 60%, var(--neon-cyan, var(--ox-bright))) 0%, ${baseColor} 80%)`
+      : baseColor,
+    borderRadius:7, verticalAlign:"super",
     lineHeight:1, border:"none",
   };
   if(!interactive) {
@@ -102,7 +111,11 @@ function FootMark({ idx, step, interactive = true }) {
         onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(true); }}
         title={`Trace decision — ${tone.label}: ${step.reason}`}
         aria-label={`Trace decision · ${tone.label} on ${step.agent}`}
-        style={{ ...supStyle, cursor:"pointer", appearance:"none" }}
+        className="rx-glow-lift rx-magnetic"
+        style={{
+          ...supStyle, cursor:"pointer", appearance:"none",
+          boxShadow: "0 0 8px -2px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 40%, transparent)",
+        }}
       >
         {idx}
       </button>
@@ -217,7 +230,7 @@ function RxLine({ tier, kind, refinements, onDrug, onOpenMechanism, ctx, d, synI
           background: tierBg, border:`1px solid ${tierLine}`, borderRadius:5,
           padding:"3px 9px",
         }}>
-          {kind === "add" ? <><Plus size={10} style={{verticalAlign:"-1px", marginRight:3}}/>{tierLabel}</> : tierLabel}
+          {kind === "add" ? <><Plus size={10} aria-hidden style={{verticalAlign:"-1px", marginRight:3}}/>{tierLabel}</> : tierLabel}
         </span>
         <span style={{ fontSize:14.5, fontWeight:700, color:"var(--ink)", letterSpacing:"-.005em" }}>{tier.k}</span>
         {tier.why && <span style={{ fontSize:12, color:"var(--muted)" }}>· added because {tier.why}</span>}
@@ -288,7 +301,7 @@ function RefinementRow({ idx, step, onDrug, onOpenMechanism }) {
           }}>{tone.label}</span>
           <span style={{ fontWeight:600, color:"var(--ink)", fontSize:12.5 }}>
             {step.type === "substitute" && step.replacement
-              ? <><span style={{ textDecoration:"line-through", opacity:.6 }}>{step.agent}</span>{" "}<ArrowRight size={10} style={{verticalAlign:"-1px"}}/>{" "}<b>{step.replacement}</b></>
+              ? <><span style={{ textDecoration:"line-through", opacity:.6 }}>{step.agent}</span>{" "}<ArrowRight size={10} aria-hidden style={{verticalAlign:"-1px", color:"var(--muted)"}}/>{" "}<b>{step.replacement}</b></>
               : <span style={{ textDecoration: step.type === "eliminate" ? "line-through" : "none", opacity: step.type === "eliminate" ? .6 : 1 }}>{step.agent}</span>}
           </span>
         </div>

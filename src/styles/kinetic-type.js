@@ -55,7 +55,7 @@ const KINETIC = `
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
   line-height: 1.0;
-  color: var(--neon-cyan, var(--ox));
+  color: var(--ox);
 }
 
 /* === Section counters ================================================= */
@@ -78,7 +78,7 @@ const KINETIC = `
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.24em;
-  color: var(--neon-cyan, var(--ox));
+  color: var(--ox);
   font-variant-numeric: tabular-nums;
 }
 

@@ -11,9 +11,11 @@ import {
   Check, Plus, Zap, Soup, Flame,
   Filter, Eye, EyeOff, RotateCcw,
 } from "lucide-react";
-import { CSS, CSS2, CSS3, CSS4, CSS5 } from "./styles/app-styles";
+import { CSS, CSS2, CSS3, CSS4, CSS5, CSS_W10 } from "./styles/app-styles";
 import { KINETIC } from "./styles/kinetic-type";
 import { MICRO } from "./styles/microinteractions";
+import { GLASS } from "./styles/glass";
+import { CHOREOGRAPHY } from "./styles/choreography";
 import { PatientContextBar, DrugCard, OrgCard, RegimenCard, TrialCard, RapidDxTimeout, IVtoPO, MrsaCell, CmpCell, SpectrumCompare } from "./components/cards";
 import { ClassChip, TermChip, renderRx, renderGloss, renderRich } from "./components/rich-text";
 import { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer } from "./components/primitives";
@@ -26,7 +28,9 @@ import {
 } from "./engines/antibiogramStore.js";
 import { SurfaceBar } from "./components/SurfaceBar";
 import { SectionNav } from "./components/SectionNav";
+import { useSectionTransitions, SectionTransitionStyles } from "./components/SectionTransitions";
 import { OutpatientShell } from "./components/OutpatientShell";
+import { GlobalScrollProgress } from "./components/GlobalScrollProgress";
 import { SECTIONS, SECTION_BY_ID, sectionForTab, firstTabOfSection } from "./data/sections";
 import { SyndromesSection } from "./sections/SyndromesSection";
 import { AgentsSection } from "./sections/AgentsSection";
@@ -317,6 +321,387 @@ export default function InpatientAbxGuide() {
     else console.warn(integrityLine(result));
   }, []);
 
+  /* ---- Wave 9 · global cursor-spotlight on every .rx-card-interactive ----
+     One delegated mousemove listener on document, no per-card useEffect
+     wiring. As the cursor moves, we walk up from the event target until
+     we hit a .rx-card-interactive (closest()) and write --cursor-x /
+     --cursor-y / --cursor-active onto that element. mouseout flips the
+     active flag back to 0. Reduced-motion + coarse-pointer short-circuit
+     so the listener is never installed on those configurations — the CSS
+     :hover styling continues to work, just without the cursor halo. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    if(window.matchMedia("(pointer: coarse)").matches) return undefined;
+    let activeEl = null;
+    const onMove = (e) => {
+      const t = e.target;
+      if(!t || typeof t.closest !== "function") return;
+      const card = t.closest(".rx-card-interactive");
+      if(!card){
+        if(activeEl){ activeEl.style.setProperty("--cursor-active", "0"); activeEl = null; }
+        return;
+      }
+      if(activeEl && activeEl !== card){
+        activeEl.style.setProperty("--cursor-active", "0");
+      }
+      const r = card.getBoundingClientRect();
+      card.style.setProperty("--cursor-x", (e.clientX - r.left) + "px");
+      card.style.setProperty("--cursor-y", (e.clientY - r.top) + "px");
+      card.style.setProperty("--cursor-active", "1");
+      activeEl = card;
+    };
+    const onLeaveWindow = () => {
+      if(activeEl){ activeEl.style.setProperty("--cursor-active", "0"); activeEl = null; }
+    };
+    document.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseleave", onLeaveWindow, { passive: true });
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeaveWindow);
+      if(activeEl) activeEl.style.setProperty("--cursor-active", "0");
+    };
+  }, []);
+
+  /* ---- Wave 9 · global magnetic-pull on every .rx-cta-glow CTA ----
+     Single document mousemove computes distance from each .rx-cta-glow
+     center; within `range` it applies a translate3d up to `MAX_PULL`
+     pixels. The buttons keep their existing CSS hover treatment; this
+     just adds a subtle physical "pull" the moment the cursor enters
+     their orbit. Reduced-motion + coarse-pointer short-circuit. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    if(window.matchMedia("(pointer: coarse)").matches) return undefined;
+    const RANGE = 80;
+    const MAX_PULL = 8;
+    let rafId = 0;
+    let pendingEvent = null;
+    const apply = () => {
+      rafId = 0;
+      const e = pendingEvent;
+      if(!e) return;
+      const ctas = document.querySelectorAll(".rx-cta-glow");
+      for(let i = 0; i < ctas.length; i++){
+        const el = ctas[i];
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        if(dist > RANGE){
+          if(el.style.transform){ el.style.transform = ""; }
+          continue;
+        }
+        const factor = (RANGE - dist) / RANGE; // 0..1
+        const px = Math.max(-MAX_PULL, Math.min(MAX_PULL, dx * 0.25 * factor));
+        const py = Math.max(-MAX_PULL, Math.min(MAX_PULL, dy * 0.25 * factor));
+        el.style.transition = "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)";
+        el.style.transform = "translate3d(" + px.toFixed(2) + "px, " + py.toFixed(2) + "px, 0)";
+      }
+    };
+    const onMove = (e) => {
+      pendingEvent = e;
+      if(rafId) return;
+      rafId = window.requestAnimationFrame(apply);
+    };
+    document.addEventListener("mousemove", onMove, { passive: true });
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      if(rafId) window.cancelAnimationFrame(rafId);
+      const ctas = document.querySelectorAll(".rx-cta-glow");
+      for(let i = 0; i < ctas.length; i++){
+        ctas[i].style.transform = "";
+        ctas[i].style.transition = "";
+      }
+    };
+  }, []);
+
+  /* ====================================================================
+     WAVE 12 · AMBIENT RESPONSE CHOREOGRAPHY
+     ====================================================================
+     Six (+ one cursor-trail) ambient moves that extend the Wave 9–11
+     cursor-spotlight + mesh-blob vocabulary into the relationships
+     *between* elements. Every move is gated by `prefers-reduced-motion`
+     and (where it matters) `pointer: coarse` — the listeners short-
+     circuit on those configurations so attributes never get written.
+     The CSS counterparts live in `src/styles/choreography.js`. */
+
+  /* ---- CH1 · Focus-mode dimming on sibling .rx-card-interactive ----
+     Delegated mouseover/mouseout listener walks `closest(".rx-card-
+     interactive")` and toggles `data-focus-dim="sibling"` on the
+     hovered card's same-parent siblings that are also interactive
+     cards. The CSS in choreography.js ducks their opacity + saturation
+     so the hovered surface "pops" by contrast — no scale, no shift,
+     just visual focus. Reduced-motion / coarse-pointer short-circuit. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    if(window.matchMedia("(pointer: coarse)").matches) return undefined;
+    let dimmedSet = [];
+    const clearAll = () => {
+      for(let i = 0; i < dimmedSet.length; i++){
+        dimmedSet[i].removeAttribute("data-focus-dim");
+      }
+      dimmedSet = [];
+    };
+    const onOver = (e) => {
+      const t = e.target;
+      if(!t || typeof t.closest !== "function") return;
+      const card = t.closest(".rx-card-interactive");
+      if(!card){
+        clearAll();
+        return;
+      }
+      const parent = card.parentElement;
+      if(!parent){ clearAll(); return; }
+      // Collect same-tier interactive siblings only.
+      const siblings = parent.querySelectorAll(":scope > .rx-card-interactive");
+      // If the hovered card matches an already-active set, no churn.
+      let needsUpdate = false;
+      if(dimmedSet.length !== siblings.length - 1) needsUpdate = true;
+      else {
+        for(let i = 0; i < dimmedSet.length; i++){
+          if(dimmedSet[i] === card){ needsUpdate = true; break; }
+        }
+      }
+      if(!needsUpdate) return;
+      clearAll();
+      for(let i = 0; i < siblings.length; i++){
+        const s = siblings[i];
+        if(s === card) continue;
+        s.setAttribute("data-focus-dim", "sibling");
+        dimmedSet.push(s);
+      }
+    };
+    const onOut = (e) => {
+      const to = e.relatedTarget;
+      if(!to || typeof to.closest !== "function" || !to.closest(".rx-card-interactive")){
+        clearAll();
+      }
+    };
+    document.addEventListener("mouseover", onOver, { passive: true });
+    document.addEventListener("mouseout", onOut, { passive: true });
+    return () => {
+      document.removeEventListener("mouseover", onOver);
+      document.removeEventListener("mouseout", onOut);
+      clearAll();
+    };
+  }, []);
+
+  /* ---- CH3 · Scene-break pulse on section-arrival via scroll ----
+     A single scroll listener (rAF-coalesced) checks every .rx-section
+     against the viewport. The first time a section's top crosses an
+     entry line ~30% down the viewport, the section gets
+     `data-just-entered="true"` for 700ms — the SectionArtwork in the
+     corner pulses cyan via the CH3 keyframe. One-shot per section per
+     page-load. Gated by reduced-motion. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const entered = new WeakSet();
+    let rafId = 0;
+    let pending = false;
+    const tick = () => {
+      rafId = 0;
+      pending = false;
+      const sections = document.querySelectorAll(".rx-section");
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      const line = vh * 0.30;
+      for(let i = 0; i < sections.length; i++){
+        const sec = sections[i];
+        if(entered.has(sec)) continue;
+        const r = sec.getBoundingClientRect();
+        // Top edge has crossed the entry line, AND section is still in view.
+        if(r.top <= line && r.bottom > 0){
+          entered.add(sec);
+          sec.setAttribute("data-just-entered", "true");
+          // Clear after one pulse cycle.
+          window.setTimeout(() => {
+            sec.removeAttribute("data-just-entered");
+          }, 700);
+        }
+      }
+    };
+    const onScroll = () => {
+      if(pending) return;
+      pending = true;
+      rafId = window.requestAnimationFrame(tick);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    // Also run once on mount so above-the-fold sections settle without a pulse
+    // (they're added to the entered set silently — no flash).
+    const sections = document.querySelectorAll(".rx-section");
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    for(let i = 0; i < sections.length; i++){
+      const r = sections[i].getBoundingClientRect();
+      if(r.top < vh * 0.30) entered.add(sections[i]);
+    }
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if(rafId) window.cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  /* ---- CH4 · Idle-state ambient glow + CH7 · CTA cursor-trail ----
+     One mousemove listener serves both behaviors:
+       · CH4 toggles `<html data-user-idle="true">` after 8s of
+         stillness. CSS intensifies mesh-blob opacity + saturation.
+         Removed instantly on next mousemove.
+       · CH7 paints a soft cyan trail on any .rx-chrome-cta whose
+         center is within 80px of the cursor — writes --trail-x,
+         --trail-y, --trail-alpha as CSS custom properties on the
+         button, and toggles data-trail-active so the ::before layer
+         lights up. Both moves are rAF-coalesced into a single frame.
+     Gated by reduced-motion + coarse-pointer. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    if(window.matchMedia("(pointer: coarse)").matches) return undefined;
+    const IDLE_MS = 8000;
+    const TRAIL_RANGE = 80;
+    const root = document.documentElement;
+    let idleTimer = 0;
+    let trailActive = []; // CTAs currently lit
+    let rafId = 0;
+    let pendingEv = null;
+    const clearTrails = () => {
+      for(let i = 0; i < trailActive.length; i++){
+        const el = trailActive[i];
+        el.removeAttribute("data-trail-active");
+        el.style.removeProperty("--trail-x");
+        el.style.removeProperty("--trail-y");
+        el.style.removeProperty("--trail-alpha");
+      }
+      trailActive = [];
+    };
+    const apply = () => {
+      rafId = 0;
+      const e = pendingEv;
+      pendingEv = null;
+      if(!e) return;
+      // CH7 — recompute CTA trail every frame the mouse moves.
+      const ctas = document.querySelectorAll(".rx-chrome-cta");
+      const nextActive = [];
+      for(let i = 0; i < ctas.length; i++){
+        const el = ctas[i];
+        const r = el.getBoundingClientRect();
+        if(r.width === 0 || r.height === 0) continue;
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        // Quick reject — bounding-box-expanded test before sqrt.
+        if(Math.abs(dx) > r.width / 2 + TRAIL_RANGE) { if(el.hasAttribute("data-trail-active")){ el.removeAttribute("data-trail-active"); el.style.removeProperty("--trail-alpha"); } continue; }
+        if(Math.abs(dy) > r.height / 2 + TRAIL_RANGE){ if(el.hasAttribute("data-trail-active")){ el.removeAttribute("data-trail-active"); el.style.removeProperty("--trail-alpha"); } continue; }
+        // Distance to the CTA's edge — approximate via center distance
+        // minus half-diagonal. Negative inside CTA → full alpha.
+        const dist = Math.hypot(dx, dy);
+        const half = Math.hypot(r.width, r.height) / 2;
+        const edge = Math.max(0, dist - half);
+        if(edge > TRAIL_RANGE){
+          if(el.hasAttribute("data-trail-active")){
+            el.removeAttribute("data-trail-active");
+            el.style.removeProperty("--trail-alpha");
+          }
+          continue;
+        }
+        const alpha = (TRAIL_RANGE - edge) / TRAIL_RANGE; // 0..1
+        // Local coords inside the button for the radial origin.
+        const lx = e.clientX - r.left;
+        const ly = e.clientY - r.top;
+        el.style.setProperty("--trail-x", lx + "px");
+        el.style.setProperty("--trail-y", ly + "px");
+        el.style.setProperty("--trail-alpha", alpha.toFixed(3));
+        if(!el.hasAttribute("data-trail-active")) el.setAttribute("data-trail-active", "true");
+        nextActive.push(el);
+      }
+      trailActive = nextActive;
+    };
+    const onMove = (e) => {
+      // CH4 — any movement wakes the surface.
+      if(root.getAttribute("data-user-idle") === "true"){
+        root.removeAttribute("data-user-idle");
+      }
+      if(idleTimer) window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(() => {
+        root.setAttribute("data-user-idle", "true");
+      }, IDLE_MS);
+      // CH7 — schedule a single rAF to update trails.
+      pendingEv = e;
+      if(rafId) return;
+      rafId = window.requestAnimationFrame(apply);
+    };
+    const onLeave = () => {
+      clearTrails();
+    };
+    document.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseleave", onLeave, { passive: true });
+    // Start idle countdown immediately so the surface drifts into the idle
+    // state even if the user never moves the cursor on first load.
+    idleTimer = window.setTimeout(() => {
+      root.setAttribute("data-user-idle", "true");
+    }, IDLE_MS);
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
+      if(idleTimer) window.clearTimeout(idleTimer);
+      if(rafId) window.cancelAnimationFrame(rafId);
+      root.removeAttribute("data-user-idle");
+      clearTrails();
+    };
+  }, []);
+
+  /* ---- CH6 · Section-arrival drift on smooth-scroll target ----
+     A delegated click listener watches anchor links (#section-id) and
+     buttons carrying [data-w12-scroll-target]. When fired, it locates
+     the destination .rx-section (either by id or data-toc-section) and
+     stamps `data-just-arrived="true"` for 1200ms — the CSS in
+     choreography.js drives the MeshWash blobs through a 1.2s arrival
+     drift animation before settling. Reduced-motion short-circuits. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const arrive = (target) => {
+      if(!target) return;
+      const sec = target.classList && target.classList.contains("rx-section")
+        ? target
+        : (target.closest && target.closest(".rx-section"));
+      if(!sec) return;
+      sec.setAttribute("data-just-arrived", "true");
+      window.setTimeout(() => sec.removeAttribute("data-just-arrived"), 1200);
+    };
+    const resolveByHrefOrAttr = (el) => {
+      // Explicit data-w12-scroll-target="<id>"
+      const attr = el.getAttribute && el.getAttribute("data-w12-scroll-target");
+      if(attr){
+        return document.getElementById(attr)
+          || document.querySelector('[data-toc-section="' + attr + '"]');
+      }
+      // Hash anchor #id
+      const href = el.getAttribute && el.getAttribute("href");
+      if(href && href.startsWith("#") && href.length > 1){
+        const id = href.slice(1);
+        return document.getElementById(id)
+          || document.querySelector('[data-toc-section="' + id + '"]');
+      }
+      return null;
+    };
+    const onClick = (e) => {
+      const t = e.target;
+      if(!t || typeof t.closest !== "function") return;
+      // MiniTOC / spine chips dispatch through anchor or data-attr;
+      // we don't preventDefault — the existing scroll handler runs.
+      const trigger = t.closest("a[href^='#'], [data-w12-scroll-target]");
+      if(!trigger) return;
+      const dest = resolveByHrefOrAttr(trigger);
+      if(dest) arrive(dest);
+    };
+    document.addEventListener("click", onClick, { passive: true });
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   /* ---- derived patient quantities: one transform, memoized ---- */
   const d = useMemo(() => deriveCtx(ctx), [ctx]);
   const crcl = d.crcl, crclBand = d.crclBand;
@@ -379,6 +764,36 @@ export default function InpatientAbxGuide() {
     const expected = sectionForTab(tab);
     if(expected !== section) setSection(expected);
   }, [tab]);
+
+  /* W12 — section transition layer. The hook owns the chip-pulse,
+     ink-trail, view-transition wrapper, and visited-set state; the
+     ref points at the SectionNav container so the trail can compute
+     chip-to-chip anchor coordinates. Calls into `setSection` flow
+     through `navigate()` so every transition gets the same chrome —
+     the data-layer + tab-sync logic stay untouched. */
+  const sectionNavRef = React.useRef(null);
+  const { navigate: navigateSection, pulseId: w12Pulse, trail: w12Trail, isReturning: w12Returning } =
+    useSectionTransitions({
+      section,
+      onSectionChange: (s) => {
+        setSection(s);
+        const sec = SECTION_BY_ID[s];
+        if(sec && !sec.tabs.includes(tab)) setTab(firstTabOfSection(s));
+      },
+      sectionNavRef,
+    });
+  /* Visited-set snapshot for the SectionNav chip "returning" border —
+     read from sessionStorage on first paint and refreshed by the hook
+     above. Memoised per section so re-renders within a section don't
+     thrash. */
+  const w12Visited = React.useMemo(() => {
+    try {
+      if(typeof sessionStorage === "undefined") return new Set();
+      const raw = sessionStorage.getItem("rx-w12-visited-sections");
+      return new Set(raw ? JSON.parse(raw) : []);
+    } catch(_) { return new Set(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section, w12Returning]);
 
   /* dose(name): renally-adjusted dose for THIS patient, or null when context is
      off / agent has no structured rule → caller renders the static string. */
@@ -462,7 +877,7 @@ export default function InpatientAbxGuide() {
        inpatient + decide      → BedsideShell (Phase A/B)
        outpatient + anything   → OutpatientShell placeholder
        inpatient + reference   → the existing classic UI (falls through) */
-  const styleTag = <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO}</style>;
+  const styleTag = <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS + CSS_W10 + CHOREOGRAPHY}</style>;
   const bar = (
     <SurfaceBar
       surface={surface}
@@ -479,8 +894,105 @@ export default function InpatientAbxGuide() {
      decide mode flipped state but rendered nothing visible. Now the same
      palette opens regardless of mode and navigation items flip to
      reference mode automatically (see `_navToRef` above). */
+  /* W11 · component-scoped chrome overlay for the command palette.
+     Targets only [data-w11-cmd]; all base .rx-cmd styles still apply,
+     these declarations layer the Wave 9 glass-diffuse fill, the cyan
+     top-strip, asymmetric 22/4 radius, and per-item glow lift. The
+     overlay never touches the global stylesheet. */
+  const cmdPaletteStyles = `
+    [data-w11-cmd] .rx-cmd {
+      background: linear-gradient(135deg, rgba(255,255,255,0.86) 0%, rgba(245,250,253,0.74) 100%) !important;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--ox-line, var(--line)) !important;
+      border-radius: 22px 4px 22px 4px !important;
+      box-shadow:
+        var(--shadow-e5, 0 28px 60px -16px rgba(11,15,20,0.45)),
+        inset 0 1px 0 rgba(255,255,255,0.55) !important;
+      overflow: hidden;
+      position: relative;
+    }
+    [data-w11-cmd] .rx-cmd::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg,
+        var(--neon-cyan, var(--ox)),
+        var(--electric-blue, var(--ox)),
+        var(--neon-cyan, var(--ox)));
+      pointer-events: none;
+      z-index: 2;
+    }
+    [data-w11-cmd] .rx-cmd-head {
+      padding-top: 18px;
+    }
+    [data-w11-cmd] .rx-cmd-head input:focus {
+      outline: none;
+    }
+    [data-w11-cmd] .rx-cmd-head:focus-within input {
+      color: var(--ink);
+    }
+    [data-w11-cmd] .rx-cmd-head:focus-within {
+      box-shadow:
+        inset 0 -1px 0 0 var(--neon-cyan, var(--ox)),
+        0 0 22px -6px color-mix(in srgb, var(--neon-cyan, var(--ox)) 45%, transparent);
+    }
+    [data-w11-cmd] .rx-cmd-esc {
+      background: linear-gradient(180deg,
+        var(--ox-deep, #0B0F14) 0%,
+        var(--ox, #1F2937) 100%) !important;
+      color: rgba(255,255,255,0.85) !important;
+      border: 1px solid color-mix(in srgb, var(--ox-deep, var(--ox)) 70%, transparent) !important;
+      border-radius: 6px 2px 6px 2px !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        0 0 8px -3px color-mix(in srgb, var(--neon-cyan, var(--ox)) 45%, transparent) !important;
+    }
+    [data-w11-cmd] .rx-cmd-item {
+      border-radius: 9px 3px 9px 3px !important;
+      transition: background .15s ease, box-shadow .18s ease, border-left-color .15s ease, transform .12s ease;
+      border-left: 3px solid transparent;
+      padding-left: 8px !important;
+    }
+    [data-w11-cmd] .rx-cmd-item:hover {
+      background: color-mix(in srgb, var(--neon-cyan, var(--ox)) 8%, var(--paper)) !important;
+      box-shadow:
+        0 6px 14px -8px color-mix(in srgb, var(--neon-cyan, var(--ox)) 50%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.4);
+      transform: translateY(-1px);
+    }
+    [data-w11-cmd] .rx-cmd-item[data-active="true"] {
+      background: color-mix(in srgb, var(--neon-cyan, var(--ox)) 10%, var(--paper)) !important;
+      border-left-color: var(--neon-cyan, var(--ox));
+      box-shadow:
+        0 6px 14px -8px color-mix(in srgb, var(--neon-cyan, var(--ox)) 60%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.4);
+    }
+    [data-w11-cmd] .rx-cmd-ic {
+      background: linear-gradient(135deg,
+        var(--neon-cyan, var(--ox)) 0%,
+        var(--electric-blue, var(--ox)) 100%) !important;
+      color: #fff !important;
+      border-radius: 8px 3px 8px 3px !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.30),
+        0 0 10px -2px color-mix(in srgb, var(--neon-cyan, var(--ox)) 55%, transparent) !important;
+    }
+    [data-w11-cmd] .rx-cmd-item[data-active="true"] .rx-cmd-ic {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.30),
+        0 0 14px -2px color-mix(in srgb, var(--neon-cyan, var(--ox)) 75%, transparent) !important;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      [data-w11-cmd] .rx-cmd-item,
+      [data-w11-cmd] .rx-cmd { transition: none !important; }
+      [data-w11-cmd] .rx-cmd-item:hover { transform: none !important; }
+    }
+  `;
   const cmdPaletteEl = cmdOpen ? (
-    <div className="rx-cmd-overlay" onClick={()=>setCmdOpen(false)}>
+    <div className="rx-cmd-overlay" data-w11-cmd onClick={()=>setCmdOpen(false)}>
+      <style>{cmdPaletteStyles}</style>
       <div className="rx-cmd" onClick={e=>e.stopPropagation()}>
         <div className="rx-cmd-head">
           <Search size={18} color="var(--muted)" />
@@ -488,7 +1000,60 @@ export default function InpatientAbxGuide() {
           <span className="rx-cmd-esc">ESC</span>
         </div>
         <div className="rx-cmd-list">
-          {cmdResults.length === 0 && <div className="rx-cmd-empty">No matches for “{cmdQ}”</div>}
+          {cmdResults.length === 0 && (
+            /* W10 · palette empty state — italic-serif headline +
+               hint with cyan-soft glyph; aria-live so the SR users
+               hear "no matches" without polling the empty list. */
+            <div
+              className="rx-cmd-empty"
+              role="status"
+              aria-live="polite"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                padding: "28px 16px 24px",
+                textAlign: "center",
+              }}
+            >
+              <div
+                aria-hidden
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: 64,
+                  lineHeight: 0.85,
+                  color: "var(--ox-soft, var(--neon-cyan-soft))",
+                  marginBottom: 4,
+                }}
+              >
+                ?
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontSize: 15,
+                  color: "var(--ink)",
+                  marginBottom: 2,
+                }}
+              >
+                No matches for “{cmdQ}”
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--mono)",
+                  fontSize: 10.5,
+                  letterSpacing: ".12em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                }}
+              >
+                Try a syndrome, drug, organism, or section
+              </div>
+            </div>
+          )}
           {cmdResults.map((r,i) => {
             const RI = r.icon || ChevronRight;
             return (
@@ -549,6 +1114,7 @@ export default function InpatientAbxGuide() {
     return (
       <>
         {styleTag}
+        <GlobalScrollProgress />
         {bar}
         <OutpatientShell onSwitchInpatient={() => setSurface("inpatient")} />
       </>
@@ -600,18 +1166,27 @@ export default function InpatientAbxGuide() {
   /* ============ RETURN — inpatient + reference (the classic 11-tab UI) === */
   return (
     <div className="rx-root">
-      <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO}</style>
+      <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS + CSS_W10 + CHOREOGRAPHY}</style>
 
+      <GlobalScrollProgress />
       {bar}
 
-      <SectionNav section={section} onSection={(s) => {
-        setSection(s);
-        // Auto-switch to the section's first tab when the current tab
-        // doesn't belong to the picked section. Preserves the active tab
-        // when the user re-selects their current section.
-        const sec = SECTION_BY_ID[s];
-        if(sec && !sec.tabs.includes(tab)) setTab(firstTabOfSection(s));
-      }} />
+      <SectionTransitionStyles />
+      <SectionNav
+        ref={sectionNavRef}
+        section={section}
+        pulseId={w12Pulse}
+        trail={w12Trail}
+        isReturning={w12Returning}
+        visited={w12Visited}
+        onSection={(s) => {
+          /* W12 — every section click flows through navigate() so the
+             chrome (ink trail, chip pulse, View Transitions API cross-
+             fade) fires uniformly. The actual state update lives in
+             the hook's `onSectionChange` callback above so the tab
+             auto-switch + section-set still happens atomically. */
+          navigateSection(s);
+        }} />
 
       <header className="rx-header">
         <div className="rx-wrap">
@@ -656,7 +1231,12 @@ export default function InpatientAbxGuide() {
       {drawerEl}
 
       <main className="rx-main">
-        <div className="rx-wrap">
+        {/* W12 · keyed wrapper — re-mounts the section's content tree
+            on every section change so the global `.rx-fade-in-up`
+            `:nth-child` cascade fires on every transition, not just
+            first paint. The `key` value is the active section id so
+            same-section tab swaps don't trigger a remount. */}
+        <div className="rx-wrap" key={section}>
           {(TABRENDER[tab] || TABRENDER.approach)()}
           <div className="rx-foot">
             <b>Inpatient Antibacterial Reference & Selection Engine.</b> Built for adult hospital medicine and board preparation. Decision support only — not a substitute for the local antibiogram, current primary guidelines, clinical pharmacy, or infectious-diseases consultation. Antibacterials only; antifungal and antiviral therapy are out of scope. Doses assume normal organ function and serious infection — verify every order. Clinical content reflects sources current to the build date and will drift; reconfirm against the live guidelines.

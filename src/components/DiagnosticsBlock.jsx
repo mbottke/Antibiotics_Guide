@@ -27,6 +27,7 @@ import { Section } from "./Section.jsx";
 import { matchesCtx } from "../engines/ctxMatch.js";
 import { RichText } from "./util/richText.jsx";
 import { severityStyle } from "./util/severityStyle.js";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
 
 const CATEGORY_LABELS = {
   cultures:   "Cultures",
@@ -56,12 +57,20 @@ function DiagnosticItem({ item, matched }) {
       borderLeft: "3px solid " + (matched ? sty.color : sty.line),
       borderRadius: 6,
       boxShadow: matched ? "inset 0 0 0 1px " + sty.line : "none",
-      transition: "border-color .12s, box-shadow .12s",
+      transition: "border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-fast, .12s) var(--ease-out, ease)",
     }}>
+      {/* W10 · neon light-ring leads the severity column so this block
+          speaks the same severity grammar as MonitoringBlock /
+          OPATBlock — three deliberate glow levels above the icon. */}
       <div style={{
         display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
         paddingTop: 1,
       }}>
+        <span className={
+          item.sev === "required" ? "rx-light-ring-red"
+          : item.sev === "trigger" ? "rx-light-ring-amber"
+          : "rx-light-ring-cyan"
+        } aria-hidden style={{ width: 6, height: 6, borderWidth: 1.5, marginBottom: 1, opacity: 0.85 }} />
         <sty.Icon size={12} color={sty.color} aria-hidden />
         <span style={{
           fontFamily: "var(--mono)", fontSize: 8, fontWeight: 700,
@@ -117,41 +126,59 @@ function DiagnosticsBlock({ diagnostics, ctx }) {
       {matchedTotal > 0 && (
         <div style={{ marginBottom: 10, display: "flex", justifyContent: "flex-end" }}>
           <span style={{
-            display: "inline-flex", alignItems: "center", gap: 5,
+            display: "inline-flex", alignItems: "center", gap: 6,
             fontFamily: "var(--mono)", fontSize: 9, letterSpacing: ".08em",
             textTransform: "uppercase", fontWeight: 600, color: accent,
             background: accentBg, padding: "2px 7px", borderRadius: 4,
             border: "1px solid var(--ox-line)",
           }}>
+            {/* Wave 10 — cyan light-ring on the matches counter, matching
+                MonitoringBlock + OPATBlock so the entire "matched for
+                this patient" grammar speaks with one neon dot. */}
+            <span className="rx-light-ring-cyan" aria-hidden style={{ width: 8, height: 8 }} />
             {matchedTotal} {matchedTotal === 1 ? "match" : "matches"} for selection
           </span>
         </div>
       )}
 
-      <div style={{ display: "grid", gap: 12 }}>
-        {sections.map(({ key, items }) => {
-          /* Within each category, surface matched items first (still
-             visible alongside the rest — never hidden). */
-          const decorated = items.map(i => ({ item: i, matched: itemMatchesCtx(i, ctx) }));
-          decorated.sort((a, b) => (b.matched ? 1 : 0) - (a.matched ? 1 : 0));
-          return (
-            <div key={key}>
-              <div style={{
-                fontFamily: "var(--mono)", fontSize: 9.5, fontWeight: 700,
-                color: "var(--ink2)", letterSpacing: ".08em",
-                textTransform: "uppercase", marginBottom: 6,
-              }}>
-                {CATEGORY_LABELS[key]}
-              </div>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 5 }}>
-                {decorated.map((d, i) => (
-                  <DiagnosticItem key={`${key}-${i}`} item={d.item} matched={d.matched} />
-                ))}
-              </ul>
-            </div>
-          );
-        })}
-      </div>
+      {/* Wave 12 W12 · when the block renders ≥ 8 total diagnostic items,
+          drop a quiet cyan-blue hairline between category groups so the
+          eye gets a breath between the Required / Confirmatory / Imaging
+          / Consider buckets. Below 8 the existing tight `gap: 12` rhythm
+          stays — hairlines would fragment a small list unnecessarily. */}
+      {(() => {
+        const totalItems = sections.reduce((n, s) => n + s.items.length, 0);
+        const useHairlines = totalItems >= 8;
+        return (
+          <div style={{ display: "grid", gap: 12 }}>
+            {sections.map(({ key, items }, sIdx) => {
+              const decorated = items.map(i => ({ item: i, matched: itemMatchesCtx(i, ctx) }));
+              decorated.sort((a, b) => (b.matched ? 1 : 0) - (a.matched ? 1 : 0));
+              return (
+                <React.Fragment key={key}>
+                  {useHairlines && sIdx > 0 && (
+                    <GradientHairline variant="cyan-blue" style={{ opacity: .4, margin: "12px 0" }} />
+                  )}
+                  <div>
+                    <div style={{
+                      fontFamily: "var(--mono)", fontSize: 9.5, fontWeight: 700,
+                      color: "var(--ink2)", letterSpacing: ".08em",
+                      textTransform: "uppercase", marginBottom: 6,
+                    }}>
+                      {CATEGORY_LABELS[key]}
+                    </div>
+                    <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 5 }}>
+                      {decorated.map((d, i) => (
+                        <DiagnosticItem key={`${key}-${i}`} item={d.item} matched={d.matched} />
+                      ))}
+                    </ul>
+                  </div>
+                </React.Fragment>
+              );
+            })}
+          </div>
+        );
+      })()}
     </Section>
   );
 }

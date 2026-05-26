@@ -50,15 +50,23 @@ function FontSizeControl() {
   const atMax = scale >= MAX - 0.001;
   const atDefault = Math.abs(scale - 1) < 0.001;
 
+  /* W10 · cyan-accent spinner buttons + italic-serif tabular numeric
+     display for the current %. The +/- buttons pick up var(--neon-cyan)
+     on hover; the centre value uses var(--serif) italic-mega to match
+     the kinetic-type vocabulary. */
   const btnStyle = (disabled) => ({
     display: "inline-flex", alignItems: "center", justifyContent: "center",
     width: 24, height: 24,
     background: "transparent",
     border: "none",
-    color: disabled ? "var(--muted)" : "var(--ink2)",
+    /* Wave 11 — disabled state unified to the canvas-wide vocabulary:
+       color var(--faint) + opacity 0.5 + cursor not-allowed. */
+    color: disabled ? "var(--faint, var(--muted))" : "var(--ink2)",
     cursor: disabled ? "not-allowed" : "pointer",
     padding: 0,
-    opacity: disabled ? 0.4 : 1,
+    opacity: disabled ? 0.5 : 1,
+    borderRadius: 999,
+    transition: "color var(--duration-fast, .12s) var(--ease-out, ease), background var(--duration-fast, .12s) var(--ease-out, ease)",
   });
 
   return (
@@ -67,11 +75,14 @@ function FontSizeControl() {
       aria-label="Text size"
       style={{
         display: "inline-flex", alignItems: "center",
-        background: "var(--panel)",
+        background: "linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(245,250,253,0.55) 100%)",
+        backdropFilter: "blur(12px) saturate(160%)",
+        WebkitBackdropFilter: "blur(12px) saturate(160%)",
         border: "1px solid var(--line)",
         borderRadius: 999,
         padding: "2px 4px",
         gap: 1,
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,.5), 0 1px 2px rgba(11,15,20,.05)",
       }}>
       <Type size={11} aria-hidden style={{ color:"var(--muted)", marginLeft: 5, marginRight: 4 }} />
       <button type="button"
@@ -79,7 +90,9 @@ function FontSizeControl() {
         disabled={atMin}
         aria-label="Decrease text size"
         title="Decrease text size"
-        style={btnStyle(atMin)}>
+        style={btnStyle(atMin)}
+        onMouseEnter={(e) => { if(!atMin) e.currentTarget.style.color = "var(--neon-cyan, var(--ox))"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = atMin ? "var(--faint, var(--muted))" : "var(--ink2)"; }}>
         <Minus size={12} aria-hidden />
       </button>
       <button type="button"
@@ -89,12 +102,18 @@ function FontSizeControl() {
         title="Reset to 100%"
         style={{
           minWidth: 38, height: 24,
-          fontFamily:"var(--mono)", fontSize:10.5, fontWeight:600,
-          color: atDefault ? "var(--muted)" : "var(--ink2)",
+          /* W10 · italic-serif tabular-numeric display, cyan when off-default. */
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
+          fontSize: 12,
+          fontWeight: 500,
+          fontVariantNumeric: "tabular-nums",
+          color: atDefault ? "var(--muted)" : "var(--ox)",
           background: "transparent", border: "none",
           padding: "0 4px",
           cursor: atDefault ? "default" : "pointer",
-          letterSpacing: ".02em",
+          letterSpacing: "-.01em",
+          transition: "color var(--duration-base, .18s) var(--ease-out, ease)",
         }}>
         {Math.round(scale*100)}%
       </button>
@@ -103,7 +122,9 @@ function FontSizeControl() {
         disabled={atMax}
         aria-label="Increase text size"
         title="Increase text size"
-        style={btnStyle(atMax)}>
+        style={btnStyle(atMax)}
+        onMouseEnter={(e) => { if(!atMax) e.currentTarget.style.color = "var(--neon-cyan, var(--ox))"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = atMax ? "var(--faint, var(--muted))" : "var(--ink2)"; }}>
         <Plus size={12} aria-hidden />
       </button>
     </div>

@@ -24,6 +24,7 @@ import React from "react";
 import { BookOpen, FileText, HelpCircle, Microscope } from "lucide-react";
 import { Section } from "./Section.jsx";
 import { RichText } from "./util/richText.jsx";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
 
 /* A single trial card — name + n chip, then question / finding /
    bias caveat in stacked rows. The bias row is muted to signal it's
@@ -131,16 +132,19 @@ function ResearchBlock({ research }) {
     <Section kicker="Research · Evidence behind the recommendation" icon={BookOpen} glyph="evidence" testId="research-block">
       {/* Headline — the bottom-line interpretation of what the
           literature actually shows. Identical visual treatment to
-          monitoring + duration headline rows for consistency. */}
+          monitoring + duration headline rows for consistency. Wave 10
+          adds rx-glass-bleed so the headline panel reads with the
+          frosted-glass register the rest of the canvas uses. */}
       {headline && (
-        <div style={{
+        <div className="rx-glass-bleed" style={{
           background: accentBg,
           border: "1px solid var(--ox-line)",
           borderRadius: 7,
           padding: "8px 11px",
           marginBottom: (trials.length || guidelines.length || openQuestions.length) ? 12 : 0,
+          position: "relative",
         }}>
-          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600 }}>
+          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600, position: "relative", zIndex: 2 }}>
             <RichText text={headline} accentColor={accent} />
           </div>
         </div>
