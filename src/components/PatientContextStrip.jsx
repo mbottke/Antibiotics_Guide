@@ -39,6 +39,7 @@
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
+import { Sparkle } from "./decor/Sparkle.jsx";
 
 /* Tone palette — each row maps a logical channel to existing tokens.
    The `info` row uses hex fallbacks until the evidence-blue tokens
@@ -140,17 +141,29 @@ export function PatientContextStrip({
         const toneKey = chip.tone || "neutral";
         const tone = TONES[toneKey] || TONES.neutral;
         const Icon = chip.icon;
+        /* W11 · optional `dominant` flag on a chip prepends a small
+           cyan Sparkle so the most important case feature reads as
+           a marked moment. Optional — existing callers pass no flag,
+           render unchanged. */
         return (
           <span
             key={`${chip.label}-${i}`}
             data-pcs-chip
             data-tone={toneKey}
+            data-dominant={chip.dominant ? "true" : undefined}
             style={{
               color: tone.text,
               background: tone.bg,
               border: `1px solid ${tone.line}`,
             }}
           >
+            {chip.dominant && (
+              <Sparkle
+                size={9}
+                color="var(--neon-cyan, var(--ox))"
+                data-testid="pcs-sparkle"
+              />
+            )}
             {Icon && <Icon size={11} aria-hidden />}
             {chip.label}
           </span>

@@ -32,6 +32,27 @@ import React from "react";
 const SW = 1.4;
 const VB = "0 0 16 16";
 
+/* W11 · subtle hover pulse — gated by reduced-motion. Scoped to
+   [data-section-glyph-host] so it never leaks. Injected once per
+   document via the lazy ensure helper below. */
+const W11_GLYPH_CSS = `
+[data-section-glyph-host]:hover {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neon-cyan, var(--ox)) 55%, transparent));
+  transition: filter 240ms var(--ease-out, ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-section-glyph-host]:hover { filter: none; transition: none; }
+}
+`;
+function _ensureGlyphStyles() {
+  if (typeof document === "undefined") return;
+  if (document.querySelector("style[data-section-glyph-styles]")) return;
+  const tag = document.createElement("style");
+  tag.setAttribute("data-section-glyph-styles", "");
+  tag.textContent = W11_GLYPH_CSS;
+  document.head.appendChild(tag);
+}
+
 function CoreGlyph({ stroke }) {
   /* Filled oxblood diamond — an 8×8 rotated square, centered.
      Drawn as a polygon so the corners stay crisp at 16 px. */
@@ -115,13 +136,20 @@ const GLYPHS = {
 };
 
 export function SectionGlyph({ group, size = 16, color, ...rest }) {
+  _ensureGlyphStyles();
   const Glyph = GLYPHS[group];
   if (!Glyph) return null;
+  /* W11 · stroke defaults to var(--ox) but on the Wave 7 cyan-token
+     rename the legacy --ox alias now resolves to the cyan family, so
+     the existing fleurons already pick up the neon accent. We keep
+     the param exactly the same — no API change — and add the
+     data-section-glyph-host attribute so the hover pulse hooks. */
   const stroke = color || "var(--ox)";
   return (
     <svg
       data-testid={`section-glyph-${group}`}
       data-group={group}
+      data-section-glyph-host
       width={size}
       height={size}
       viewBox={VB}

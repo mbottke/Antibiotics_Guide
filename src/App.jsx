@@ -578,11 +578,108 @@ export default function InpatientAbxGuide() {
      decide mode flipped state but rendered nothing visible. Now the same
      palette opens regardless of mode and navigation items flip to
      reference mode automatically (see `_navToRef` above). */
+  /* W11 · component-scoped chrome overlay for the command palette.
+     Targets only [data-w11-cmd]; all base .rx-cmd styles still apply,
+     these declarations layer the Wave 9 glass-diffuse fill, the cyan
+     top-strip, asymmetric 22/4 radius, and per-item glow lift. The
+     overlay never touches the global stylesheet. */
+  const cmdPaletteStyles = `
+    [data-w11-cmd] .rx-cmd {
+      background: linear-gradient(135deg, rgba(255,255,255,0.86) 0%, rgba(245,250,253,0.74) 100%) !important;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--ox-line, var(--line)) !important;
+      border-radius: 22px 4px 22px 4px !important;
+      box-shadow:
+        var(--shadow-e5, 0 28px 60px -16px rgba(11,15,20,0.45)),
+        inset 0 1px 0 rgba(255,255,255,0.55) !important;
+      overflow: hidden;
+      position: relative;
+    }
+    [data-w11-cmd] .rx-cmd::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg,
+        var(--neon-cyan, var(--ox)),
+        var(--electric-blue, var(--ox)),
+        var(--neon-cyan, var(--ox)));
+      pointer-events: none;
+      z-index: 2;
+    }
+    [data-w11-cmd] .rx-cmd-head {
+      padding-top: 18px;
+    }
+    [data-w11-cmd] .rx-cmd-head input:focus {
+      outline: none;
+    }
+    [data-w11-cmd] .rx-cmd-head:focus-within input {
+      color: var(--ink);
+    }
+    [data-w11-cmd] .rx-cmd-head:focus-within {
+      box-shadow:
+        inset 0 -1px 0 0 var(--neon-cyan, var(--ox)),
+        0 0 22px -6px color-mix(in srgb, var(--neon-cyan, var(--ox)) 45%, transparent);
+    }
+    [data-w11-cmd] .rx-cmd-esc {
+      background: linear-gradient(180deg,
+        var(--ox-deep, #0B0F14) 0%,
+        var(--ox, #1F2937) 100%) !important;
+      color: rgba(255,255,255,0.85) !important;
+      border: 1px solid color-mix(in srgb, var(--ox-deep, var(--ox)) 70%, transparent) !important;
+      border-radius: 6px 2px 6px 2px !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        0 0 8px -3px color-mix(in srgb, var(--neon-cyan, var(--ox)) 45%, transparent) !important;
+    }
+    [data-w11-cmd] .rx-cmd-item {
+      border-radius: 9px 3px 9px 3px !important;
+      transition: background .15s ease, box-shadow .18s ease, border-left-color .15s ease, transform .12s ease;
+      border-left: 3px solid transparent;
+      padding-left: 8px !important;
+    }
+    [data-w11-cmd] .rx-cmd-item:hover {
+      background: color-mix(in srgb, var(--neon-cyan, var(--ox)) 8%, var(--paper)) !important;
+      box-shadow:
+        0 6px 14px -8px color-mix(in srgb, var(--neon-cyan, var(--ox)) 50%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.4);
+      transform: translateY(-1px);
+    }
+    [data-w11-cmd] .rx-cmd-item[data-active="true"] {
+      background: color-mix(in srgb, var(--neon-cyan, var(--ox)) 10%, var(--paper)) !important;
+      border-left-color: var(--neon-cyan, var(--ox));
+      box-shadow:
+        0 6px 14px -8px color-mix(in srgb, var(--neon-cyan, var(--ox)) 60%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.4);
+    }
+    [data-w11-cmd] .rx-cmd-ic {
+      background: linear-gradient(135deg,
+        var(--neon-cyan, var(--ox)) 0%,
+        var(--electric-blue, var(--ox)) 100%) !important;
+      color: #fff !important;
+      border-radius: 8px 3px 8px 3px !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.30),
+        0 0 10px -2px color-mix(in srgb, var(--neon-cyan, var(--ox)) 55%, transparent) !important;
+    }
+    [data-w11-cmd] .rx-cmd-item[data-active="true"] .rx-cmd-ic {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.30),
+        0 0 14px -2px color-mix(in srgb, var(--neon-cyan, var(--ox)) 75%, transparent) !important;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      [data-w11-cmd] .rx-cmd-item,
+      [data-w11-cmd] .rx-cmd { transition: none !important; }
+      [data-w11-cmd] .rx-cmd-item:hover { transform: none !important; }
+    }
+  `;
   const cmdPaletteEl = cmdOpen ? (
-    <div className="rx-cmd-overlay" onClick={()=>setCmdOpen(false)}>
+    <div className="rx-cmd-overlay" data-w11-cmd onClick={()=>setCmdOpen(false)}>
+      <style>{cmdPaletteStyles}</style>
       <div className="rx-cmd" onClick={e=>e.stopPropagation()}>
         <div className="rx-cmd-head">
-          <Search size={18} color="var(--muted)" />
+          <Search size={18} color="var(--neon-cyan, var(--muted))" />
           <input autoFocus value={cmdQ} onChange={e=>{setCmdQ(e.target.value);setCmdIdx(0);}} placeholder="Jump to a syndrome, drug, organism, or section…" />
           <span className="rx-cmd-esc">ESC</span>
         </div>
