@@ -14,8 +14,9 @@
    Space to select. ⌘K palette indexes section names too (Phase B7).
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, forwardRef } from "react";
 import { SECTIONS } from "../data/sections.js";
+import { SectionInkTrail } from "./SectionTransitions.jsx";
 
 /* Cyan progress-strip gradient — matches the bedside scroll header so
    every chrome surface speaks the same accent language. */
@@ -33,7 +34,7 @@ const ACTIVE_BG =
   " var(--ox, #1F2937) 45%," +
   " var(--neon-cyan, #00D4FF) 240%)";
 
-function NavChip({ s, active, onClick, registerRef }) {
+function NavChip({ s, active, onClick, registerRef, pulse, returning }) {
   const Icon = s.icon;
   const [hover, setHover] = useState(false);
   const ref = useRef(null);
@@ -58,6 +59,8 @@ function NavChip({ s, active, onClick, registerRef }) {
       onBlur={() => setHover(false)}
       className="rx-magnetic rx-shine-sweep"
       data-section-chip={s.id}
+      data-w12-pulse={pulse ? "true" : undefined}
+      data-w12-returning={returning ? "true" : undefined}
       style={{
         flex: "0 0 auto",
         position: "relative",
@@ -92,7 +95,7 @@ function NavChip({ s, active, onClick, registerRef }) {
   );
 }
 
-function SectionNav({ section, onSection }) {
+const SectionNav = forwardRef(function SectionNav({ section, onSection, pulseId, isReturning, visited, trail }, navRef) {
   /* The bar is a navigation, not a strict tablist — section "panels" in
      App.jsx don't carry 1:1 ids because each section contains multiple
      tab panels. aria-pressed communicates active state cleanly; matches
@@ -101,6 +104,15 @@ function SectionNav({ section, onSection }) {
      would trip when the controlled element doesn't exist. */
   const chipRefs = useRef({});
   const containerRef = useRef(null);
+  /* W12 — expose the container element to the parent so the
+     transition layer can compute ink-trail anchor rects against the
+     chips. Forwarded ref is optional; if absent the nav still works
+     identically to W8. */
+  useEffect(() => {
+    if(!navRef) return;
+    if(typeof navRef === "function") navRef(containerRef.current);
+    else navRef.current = containerRef.current;
+  }, [navRef]);
   const [strip, setStrip] = useState({ left: 0, width: 0, visible: false });
 
   const register = (id, node) => {
@@ -171,8 +183,16 @@ function SectionNav({ section, onSection }) {
             active={section === s.id}
             onClick={onSection}
             registerRef={register}
+            pulse={pulseId === s.id}
+            returning={!!(visited && visited.has(s.id) && section === s.id && isReturning)}
           />
         ))}
+        {/* W12 · ink-trail overlay — paints a brief cyan brushstroke
+            across the bar from the previous chip to the entering one
+            on every section change. The component mounts inside the
+            container so the trail's absolute coordinates inherit the
+            same coordinate system the strip uses. */}
+        <SectionInkTrail trail={trail} />
         {/* The 2px gradient progress strip that rides under the active
             chip. Anchored to the container so it can slide smoothly
             between chips with a single CSS transition on left+width. */}
@@ -199,6 +219,6 @@ function SectionNav({ section, onSection }) {
       </div>
     </nav>
   );
-}
+});
 
 export { SectionNav };
