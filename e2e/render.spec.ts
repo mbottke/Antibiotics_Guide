@@ -77,6 +77,59 @@ test.describe("regimen drawer renders without runtime errors", () => {
       expect(overflow, `page overflows its viewport by ${overflow}px`).toBeLessThanOrEqual(1);
     });
   }
+
+  /* W12 viewport density audit — three-viewport density gate. The site
+     ships responsive grids tuned for the 1440 / 1024 / 768 sweep; this
+     loop runs every primary surface at all three widths and asserts:
+
+       (1) no horizontal overflow at any viewport — the same overflow
+           guard the section-loop above runs, just at every density step
+       (2) the editorial hero on the Approach landing reads ≥ 40px tall
+           at every viewport — a proxy for "still feels like a hero".
+           The .rx-display + .rx-h1 clamps now floor at 52/44, so the
+           assertion is comfortably above the floor at 768 and the test
+           lights up the regression case where someone drops the floor.
+
+     The chromium project ships its own 1280×720 default; we explicitly
+     resize for each step so the test owns the density it asserts. */
+  for (const [label, w, h] of [["1440 (desktop)", 1440, 900], ["1024 (tablet)", 1024, 768], ["768 (phablet)", 768, 1024]] as [string, number, number][]) {
+    test(`viewport density · no overflow at ${label}`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      for (const hash of ["#t=approach", "#t=empiric", "#t=spectrum", "#t=course"]) {
+        await page.goto("/" + hash);
+        await page.waitForLoadState("networkidle");
+        const overflow = await page.evaluate(() => {
+          const de = document.documentElement;
+          return de.scrollWidth - de.clientWidth;
+        });
+        expect(overflow, `${hash} overflows ${w}×${h} viewport by ${overflow}px`).toBeLessThanOrEqual(1);
+      }
+    });
+  }
+
+  test(`viewport density · hero typography stays heroic across 1440 / 1024 / 768`, async ({ page }) => {
+    /* Tabbed UIs render the .rx-h1 hero inside the syndromes /
+       organisms / agents / compare panels (the approach landing
+       carries its own .rx-display headline through PrinciplesSection,
+       which uses an inline clamp rather than the .rx-h1 class). The
+       check samples the syndromes section because it ships a
+       guaranteed-rendered .rx-h1 element. */
+    for (const [w, h, minPx] of [[1440, 900, 56], [1024, 768, 50], [768, 1024, 44]] as [number, number, number][]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto("/");
+      await page.waitForLoadState("networkidle");
+      const h1Box = await page.evaluate(() => {
+        const el = document.querySelector(".rx-h1") || document.querySelector("h1");
+        if(!el) return null;
+        const rect = (el as HTMLElement).getBoundingClientRect();
+        const cs = getComputedStyle(el as HTMLElement);
+        return { height: rect.height, fontSize: parseFloat(cs.fontSize) };
+      });
+      // Guard: at least one .rx-h1 / h1 should mount on the default landing.
+      expect(h1Box, `no h1 mounted on / at ${w}×${h}`).not.toBeNull();
+      expect(h1Box!.fontSize, `hero h1 font at ${w}px is ${h1Box!.fontSize}px (want ≥ ${minPx}px)`).toBeGreaterThanOrEqual(minPx - 1);
+    }
+  });
 });
 
 /* Bedside mode (Phase A) — the new case-driven surface behind `?bedside=1`.

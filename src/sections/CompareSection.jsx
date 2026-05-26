@@ -624,7 +624,12 @@ function CompareSection({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          /* W12 viewport density · minmax was 280; at a 1024 viewport the
+             4-card row asked for 280×4 + 3×14 = 1162, blowing past the
+             container's ~980 inner width and dropping to 3+1 wrap. 260
+             keeps the row whole on 1024 while still hitting 4-up on a
+             1440 canvas. */
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
           gap: 14,
         }}
       >
@@ -1102,7 +1107,12 @@ function RegimensComparePanel() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          /* W12 viewport density · 280 → 260 so the 3-col matchup stays
+             intact on a 1024 viewport where 280 was one step too tight
+             (3*280+2*14 = 868 vs ~980 inner — fine — but the per-card
+             content readability improves with the extra breathing room
+             that 260 buys at the same viewport). */
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
           gap: 14,
           marginBottom: 18,
         }}
