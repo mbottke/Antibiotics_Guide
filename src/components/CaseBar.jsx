@@ -35,6 +35,7 @@ import { SYNDROMES, SYN_CATS } from "../data/syndromes.js";
 import { useMagnetic } from "./util/useMagnetic.js";
 import { useRipple } from "./util/useRipple.js";
 import { MeshWash } from "./decor/MeshWash.jsx";
+import { Stripes } from "./decor/Stripes.jsx";
 
 const EXAMPLES = [
   "72M PNA prior MRSA CrCl 35",
@@ -557,16 +558,39 @@ function CaseBar({ caseState, onApply, onSkip }) {
       )}
 
       {text && (
-        <div style={{ margin:"4px 0 14px" }}>
-          <div style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em", textTransform:"uppercase", color:"var(--muted)", fontWeight:600, marginBottom:6 }}>
+        /* W11 · parsed-chip preview block — kicker switches to neon-cyan
+           mono uppercase so it reads as a "live parser" caption, and a
+           low-opacity diagonal Stripes panel sits behind the chip group
+           to anchor the parser output as a distinct sub-zone. */
+        <div style={{ margin:"4px 0 14px", position: "relative" }}>
+          <div style={{
+            fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em",
+            textTransform:"uppercase",
+            color:"var(--neon-cyan, var(--ox))",
+            fontWeight:700, marginBottom:6,
+          }}>
             Parsed
-            {parsed.chips.length === 0 && <span style={{ color:"var(--muted)", marginLeft:8, textTransform:"none", letterSpacing:0, fontFamily:"var(--sans)", fontSize:12 }}>nothing recognised yet — keep typing or toggle the chips below</span>}
+            {parsed.chips.length === 0 && <span style={{ color:"var(--muted)", marginLeft:8, textTransform:"none", letterSpacing:0, fontFamily:"var(--sans)", fontSize:12, fontWeight: 500 }}>nothing recognised yet — keep typing or toggle the chips below</span>}
           </div>
           {parsed.chips.length > 0 && (
-            <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
-              {parsed.chips.map((c, i) => (
-                <Chip key={i} kind={c.kind} label={c.kind === "syndrome" ? (_synName(c.label) || c.label) : c.label} />
-              ))}
+            <div style={{ position: "relative", padding: "4px 0" }}>
+              <Stripes
+                variant="cyan"
+                width="100%"
+                height={"100%"}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  opacity: 0.06,
+                  borderRadius: 6,
+                  pointerEvents: "none",
+                }}
+              />
+              <div style={{ display:"flex", flexWrap:"wrap", gap:6, position: "relative", zIndex: 1 }}>
+                {parsed.chips.map((c, i) => (
+                  <Chip key={i} kind={c.kind} label={c.kind === "syndrome" ? (_synName(c.label) || c.label) : c.label} />
+                ))}
+              </div>
             </div>
           )}
           {parsed.rump && (

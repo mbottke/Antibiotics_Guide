@@ -503,13 +503,34 @@ function TrialCard({ id, onSyndrome }){
 }
 
 function RapidDxTimeout({ onCite }){
+  /* W11 · atomized polish — the rapid-dx cards already carry the
+     asymmetric 14/4 radius from the base stylesheet; we layer a
+     glass-diffuse fill + soft cyan glow trail beneath each card via
+     inline style so the surface picks up the Wave 9 grammar without
+     touching the global stylesheet. The countdown-number micro-spec
+     in the W11 brief doesn't apply here — this card carries narrative
+     text, not a countdown — so we use the timeout numeral on the
+     reassessment list below as the kinetic anchor. */
   return (
     <>
       <h3 className="rx-h3"><span className="ic"><Microscope size={18}/></span>Rapid diagnostics that enable early de-escalation</h3>
       <p className="rx-stepb" style={{margin:"0 0 14px"}}>The most reliable route to a narrower regimen is to let the laboratory arrive first. Three results alter therapy before the formal susceptibility panel returns.</p>
       <div className="rx-rdx-grid">
         {RAPID_DX.map((dx,i) => { const DI = RDX_ICON[dx.icon] || FlaskConical; return (
-          <div className="rx-rdx-card" key={i}>
+          <div
+            className="rx-rdx-card"
+            data-w11-rdx
+            key={i}
+            style={{
+              background: "linear-gradient(135deg, rgba(255,255,255,0.74) 0%, rgba(245,250,253,0.58) 100%)",
+              backdropFilter: "blur(12px) saturate(170%)",
+              WebkitBackdropFilter: "blur(12px) saturate(170%)",
+              boxShadow:
+                "var(--shadow-e1)," +
+                " inset 0 1px 0 rgba(255,255,255,0.5)," +
+                " 0 18px 28px -20px color-mix(in srgb, var(--neon-cyan, var(--ox)) 40%, transparent)",
+            }}
+          >
             <div className="rx-rdx-h"><DI size={15}/> {dx.t}</div>
             <div className="rx-rdx-lead">{dx.lead}</div>
             <ul className="rx-rdx-points">
@@ -535,13 +556,49 @@ function RapidDxTimeout({ onCite }){
 }
 
 function IVtoPO({ onDrug }){
+  /* W11 · atomized polish — wrap the panel in a glass-diffuse fill +
+     asymmetric 14/4 radius via inline style and prepend each criterion
+     row with a small cyan light-ring leading dot. The existing
+     rx-criterion CSS already paints a numeric pill; the leading
+     dot is a sibling visual anchor that reads as a "match indicator"
+     for the criterion list. ZERO functional change — same props,
+     same callbacks. */
   return (
-    <div className="rx-card rx-mini rx-ivpo">
+    <div
+      className="rx-card rx-mini rx-ivpo"
+      data-w11-ivpo
+      style={{
+        background: "linear-gradient(135deg, rgba(255,255,255,0.74) 0%, rgba(245,250,253,0.58) 100%)",
+        backdropFilter: "blur(12px) saturate(170%)",
+        WebkitBackdropFilter: "blur(12px) saturate(170%)",
+        border: "1px solid var(--ox-line, var(--line))",
+        borderRadius: "14px 4px 14px 4px",
+        boxShadow:
+          "var(--shadow-e1)," +
+          " inset 0 1px 0 rgba(255,255,255,0.5)",
+      }}
+    >
       <h4><span className="ic"><ArrowRight size={15}/></span>Intravenous-to-oral step-down</h4>
       <p className="rx-ivpo-intro">Oral conversion is appropriate once all of the following are satisfied:</p>
       <ol className="rx-criteria rx-criteria-tight">
         {IVPO_CRITERIA.map((c,i) => (
-          <li className="rx-criterion" key={i}>
+          <li className="rx-criterion" key={i} style={{ position: "relative" }}>
+            <span
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                left: -10,
+                top: 13,
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "var(--neon-cyan, var(--ox))",
+                boxShadow:
+                  "0 0 0 2px color-mix(in srgb, var(--neon-cyan, var(--ox)) 22%, transparent)," +
+                  " 0 0 10px color-mix(in srgb, var(--neon-cyan, var(--ox)) 45%, transparent)",
+                pointerEvents: "none",
+              }}
+            />
             <span className="rx-criterion-n rx-mono">{i+1}</span>
             <span className="rx-criterion-tx"><span className="t">{c}</span></span>
           </li>
