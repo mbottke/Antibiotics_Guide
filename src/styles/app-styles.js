@@ -29,10 +29,52 @@ const CSS = `
    any feature the active font doesn't ship, so this is graceful. */
 .rx-mono{font-family:var(--mono); font-variant-numeric:tabular-nums; font-feature-settings:"tnum","cv01","cv09";}
 .rx-serif{font-family:var(--serif);}
-.rx-root :focus-visible{outline:2px solid var(--ox); outline-offset:2px; border-radius:3px;}
-/* Selection wash — when a clinician highlights text, the selection
-   uses the oxblood family rather than the OS default blue. */
+.rx-root :focus-visible{outline:2px solid var(--ox-bright); outline-offset:3px; border-radius:5px; box-shadow:0 0 0 5px color-mix(in srgb, var(--ox-bright) 22%, transparent), 0 0 18px -2px var(--ox-bright);}
+/* Selection wash — cyan-tinted to match the new accent family. */
 .rx-root ::selection{background:var(--ox-soft); color:var(--ox-deep);}
+
+/* Wave 7 W7-B · cinematic mount cascade.
+   Every card-primitive surface (.rx-card, .rx-acc, .rx-tnode, .rx-qc) fades-
+   in-up on first paint with a staggered :nth-child delay, so the canvas
+   materializes in beats rather than flashing flat. Reduced-motion gated. */
+@keyframes rxFadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes rxGlowPulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ox-bright) 28%, transparent); } 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--ox-bright) 0%, transparent); } }
+@keyframes rxShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.rx-root .rx-card,
+.rx-root .rx-acc,
+.rx-root .rx-tnode,
+.rx-root .rx-qc { animation: rxFadeInUp var(--duration-base, 180ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) both; }
+.rx-root .rx-card:nth-child(2),
+.rx-root .rx-acc:nth-child(2),
+.rx-root .rx-tnode:nth-child(2)  { animation-delay: 40ms; }
+.rx-root .rx-card:nth-child(3),
+.rx-root .rx-acc:nth-child(3),
+.rx-root .rx-tnode:nth-child(3)  { animation-delay: 80ms; }
+.rx-root .rx-card:nth-child(4),
+.rx-root .rx-acc:nth-child(4),
+.rx-root .rx-tnode:nth-child(4)  { animation-delay: 120ms; }
+.rx-root .rx-card:nth-child(5),
+.rx-root .rx-acc:nth-child(5)    { animation-delay: 160ms; }
+.rx-root .rx-card:nth-child(6),
+.rx-root .rx-acc:nth-child(6)    { animation-delay: 200ms; }
+
+/* Wave 7 W7-B · ambient dot-grid backdrop on the bedside surface.
+   The dots are 1px @ 1.5% opacity ink, spaced 24px apart — invisible until
+   you look for them, but they read as "intentional grid system" rather
+   than "blank canvas". Applied to .rx-bedside-container so the reference
+   pages stay clean. */
+.rx-root .rx-bedside-container {
+  background-image: radial-gradient(circle at center, color-mix(in srgb, var(--ink) 4%, transparent) 0.8px, transparent 1.2px);
+  background-size: 28px 28px;
+  background-position: 0 0;
+}
+
+/* Wave 7 W7-B · diagonal gradient hairline. Between any two adjacent
+   .rx-section / .rx-card siblings we drop a 1px transparent → cyan →
+   transparent gradient at low alpha, replacing default 1px solid lines
+   with a more deliberate divider. Available as .rx-gh-divider for opt-in. */
+.rx-gh-divider { height: 1px; background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--ox-bright) 28%, transparent) 50%, transparent 100%); border: 0; margin: 22px 0; }
+.rx-gh-divider-strong { height: 2px; background: linear-gradient(90deg, transparent 0%, var(--ox-bright) 50%, transparent 100%); border: 0; margin: 28px 0; opacity: .8; }
 
 /* ─────────────────────────────── Wave 6 W6-B · motion + reveal ────────────────
    Two keyframes, three reveal classes, two interaction utilities. Building
@@ -58,9 +100,9 @@ const CSS = `
 .rx-reveal      { animation: rx-fade-rise var(--duration-slow) var(--ease-out) both; }
 .rx-reveal-fast { animation: rx-fade-rise var(--duration-base) var(--ease-out) both; }
 .rx-fade        { animation: rx-fade-in var(--duration-base) var(--ease-out) both; }
-.rx-lift        { transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out); }
-.rx-lift:hover  { transform: translateY(-1px); box-shadow: var(--shadow-e2); }
-.rx-lift:focus-visible { transform: translateY(-1px); box-shadow: var(--shadow-e3); }
+.rx-lift        { transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out); }
+.rx-lift:hover  { transform: translateY(-2px); box-shadow: var(--shadow-e2), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 24%, transparent); border-color: color-mix(in srgb, var(--line) 40%, var(--ox-bright) 60%); color: var(--ox-bright); }
+.rx-lift:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow-e3), 0 0 0 2px color-mix(in srgb, var(--ox-bright) 30%, transparent); }
 .rx-cta-glow:focus-visible { box-shadow: var(--shadow-glow-ox); }
 
 @media (prefers-reduced-motion: reduce){
@@ -83,7 +125,11 @@ const CSS = `
 .rx-header{position:sticky; top:0; z-index:50; background:rgba(251,250,248,.94);
   backdrop-filter:saturate(140%) blur(9px); -webkit-backdrop-filter:saturate(140%) blur(9px); border-bottom:1px solid var(--line);}
 .rx-headrow{display:flex; align-items:center; gap:14px; padding:12px 0 10px;}
-.rx-mark{width:36px;height:36px;border-radius:9px;background:var(--ox);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 1px 0 rgba(0,0,0,.04);}
+/* Wave 7 W7-B · the brand block becomes a gradient compass.
+   Diagonal cyan-deep → cyan-bright gradient + cyan halo + a tiny
+   inner highlight to read as a backlit chip. */
+.rx-mark{width:40px;height:40px;border-radius:12px 3px 12px 3px;background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 50%, var(--ox-bright) 240%);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 0 0 1px var(--ox-deep), 0 0 28px -8px var(--ox-bright);position:relative;overflow:hidden;}
+.rx-mark::after{content:""; position:absolute; inset:0; background:radial-gradient(circle at 75% 110%, color-mix(in srgb, var(--ox-bright) 55%, transparent) 0%, transparent 55%); pointer-events:none;}
 .rx-brand{min-width:0; flex:1;}
 .rx-kicker{font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--ox); font-weight:600;}
 .rx-title{font-family:var(--serif); font-weight:600; font-size:20px; letter-spacing:-.01em; margin:0; line-height:1.08;}
@@ -91,7 +137,7 @@ const CSS = `
 .rx-searchwrap{position:relative; display:flex; align-items:center; flex:0 0 auto;}
 .rx-search{font-family:var(--sans); font-size:13.5px; border:1px solid var(--line); background:var(--panel);
   border-radius:999px; padding:8px 32px 8px 34px; width:210px; color:var(--ink); transition:border-color .15s, width .2s, box-shadow .15s;}
-.rx-search:focus{border-color:var(--ox); width:248px; outline:none; box-shadow:0 0 0 3px var(--ox-softer);}
+.rx-search:focus{border-color:var(--ox-bright); width:264px; outline:none; box-shadow:0 0 0 4px color-mix(in srgb, var(--ox-bright) 22%, transparent), 0 0 18px -4px var(--ox-bright);}
 .rx-search::placeholder{color:var(--faint);}
 .rx-search-i{position:absolute; left:11px; color:var(--muted); pointer-events:none; display:flex;}
 .rx-search-x{position:absolute; right:8px; background:none; border:none; cursor:pointer; color:var(--muted); padding:3px; display:flex;}
@@ -145,14 +191,18 @@ const CSS = `
      .rx-num / .rx-dose / .rx-mic — inline numeric data rows (kept)
      .rx-dropcap          — opt-in magazine-grade first-letter (.rx-dropcap)
    These classes are additive — existing call sites continue to work. */
-.rx-display{font-family:var(--serif); font-size:56px; font-weight:600; letter-spacing:-.028em; line-height:1.04; color:var(--ink); margin:0 0 12px;}
-.rx-h1{font-family:var(--serif); font-size:42px; font-weight:600; letter-spacing:-.024em; line-height:1.08; color:var(--ink); margin:0 0 10px;}
-.rx-h2{font-family:var(--serif); font-size:28px; font-weight:600; letter-spacing:-.018em; line-height:1.16; color:var(--ink); margin:0 0 6px;}
-.rx-h3{font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:-.012em; line-height:1.28; color:var(--ink); margin:32px 0 12px; display:flex; align-items:center; gap:10px;}
-.rx-h3 .ic{color:var(--ox); display:flex;}
-.rx-h4{font-family:var(--sans); font-size:13.5px; font-weight:700; letter-spacing:.005em; line-height:1.35; margin:18px 0 8px; display:flex; align-items:center; gap:7px;}
-.rx-h4 .ic{color:var(--ox); display:flex;}
-.rx-lede{color:var(--ink2); font-size:16px; margin:0 0 24px; max-width:78ch; line-height:1.65;}
+/* Wave 7 W7-B · cinematic ramp. h1 70px / h2 44px / h3 28px responsive.
+   Every section heading lands with editorial weight. The tracking ramps
+   tighter as size grows — classic display-type discipline. */
+.rx-display{font-family:var(--serif); font-size:clamp(48px, 6.5vw, 72px); font-weight:600; letter-spacing:-.032em; line-height:0.98; color:var(--ink); margin:0 0 16px;}
+.rx-h1{font-family:var(--serif); font-size:clamp(40px, 5vw, 56px); font-weight:600; letter-spacing:-.028em; line-height:1.04; color:var(--ink); margin:0 0 14px;}
+.rx-h2{font-family:var(--serif); font-size:clamp(30px, 3.8vw, 44px); font-weight:600; letter-spacing:-.024em; line-height:1.06; color:var(--ink); margin:0 0 10px;}
+.rx-h3{font-family:var(--serif); font-size:clamp(22px, 2.3vw, 28px); font-weight:600; letter-spacing:-.018em; line-height:1.2; color:var(--ink); margin:40px 0 16px; display:flex; align-items:center; gap:14px;}
+.rx-h3::before{content:""; display:inline-block; width:32px; height:2px; background:linear-gradient(90deg, var(--ox-bright) 0%, transparent 100%); flex:0 0 auto;}
+.rx-h3 .ic{color:var(--ox-bright); display:flex;}
+.rx-h4{font-family:var(--sans); font-size:14px; font-weight:700; letter-spacing:.005em; line-height:1.35; margin:20px 0 10px; display:flex; align-items:center; gap:8px;}
+.rx-h4 .ic{color:var(--ox-bright); display:flex;}
+.rx-lede{color:var(--ink2); font-family:var(--serif); font-style:italic; font-weight:400; font-size:19px; margin:0 0 28px; max-width:62ch; line-height:1.5;}
 .rx-byline{font-family:var(--serif); font-style:italic; font-weight:400; font-size:16px; color:var(--ink2); line-height:1.5; max-width:62ch; margin:0;}
 .rx-eyebrow{font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--ox); margin:0 0 8px; display:inline-flex; align-items:center; gap:6px;}
 .rx-overline{font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 6px;}
@@ -163,19 +213,27 @@ const CSS = `
 .rx-num,.rx-dose,.rx-mic,[data-tabular="true"]{font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; letter-spacing:-.002em;}
 /* Optional first-letter dropcap — opt-in only. Apply to a paragraph
    when a single feature lead deserves a magazine-grade entrance. */
-.rx-dropcap::first-letter{font-family:var(--serif); font-weight:600; font-size:3em; line-height:0.85; float:left; padding-right:8px; padding-top:6px; color:var(--ox-deep);}
-.rx-disc{display:flex; gap:10px; align-items:flex-start; background:var(--ox-soft); border:1px solid var(--ox-line);
-  border-radius:10px; padding:12px 14px; margin:0 0 24px; font-size:12.5px; color:var(--ox-deep); line-height:1.55;}
+.rx-dropcap::first-letter{font-family:var(--serif); font-weight:600; font-style:italic; font-size:3.6em; line-height:0.82; float:left; padding-right:10px; padding-top:8px; color:var(--ox-bright); background:linear-gradient(180deg, var(--ox-bright) 0%, var(--ox) 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+.rx-disc{display:flex; gap:12px; align-items:flex-start; background:linear-gradient(135deg, var(--ox-softer) 0%, var(--ox-soft) 100%); border:1px solid var(--ox-line); border-left:3px solid var(--ox-bright);
+  border-radius:14px 4px 14px 4px; padding:14px 16px; margin:0 0 24px; font-size:12.5px; color:var(--ox-deep); line-height:1.55; box-shadow:var(--shadow-e1);}
 .rx-disc svg{flex:0 0 auto; margin-top:1px;}
 /* Wave 6 W6-B · card elevation polish.
    .rx-card was a flat surface (1px border, no shadow). Adds a barely-
    perceptible resting elevation (shadow-e1) and an interactive class
    that lifts on hover/focus. The lift uses 1px translate to feel
    tactile without being noisy. */
-.rx-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:var(--shadow-e1); transition:box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);}
-.rx-card.rx-card-interactive:hover{box-shadow:var(--shadow-e2); transform:translateY(-1px);}
-.rx-card.rx-card-interactive:focus-within{box-shadow:var(--shadow-e3);}
-.rx-callout{background:var(--blue-soft); border:1px solid var(--blue-line); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--blue); display:flex; gap:10px; align-items:flex-start; line-height:1.55; margin:16px 0;}
+/* Wave 7 W7-B · asymmetric-radii cards everywhere. The 16/4 corner pattern
+   is the single shape change that ripples across every screen — every
+   regimen option, decision branch, monitoring block, table wrapper picks
+   it up automatically. Hover lifts + cyan border-color transition + cyan
+   inset hairline reads as "alive under the cursor". */
+.rx-card{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:18px 4px 18px 4px; padding:22px; box-shadow:var(--shadow-e1); transition:box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);}
+.rx-card::before{content:""; position:absolute; top:0; left:0; width:42px; height:2px; background:linear-gradient(90deg, var(--ox-bright) 0%, transparent 100%); border-radius:18px 0 0 0; opacity:0.6; pointer-events:none; transition:opacity var(--duration-base) var(--ease-out), width var(--duration-base) var(--ease-out);}
+.rx-card.rx-card-interactive{cursor:pointer;}
+.rx-card.rx-card-interactive:hover{box-shadow:var(--shadow-e2), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 28%, transparent); transform:translateY(-3px); border-color:color-mix(in srgb, var(--line) 40%, var(--ox-bright) 60%);}
+.rx-card.rx-card-interactive:hover::before{opacity:1; width:72px;}
+.rx-card.rx-card-interactive:focus-within{box-shadow:var(--shadow-e3), 0 0 0 2px color-mix(in srgb, var(--ox-bright) 30%, transparent);}
+.rx-callout{background:linear-gradient(135deg, var(--blue-soft) 0%, color-mix(in srgb, var(--blue-soft) 70%, var(--paper) 30%) 100%); border:1px solid var(--blue-line); border-left:3px solid var(--blue); border-radius:14px 4px 14px 4px; padding:14px 16px; font-size:12.5px; color:var(--blue); display:flex; gap:12px; align-items:flex-start; line-height:1.55; margin:18px 0; box-shadow:var(--shadow-e1);}
 .rx-callout svg{flex:0 0 auto; margin-top:1px;}
 
 /* ----------------------------- TAGS + CHIPS ----------------------------- */
@@ -183,9 +241,10 @@ const CSS = `
    (so the eye sees them as "tactile" rather than painted-on), and a
    smooth ease-out for the hover-brightness shift. Active state lifts
    to shadow-e1 for a sense of being grasped. */
-.rx-tag{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 8px; border-radius:999px; line-height:1.3; letter-spacing:.01em; white-space:nowrap; box-shadow:var(--shadow-e0); transition:filter var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);}
+/* Wave 7 W7-B · tags adopt the same asymmetric shape system at chip-scale. */
+.rx-tag{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:4px 10px; border-radius:8px 2px 8px 2px; line-height:1.3; letter-spacing:.01em; white-space:nowrap; box-shadow:var(--shadow-e0); transition:filter var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);}
 .rx-tag.clk{cursor:pointer;}
-.rx-tag.clk:hover{filter:brightness(.97); box-shadow:var(--shadow-e1);}
+.rx-tag.clk:hover{filter:brightness(1.05); box-shadow:var(--shadow-e1), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 22%, transparent); transform:translateY(-1px);}
 .rx-tag.clk:active{transform:translateY(0.5px);}
 .rx-tag.clk:focus-visible{box-shadow:var(--shadow-glow-ox);}
 .t-ox{background:var(--ox-soft); color:var(--ox); border:1px solid var(--ox-line);}
@@ -214,7 +273,7 @@ const CSS2 = `
 /* ----------------------------- QUICK CARDS ----------------------------- */
 .rx-quick{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:0 0 26px;}
 @media (max-width:780px){.rx-quick{grid-template-columns:1fr;}}
-.rx-qc{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:11px; padding:15px 17px;}
+.rx-qc{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:15px 17px;}
 .rx-qc .k{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ox); font-weight:700; display:flex; align-items:center; gap:7px;}
 .rx-qc .k svg{color:var(--ox);}
 .rx-qc .b{font-size:13px; margin-top:8px; line-height:1.5; color:var(--ink2);}
@@ -222,10 +281,10 @@ const CSS2 = `
 
 /* ----------------------------- STEP SPINE ----------------------------- */
 .rx-spine{position:relative; margin-left:6px; padding-left:34px;}
-.rx-spine::before{content:""; position:absolute; left:14px; top:12px; bottom:12px; width:2px; background:linear-gradient(var(--ox-line),var(--line));}
+.rx-spine::before{content:""; position:absolute; left:14px; top:12px; bottom:12px; width:2px; background:linear-gradient(180deg, var(--ox-bright) 0%, var(--ox-line) 40%, var(--line) 100%);}
 .rx-step{position:relative; margin:0 0 19px;}
-.rx-stepnum{position:absolute; left:-34px; top:-2px; width:29px; height:29px; border-radius:50%; background:var(--ox);
-  color:#fff; font-family:var(--mono); font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 4px var(--paper);}
+.rx-stepnum{position:absolute; left:-36px; top:-2px; width:32px; height:32px; border-radius:10px 3px 10px 3px; background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 220%);
+  color:#fff; font-family:var(--mono); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 4px var(--paper), 0 4px 14px -4px var(--ox-bright);}
 .rx-steph{font-weight:600; font-size:15px; margin:3px 0 3px;}
 .rx-stepb{font-size:13.5px; color:var(--ink2); margin:0; line-height:1.55;}
 .rx-stepb code{font-family:var(--mono); font-size:12px; background:var(--line2); padding:1px 5px; border-radius:4px; color:var(--ox);}
@@ -241,9 +300,9 @@ const CSS2 = `
 
 /* ----------------------------- DECISION TREE ----------------------------- */
 .rx-tree{margin:14px 0 8px;}
-.rx-tnode{border:1px solid var(--line); border-radius:11px; background:var(--panel); overflow:hidden; margin:0 0 4px;}
-.rx-tq{padding:13px 16px; background:var(--ox-softer); border-bottom:1px solid var(--ox-line); display:flex; align-items:center; gap:10px;}
-.rx-tq .dot{width:24px;height:24px;border-radius:50%;background:var(--ox);color:#fff;font-family:var(--mono);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.rx-tnode{border:1px solid var(--line); border-radius:14px 4px 14px 4px; background:var(--panel); overflow:hidden; margin:0 0 4px;}
+.rx-tq{padding:15px 18px; background:linear-gradient(135deg, var(--ox-softer) 0%, var(--ox-soft) 100%); border-bottom:1px solid var(--ox-line); display:flex; align-items:center; gap:12px;}
+.rx-tq .dot{width:28px;height:28px;border-radius:9px 3px 9px 3px;background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox-bright) 220%);color:#fff;font-family:var(--mono);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto; box-shadow:0 2px 8px -2px var(--ox-bright);}
 .rx-tq .q{font-weight:600; font-size:14px; color:var(--ink);}
 .rx-tbranches{display:grid; grid-template-columns:1fr 1fr; }
 @media (max-width:680px){.rx-tbranches{grid-template-columns:1fr;}}
@@ -266,7 +325,7 @@ const CSS2 = `
 .rx-syscat{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:600; margin:24px 0 9px; display:flex; align-items:center; gap:9px;}
 .rx-syscat::after{content:""; flex:1; height:1px; background:var(--line);}
 .rx-syscat .ic{color:var(--ox); display:flex;}
-.rx-acc{border:1px solid var(--line); border-radius:11px; overflow:hidden; margin:0 0 8px; background:var(--panel);}
+.rx-acc{border:1px solid var(--line); border-radius:14px 4px 14px 4px; overflow:hidden; margin:0 0 8px; background:var(--panel);}
 .rx-acc[data-open="true"]{border-color:var(--ox-line); box-shadow:0 1px 0 var(--ox-softer);}
 .rx-accbtn{width:100%; display:flex; align-items:center; gap:13px; padding:13px 15px; background:none; border:none; cursor:pointer; text-align:left;}
 .rx-accbtn:hover{background:var(--line3);}
@@ -365,7 +424,7 @@ const CSS3 = `
 .rx-ladder{display:flex; flex-direction:column; gap:0; margin:14px 0;}
 .rx-rung{display:grid; grid-template-columns:46px 1fr; gap:0; position:relative;}
 .rx-rung-rail{position:relative; display:flex; flex-direction:column; align-items:center;}
-.rx-rung-dot{width:30px; height:30px; border-radius:50%; background:var(--ox); color:#fff; font-family:var(--mono); font-weight:600; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:1; margin-top:14px; flex:0 0 auto;}
+.rx-rung-dot{width:32px; height:32px; border-radius:10px 3px 10px 3px; background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 220%); color:#fff; font-family:var(--mono); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:1; margin-top:14px; flex:0 0 auto; box-shadow:0 4px 12px -3px var(--ox-bright);}
 .rx-rung-line{position:absolute; top:14px; bottom:-14px; width:2px; background:var(--ox-line); left:50%; transform:translateX(-50%);}
 .rx-rung:last-child .rx-rung-line{display:none;}
 .rx-rung-body{padding:12px 0 12px 14px;}
@@ -497,7 +556,7 @@ const CSS4 = `
 .rx-mtxleg .li{display:flex; align-items:center; gap:7px;}
 .rx-axis{display:grid; grid-template-columns:1fr 1fr 1fr; gap:13px; margin:14px 0;}
 @media (max-width:820px){.rx-axis{grid-template-columns:1fr;}}
-.rx-axiscard{border:1px solid var(--line); border-radius:11px; padding:14px 15px; background:var(--panel);}
+.rx-axiscard{border:1px solid var(--line); border-radius:14px 4px 14px 4px; padding:14px 15px; background:var(--panel);}
 .rx-axiscard .ax-k{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ox); font-weight:600;}
 .rx-axiscard .ax-t{font-weight:700; font-size:14px; margin:4px 0 2px;}
 .rx-axiscard .ax-pd{font-family:var(--mono); font-size:11px; color:var(--ink2); margin:2px 0 8px;}
@@ -514,7 +573,7 @@ const CSS4 = `
 /* ---- "what's changing" evolving-evidence cards ---- */
 .rx-evolve{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 4px;}
 @media (max-width:780px){.rx-evolve{grid-template-columns:1fr;}}
-.rx-evcard{border:1px solid var(--amber-line); background:var(--amber-soft); border-radius:11px; padding:13px 15px;}
+.rx-evcard{border:1px solid var(--amber-line); background:var(--amber-soft); border-radius:14px 4px 14px 4px; padding:13px 15px;}
 .rx-evcard .evh{display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; color:var(--amber); margin:0 0 5px;}
 .rx-evcard .evh svg{flex:0 0 auto;}
 .rx-evcard .evb{font-size:12.5px; color:var(--ink2); line-height:1.5; margin:0;}
@@ -583,7 +642,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-fieldnote{font-size:11.5px; color:var(--muted); line-height:1.5; margin:9px 2px 0;}
 
 /* Child-Pugh scorer */
-.rx-cp{border:1px solid var(--line); border-radius:11px; background:var(--panel); margin:0 0 13px; overflow:hidden;}
+.rx-cp{border:1px solid var(--line); border-radius:14px 4px 14px 4px; background:var(--panel); margin:0 0 13px; overflow:hidden;}
 .rx-cp-head{display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; padding:11px 13px; cursor:pointer; text-align:left; font-family:var(--sans);}
 .rx-cp-head:hover{background:var(--ox-softer);}
 .rx-cp-head:focus-visible{outline:2px solid var(--ox); outline-offset:-2px;}
@@ -741,7 +800,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 /* ============================ v3 · PHASE C2 ============================ */
 .rx-rdx-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:6px;}
 @media (max-width:680px){.rx-rdx-grid{grid-template-columns:1fr;}}
-.rx-rdx-card{background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:14px 15px;}
+.rx-rdx-card{background:var(--panel); border:1px solid var(--line); border-radius:14px 4px 14px 4px; padding:14px 15px;}
 .rx-rdx-h{display:flex; align-items:center; gap:8px; font-family:var(--sans); font-size:13.5px; font-weight:700; color:var(--ink); margin-bottom:7px;}
 .rx-rdx-h svg{color:var(--ox); flex:0 0 auto;}
 .rx-rdx-lead{font-size:12.5px; font-weight:600; color:var(--ink2); line-height:1.45; margin-bottom:9px;}
@@ -811,7 +870,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-gnr-cav{color:var(--ox); font-size:12px;}
 
 /* ============================ v3 · PHASE D4 ============================ */
-.rx-fmbar{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; padding:11px 14px; background:var(--panel); border:1px solid var(--line); border-radius:11px; margin:-2px 0 8px;}
+.rx-fmbar{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; padding:11px 14px; background:var(--panel); border:1px solid var(--line); border-radius:14px 4px 14px 4px; margin:-2px 0 8px;}
 .rx-fmbar-lab{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600;}
 .rx-fmbar-field{display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--ink2);}
 .rx-fmbar-field span{font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600;}
@@ -828,7 +887,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 
 /* ============================ v3 · PHASE C4-PKPD ============================ */
 .rx-pkpd-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
-.rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:11px; padding:14px 15px;}
+.rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:14px 15px;}
 .rx-pkpd-h{display:flex; align-items:center; gap:7px; font-family:var(--sans); font-size:13px; font-weight:700; color:var(--ink); margin-bottom:7px;}
 .rx-pkpd-h svg{color:var(--ox); flex:0 0 auto;}
 .rx-pkpd-tgt{font-family:var(--mono); font-size:12px; color:var(--ox); margin-bottom:7px;}

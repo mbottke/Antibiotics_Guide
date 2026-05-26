@@ -2,35 +2,35 @@
    Source: tokens/tokens.json   ·   112 tokens
    Edit the JSON and run `npm run tokens`. */
 :root {
-  --paper:                  #FBFAF8;  /* App background. */
-  --paper2:                 #F5F2EC;  /* Inset / chip background. */
+  --paper:                  #FAFAFC;  /* Wave 7 W7-B · cooled from #FBFAF8 (warm cream) to #FAFAFC (pure neutral with the faintest cool tint). Removes the puke-yellow undertone the previous warm paper carried under oxblood. */
+  --paper2:                 #F2F3F7;  /* Inset / chip background — cool-tint neutral, replaces warm cream. */
   --panel:                  #FFFFFF;  /* Raised panel / card. */
-  --ink:                    #1B1916;  /* Primary text. */
-  --ink2:                   #403B34;  /* Secondary text. */
-  --muted:                  #6E675E;  /* Tertiary / captions (AA on paper). */
-  --faint:                  #9A9389;  /* Decorative / non-text glyphs only (sub-AA). */
-  --line:                   #E6E0D8;  /* Default border. */
-  --line2:                  #F1ECE5;  /* Subtle border. */
-  --line3:                  #FAF7F2;  /* Faintest divider. */
-  --ox:                     #7A1B1E;  /* Primary accent. */
-  --ox-deep:                #5E1416;  /* High-emphasis value text. */
-  --ox-bright:              #9B2D2F;  /* Hover / active. */
-  --ox-soft:                #F7ECEA;  /* Tinted callout bg. */
-  --ox-softer:              #FCF6F5;  /* Faint accent wash. */
-  --ox-line:                #E2C7C4;  /* Accent border. */
-  --amber:                  #8A5A12;  /* Caution accent. */
-  --amber-soft:             #FBF1DF;  /* Caution bg. */
-  --amber-line:             #EAD8B4;  /* Caution border. */
+  --ink:                    #0B0F14;  /* Wave 7 W7-B · deepened from #1B1916 to near-black for editorial weight. */
+  --ink2:                   #2E3440;  /* Wave 7 W7-B · cool-neutral secondary text. */
+  --muted:                  #5F6473;  /* Wave 7 W7-B · cool tertiary text. */
+  --faint:                  #9499A8;  /* Wave 7 W7-B · cool decorative tone (sub-AA). */
+  --line:                   #E2E5EC;  /* Wave 7 W7-B · cool-neutral hairline (replaces warm tan #E6E0D8). */
+  --line2:                  #EDEFF4;  /* Subtle border. */
+  --line3:                  #F6F7FA;  /* Faintest divider. */
+  --ox:                     #1F2937;  /* Primary accent — deep graphite/slate. Modern editorial, 12:1 on paper. */
+  --ox-deep:                #0B0F14;  /* High-emphasis value text — near-black. */
+  --ox-bright:              #00D4FF;  /* Hover / active / decorative — true neon cyan. */
+  --ox-soft:                #E5F8FC;  /* Tinted callout bg — soft cyan wash. */
+  --ox-softer:              #F4FBFD;  /* Faint accent wash. */
+  --ox-line:                #B8E2EE;  /* Accent border — cyan-tinted hairline. */
+  --amber:                  #D97706;  /* Crisp amber — vibrant without muddy. */
+  --amber-soft:             #FFF7ED;  /* Caution bg. */
+  --amber-line:             #FCD9B4;  /* Caution border. */
   --red:                    #B91C1C;  /* Required / hard-stop accent. */
   --red-soft:               rgba(185, 28, 28, 0.08);  /* Required bg tint. */
   --red-line:               rgba(185, 28, 28, 0.25);  /* Required border. */
   --scrim:                  rgba(15, 23, 42, 0.45);  /* Backdrop scrim behind modal drawers. */
-  --green:                  #2F5D3A;  /* Affirmative accent. */
-  --green-soft:             #EAF1EB;  /* Affirmative bg. */
-  --green-line:             #CADCCD;  /* Affirmative border. */
-  --blue:                   #2B4C66;  /* Informational accent. */
-  --blue-soft:              #E9EFF4;  /* Informational bg. */
-  --blue-line:              #C3D4E0;  /* Informational border. */
+  --green:                  #10B981;  /* Affirmative accent — emerald. */
+  --green-soft:             #ECFDF5;  /* Affirmative bg. */
+  --green-line:             #A7F3D0;  /* Affirmative border. */
+  --blue:                   #3B82F6;  /* Informational accent — electric blue. */
+  --blue-soft:              #EFF6FF;  /* Informational bg. */
+  --blue-line:              #BFDBFE;  /* Informational border. */
   --star:                   #B5862B;  /* Drug-of-choice marker. */
   --star-soft:              #F7EFDC;  /* Drug-of-choice wash (spectrum). */
   --sg-gp:                  #4C3A6B;  /* Gram-positive. */
@@ -97,11 +97,11 @@
   --mesh-magenta-anchor:    rgba(255, 61, 188, 0.12);
   --mesh-lime-anchor:       rgba(134, 204, 31, 0.10);
   --shadow-drawer:          0 24px 48px -16px rgba(15, 23, 42, 0.35);  /* Lifted-panel shadow under modal drawers. */
-  --shadow-e0:              0 1px 0 rgba(15, 23, 42, 0.04);  /* Hairline — barely perceptible separation; chips at rest. */
-  --shadow-e1:              0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);  /* Resting card / option card. */
-  --shadow-e2:              0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.06);  /* Hover-lifted card. */
-  --shadow-e3:              0 12px 24px -6px rgba(15, 23, 42, 0.14), 0 4px 8px rgba(15, 23, 42, 0.07);  /* Focused chip / selected card. */
-  --shadow-glow-ox:         0 0 0 3px rgba(122, 27, 30, 0.18);  /* Soft oxblood glow — primary-CTA focus ring. */
+  --shadow-e0:              0 1px 0 rgba(11, 15, 20, 0.04);  /* Hairline — barely perceptible separation; chips at rest. */
+  --shadow-e1:              0 2px 6px rgba(11, 15, 20, 0.06), 0 1px 2px rgba(11, 15, 20, 0.05);  /* Wave 7 W7-B — visible card presence at rest (lifted from 0.04/0.06 to 0.05/0.06 + 6px blur). */
+  --shadow-e2:              0 8px 20px -4px rgba(11, 15, 20, 0.12), 0 3px 8px rgba(11, 15, 20, 0.08);  /* Wave 7 W7-B — visibly raised hover state. */
+  --shadow-e3:              0 18px 36px -10px rgba(11, 15, 20, 0.20), 0 6px 12px rgba(11, 15, 20, 0.10);  /* Wave 7 W7-B — dimensional focused/selected pop. */
+  --shadow-glow-ox:         0 0 0 3px rgba(0, 212, 255, 0.22), 0 0 22px -4px rgba(0, 212, 255, 0.45);  /* Wave 7 W7-B — repointed to neon cyan with outer halo. */
   --duration-fast:          120ms;  /* Chip hover, button press, focus ring fade-in. */
   --duration-base:          180ms;  /* Card lift, drawer slide-in, tab switch. */
   --duration-slow:          320ms;  /* Initial-mount reveal, full-screen state changes. */
