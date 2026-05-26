@@ -107,7 +107,7 @@ function SpecSheetHero({ kicker, headline, standfirst, watermark }) {
         style={{
           fontFamily: "var(--serif)",
           fontStyle: "italic",
-          fontSize: 96,
+          fontSize: "clamp(56px, 9vw, 96px)",
           fontWeight: 700,
           letterSpacing: "-0.032em",
           lineHeight: 0.96,
