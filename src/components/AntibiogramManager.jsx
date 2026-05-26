@@ -527,7 +527,7 @@ function AntibiogramManager({ open, onClose, antibiograms, activeId, onSelect, o
 
         {/* Intro */}
         <p style={{
-          margin: "0 0 14px", fontSize: 13.5, color: "var(--ink2)", lineHeight: 1.6,
+          margin: "0 0 14px", fontSize: 14, color: "var(--ink2)", lineHeight: 1.6,
           fontFamily: "var(--serif)", fontStyle: "italic",
           maxWidth: "62ch",
         }}>

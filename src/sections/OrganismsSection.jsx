@@ -486,7 +486,7 @@ function W8DirectedCard({ org, supergroup, openDrug, highlight, anchorId, delay,
       {/* Alternative + caveat block */}
       <div style={{
         display: "grid", gap: 8,
-        fontFamily: "var(--serif)", fontSize: 13, lineHeight: 1.5,
+        fontFamily: "var(--serif)", fontSize: 13, lineHeight: 1.55,
         color: "var(--ink2)",
       }}>
         <div>

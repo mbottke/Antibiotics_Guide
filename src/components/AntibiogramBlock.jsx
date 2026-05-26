@@ -104,6 +104,7 @@ function SusceptibilityCell({ susc, smallN }) {
         fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
         color: sty.color,
         opacity: smallN ? 0.75 : 1,
+        fontVariantNumeric: "tabular-nums",
       }}>
       {susc.value}
       <span style={{ fontWeight: 500, fontSize: 9 }}>%</span>
@@ -140,7 +141,7 @@ function TierFlagRow({ tier }) {
       {tier.issues && tier.issues.length > 0 && (
         <ul style={{ listStyle: "none", padding: 0, margin: "2px 0 0", display: "grid", gap: 2 }}>
           {tier.issues.map((iss, i) => (
-            <li key={"iss-" + i} style={{ fontSize: 10.75, lineHeight: 1.45, color: "var(--ink)" }}>
+            <li key={"iss-" + i} style={{ fontSize: 11, lineHeight: 1.5, color: "var(--ink)" }}>
               <span style={{ color: sty.color, fontWeight: 700, marginRight: 4 }}>·</span>{iss}
             </li>
           ))}
@@ -162,7 +163,7 @@ function CoverageGrid({ coverage }) {
       tabIndex={0}
       style={{ overflowX: "auto", marginTop: 8, border: "1px solid var(--line)", borderRadius: 6 }}
     >
-      <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--mono)" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--mono)", fontVariantNumeric: "tabular-nums" }}>
         <thead>
           <tr style={{ background: "var(--paper2)" }}>
             <th style={{
