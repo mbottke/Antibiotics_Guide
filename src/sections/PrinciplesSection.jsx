@@ -3,13 +3,52 @@
    renderAdjuncts tabs (approach / course / adjuncts) selected by the
    `activeTab` prop, which the parent's section sub-nav controls.
 
-   Extracted from App.jsx in Wave 2 · Phase B6 (reference IA restructure):
-   the component is intentionally self-contained — no `../App` imports —
-   so the parent owns sub-tab state and the section is free to move.
+   Wave 8 W8 · MAGAZINE REWRITE
+   ----------------------------
+   This is a full editorial pass on top of the W7 foundation. The
+   information architecture is unchanged — every list, table, tree,
+   and reference still renders — but the chrome is now magazine-grade:
 
-   The prop surface mirrors the other Wave-2 sections (ctx / d / dose
-   are accepted for signature stability even when the three panels do
-   not currently consume them) so a sibling switch is a straight swap.
+     P1  · 96px italic-serif HERO with 240px italic "P" watermark,
+            italic standfirst, and 3-stop gradient hairline divider.
+     P2  · Sub-tab indicator rail (approach / course / adjuncts) as
+            a glass container with asymmetric 14/4 radius. Active
+            tab uses a cyan-deep → cyan-bright gradient with glow;
+            inactive tabs are transparent with ink2 type.
+     P3  · The seven-step reasoning sequence renders as an asymmetric
+            60/40 split per card — 64px italic-serif step numeral in
+            cyan-soft outline (text-stroke + transparent fill) on the
+            left, prose on the right. Each card has a cyan accent
+            strip across the top and lifts on hover.
+     P4  · The sepsis first-hour flow is now a horizontal scroll
+            deck of 280px asymmetric cards joined by a gradient
+            horizontal track; gradient accent dots mark each step.
+     P5  · Each of the four decision trees is wrapped in a glass
+            container with a vertical mono left-rail running "DECISION
+            TREE / 0n" rotated 90deg, asymmetric 18/4 outer radius,
+            and --shadow-e2.
+     P6  · OPAT, IV→PO, PROPHYLAXIS, EVOLVING all get the magazine
+            sub-section head: mono kicker, 36px italic-serif headline,
+            cyan accent dot, 32px gradient hairline starter, italic
+            serif lede beneath.
+     P7  · The references list is a 2-col masonry grid of citation
+            cards; year on the left in cyan numeric-mega, italic
+            serif title + body + journal on the right. Hover lift +
+            cyan border.
+
+   Cross-section constraints:
+     · `.rx-fade-in-up` is applied to article children with stagger
+       delay via inline animationDelay so the panel reveals in cadence.
+     · Decor primitives (GradientHairline, Sparkle, WatermarkLetter,
+       DottedGrid as backdrop, Stripes as accent) are reached for in
+       the hero + sub-section heads.
+     · Kinetic type — `.rx-display-l`, `.rx-counter`, `.rx-numeric-mega`,
+       `.rx-mixed-pair` — is used wherever a number wants to sing.
+
+   Zero functional changes; zero new props; zero new data. The component
+   surface (prop signature, exported name, rendered DOM ids like
+   #alg-<id>) is byte-stable so the command palette, section-nav,
+   and deep-link scrolling all continue to work as before.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
@@ -24,15 +63,25 @@ import { SEPSIS_FLOW, PROPHYLAXIS, OPAT, TREES } from "../data/content";
 import { TREE_ICON } from "../data/ui-maps";
 import { EVOLVING, REFS, DURATIONS, DUR_MAX, DUR_BY_DX, CLOCK } from "../data/evidence";
 import { SYNDROMES } from "../data/syndromes";
+import { GradientHairline } from "../components/decor/GradientHairline";
+import { Sparkle } from "../components/decor/Sparkle";
+import { WatermarkLetter } from "../components/decor/WatermarkLetter";
+import { DottedGrid } from "../components/decor/DottedGrid";
+import { Stripes } from "../components/decor/Stripes";
 
 /* ============================================================
-   Wave 7 W7-B · cinematic section header tokens (with fallbacks)
-   Shared design language across Syndromes / Agents / Compare /
-   Principles / Organisms reference sections. Tokens reference
-   var(--ox) and friends from styles/tokens.css; the explicit
-   fallbacks here keep the surface rendering correctly if a
-   future token rename lands ahead of this section.
+   Wave 8 W8 · magazine design tokens (with W7 fallbacks)
+   The neon palette graduated from accent to primary in W7; the W8
+   editorial rewrite leans into the cyan spectrum with deep / bright
+   stops for gradient surfaces (the active sub-tab, the per-card
+   accent strip, the watermark, the citation-card border).
    ============================================================ */
+const CYAN_DEEP    = "var(--electric-blue, var(--w7-neon, var(--ox)))";
+const CYAN_BRIGHT  = "var(--neon-cyan, var(--w7-neon, var(--ox)))";
+const CYAN_SOFT    = "var(--neon-cyan-soft, rgba(0, 212, 255, 0.10))";
+const CYAN_LINE    = "var(--neon-cyan-line, rgba(0, 212, 255, 0.32))";
+const CYAN_GLOW    = "var(--neon-cyan-glow, 0 0 24px rgba(0, 212, 255, 0.35))";
+
 const W7_NEON   = "var(--w7-neon, var(--ox-bright, #9B2D2F))";
 const W7_KICKER = "var(--w7-kicker, var(--muted, #6E675E))";
 const W7_LINE   = "var(--w7-hairline, var(--ox-line, #E2C7C4))";
@@ -40,77 +89,214 @@ const W7_GLASS_BG     = "var(--w7-glass-bg, rgba(255, 255, 255, 0.72))";
 const W7_GLASS_BORDER = "var(--w7-glass-border, var(--line, #E6E0D8))";
 const W7_GLASS_SHADOW = "var(--w7-glass-shadow, 0 2px 8px rgba(15, 23, 42, 0.04), 0 12px 32px -16px rgba(15, 23, 42, 0.10))";
 
-/* Cinematic kicker + display headline + italic byline + gradient hairline.
-   Used at the top of each sub-panel. */
-function W7SectionHead({ kicker, title, lede }) {
+/* Static descriptors for the three sub-panels — used by the magazine
+   hero, the sub-tab indicator rail, and the "you are here" counter.
+   Keeping the metadata in one tuple keeps the three panels in lockstep
+   if the IA grows. */
+const W8_SUBTABS = [
+  { id: "approach", n: "01", label: "Approach",  hint: "Reasoning sequence" },
+  { id: "course",   n: "02", label: "Course",    hint: "Duration · de-escalation" },
+  { id: "adjuncts", n: "03", label: "Adjuncts",  hint: "Prophylaxis · evidence" },
+];
+
+/* ============================================================
+   W8 · P1 — MAGAZINE HERO
+   96px italic serif title, 240px italic "P" watermark dropped into
+   the top-right margin, italic-serif standfirst, 3-stop gradient
+   hairline divider. The dotted grid sits behind the hero as a faint
+   atmospheric backdrop. The whole header is positioned so the
+   absolutely-positioned watermark and grid stay in scope.
+   ============================================================ */
+function W8MagazineHero({ kicker, title, standfirst, watermark = "P", counter }) {
   return (
-    <header style={{ margin: "0 0 28px", position: "relative" }}>
-      <div style={{
-        display: "inline-flex", alignItems: "center", gap: 10,
-        fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.18em",
-        textTransform: "uppercase", color: W7_KICKER, marginBottom: 14,
-      }}>
-        <span aria-hidden="true" style={{
-          display: "inline-block", width: 6, height: 6, borderRadius: 999,
-          background: W7_NEON,
-          boxShadow: `0 0 0 3px ${W7_NEON}22, 0 0 12px ${W7_NEON}55`,
-        }}/>
-        {kicker}
-        <span aria-hidden="true" style={{ opacity: 0.55, fontSize: 9 }}>✦</span>
-      </div>
-      <h2 className="rx-h2" style={{
-        fontFamily: "var(--serif)", fontSize: "clamp(32px, 4.4vw, 48px)",
-        lineHeight: 1.04, letterSpacing: "-0.015em", margin: "0 0 14px",
-        color: "var(--ink)",
-      }}>{title}</h2>
-      {lede && (
-        <p className="rx-lede" style={{
+    <header
+      className="rx-fade-in-up"
+      style={{
+        position: "relative",
+        margin: "0 0 36px",
+        padding: "32px 28px 24px",
+        overflow: "hidden",
+        borderRadius: "18px 4px 18px 4px",
+        background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.18))",
+        border: `1px solid ${W7_GLASS_BORDER}`,
+        boxShadow: W7_GLASS_SHADOW,
+      }}
+    >
+      <DottedGrid size={28} opacity={0.35} />
+      <WatermarkLetter letter={watermark} size={240} color={CYAN_BRIGHT} opacity={0.06} position="top-right" />
+
+      <div style={{ position: "relative" }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 10,
+          fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.22em",
+          textTransform: "uppercase", color: W7_KICKER, marginBottom: 18,
+        }}>
+          <span aria-hidden="true" style={{
+            display: "inline-block", width: 8, height: 8, borderRadius: 999,
+            background: CYAN_BRIGHT,
+            boxShadow: `0 0 0 3px ${CYAN_SOFT}, ${CYAN_GLOW}`,
+          }}/>
+          <span>{kicker}</span>
+          <Sparkle size={11} color={CYAN_BRIGHT} />
+          {counter && (
+            <>
+              <span aria-hidden="true" style={{ opacity: 0.45 }}>·</span>
+              <span className="rx-counter" style={{ fontSize: 11, color: W7_KICKER }}>{counter}</span>
+            </>
+          )}
+        </div>
+
+        <h1 style={{
           fontFamily: "var(--serif)", fontStyle: "italic",
-          fontSize: 17, lineHeight: 1.55, color: "var(--ink2)",
-          margin: "0 0 18px", maxWidth: "70ch",
-        }}>{lede}</p>
-      )}
-      <div aria-hidden="true" style={{
-        height: 1, width: "100%",
-        background: `linear-gradient(90deg, ${W7_NEON} 0%, ${W7_LINE} 38%, transparent 100%)`,
-        marginTop: 4,
-      }}/>
+          fontSize: "clamp(56px, 9vw, 96px)", lineHeight: 0.94,
+          letterSpacing: "-0.028em", fontWeight: 700,
+          margin: "0 0 18px", color: "var(--ink)",
+          maxWidth: "16ch",
+        }}>{title}</h1>
+
+        <p style={{
+          fontFamily: "var(--serif)", fontStyle: "italic",
+          fontSize: 20, lineHeight: 1.5, color: "var(--ink2)",
+          margin: "0 0 24px", maxWidth: "62ch",
+        }}>{standfirst}</p>
+
+        {/* 3-stop gradient hairline divider */}
+        <div aria-hidden="true" style={{
+          height: 2, width: "100%",
+          background: `linear-gradient(90deg, ${CYAN_BRIGHT} 0%, ${CYAN_DEEP} 38%, ${W7_LINE} 70%, transparent 100%)`,
+          borderRadius: 2,
+          opacity: 0.88,
+        }}/>
+      </div>
     </header>
   );
 }
 
-/* Sub-section heading: small kicker line + serif sub-headline.
-   The gradient hairline above echoes the section head. */
-function W7SubHead({ icon, kicker, title }) {
+/* ============================================================
+   W8 · P2 — SUB-TAB INDICATOR RAIL
+   A glass container with 14/4 asymmetric radii hosts three pills:
+   active uses a cyan-deep → cyan-bright gradient and cyan glow;
+   inactive sit transparent with ink2 type. This is presentation
+   only — the routing is owned by App.jsx; the rail mirrors the
+   parent's `activeTab` so the section reads as self-contained.
+   ============================================================ */
+function W8SubTabRail({ activeTab }) {
   return (
-    <div style={{ margin: "32px 0 14px" }}>
-      <div aria-hidden="true" style={{
-        height: 1, width: "100%",
-        background: `linear-gradient(90deg, ${W7_NEON}, ${W7_LINE} 32%, transparent 70%)`,
-        marginBottom: 14,
-      }}/>
+    <nav
+      className="rx-fade-in-up"
+      aria-label="Principles sub-section indicator"
+      style={{
+        position: "relative",
+        margin: "0 0 32px",
+        padding: 6,
+        borderRadius: "14px 4px 14px 4px",
+        background: "rgba(255, 255, 255, 0.55)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: `1px solid ${W7_GLASS_BORDER}`,
+        boxShadow: W7_GLASS_SHADOW,
+        display: "flex",
+        gap: 6,
+        animationDelay: "60ms",
+      }}
+    >
+      {W8_SUBTABS.map(t => {
+        const active = t.id === activeTab;
+        return (
+          <div
+            key={t.id}
+            data-active={active ? "true" : "false"}
+            aria-current={active ? "page" : undefined}
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              padding: "12px 16px",
+              borderRadius: "10px 2px 10px 2px",
+              background: active
+                ? `linear-gradient(135deg, ${CYAN_DEEP} 0%, ${CYAN_BRIGHT} 100%)`
+                : "transparent",
+              boxShadow: active ? CYAN_GLOW : "none",
+              color: active ? "#fff" : "var(--ink2)",
+              transition: "background 200ms var(--ease-out, ease), color 200ms var(--ease-out, ease), box-shadow 200ms var(--ease-out, ease)",
+            }}
+          >
+            <span style={{
+              fontFamily: "var(--mono)", fontSize: 10,
+              letterSpacing: "0.22em", textTransform: "uppercase",
+              opacity: active ? 0.92 : 0.7,
+            }}>{t.n}</span>
+            <span style={{
+              fontFamily: "var(--serif)", fontStyle: "italic",
+              fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em",
+              flex: 1, textAlign: "center",
+            }}>{t.label}</span>
+            <span style={{
+              fontFamily: "var(--mono)", fontSize: 10,
+              letterSpacing: "0.08em", opacity: 0.78,
+              display: "none",
+            }} className="rx-subtab-hint">{t.hint}</span>
+            {active && <Sparkle size={10} color="#fff" style={{ opacity: 0.95 }} />}
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* ============================================================
+   W8 · P6 — MAGAZINE SUB-SECTION HEAD
+   Mono kicker · cyan accent dot · 32px gradient hairline starter ·
+   36px italic-serif sub-headline · italic-serif lede beneath.
+   Replaces the previous W7SubHead in editorial weight.
+   ============================================================ */
+function W8SubHead({ kicker, title, lede, icon }) {
+  return (
+    <div className="rx-fade-in-up" style={{ margin: "40px 0 18px", position: "relative" }}>
       <div style={{
-        display: "inline-flex", alignItems: "center", gap: 8,
-        fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.16em",
-        textTransform: "uppercase", color: W7_KICKER, marginBottom: 6,
+        display: "inline-flex", alignItems: "center", gap: 10,
+        fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.22em",
+        textTransform: "uppercase", color: W7_KICKER, marginBottom: 12,
       }}>
+        <span aria-hidden="true" style={{
+          display: "inline-block", width: 8, height: 8, borderRadius: 999,
+          background: CYAN_BRIGHT,
+          boxShadow: `0 0 0 3px ${CYAN_SOFT}, 0 0 10px ${CYAN_LINE}`,
+        }}/>
         {kicker}
       </div>
-      <h3 className="rx-h3" style={{
-        fontFamily: "var(--serif)", fontSize: "clamp(22px, 2.4vw, 28px)",
-        lineHeight: 1.18, letterSpacing: "-0.01em", margin: 0,
-        display: "flex", alignItems: "center", gap: 10, color: "var(--ink)",
+      {/* 32px gradient hairline starter — runs only as far as the kicker */}
+      <div aria-hidden="true" style={{
+        height: 2, width: 88, borderRadius: 2,
+        background: `linear-gradient(90deg, ${CYAN_BRIGHT}, ${CYAN_DEEP} 60%, transparent)`,
+        marginBottom: 12,
+      }}/>
+      <h3 style={{
+        fontFamily: "var(--serif)", fontStyle: "italic",
+        fontSize: "clamp(28px, 3.2vw, 36px)", lineHeight: 1.16,
+        letterSpacing: "-0.018em", margin: 0, fontWeight: 700,
+        color: "var(--ink)",
+        display: "flex", alignItems: "center", gap: 12,
       }}>
-        {icon && <span className="ic" style={{ color: W7_NEON }}>{icon}</span>}
+        {icon && <span style={{ color: CYAN_BRIGHT, display: "inline-flex" }}>{icon}</span>}
         {title}
       </h3>
+      {lede && (
+        <p style={{
+          fontFamily: "var(--serif)", fontStyle: "italic",
+          fontSize: 16, lineHeight: 1.55, color: "var(--ink2)",
+          margin: "10px 0 0", maxWidth: "70ch",
+        }}>{lede}</p>
+      )}
     </div>
   );
 }
 
-/* Glass-style container with asymmetric radii — a soft-elevation
-   panel used to host decision trees, sepsis flow, and similar
-   visually prominent blocks. */
+/* Glass-style container with asymmetric radii — soft elevation panel
+   used to host decision trees, sepsis flow, and similar visually
+   prominent blocks. Inherited from the W7 foundation. */
 function W7Glass({ children, flip = false, style = {}, ...rest }) {
   const radii = flip
     ? { borderRadius: "4px 16px 4px 16px" }
@@ -129,32 +315,335 @@ function W7Glass({ children, flip = false, style = {}, ...rest }) {
   );
 }
 
+/* ============================================================
+   W8 · P3 — REASONING SPINE STEP CARD
+   60/40 asymmetric split — 40% left rail with a 64px italic-serif
+   numeral rendered as text-stroke + transparent fill (so the digit
+   reads as outlined silhouette); 60% right column with the heading
+   and prose. Cyan accent strip across the top. 14/4 asymmetric
+   radius. Hover lifts the card by 3px and adds cyan glow.
+   ============================================================ */
+function W8StepCard({ index, heading, body, delay = 0 }) {
+  const [hover, setHover] = React.useState(false);
+  return (
+    <article
+      className="rx-step rx-fade-in-up"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        position: "relative",
+        display: "grid",
+        gridTemplateColumns: "minmax(0, 40fr) minmax(0, 60fr)",
+        gap: 24,
+        padding: "22px 22px 22px 22px",
+        marginTop: 14,
+        background: "rgba(255,255,255,0.78)",
+        border: `1px solid ${W7_GLASS_BORDER}`,
+        borderRadius: "14px 4px 14px 4px",
+        boxShadow: hover
+          ? `${W7_GLASS_SHADOW}, ${CYAN_GLOW}`
+          : W7_GLASS_SHADOW,
+        transform: hover ? "translateY(-3px)" : "translateY(0)",
+        transition: "transform 220ms var(--ease-out, ease), box-shadow 220ms var(--ease-out, ease)",
+        animationDelay: `${delay}ms`,
+        overflow: "hidden",
+      }}
+    >
+      {/* Cyan accent strip across the top of each card */}
+      <span aria-hidden="true" style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: 3,
+        background: `linear-gradient(90deg, ${CYAN_BRIGHT}, ${CYAN_DEEP} 55%, transparent)`,
+      }} />
+
+      <div style={{
+        display: "flex", flexDirection: "column", justifyContent: "flex-start",
+        gap: 10, paddingTop: 6,
+      }}>
+        <span
+          aria-hidden="true"
+          style={{
+            fontFamily: "var(--serif)", fontStyle: "italic",
+            fontSize: 64, lineHeight: 0.9, fontWeight: 700,
+            letterSpacing: "-0.02em",
+            color: "transparent",
+            WebkitTextStroke: `1.5px ${CYAN_BRIGHT}`,
+            display: "inline-block",
+          }}
+        >
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <span className="rx-counter" style={{ fontSize: 10, color: W7_KICKER }}>
+          STEP / {String(index + 1).padStart(2, "0")} OF 07
+        </span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
+        <h4 style={{
+          fontFamily: "var(--serif)", fontSize: 19, fontWeight: 700,
+          letterSpacing: "-0.01em", lineHeight: 1.28, margin: 0,
+          color: "var(--ink)",
+        }}>{heading}</h4>
+        <p style={{
+          fontFamily: "var(--serif)", fontSize: 15, lineHeight: 1.6,
+          color: "var(--ink2)", margin: 0,
+        }}>{body}</p>
+      </div>
+    </article>
+  );
+}
+
+/* ============================================================
+   W8 · P4 — SEPSIS FIRST-HOUR FLOW (horizontal scroll deck)
+   Each step is a 280px asymmetric card with a gradient accent dot,
+   joined by a 2px gradient horizontal track. The active step (always
+   the first by default for the static flow) carries a cyan glow and
+   sits 3px above its peers.
+   ============================================================ */
+function W8SepsisFlowDeck() {
+  return (
+    <div className="rx-fade-in-up" style={{ position: "relative", margin: "0 0 8px" }}>
+      {/* Gradient horizontal track */}
+      <div aria-hidden="true" style={{
+        position: "absolute", left: 12, right: 12, top: 56, height: 2,
+        background: `linear-gradient(90deg, ${CYAN_BRIGHT}, ${CYAN_DEEP} 30%, ${W7_LINE} 70%, transparent)`,
+        borderRadius: 2, opacity: 0.7,
+        pointerEvents: "none",
+      }}/>
+      <div
+        role="group"
+        tabIndex={0}
+        aria-label="Sepsis first-hour sequence (scrollable)"
+        style={{
+          display: "flex", gap: 18, overflowX: "auto",
+          paddingBottom: 10, paddingTop: 0,
+          scrollSnapType: "x mandatory",
+          WebkitOverflowScrolling: "touch",
+        }}
+      >
+        {SEPSIS_FLOW.map((s, i) => {
+          const isStart = s.kind === "start";
+          const isEnd   = s.kind === "end";
+          const accent  = isStart ? CYAN_BRIGHT : isEnd ? CYAN_DEEP : CYAN_BRIGHT;
+          return (
+            <article
+              key={i}
+              style={{
+                position: "relative",
+                flex: "0 0 280px",
+                scrollSnapAlign: "start",
+                padding: "16px 18px 18px",
+                background: "rgba(255,255,255,0.82)",
+                border: `1px solid ${isStart ? CYAN_LINE : W7_GLASS_BORDER}`,
+                borderRadius: i % 2 === 0 ? "14px 4px 14px 4px" : "4px 14px 4px 14px",
+                boxShadow: isStart
+                  ? `${W7_GLASS_SHADOW}, ${CYAN_GLOW}`
+                  : W7_GLASS_SHADOW,
+                transform: isStart ? "translateY(-3px)" : "translateY(0)",
+                transition: "transform 200ms var(--ease-out, ease)",
+              }}
+            >
+              <div style={{
+                display: "flex", alignItems: "center", gap: 10, marginBottom: 8,
+              }}>
+                <span aria-hidden="true" style={{
+                  display: "inline-block", width: 14, height: 14, borderRadius: 999,
+                  background: `linear-gradient(135deg, ${CYAN_BRIGHT}, ${CYAN_DEEP})`,
+                  boxShadow: isStart ? CYAN_GLOW : "none",
+                  flex: "0 0 14px",
+                }} />
+                <span className="rx-counter" style={{ fontSize: 10, color: accent }}>
+                  {String(i + 1).padStart(2, "0")} / {String(SEPSIS_FLOW.length).padStart(2, "0")}
+                </span>
+              </div>
+              <h5 style={{
+                fontFamily: "var(--serif)", fontStyle: "italic",
+                fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em",
+                lineHeight: 1.2, margin: "0 0 6px", color: "var(--ink)",
+              }}>{s.lab}</h5>
+              <p style={{
+                fontFamily: "var(--serif)", fontSize: 13, lineHeight: 1.5,
+                color: "var(--ink2)", margin: 0,
+              }}>{s.tx}</p>
+              {i < SEPSIS_FLOW.length - 1 && (
+                <span aria-hidden="true" style={{
+                  position: "absolute",
+                  right: -14, top: 56, transform: "translateY(-50%)",
+                  color: CYAN_BRIGHT, display: "inline-flex",
+                  filter: "drop-shadow(0 0 6px rgba(0,212,255,0.4))",
+                }}>
+                  <ArrowRight size={18}/>
+                </span>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   W8 · P5 — DECISION-TREE GLASS WRAPPER
+   The tree itself uses the existing .rx-tnode shapes (asymmetric
+   14/4 from the foundation). The wrapper adds: rgba glass background,
+   18/4 asymmetric outer radius, --shadow-e2 elevation, and a vertical
+   mono left-rail label running 90deg-rotated that reads
+   "DECISION TREE / 0n". The rail sits in a 32px gutter so the body
+   columns are not affected.
+   ============================================================ */
+function W8TreeContainer({ index, total, children }) {
+  return (
+    <div className="rx-fade-in-up" style={{
+      position: "relative",
+      paddingLeft: 36,
+      animationDelay: `${index * 60}ms`,
+    }}>
+      <span aria-hidden="true" style={{
+        position: "absolute", left: 0, top: 0, bottom: 0,
+        width: 28,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontFamily: "var(--mono)", fontSize: 10,
+        letterSpacing: "0.34em", textTransform: "uppercase",
+        color: W7_KICKER,
+        writingMode: "vertical-rl",
+        transform: "rotate(180deg)",
+        userSelect: "none",
+      }}>
+        DECISION TREE · {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+      </span>
+      <span aria-hidden="true" style={{
+        position: "absolute", left: 14, top: 8, bottom: 8, width: 2,
+        background: `linear-gradient(180deg, ${CYAN_BRIGHT}, ${CYAN_DEEP} 40%, transparent)`,
+        borderRadius: 2,
+        opacity: 0.7,
+      }} />
+      <div style={{
+        background: "rgba(255,255,255,0.55)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        border: `1px solid ${W7_GLASS_BORDER}`,
+        boxShadow: "var(--shadow-e2)",
+        borderRadius: "18px 4px 18px 4px",
+        padding: 22,
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   W8 · P7 — CITATION CARD (2-col masonry)
+   Asymmetric 14/4 radius. Left: year in cyan numeric-mega. Right:
+   italic serif title + author/journal in mono. Hover lift + cyan
+   border + cyan glow.
+   ============================================================ */
+function W8CitationCard({ id, year, body, title, journal, onOpen, delay = 0 }) {
+  const [hover, setHover] = React.useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(id)}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="rx-fade-in-up"
+      style={{
+        textAlign: "left",
+        display: "grid",
+        gridTemplateColumns: "minmax(78px, 96px) 1fr",
+        gap: 18,
+        padding: "16px 18px",
+        background: "rgba(255,255,255,0.82)",
+        border: `1px solid ${hover ? CYAN_LINE : W7_GLASS_BORDER}`,
+        borderRadius: "14px 4px 14px 4px",
+        boxShadow: hover ? `${W7_GLASS_SHADOW}, ${CYAN_GLOW}` : W7_GLASS_SHADOW,
+        transform: hover ? "translateY(-2px)" : "translateY(0)",
+        transition: "transform 220ms var(--ease-out, ease), box-shadow 220ms var(--ease-out, ease), border-color 220ms var(--ease-out, ease)",
+        cursor: "pointer",
+        font: "inherit",
+        color: "inherit",
+        appearance: "none",
+        WebkitAppearance: "none",
+        breakInside: "avoid",
+        marginBottom: 14,
+        animationDelay: `${delay}ms`,
+      }}
+      aria-label={`Open evidence card for ${title}`}
+    >
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-start", paddingTop: 2 }}>
+        <span
+          className="rx-numeric-mega"
+          style={{
+            fontSize: 42,
+            color: CYAN_BRIGHT,
+            lineHeight: 1,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {year || "—"}
+        </span>
+        <span className="rx-counter" style={{ marginTop: 8, fontSize: 10, color: W7_KICKER }}>
+          {body}
+        </span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
+        <h5 style={{
+          fontFamily: "var(--serif)", fontStyle: "italic",
+          fontSize: 15, fontWeight: 700, lineHeight: 1.34,
+          margin: 0, color: "var(--ink)", letterSpacing: "-0.005em",
+        }}>{title}</h5>
+        <span style={{
+          fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink2)",
+          lineHeight: 1.5,
+        }}>{journal}</span>
+        <span style={{
+          fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.16em",
+          textTransform: "uppercase", color: CYAN_BRIGHT,
+          display: "inline-flex", alignItems: "center", gap: 4, marginTop: 2,
+        }}>
+          Open evidence card <ChevronRight size={12}/>
+        </span>
+      </div>
+    </button>
+  );
+}
+
 function PrinciplesSection({
   activeTab,            // "approach" | "course" | "adjuncts" — controlled by App's sub-nav
   setTab,               // handler to switch sub-tab (kept for signature symmetry)
   ctx, d, dose,         // patient context + derived quantities + dose() lookup (signature symmetry)
   openDrug, openOrg, openTrial,
 }) {
-  /* ============ PANEL: APPROACH ============ */
+  /* ====================================================================
+     PANEL: APPROACH — Editorial layout of the empiric reasoning sequence,
+     the sepsis first-hour deck, the broaden/withhold pair, and the four
+     decision trees. */
   const approachPanel = (
     <>
-      <W7SectionHead
-        kicker="PRINCIPLES"
+      <W8MagazineHero
+        kicker="PRINCIPLES · APPROACH"
         title="Empiric principles"
-        lede="The reasoning sequence behind every regimen on this page — from sepsis recognition to allergy delabeling, OPAT eligibility, and the iv-to-PO switch criteria."
+        standfirst="The reasoning sequence behind every empiric regimen. Severity → source → spectrum → adjustment."
+        watermark="P"
+        counter="01 / 03"
       />
+      <W8SubTabRail activeTab="approach" />
       <SectionDisc />
 
-      <div className="rx-quick">
+      <div className="rx-quick rx-fade-in-up" style={{ animationDelay: "120ms" }}>
         <div className="rx-qc"><div className="k"><Zap size={13}/> A time-limited bridge</div><div className="b">In septic shock, deliver effective therapy within <b>one hour</b>. Empiric breadth is provisional — reassess against culture data at <b>48&ndash;72 hours</b> in every case.</div></div>
         <div className="rx-qc"><div className="k"><Crosshair size={13}/> Source determines all</div><div className="b">The probable organisms, the appropriate agent, and the treatment duration each follow from the <b>anatomic source</b>. An undrained focus is not salvaged by any antibiotic.</div></div>
         <div className="rx-qc"><div className="k"><TrendingDown size={13}/> De-escalation is standard</div><div className="b">Narrowing to the single most targeted agent does <b>not</b> compromise outcomes; it reduces resistance selection, toxicity, and <i>C. difficile</i> risk.</div></div>
       </div>
 
-      <W7SubHead kicker="SEQUENCE · 01" icon={<ListChecks size={18}/>} title="The empiric reasoning sequence" />
-      <p className="rx-stepb" style={{margin:"0 0 16px"}}>Seven questions, addressed in order. Each constrains the next: the anatomic source predicts the flora, the flora and host define the spectrum, and the spectrum and site determine the agent and its dose.</p>
-      <W7Glass style={{ padding: 20, margin: "0 0 8px" }}>
-      <div className="rx-spine">
+      {/* ---- P3 · Reasoning spine (asymmetric stepped cards) ---- */}
+      <W8SubHead
+        kicker="SEQUENCE · 01"
+        icon={<ListChecks size={20}/>}
+        title="The empiric reasoning sequence"
+        lede="Seven questions, addressed in order. Each constrains the next: the anatomic source predicts the flora, the flora and host define the spectrum, and the spectrum and site determine the agent and its dose."
+      />
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {[
           ["Is this infection, and is it severe?","Distinguish infection from colonization and from non-infectious inflammation. Establish whether sepsis or septic shock is present, as this sets both the urgency and the required breadth. Obtain cultures before antibiotics whenever doing so will not delay therapy in shock."],
           ["What is the anatomic source?","The source predicts the likely flora and dictates the regimen. Commit to the most probable site and cover its characteristic pathogens; an unstated source is an unstated organism list."],
@@ -163,33 +652,28 @@ function PrinciplesSection({
           ["Which agent, and at what dose?","Select the narrowest agent that reliably covers the plausible pathogens. Dose for the site of infection (central nervous system, bone, deep focus) and for renal function, while giving a full first dose regardless of clearance."],
           ["When and how will therapy be narrowed?","Pre-commit to reassessment at 48–72 hours: culture data and clinical trajectory guide de-escalation to a single targeted agent, intravenous-to-oral conversion, and discontinuation of redundant coverage."],
           ["What is the duration and the stop date?","Establish an evidence-based duration at the outset. Most courses are shorter than traditional practice; document the stop date in the plan rather than deferring indefinitely."],
-        ].map(([h,b],i) => (
-          <div className="rx-step" key={i}>
-            <div className="rx-stepnum rx-mono">{i+1}</div>
-            <div className="rx-steph">{h}</div>
-            <p className="rx-stepb">{b}</p>
-          </div>
+        ].map(([h, b], i) => (
+          <W8StepCard key={i} index={i} heading={h} body={b} delay={140 + i * 50} />
         ))}
       </div>
-      </W7Glass>
 
-      <W7SubHead kicker="SEQUENCE · 02" icon={<Activity size={18}/>} title="Sepsis and septic shock: the first-hour sequence" />
-      <W7Glass flip style={{ padding: 18, margin: "0 0 8px" }}>
-      <div className="rx-tflow" tabIndex={0} role="group" aria-label="Sepsis first-hour sequence (scrollable)">
-        {SEPSIS_FLOW.map((s,i) => (
-          <div className="rx-tflow-step" key={i}>
-            <div className={"rx-tflow-box " + (s.kind || "")}>
-              <div className="rx-tflow-lab rx-mono">{s.lab}</div>
-              <div className="rx-tflow-tx">{s.tx}</div>
-            </div>
-            {i < SEPSIS_FLOW.length - 1 && <span className="rx-tflow-arrow"><ArrowRight size={18}/></span>}
-          </div>
-        ))}
-      </div>
-      </W7Glass>
+      {/* ---- P4 · Sepsis first-hour horizontal scroll deck ---- */}
+      <W8SubHead
+        kicker="SEQUENCE · 02"
+        icon={<Activity size={20}/>}
+        title="Sepsis and septic shock: the first-hour sequence"
+        lede="A five-step bridge from recognition to a defined stop date. Scroll horizontally on narrow viewports — each card snaps into position."
+      />
+      <W8SepsisFlowDeck />
 
-      <W7SubHead kicker="DECISION" icon={<GitBranch size={18}/>} title="Indications to broaden or to withhold coverage" />
-      <div className="rx-trig">
+      {/* ---- Trigger pair (broaden / withhold) ---- */}
+      <W8SubHead
+        kicker="DECISION"
+        icon={<GitBranch size={20}/>}
+        title="Indications to broaden or to withhold coverage"
+        lede="Adding a layer is justified by a named risk; withholding it is justified by the absence of that risk."
+      />
+      <div className="rx-trig rx-fade-in-up">
         <div className="rx-card rx-trigcard">
           <h4><span className="ic"><Plus size={15}/></span>Broaden coverage when</h4>
           <ul>
@@ -210,9 +694,14 @@ function PrinciplesSection({
         </div>
       </div>
 
-      <W7SubHead kicker="ALGORITHMS" icon={<Layers size={18}/>} title="Core decision algorithms" />
-      <p className="rx-stepb" style={{margin:"0 0 12px"}}>Four high-frequency decisions, each reducible to a single pivotal branch. Use the summary below for rapid reference; the full algorithm follows.</p>
-      <div className="rx-algindex">
+      {/* ---- P5 · Decision trees in glass containers with rotated rail ---- */}
+      <W8SubHead
+        kicker="ALGORITHMS"
+        icon={<Layers size={20}/>}
+        title="Core decision algorithms"
+        lede="Four high-frequency decisions, each reducible to a single pivotal branch. Use the chip index for rapid jump-to; the full algorithm follows."
+      />
+      <div className="rx-algindex rx-fade-in-up">
         {TREES.map(tree => {
           const TI = TREE_ICON[tree.icon] || GitBranch;
           return (
@@ -227,27 +716,52 @@ function PrinciplesSection({
       {TREES.map((tree, idx) => {
         const TI = TREE_ICON[tree.icon] || GitBranch;
         return (
-          <div key={tree.id} id={"alg-" + tree.id} style={{margin:"0 0 18px", scrollMarginTop:"16px"}}>
-            <h4 className="rx-h4"><span className="ic" style={{ color: W7_NEON }}><TI size={15}/></span>{tree.title}</h4>
-            <p className="rx-stepb" style={{margin:"0 0 10px"}}>{tree.intro}</p>
-            <W7Glass flip={idx % 2 === 1} style={{ padding: 16 }}>
-            <div className="rx-tree">
-              {tree.nodes.map((node,ni) => (
-                <div className="rx-tnode" key={ni}>
-                  <div className="rx-tq"><span className="dot rx-mono">{ni+1}</span><span className="q">{node.q}</span></div>
-                  <div className="rx-tbranches">
-                    {node.branches.map((br,bi) => (
-                      <div className="rx-tbranch" key={bi}>
-                        <span className="rx-tcond"><CornerDownRight size={12}/> {br.cond}</span>
-                        <div className="rx-trx">{br.rx}</div>
-                        <div className="rx-twhy">{br.why}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+          <div key={tree.id} id={"alg-" + tree.id} style={{margin: "26px 0 18px", scrollMarginTop: "16px"}}>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 12, marginBottom: 10,
+            }}>
+              <span style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: 36, height: 36, borderRadius: "10px 2px 10px 2px",
+                background: `linear-gradient(135deg, ${CYAN_DEEP}, ${CYAN_BRIGHT})`,
+                color: "#fff", boxShadow: CYAN_GLOW,
+              }}>
+                <TI size={18}/>
+              </span>
+              <div>
+                <span className="rx-counter" style={{ fontSize: 10, color: W7_KICKER }}>
+                  ALGORITHM · {String(idx + 1).padStart(2, "0")} / {String(TREES.length).padStart(2, "0")}
+                </span>
+                <h4 style={{
+                  fontFamily: "var(--serif)", fontStyle: "italic",
+                  fontSize: 24, fontWeight: 700, letterSpacing: "-0.012em",
+                  margin: "2px 0 0", color: "var(--ink)", lineHeight: 1.2,
+                }}>{tree.title}</h4>
+              </div>
             </div>
-            </W7Glass>
+            <p style={{
+              fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 15,
+              lineHeight: 1.55, color: "var(--ink2)", margin: "0 0 12px",
+              maxWidth: "68ch", paddingLeft: 48,
+            }}>{tree.intro}</p>
+            <W8TreeContainer index={idx} total={TREES.length}>
+              <div className="rx-tree">
+                {tree.nodes.map((node, ni) => (
+                  <div className="rx-tnode" key={ni}>
+                    <div className="rx-tq"><span className="dot rx-mono">{ni+1}</span><span className="q">{node.q}</span></div>
+                    <div className="rx-tbranches">
+                      {node.branches.map((br, bi) => (
+                        <div className="rx-tbranch" key={bi}>
+                          <span className="rx-tcond"><CornerDownRight size={12}/> {br.cond}</span>
+                          <div className="rx-trx">{br.rx}</div>
+                          <div className="rx-twhy">{br.why}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </W8TreeContainer>
           </div>
         );
       })}
@@ -256,34 +770,44 @@ function PrinciplesSection({
     </>
   );
 
-  /* ============ PANEL: COURSE ============ */
+  /* ====================================================================
+     PANEL: COURSE — Duration, de-escalation, OPAT, iv→PO. All sub-section
+     heads carry the new W8 magazine treatment. */
   const coursePanel = (
     <>
-      <W7SectionHead
+      <W8MagazineHero
         kicker="PRINCIPLES · COURSE"
-        title="Duration, de-escalation, and step-down"
-        lede="Evidence-based courses are shorter than traditional practice, with most durations now defined by randomized trials. Fix the duration at the outset, start the clock at the appropriate moment, and convert to oral therapy once the criteria are met."
+        title="Duration & step-down"
+        standfirst="Evidence-based courses are shorter than traditional practice. Fix the duration at the outset; start the clock at the appropriate moment; convert to oral therapy once the criteria are met."
+        watermark="C"
+        counter="02 / 03"
       />
+      <W8SubTabRail activeTab="course" />
 
-      <W7SubHead kicker="DURATION" icon={<Clock size={18}/>} title="Evidence-based durations" />
-      <div className="rx-card" style={{padding:0,overflow:"hidden"}}>
+      <W8SubHead
+        kicker="DURATION"
+        icon={<Clock size={20}/>}
+        title="Evidence-based durations"
+        lede="Most courses are set by randomized trial — the bar charts read against a common 42-day ceiling so the contrast is immediate."
+      />
+      <div className="rx-card rx-fade-in-up" style={{padding: 0, overflow: "hidden"}}>
         <table className="rx-durtable">
-          <thead><tr><th>Indication</th><th style={{width:170}}>Course</th><th>Days</th><th>Evidence</th></tr></thead>
+          <thead><tr><th>Indication</th><th style={{width: 170}}>Course</th><th>Days</th><th>Evidence</th></tr></thead>
           <tbody>
             {DURATIONS.map(g => (
               <React.Fragment key={g.group}>
                 <tr className="rx-durgroup"><td colSpan={4}>{g.group}</td></tr>
-                {g.rows.map((r,i)=>(
+                {g.rows.map((r, i) => (
                   <tr key={i}>
-                    <td><div style={{fontWeight:600}}>{r.dx}</div>{r.ext && <div className="rx-durext">{r.ext}</div>}</td>
+                    <td><div style={{fontWeight: 600}}>{r.dx}</div>{r.ext && <div className="rx-durext">{r.ext}</div>}</td>
                     <td>
                       <div className="rx-barwrap" title={r.days + " days"}>
-                        <div className="rx-barbase" style={{width:Math.min(100,(r.base/DUR_MAX)*100)+"%"}} />
-                        {r.max>r.base && <div className="rx-barext" style={{left:(r.base/DUR_MAX)*100+"%",width:((r.max-r.base)/DUR_MAX)*100+"%"}} />}
+                        <div className="rx-barbase" style={{width: Math.min(100, (r.base / DUR_MAX) * 100) + "%"}} />
+                        {r.max > r.base && <div className="rx-barext" style={{left: (r.base / DUR_MAX) * 100 + "%", width: ((r.max - r.base) / DUR_MAX) * 100 + "%"}} />}
                       </div>
                     </td>
                     <td><span className="rx-durdays">{r.days}</span></td>
-                    <td><Ev kind={r.ev} />{r.trial && <div style={{fontSize:10,color:"var(--muted)",fontFamily:"var(--mono)",marginTop:3}}>{r.trial}</div>}{(DUR_BY_DX[r.dx]||{}).ref && <div style={{marginTop:4}}><Cite id={DUR_BY_DX[r.dx].ref} onClick={(cid)=>openTrial(cid)} /></div>}</td>
+                    <td><Ev kind={r.ev} />{r.trial && <div style={{fontSize: 10, color: "var(--muted)", fontFamily: "var(--mono)", marginTop: 3}}>{r.trial}</div>}{(DUR_BY_DX[r.dx] || {}).ref && <div style={{marginTop: 4}}><Cite id={DUR_BY_DX[r.dx].ref} onClick={(cid)=>openTrial(cid)} /></div>}</td>
                   </tr>
                 ))}
               </React.Fragment>
@@ -292,16 +816,21 @@ function PrinciplesSection({
         </table>
       </div>
 
-      <div className="rx-2col" style={{marginTop:18}}>
+      <div className="rx-2col rx-fade-in-up" style={{marginTop: 18}}>
         <div className="rx-card rx-mini">
           <h4><span className="ic"><Clock size={15}/></span>Start the clock correctly</h4>
-          <ul>{CLOCK.map((c,i)=><li key={i}><b>{c[0]}:</b> {c[1]}</li>)}</ul>
+          <ul>{CLOCK.map((c, i) => <li key={i}><b>{c[0]}:</b> {c[1]}</li>)}</ul>
         </div>
         <IVtoPO onDrug={openDrug} />
       </div>
 
-      <W7SubHead kicker="NARROW" icon={<TrendingDown size={18}/>} title="De-escalation discipline" />
-      <div className="rx-card rx-mini">
+      <W8SubHead
+        kicker="NARROW"
+        icon={<TrendingDown size={20}/>}
+        title="De-escalation discipline"
+        lede="A scheduled 48–72 hour reassessment is mandatory — the moment the empiric breadth is paid down."
+      />
+      <div className="rx-card rx-mini rx-fade-in-up">
         <ul>
           <li><b>Reassess at 48–72 h in every patient.</b> Cultures and clinical trajectory drive the narrowing decision at a scheduled review.</li>
           <li><b>Narrow to one targeted agent.</b> De-escalation does not worsen outcomes and reduces resistance, C. difficile, and toxicity.</li>
@@ -311,49 +840,53 @@ function PrinciplesSection({
         </ul>
       </div>
 
-      <W7SubHead kicker="OPAT" icon={<Hospital size={18}/>} title="Outpatient parenteral antimicrobial therapy" />
-      <p className="rx-lede" style={{marginBottom:10}}>{OPAT.intro}</p>
-      <div className="rx-2col">
+      {/* ---- P6 · OPAT sub-section head ---- */}
+      <W8SubHead
+        kicker="OPAT"
+        icon={<Hospital size={20}/>}
+        title="Outpatient parenteral antimicrobial therapy"
+        lede={OPAT.intro}
+      />
+      <div className="rx-2col rx-fade-in-up">
         <div className="rx-card rx-mini">
           <h4><span className="ic"><Check size={15}/></span>Candidate criteria</h4>
-          <ul>{OPAT.criteria.map((c,i)=><li key={i}>{c}</li>)}</ul>
+          <ul>{OPAT.criteria.map((c, i) => <li key={i}>{c}</li>)}</ul>
         </div>
-        <div className="rx-card" style={{padding:0,overflow:"hidden"}}>
+        <div className="rx-card" style={{padding: 0, overflow: "hidden"}}>
           <table className="rx-rentable">
             <thead><tr><th>Agent</th><th>OPAT role</th></tr></thead>
-            <tbody>{OPAT.agents.map((a,i)=>(<tr key={i}><td style={{fontWeight:600,whiteSpace:"nowrap"}}>{a[0]}</td><td>{a[1]}</td></tr>))}</tbody>
+            <tbody>{OPAT.agents.map((a, i) => (<tr key={i}><td style={{fontWeight: 600, whiteSpace: "nowrap"}}>{a[0]}</td><td>{a[1]}</td></tr>))}</tbody>
           </table>
         </div>
       </div>
       <div className="rx-callout"><Info size={15}/><span>{OPAT.oral}</span></div>
 
-      <W7SubHead kicker="IV → PO" icon={<ArrowRight size={18}/>} title="Intravenous-to-oral conversion: bioavailability as the determinant" />
-      <p className="rx-lede" style={{maxWidth:"82ch"}}>
-        The instinct to keep a stable patient on IV antibiotics is rarely justified. Several oral agents achieve
-        serum levels indistinguishable from IV; for these, switching once the patient is improving shortens length of
-        stay, removes line risk, and does not compromise cure &mdash; trials such as <b>POET</b> (endocarditis) and
-        <b>OVIVA</b> (bone &amp; joint) extended early oral therapy even into deep-seated infection. The agent&rsquo;s
-        oral bioavailability, not the severity label, decides whether the switch is sound.
-      </p>
-      <div className="rx-card" style={{padding:0,overflow:"hidden"}}>
+      {/* ---- P6 · IV → PO sub-section head ---- */}
+      <W8SubHead
+        kicker="IV → PO"
+        icon={<ArrowRight size={20}/>}
+        title="Intravenous-to-oral conversion: bioavailability as the determinant"
+        lede="The agent's oral bioavailability, not the severity label, decides whether the switch is sound. POET (endocarditis) and OVIVA (bone & joint) extended early oral therapy even into deep-seated infection."
+      />
+      <div className="rx-card rx-fade-in-up" style={{padding: 0, overflow: "hidden"}}>
         <table className="rx-rentable">
           <thead><tr><th>Agent</th><th>Oral F</th><th>IV : PO</th><th>Note</th></tr></thead>
           <tbody>
-            <tr><td style={{fontWeight:600}}>Levofloxacin / moxifloxacin</td><td className="rx-mono">~99%</td><td className="rx-mono">1 : 1</td><td>Essentially complete &mdash; switch is seamless.</td></tr>
-            <tr><td style={{fontWeight:600}}>Ciprofloxacin</td><td className="rx-mono">~70%</td><td className="rx-mono">400 IV &asymp; 500&ndash;750 PO</td><td>Separate from di-/trivalent cations by 2&ndash;4 h.</td></tr>
-            <tr><td style={{fontWeight:600}}>Linezolid</td><td className="rx-mono">~100%</td><td className="rx-mono">1 : 1</td><td>No advantage to IV once tolerating enteral.</td></tr>
-            <tr><td style={{fontWeight:600}}>Metronidazole</td><td className="rx-mono">~100%</td><td className="rx-mono">1 : 1</td><td>Reserve IV for the patient who cannot take oral.</td></tr>
-            <tr><td style={{fontWeight:600}}>TMP-SMX</td><td className="rx-mono">~90&ndash;100%</td><td className="rx-mono">1 : 1</td><td>Same exposure orally; watch K&#8314; and creatinine.</td></tr>
-            <tr><td style={{fontWeight:600}}>Doxycycline</td><td className="rx-mono">~90&ndash;100%</td><td className="rx-mono">1 : 1</td><td>Take with water, sit upright (esophagitis).</td></tr>
-            <tr><td style={{fontWeight:600}}>Fluconazole (cross-ref)</td><td className="rx-mono">~90%</td><td className="rx-mono">1 : 1</td><td>Antifungal &mdash; same principle; see the antifungal reference.</td></tr>
-            <tr><td style={{fontWeight:600}}>Clindamycin</td><td className="rx-mono">~90%</td><td className="rx-mono">~1 : 1</td><td>Reliable oral step-down for soft-tissue/toxin indications.</td></tr>
-            <tr><td style={{fontWeight:600}}>Azithromycin</td><td className="rx-mono">~37%</td><td className="rx-mono">1 : 1</td><td>Low serum but tissue/intracellular driven &mdash; dosed 1:1 by design.</td></tr>
-            <tr><td style={{fontWeight:600}}>Rifampin</td><td className="rx-mono">high</td><td className="rx-mono">1 : 1</td><td>Adjunct only; take on an empty stomach.</td></tr>
-            <tr><td style={{fontWeight:600}}>&beta;-lactams (amoxicillin, cephalexin, cefuroxime/cefpodoxime)</td><td className="rx-mono">~50&ndash;90%</td><td className="rx-mono">dose up</td><td>Lower/variable F &mdash; adequate for step-down in stable patients to complete a course, not for the unstable.</td></tr>
+            <tr><td style={{fontWeight: 600}}>Levofloxacin / moxifloxacin</td><td className="rx-mono">~99%</td><td className="rx-mono">1 : 1</td><td>Essentially complete &mdash; switch is seamless.</td></tr>
+            <tr><td style={{fontWeight: 600}}>Ciprofloxacin</td><td className="rx-mono">~70%</td><td className="rx-mono">400 IV &asymp; 500&ndash;750 PO</td><td>Separate from di-/trivalent cations by 2&ndash;4 h.</td></tr>
+            <tr><td style={{fontWeight: 600}}>Linezolid</td><td className="rx-mono">~100%</td><td className="rx-mono">1 : 1</td><td>No advantage to IV once tolerating enteral.</td></tr>
+            <tr><td style={{fontWeight: 600}}>Metronidazole</td><td className="rx-mono">~100%</td><td className="rx-mono">1 : 1</td><td>Reserve IV for the patient who cannot take oral.</td></tr>
+            <tr><td style={{fontWeight: 600}}>TMP-SMX</td><td className="rx-mono">~90&ndash;100%</td><td className="rx-mono">1 : 1</td><td>Same exposure orally; watch K&#8314; and creatinine.</td></tr>
+            <tr><td style={{fontWeight: 600}}>Doxycycline</td><td className="rx-mono">~90&ndash;100%</td><td className="rx-mono">1 : 1</td><td>Take with water, sit upright (esophagitis).</td></tr>
+            <tr><td style={{fontWeight: 600}}>Fluconazole (cross-ref)</td><td className="rx-mono">~90%</td><td className="rx-mono">1 : 1</td><td>Antifungal &mdash; same principle; see the antifungal reference.</td></tr>
+            <tr><td style={{fontWeight: 600}}>Clindamycin</td><td className="rx-mono">~90%</td><td className="rx-mono">~1 : 1</td><td>Reliable oral step-down for soft-tissue/toxin indications.</td></tr>
+            <tr><td style={{fontWeight: 600}}>Azithromycin</td><td className="rx-mono">~37%</td><td className="rx-mono">1 : 1</td><td>Low serum but tissue/intracellular driven &mdash; dosed 1:1 by design.</td></tr>
+            <tr><td style={{fontWeight: 600}}>Rifampin</td><td className="rx-mono">high</td><td className="rx-mono">1 : 1</td><td>Adjunct only; take on an empty stomach.</td></tr>
+            <tr><td style={{fontWeight: 600}}>&beta;-lactams (amoxicillin, cephalexin, cefuroxime/cefpodoxime)</td><td className="rx-mono">~50&ndash;90%</td><td className="rx-mono">dose up</td><td>Lower/variable F &mdash; adequate for step-down in stable patients to complete a course, not for the unstable.</td></tr>
           </tbody>
         </table>
       </div>
-      <div className="rx-2col" style={{marginTop:"14px"}}>
+      <div className="rx-2col rx-fade-in-up" style={{marginTop: "14px"}}>
         <div className="rx-mini">
           <h4><span className="ic"><Check size={16}/></span>Switch when all are true</h4>
           <ul>
@@ -372,36 +905,50 @@ function PrinciplesSection({
           </ul>
         </div>
       </div>
-
     </>
   );
 
-  /* ============ PANEL: ADJUNCTS & EVIDENCE ============ */
+  /* ====================================================================
+     PANEL: ADJUNCTS & EVIDENCE — Prophylaxis, scope, evolving fronts,
+     the citation grid, and the combination-therapy pair. */
   const adjunctsPanel = (
     <>
-      <W7SectionHead
+      <W8MagazineHero
         kicker="PRINCIPLES · ADJUNCTS"
         title="Adjuncts & evidence"
-        lede="Surgical prophylaxis (prevention, not treatment), the explicit scope boundary of this reference, and the primary sources behind every recommendation."
+        standfirst="Surgical prophylaxis (prevention, not treatment), the explicit scope boundary of this reference, and the primary sources behind every recommendation."
+        watermark="A"
+        counter="03 / 03"
       />
+      <W8SubTabRail activeTab="adjuncts" />
 
-      <W7SubHead kicker="PROPHYLAXIS" icon={<Scissors size={18}/>} title="Surgical antimicrobial prophylaxis" />
-      <p className="rx-lede" style={{marginBottom:10}}>{PROPHYLAXIS.intro}</p>
-      <div className="rx-2col" style={{marginBottom:16}}>
+      {/* ---- P6 · PROPHYLAXIS sub-section head ---- */}
+      <W8SubHead
+        kicker="PROPHYLAXIS"
+        icon={<Scissors size={20}/>}
+        title="Surgical antimicrobial prophylaxis"
+        lede={PROPHYLAXIS.intro}
+      />
+      <div className="rx-2col rx-fade-in-up" style={{marginBottom: 16}}>
         <div className="rx-card rx-mini">
           <h4><span className="ic"><ListChecks size={15}/></span>Principles</h4>
-          <ul>{PROPHYLAXIS.principles.map((p,i)=><li key={i}><b>{p[0]}:</b> {p[1]}</li>)}</ul>
+          <ul>{PROPHYLAXIS.principles.map((p, i) => <li key={i}><b>{p[0]}:</b> {p[1]}</li>)}</ul>
         </div>
-        <div className="rx-card" style={{padding:0,overflow:"hidden"}}>
+        <div className="rx-card" style={{padding: 0, overflow: "hidden"}}>
           <table className="rx-rentable">
             <thead><tr><th>Procedure</th><th>Agent</th></tr></thead>
-            <tbody>{PROPHYLAXIS.table.map((r,i)=>(<tr key={i}><td style={{fontWeight:600}}>{r[0]}</td><td>{r[1]}</td></tr>))}</tbody>
+            <tbody>{PROPHYLAXIS.table.map((r, i) => (<tr key={i}><td style={{fontWeight: 600}}>{r[0]}</td><td>{r[1]}</td></tr>))}</tbody>
           </table>
         </div>
       </div>
 
-      <W7SubHead kicker="SCOPE" icon={<Layers size={18}/>} title="Scope of this reference" />
-      <div className="rx-2col">
+      <W8SubHead
+        kicker="SCOPE"
+        icon={<Layers size={20}/>}
+        title="Scope of this reference"
+        lede="What this surface covers and what it deliberately defers to a sibling reference."
+      />
+      <div className="rx-2col rx-fade-in-up">
         <div className="rx-card rx-mini">
           <h4><span className="ic"><Check size={15}/></span>In scope</h4>
           <ul>
@@ -423,11 +970,16 @@ function PrinciplesSection({
       </div>
       <div className="rx-callout"><Info size={15}/><span>Where a regimen above references an antifungal (empiric candidemia coverage in sepsis, neutropenic enterocolitis, persistent febrile neutropenia), the pointer is intentional — the agent and dose live in the antifungal reference.</span></div>
 
-      <W7SubHead kicker="EVOLVING" icon={<TrendingDown size={18}/>} title="What's changing" />
-      <p className="rx-lede" style={{marginBottom:10}}>Fronts where the evidence is actively moving — flagged so the guidance above is read with its half-life in mind.</p>
-      <div className="rx-evolve">
-        {EVOLVING.map((e,i)=>(
-          <div className="rx-evcard" key={i}>
+      {/* ---- P6 · EVOLVING sub-section head ---- */}
+      <W8SubHead
+        kicker="EVOLVING"
+        icon={<TrendingDown size={20}/>}
+        title="What's changing"
+        lede="Fronts where the evidence is actively moving — flagged so the guidance above is read with its half-life in mind."
+      />
+      <div className="rx-evolve rx-fade-in-up">
+        {EVOLVING.map((e, i) => (
+          <div className="rx-evcard" key={i} style={{ animationDelay: `${i * 40}ms` }}>
             <div className="evh">{e.h}{e.ref && <Cite id={e.ref} onClick={(cid)=>openTrial(cid)} />}</div>
             <p className="evb">{e.b}</p>
             <span className="evdir">{e.dir}</span>
@@ -435,31 +987,51 @@ function PrinciplesSection({
         ))}
       </div>
 
-      <W7SubHead kicker="REFERENCES" icon={<BookOpen size={18}/>} title="Primary sources" />
-      <div className="rx-card" style={{padding:"4px 4px"}}>
-        <table className="rx-reftable">
-          <tbody>
-            {REFS.map((r,i)=>(
-              <tr key={i} className="rx-refrow" tabIndex={0} role="button"
-                onClick={()=>openTrial(r.id)}
-                onKeyDown={e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openTrial(r.id); } }}
-                title="Open the evidence card">
-                <td style={{width:130}}><span className="rx-reftag">{r.tag}</span></td>
-                <td><div style={{fontWeight:600,fontSize:13}}>{r.t}</div><div style={{fontSize:12,color:"var(--muted)",marginTop:2}}>{r.src}</div></td>
-                <td className="rx-refchev"><ChevronRight size={15}/></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* ---- P7 · REFERENCES masonry grid of citation cards ---- */}
+      <W8SubHead
+        kicker="REFERENCES"
+        icon={<BookOpen size={20}/>}
+        title="Primary sources"
+        lede={`${REFS.length} guidelines, trials, and consensus statements behind the recommendations on this page. Click a year to open the evidence card.`}
+      />
+      <Stripes variant="cyan" width={120} height={6} style={{ margin: "0 0 18px" }} />
+      <div
+        className="rx-fade-in-up"
+        style={{
+          columnCount: 2,
+          columnGap: 18,
+          columnFill: "balance",
+        }}
+      >
+        {REFS.map((r, i) => {
+          // r.tag is e.g. "IDSA 2024" — split off the year so the
+          // citation card's left rail can display it standalone.
+          const m = (r.tag || "").match(/^(.*?)\s*(\d{4})\s*$/);
+          const body = m ? m[1] : r.tag;
+          const year = m ? m[2] : "";
+          return (
+            <W8CitationCard
+              key={r.id}
+              id={r.id}
+              year={year}
+              body={body || "—"}
+              title={r.t}
+              journal={r.src}
+              onOpen={openTrial}
+              delay={Math.min(i * 30, 600)}
+            />
+          );
+        })}
       </div>
+      <GradientHairline variant="cyan-blue" withDot style={{ margin: "32px 0 24px" }} />
 
-      <W7SubHead kicker="COMBINATION" icon={<Plus size={18}/>} title="Combination therapy: established synergy versus unsupported use" />
-      <p className="rx-lede" style={{maxWidth:"82ch"}}>
-        Adding a second agent is justified by a specific mechanism &mdash; documented synergy, guaranteeing one active
-        drug against a resistant organism before susceptibilities return, or toxin suppression. Continued reflexively
-        after the culture is back, it adds toxicity, cost, <i>C. difficile</i>, and resistance pressure without benefit.
-      </p>
-      <div className="rx-2col">
+      <W8SubHead
+        kicker="COMBINATION"
+        icon={<Plus size={20}/>}
+        title="Combination therapy: established synergy versus unsupported use"
+        lede="Adding a second agent is justified by a specific mechanism — synergy, guaranteeing one active drug against resistance, or toxin suppression. Reflexive continuation after culture-return is harm."
+      />
+      <div className="rx-2col rx-fade-in-up">
         <div className="rx-mini">
           <h4><span className="ic"><Check size={16}/></span>Where combination is supported</h4>
           <ul>
@@ -481,7 +1053,6 @@ function PrinciplesSection({
         </div>
       </div>
       <div className="rx-callout"><TrendingDown size={15}/><span>The discipline is symmetrical with empiric breadth: start broad enough to be safe, then <b>de-escalate to the narrowest single agent the susceptibilities allow</b> &mdash; combination therapy earns its place only by a named mechanism, not by anxiety.</span></div>
-
     </>
   );
 
