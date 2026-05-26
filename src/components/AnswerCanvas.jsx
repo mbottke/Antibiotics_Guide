@@ -80,9 +80,10 @@
    continue to pass.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { BookOpen, Check, ListChecks, Pencil, ShieldCheck } from "lucide-react";
 import { composeAnswer } from "../engines/regimen.js";
+import { useBedsideFlowCtx } from "./util/BedsideFlowContext.js";
 import { computeDose } from "../engines/dosing.js";
 import { allergyGuidance } from "../engines/clinical.js";
 import { getRegionalForSyndrome } from "../data/regionalResistance.js";
@@ -313,6 +314,44 @@ const W8_STYLES = `
 function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite, antibiogram, onOpenAntibiogramManager }) {
   const ans = useMemo(() => composeAnswer(caseState), [caseState]);
   const [copied, setCopied] = useState(false);
+
+  /* Wave 12 W12 · pull bedside flow context so we can render the
+     transient entrance choreography (F3), the idle CTA pulse (F4), the
+     finding-applied glow (F5), and the deep-scroll / deep-rest static
+     state ramps (F6 / F7). The context provider lives in BedsideShell. */
+  const flow = useBedsideFlowCtx();
+  const [entranceGlow, setEntranceGlow] = useState(false);
+  const [spineSweep, setSpineSweep] = useState(false);
+  /* F5 — when flow.findingApplied bumps, paint a transient cyan inset
+     glow over the visible layer that owns the change. Without a precise
+     mapping from "which finding fired which layer" we briefly highlight
+     the reassessment layer that holds the directed regimen and the
+     duration/monitoring layers, which is where reassessment changes land. */
+  const [findingGlowToken, setFindingGlowToken] = useState(0);
+  const prevFindingRef = useRef(flow.findingApplied);
+  useEffect(() => {
+    if(flow.findingApplied !== prevFindingRef.current) {
+      prevFindingRef.current = flow.findingApplied;
+      if(!flow.reducedMotion) {
+        setFindingGlowToken(t => t + 1);
+      }
+    }
+  }, [flow.findingApplied, flow.reducedMotion]);
+
+  /* F3 · play a brief entrance glow halo + sequential spine sweep when
+     the canvas first mounts under a syndrome. We gate on a single
+     useEffect that fires once per AnswerCanvas mount. Reduced-motion path
+     leaves both flags false. */
+  useEffect(() => {
+    if(flow.reducedMotion) return undefined;
+    if(typeof window === "undefined") return undefined;
+    setEntranceGlow(true);
+    setSpineSweep(true);
+    const t1 = window.setTimeout(() => setEntranceGlow(false), 360);
+    const t2 = window.setTimeout(() => setSpineSweep(false), 1100);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* Wave 5 CL-3 · mechanism drawer state owned at the canvas root.
      Threaded to every rendered ClassChip / TermChip via the shared bag,
@@ -716,8 +755,9 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
       <style>{W8_STYLES}</style>
 
       <div
-        className="rx-answer-canvas-root"
+        className={"rx-answer-canvas-root" + (entranceGlow ? " rx-w12-layer-glow" : "")}
         data-has-vertical-rail={_spineItems.length > 3 ? "true" : "false"}
+        data-w12-entrance={entranceGlow ? "true" : "false"}
       >
         {/* VERTICAL RAIL — docked at the left edge ≥1280px. CSS hides
             below that breakpoint; the horizontal frosted-glass strip
@@ -813,12 +853,14 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                 intensity="strong"
                 palette="cyan-magenta-lime"
               />
-              <div style={{
-                position: "relative",
-                zIndex: 1,
-                display: "flex", gap: 6, overflowX: "auto",
-                scrollbarWidth: "thin",
-              }}>
+              <div
+                className={spineSweep ? "rx-w12-spine-sweep" : undefined}
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  display: "flex", gap: 6, overflowX: "auto",
+                  scrollbarWidth: "thin",
+                }}>
                 {_spineItems.map((item) => (
                   <button
                     key={item.id}
@@ -919,6 +961,17 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                  ABOVE it. The mapping is deliberately sparse (4 entries)
                  so the canvas reads as 4 chapters, not 17. */
               const sceneBreak = i > 0 ? W12_SCENE_BREAKS[L.id] : null;
+              /* W12 F5 · the reassessment / duration / monitoring layers
+                 are the ones whose state flips when a clinician adds a
+                 finding. Glow them briefly when the flow's finding token
+                 bumps. Other layers stay quiet. */
+              const isFindingLayer = /reassess|duration|monitoring/i.test(L.id || "");
+              const glowKey = findingGlowToken;
+              const glowClass = (
+                !flow.reducedMotion && isFindingLayer && glowKey > 0
+                  ? " rx-w12-layer-glow"
+                  : ""
+              );
               return (
                 <React.Fragment key={L.id + "-" + i}>
                   {sceneBreak && (
@@ -929,8 +982,9 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                     />
                   )}
                   <div
-                    className="rx-fade-in-up"
-                    style={_stagger()}
+                    className={"rx-fade-in-up" + glowClass}
+                    style={{ ..._stagger(), borderRadius: 12 }}
+                    data-w12-finding-glow={glowClass ? glowKey : 0}
                   >
                     {L.render(layerShared)}
                   </div>
@@ -955,7 +1009,11 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
             <button
               type="button"
               onClick={copyNote}
-              className="rx-cta-ehr rx-shine-sweep"
+              className={
+                "rx-cta-ehr rx-shine-sweep" +
+                (!flow.reducedMotion && flow.phase === "idle" ? " rx-w12-cta-pulse" : "")
+              }
+              data-w12-cta-state={flow.phase}
             >
               {copied ? <><Check size={14} aria-hidden/> Copied</> : <><ListChecks size={14} aria-hidden/> Copy as EHR note</>}
             </button>
