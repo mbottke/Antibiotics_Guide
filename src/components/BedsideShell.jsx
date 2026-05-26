@@ -203,7 +203,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
             })}>
             <ArrowLeft size={12} aria-hidden /> Reference
           </button>
-          <div style={{ display:"flex", alignItems:"center", gap: 10 }}>
+          <div style={{ display:"flex", alignItems:"center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end", minWidth: 0 }}>
             {onOpenPalette && (
               <button
                 type="button"

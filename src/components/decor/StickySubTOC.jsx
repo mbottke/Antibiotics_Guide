@@ -184,6 +184,8 @@ export function StickySubTOC({
         display: "flex",
         gap: 6,
         overflowX: "auto",
+        maxWidth: "100%",
+        minWidth: 0,
         WebkitOverflowScrolling: "touch",
         alignItems: "center",
         ...style,

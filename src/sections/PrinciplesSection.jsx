@@ -204,6 +204,7 @@ function W8SubTabRail({ activeTab }) {
         boxShadow: W7_GLASS_SHADOW,
         display: "flex",
         gap: 6,
+        flexWrap: "wrap",
         animationDelay: "60ms",
       }}
     >

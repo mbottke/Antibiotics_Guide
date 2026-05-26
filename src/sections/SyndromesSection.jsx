@@ -570,7 +570,8 @@ function SyndromesSection({
           a one-shot <style> tag.
           ============================================================ */}
       <style>{`
-        .syn-asym { display: grid; grid-template-columns: 1fr; gap: 32px; }
+        .syn-asym { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; }
+        .syn-asym > * { min-width: 0; }
         @media (min-width: 1100px) {
           .syn-asym { grid-template-columns: 220px minmax(0, 1fr); }
           .syn-asym-rail { position: sticky; top: 132px; align-self: start; }

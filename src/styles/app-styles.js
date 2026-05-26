@@ -498,6 +498,7 @@ const CSS3 = `
 .rx-rung-mech{font-size:11px; color:var(--muted); font-family:var(--mono); letter-spacing:.02em;}
 .rx-rung-detail{font-size:12.5px; color:var(--ink2); margin:5px 0 7px; line-height:1.5;}
 .rx-rung-agents{display:flex; flex-wrap:wrap; gap:5px;}
+.rx-rung-agents .rx-tag{white-space:normal; overflow-wrap:anywhere; max-width:100%;}
 .rx-rung-grad{height:5px; border-radius:3px; margin:2px 0 0; background:linear-gradient(90deg,var(--green) 0%,var(--amber) 55%,var(--ox) 100%);}
 .rx-rung-intensity{width:var(--w,20%); height:5px; border-radius:3px; background:var(--ox);}
 
@@ -697,7 +698,8 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-drawer-body{flex:1; overflow-y:auto; padding:18px 20px 28px;}
 
 /* ---- dose-tab calculator additions ---- */
-.rx-field2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+.rx-field2{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px;}
+@media (max-width:560px){.rx-field2{grid-template-columns:minmax(0,1fr);}}
 .rx-field input[aria-invalid="true"]{border-color:var(--ox-bright); box-shadow:0 0 0 3px var(--ox-softer);}
 .rx-ctxtoggle{margin-top:14px; width:100%; display:inline-flex; align-items:center; justify-content:center; gap:8px;
   border:1px solid var(--ox-line); background:var(--ox-soft); color:var(--ox); cursor:pointer;
@@ -952,7 +954,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-fmbar-note b{color:var(--ink);}
 
 /* ============================ v3 · PHASE C4-PKPD ============================ */
-.rx-pkpd-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+.rx-pkpd-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;}
 .rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:14px 15px;}
 .rx-pkpd-h{display:flex; align-items:center; gap:7px; font-family:var(--sans); font-size:13px; font-weight:700; color:var(--ink); margin-bottom:7px;}
 .rx-pkpd-h svg{color:var(--ox); flex:0 0 auto;}
