@@ -24,12 +24,36 @@ const CSS = `
   line-height:1.55; min-height:100%;
 }
 .rx-root *,.rx-root *::before,.rx-root *::after{box-sizing:border-box;}
+
+/* Wave 7 W7-B · global motion baseline. Every card surface inherits a
+   first-paint fade-in-up via the @keyframes rule below — the answer canvas
+   no longer materializes flat. The keyframe is gated by prefers-reduced-
+   motion at the bottom of the stylesheet so users who opt out get the
+   instant render. */
+@keyframes rxFadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes rxGlowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ox-bright) 22%, transparent); }
+  50%      { box-shadow: 0 0 0 6px color-mix(in srgb, var(--ox-bright) 0%, transparent); }
+}
+.rx-root .rx-card,
+.rx-root .rx-acc,
+.rx-root .rx-tnode,
+.rx-root .rx-qc { animation: rxFadeInUp var(--duration-base, 180ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) both; }
+/* Stagger via nth-child so successive cards feel cinematic, not crowded. */
+.rx-root .rx-card:nth-child(2)  { animation-delay: 40ms; }
+.rx-root .rx-card:nth-child(3)  { animation-delay: 80ms; }
+.rx-root .rx-card:nth-child(4)  { animation-delay: 120ms; }
+.rx-root .rx-card:nth-child(5)  { animation-delay: 160ms; }
+.rx-root .rx-card:nth-child(6)  { animation-delay: 200ms; }
 /* Mono — tabular numerals + opt-in stylistic alternates ("cv01" = alt
    one, "cv09" = alt zero on IBM Plex Mono). Browsers silently ignore
    any feature the active font doesn't ship, so this is graceful. */
 .rx-mono{font-family:var(--mono); font-variant-numeric:tabular-nums; font-feature-settings:"tnum","cv01","cv09";}
 .rx-serif{font-family:var(--serif);}
-.rx-root :focus-visible{outline:2px solid var(--ox); outline-offset:2px; border-radius:3px;}
+.rx-root :focus-visible{outline:2px solid var(--ox-bright); outline-offset:2px; border-radius:3px; box-shadow:0 0 0 4px color-mix(in srgb, var(--ox-bright) 22%, transparent);}
 /* Selection wash — when a clinician highlights text, the selection
    uses the oxblood family rather than the OS default blue. */
 .rx-root ::selection{background:var(--ox-soft); color:var(--ox-deep);}
@@ -58,10 +82,14 @@ const CSS = `
 .rx-reveal      { animation: rx-fade-rise var(--duration-slow) var(--ease-out) both; }
 .rx-reveal-fast { animation: rx-fade-rise var(--duration-base) var(--ease-out) both; }
 .rx-fade        { animation: rx-fade-in var(--duration-base) var(--ease-out) both; }
-.rx-lift        { transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out); }
-.rx-lift:hover  { transform: translateY(-1px); box-shadow: var(--shadow-e2); }
-.rx-lift:focus-visible { transform: translateY(-1px); box-shadow: var(--shadow-e3); }
+.rx-lift        { transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out); }
+.rx-lift:hover  { transform: translateY(-2px); box-shadow: var(--shadow-e2), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 22%, transparent); border-color: color-mix(in srgb, var(--line) 60%, var(--ox-bright) 40%); }
+.rx-lift:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow-e3), 0 0 0 2px color-mix(in srgb, var(--ox-bright) 28%, transparent); }
 .rx-cta-glow:focus-visible { box-shadow: var(--shadow-glow-ox); }
+/* Wave 7 W7-B · ".rx-bedside-spine [class*=rx-lift]:hover" — spine chips now
+   pick up an inset neon hairline on hover so the table-of-contents reads
+   as alive. */
+.rx-root [data-bedside-spine="true"] .rx-lift:hover { color: var(--ox); background: var(--ox-softer); border-color: var(--ox-bright); }
 
 @media (prefers-reduced-motion: reduce){
   .rx-root *,.rx-root *::before,.rx-root *::after{transition-duration:.01ms!important; animation-duration:.01ms!important; scroll-behavior:auto!important;}
@@ -83,7 +111,8 @@ const CSS = `
 .rx-header{position:sticky; top:0; z-index:50; background:rgba(251,250,248,.94);
   backdrop-filter:saturate(140%) blur(9px); -webkit-backdrop-filter:saturate(140%) blur(9px); border-bottom:1px solid var(--line);}
 .rx-headrow{display:flex; align-items:center; gap:14px; padding:12px 0 10px;}
-.rx-mark{width:36px;height:36px;border-radius:9px;background:var(--ox);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 1px 0 rgba(0,0,0,.04);}
+.rx-mark{width:38px;height:38px;border-radius:11px 3px 11px 3px;background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 55%, var(--ox-bright) 200%);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 1px 0 rgba(0,0,0,.04), 0 0 24px -8px var(--ox-bright);position:relative;overflow:hidden;}
+.rx-mark::after{content:""; position:absolute; inset:0; background:radial-gradient(circle at 80% 110%, color-mix(in srgb, var(--ox-bright) 50%, transparent) 0%, transparent 55%); pointer-events:none;}
 .rx-brand{min-width:0; flex:1;}
 .rx-kicker{font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--ox); font-weight:600;}
 .rx-title{font-family:var(--serif); font-weight:600; font-size:20px; letter-spacing:-.01em; margin:0; line-height:1.08;}
@@ -91,7 +120,7 @@ const CSS = `
 .rx-searchwrap{position:relative; display:flex; align-items:center; flex:0 0 auto;}
 .rx-search{font-family:var(--sans); font-size:13.5px; border:1px solid var(--line); background:var(--panel);
   border-radius:999px; padding:8px 32px 8px 34px; width:210px; color:var(--ink); transition:border-color .15s, width .2s, box-shadow .15s;}
-.rx-search:focus{border-color:var(--ox); width:248px; outline:none; box-shadow:0 0 0 3px var(--ox-softer);}
+.rx-search:focus{border-color:var(--ox-bright); width:248px; outline:none; box-shadow:0 0 0 4px color-mix(in srgb, var(--ox-bright) 22%, transparent), 0 0 18px -4px var(--ox-bright);}
 .rx-search::placeholder{color:var(--faint);}
 .rx-search-i{position:absolute; left:11px; color:var(--muted); pointer-events:none; display:flex;}
 .rx-search-x{position:absolute; right:8px; background:none; border:none; cursor:pointer; color:var(--muted); padding:3px; display:flex;}
@@ -147,8 +176,11 @@ const CSS = `
    These classes are additive — existing call sites continue to work. */
 .rx-display{font-family:var(--serif); font-size:56px; font-weight:600; letter-spacing:-.028em; line-height:1.04; color:var(--ink); margin:0 0 12px;}
 .rx-h1{font-family:var(--serif); font-size:42px; font-weight:600; letter-spacing:-.024em; line-height:1.08; color:var(--ink); margin:0 0 10px;}
-.rx-h2{font-family:var(--serif); font-size:28px; font-weight:600; letter-spacing:-.018em; line-height:1.16; color:var(--ink); margin:0 0 6px;}
-.rx-h3{font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:-.012em; line-height:1.28; color:var(--ink); margin:32px 0 12px; display:flex; align-items:center; gap:10px;}
+/* Wave 7 W7-B · headline scale lifted to magazine territory. h2 ramps from
+   28 → 40px (clamped responsively); h3 from 20 → 26px. Tighter tracking, the
+   ink-deep value for richer presence on paper. */
+.rx-h2{font-family:var(--serif); font-size:clamp(28px, 3.6vw, 40px); font-weight:600; letter-spacing:-.024em; line-height:1.08; color:var(--ink); margin:0 0 8px;}
+.rx-h3{font-family:var(--serif); font-size:clamp(20px, 2.1vw, 26px); font-weight:600; letter-spacing:-.016em; line-height:1.2; color:var(--ink); margin:36px 0 14px; display:flex; align-items:center; gap:12px;}
 .rx-h3 .ic{color:var(--ox); display:flex;}
 .rx-h4{font-family:var(--sans); font-size:13.5px; font-weight:700; letter-spacing:.005em; line-height:1.35; margin:18px 0 8px; display:flex; align-items:center; gap:7px;}
 .rx-h4 .ic{color:var(--ox); display:flex;}
@@ -172,9 +204,16 @@ const CSS = `
    perceptible resting elevation (shadow-e1) and an interactive class
    that lifts on hover/focus. The lift uses 1px translate to feel
    tactile without being noisy. */
-.rx-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:var(--shadow-e1); transition:box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);}
-.rx-card.rx-card-interactive:hover{box-shadow:var(--shadow-e2); transform:translateY(-1px);}
-.rx-card.rx-card-interactive:focus-within{box-shadow:var(--shadow-e3);}
+/* Wave 7 W7-B · asymmetric-radii cards. The card primitive is the most
+   repeated visual unit on the surface (regimen options, decision branches,
+   monitoring blocks, every reference table wrapper) — flipping its radius
+   from symmetric 12px to a 16/4 asymmetric corner pattern is the single
+   shape change that ripples across every screen. The hover lift also gets
+   a soft cyan glow alongside the box-shadow ramp so motion reads as
+   light rather than just elevation. */
+.rx-card{background:var(--panel); border:1px solid var(--line); border-radius:16px 4px 16px 4px; padding:20px; box-shadow:var(--shadow-e1); transition:box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);}
+.rx-card.rx-card-interactive:hover{box-shadow:var(--shadow-e2), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 18%, transparent); transform:translateY(-2px); border-color:color-mix(in srgb, var(--line) 60%, var(--ox-bright) 40%);}
+.rx-card.rx-card-interactive:focus-within{box-shadow:var(--shadow-e3), 0 0 0 2px color-mix(in srgb, var(--ox-bright) 24%, transparent);}
 .rx-callout{background:var(--blue-soft); border:1px solid var(--blue-line); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--blue); display:flex; gap:10px; align-items:flex-start; line-height:1.55; margin:16px 0;}
 .rx-callout svg{flex:0 0 auto; margin-top:1px;}
 
@@ -214,7 +253,7 @@ const CSS2 = `
 /* ----------------------------- QUICK CARDS ----------------------------- */
 .rx-quick{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:0 0 26px;}
 @media (max-width:780px){.rx-quick{grid-template-columns:1fr;}}
-.rx-qc{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:11px; padding:15px 17px;}
+.rx-qc{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox-bright); border-radius:14px 4px 14px 4px; padding:16px 18px; box-shadow:var(--shadow-e1);}
 .rx-qc .k{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ox); font-weight:700; display:flex; align-items:center; gap:7px;}
 .rx-qc .k svg{color:var(--ox);}
 .rx-qc .b{font-size:13px; margin-top:8px; line-height:1.5; color:var(--ink2);}
@@ -241,7 +280,7 @@ const CSS2 = `
 
 /* ----------------------------- DECISION TREE ----------------------------- */
 .rx-tree{margin:14px 0 8px;}
-.rx-tnode{border:1px solid var(--line); border-radius:11px; background:var(--panel); overflow:hidden; margin:0 0 4px;}
+.rx-tnode{border:1px solid var(--line); border-radius:14px 4px 14px 4px; background:var(--panel); overflow:hidden; margin:0 0 4px; box-shadow:var(--shadow-e1);}
 .rx-tq{padding:13px 16px; background:var(--ox-softer); border-bottom:1px solid var(--ox-line); display:flex; align-items:center; gap:10px;}
 .rx-tq .dot{width:24px;height:24px;border-radius:50%;background:var(--ox);color:#fff;font-family:var(--mono);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
 .rx-tq .q{font-weight:600; font-size:14px; color:var(--ink);}
@@ -266,7 +305,8 @@ const CSS2 = `
 .rx-syscat{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:600; margin:24px 0 9px; display:flex; align-items:center; gap:9px;}
 .rx-syscat::after{content:""; flex:1; height:1px; background:var(--line);}
 .rx-syscat .ic{color:var(--ox); display:flex;}
-.rx-acc{border:1px solid var(--line); border-radius:11px; overflow:hidden; margin:0 0 8px; background:var(--panel);}
+.rx-acc{border:1px solid var(--line); border-radius:14px 4px 14px 4px; overflow:hidden; margin:0 0 10px; background:var(--panel); box-shadow:var(--shadow-e1); transition:box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);}
+.rx-acc:hover{box-shadow:var(--shadow-e2); border-color:color-mix(in srgb, var(--line) 60%, var(--ox-bright) 40%);}
 .rx-acc[data-open="true"]{border-color:var(--ox-line); box-shadow:0 1px 0 var(--ox-softer);}
 .rx-accbtn{width:100%; display:flex; align-items:center; gap:13px; padding:13px 15px; background:none; border:none; cursor:pointer; text-align:left;}
 .rx-accbtn:hover{background:var(--line3);}

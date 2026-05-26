@@ -12,12 +12,12 @@
   --line:                   #E6E0D8;  /* Default border. */
   --line2:                  #F1ECE5;  /* Subtle border. */
   --line3:                  #FAF7F2;  /* Faintest divider. */
-  --ox:                     #7A1B1E;  /* Primary accent. */
-  --ox-deep:                #5E1416;  /* High-emphasis value text. */
-  --ox-bright:              #9B2D2F;  /* Hover / active. */
-  --ox-soft:                #F7ECEA;  /* Tinted callout bg. */
-  --ox-softer:              #FCF6F5;  /* Faint accent wash. */
-  --ox-line:                #E2C7C4;  /* Accent border. */
+  --ox:                     #1F2937;  /* Primary accent — deep graphite/slate. Reads as 'serious modern editorial' on paper; 12.0:1 contrast. */
+  --ox-deep:                #0B0F14;  /* High-emphasis value text — near-black. */
+  --ox-bright:              #00D4FF;  /* Hover / active / decorative — true neon cyan. Decorative role only (sub-AA on paper). */
+  --ox-soft:                #E5F8FC;  /* Tinted callout bg — soft cyan wash. */
+  --ox-softer:              #F4FBFD;  /* Faint accent wash — barely-perceptible cyan tint. */
+  --ox-line:                #B8E2EE;  /* Accent border — cyan-tinted hairline. */
   --amber:                  #8A5A12;  /* Caution accent. */
   --amber-soft:             #FBF1DF;  /* Caution bg. */
   --amber-line:             #EAD8B4;  /* Caution border. */
@@ -98,10 +98,10 @@
   --mesh-lime-anchor:       rgba(134, 204, 31, 0.10);
   --shadow-drawer:          0 24px 48px -16px rgba(15, 23, 42, 0.35);  /* Lifted-panel shadow under modal drawers. */
   --shadow-e0:              0 1px 0 rgba(15, 23, 42, 0.04);  /* Hairline — barely perceptible separation; chips at rest. */
-  --shadow-e1:              0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);  /* Resting card / option card. */
-  --shadow-e2:              0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.06);  /* Hover-lifted card. */
-  --shadow-e3:              0 12px 24px -6px rgba(15, 23, 42, 0.14), 0 4px 8px rgba(15, 23, 42, 0.07);  /* Focused chip / selected card. */
-  --shadow-glow-ox:         0 0 0 3px rgba(122, 27, 30, 0.18);  /* Soft oxblood glow — primary-CTA focus ring. */
+  --shadow-e1:              0 2px 6px rgba(11, 15, 20, 0.06), 0 1px 2px rgba(11, 15, 20, 0.05);  /* Wave 7 W7-B — lifted from 0.04/0.06 to 0.05/0.06 + 6px blur for visible card presence at rest. */
+  --shadow-e2:              0 8px 20px -4px rgba(11, 15, 20, 0.12), 0 3px 8px rgba(11, 15, 20, 0.08);  /* Wave 7 W7-B — hover-lifted card; visibly raised, with cyan-tint glow added via component-level box-shadow ramp. */
+  --shadow-e3:              0 18px 36px -10px rgba(11, 15, 20, 0.20), 0 6px 12px rgba(11, 15, 20, 0.10);  /* Wave 7 W7-B — focused chip / selected card; dimensional pop. */
+  --shadow-glow-ox:         0 0 0 3px rgba(0, 212, 255, 0.22), 0 0 22px -4px rgba(0, 212, 255, 0.45);  /* Wave 7 W7-B — repointed to neon cyan; carries an outer halo alongside the inner ring for primary-CTA focus. */
   --duration-fast:          120ms;  /* Chip hover, button press, focus ring fade-in. */
   --duration-base:          180ms;  /* Card lift, drawer slide-in, tab switch. */
   --duration-slow:          320ms;  /* Initial-mount reveal, full-screen state changes. */

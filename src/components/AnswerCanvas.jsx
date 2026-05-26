@@ -505,9 +505,14 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           style={{
             display:"inline-flex", alignItems:"center", gap:7,
             fontFamily:"var(--sans)", fontSize:13, fontWeight:600, color:"#fff",
-            background:"var(--ox)", border:"1px solid var(--ox)", borderRadius:9,
-            padding:"10px 16px", cursor:"pointer",
-          }}>
+            background:"linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 220%)",
+            border:"1px solid var(--ox)", borderRadius:"12px 3px 12px 3px",
+            padding:"11px 18px", cursor:"pointer",
+            boxShadow:"0 6px 16px -4px var(--ox-bright), 0 1px 0 rgba(255,255,255,.08) inset",
+            transition:"transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out)",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 10px 28px -6px var(--ox-bright), 0 1px 0 rgba(255,255,255,.12) inset"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 6px 16px -4px var(--ox-bright), 0 1px 0 rgba(255,255,255,.08) inset"; }}>
           {copied ? <><Check size={14}/> Copied</> : <><ListChecks size={14}/> Copy as EHR note</>}
         </button>
         <button type="button" onClick={onEditCase}

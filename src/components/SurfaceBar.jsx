@@ -34,14 +34,15 @@ function _btn({ active, disabled, showSoon, label, hint, Icon, onClick, leading 
         display:"inline-flex", alignItems:"center", gap:6,
         fontFamily:"var(--sans)", fontSize:12.5, fontWeight: active ? 700 : 500,
         color: active ? "#fff" : disabled ? "var(--faint)" : "var(--ink2)",
-        background: active ? "var(--ox)" : "transparent",
+        background: active ? "linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 70%, var(--ox-bright) 240%)" : "transparent",
         border:"1px solid " + (active ? "var(--ox)" : "var(--line)"),
-        borderRadius:7,
-        padding:"5px 11px",
+        borderRadius: leading ? "10px 3px 3px 10px" : "3px 10px 10px 3px",
+        padding:"6px 12px",
         cursor: disabled ? "not-allowed" : "pointer",
         marginLeft: leading ? 0 : -1,
         whiteSpace:"nowrap",
-        transition:"background .12s, color .12s, border-color .12s",
+        boxShadow: active ? "0 4px 14px -4px var(--ox-bright), inset 0 1px 0 rgba(255,255,255,.08)" : "none",
+        transition:"background .18s, color .18s, border-color .18s, box-shadow .18s, transform .18s",
       }}>
       <Icon size={13} aria-hidden /> {label}
       {showSoon && <span style={{
