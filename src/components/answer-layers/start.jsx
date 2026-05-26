@@ -185,7 +185,7 @@ export const startLayer = {
               color: allergy.tone === "ox" ? "var(--ox-deep)" : "var(--amber)",
               lineHeight: 1.55,
             }}>
-              <ShieldAlert size={14} style={{ flex: "0 0 auto", marginTop: 1 }} />
+              <ShieldAlert size={14} aria-hidden style={{ flex: "0 0 auto", marginTop: 1 }} />
               <div><b>{allergy.head}.</b> {allergy.body}</div>
             </div>
           </>

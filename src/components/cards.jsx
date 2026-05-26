@@ -30,7 +30,7 @@ function PatientContextBar({ ctx, d, onClear, onJump }){
   return (
     <div className="rx-ctxbar" role="region" aria-label="Active patient context">
       <div className="rx-wrap rx-ctxbar-inner">
-        <span className="rx-ctxbar-lab"><Activity size={13} /> Patient context</span>
+        <span className="rx-ctxbar-lab"><Activity size={13} aria-hidden /> Patient context</span>
         <span className="rx-ctxchip"><Num>{ctx.age}</Num> y</span>
         <span className="rx-ctxchip"><Num>{ctx.weightKg}</Num> kg</span>
         <span className="rx-ctxchip">SCr <Num>{ctx.scr}</Num></span>
@@ -40,13 +40,13 @@ function PatientContextBar({ ctx, d, onClear, onJump }){
               style={{ ["--bandc"]: band ? band.c : "var(--muted)" }}>
               CrCl <Num>{d.crcl}</Num> mL/min · {band ? band.t.split(" — ")[0] : ""}
             </button>
-          : <button className="rx-ctxchip rx-ctxchip-warn clk" onClick={onJump}><AlertTriangle size={12} /> CrCl unavailable — check inputs</button>}
-        {d.arc && <span className="rx-ctxchip rx-ctxchip-arc"><Zap size={12} /> ARC — risk of underdosing</span>}
+          : <button className="rx-ctxchip rx-ctxchip-warn clk" onClick={onJump}><AlertTriangle size={12} aria-hidden /> CrCl unavailable — check inputs</button>}
+        {d.arc && <span className="rx-ctxchip rx-ctxchip-arc"><Zap size={12} aria-hidden /> ARC — risk of underdosing</span>}
         {risks.length > 0 && <span className="rx-ctxchip rx-ctxchip-risk">{risks.join(" · ")}</span>}
         {ctx.blAllergy !== "none" && <span className="rx-ctxchip rx-ctxchip-risk">{allergyLabel}</span>}
         {ctx.hepatic && ctx.hepatic !== "none" && <span className="rx-ctxchip rx-ctxchip-risk">{ctx.hepatic === "severe" ? "Child-Pugh C" : "Child-Pugh B"}</span>}
         {ctx.hd && <span className="rx-ctxchip rx-ctxchip-risk">on HD</span>}
-        <button className="rx-ctxbar-clear" onClick={onClear} aria-label="Clear patient context"><X size={13} /> Clear</button>
+        <button className="rx-ctxbar-clear" onClick={onClear} aria-label="Clear patient context"><X size={13} aria-hidden /> Clear</button>
       </div>
     </div>
   );

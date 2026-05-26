@@ -85,7 +85,7 @@ function ClassChip({ phrase, onDrug, onOpenMechanism }){
                 onClick={e => { e.stopPropagation(); onDrug && onDrug(name); setOpen(false); }}>
                 <span className={"rx-clspop-rank r-" + rank}>{RANK_LAB[rank] || rank}</span>
                 <span className="rx-clspop-txt"><span className="n">{name.split(" / ")[0]}</span><span className="w">{why}</span></span>
-                <ArrowRight size={13}/>
+                <ArrowRight size={13} aria-hidden/>
               </button>
             ))}
           </span>
@@ -162,7 +162,7 @@ function TermChip({ phrase, onDrug, onOpenMechanism }){
               <ArrowRight size={13}/>
             </button>
           )}
-          {data.see && <span className="rx-gloss-see"><CornerDownRight size={12}/> {data.see}</span>}
+          {data.see && <span className="rx-gloss-see"><CornerDownRight size={12} aria-hidden/> {data.see}</span>}
           <MechanismFooter
             phrase={phrase}
             onOpenMechanism={onOpenMechanism}

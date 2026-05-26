@@ -66,7 +66,7 @@ export const coversLayer = {
                   cursor: "pointer",
                 }}
               >
-                <Bug size={10} /> {o.label}
+                <Bug size={10} aria-hidden /> {o.label}
               </button>
             ))}
           </div>

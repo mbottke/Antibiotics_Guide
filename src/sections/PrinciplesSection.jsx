@@ -800,7 +800,7 @@ function PrinciplesSection({
                     <div className="rx-tbranches">
                       {node.branches.map((br, bi) => (
                         <div className="rx-tbranch" key={bi}>
-                          <span className="rx-tcond"><CornerDownRight size={12}/> {br.cond}</span>
+                          <span className="rx-tcond"><CornerDownRight size={12} aria-hidden style={{ color: "var(--ox-bright, var(--ox))" }}/> {br.cond}</span>
                           <div className="rx-trx">{br.rx}</div>
                           <div className="rx-twhy">{br.why}</div>
                         </div>

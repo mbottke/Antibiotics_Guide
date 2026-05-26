@@ -72,7 +72,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
           border: `1px solid ${selected ? "var(--ox)" : "var(--ox-line)"}`,
           cursor:"pointer", whiteSpace:"nowrap",
         }}>
-        <Bug size={10}/> {o.label}
+        <Bug size={10} aria-hidden/> {o.label}
       </button>
     );
   };
@@ -117,7 +117,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
             textTransform:"uppercase", color:"var(--muted)", fontWeight:600,
             marginBottom:6, display:"flex", alignItems:"center", gap:5,
           }}>
-            <FlaskConical size={11}/> Cultures
+            <FlaskConical size={11} aria-hidden/> Cultures
           </div>
           <div style={{ display:"flex", gap:6, alignItems:"center", flexWrap:"wrap" }}>
             {[["pending","Pending"], ["back","Back"]].map(([k, lab]) => (
@@ -195,7 +195,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
             textTransform:"uppercase", color:"var(--muted)", fontWeight:600,
             marginBottom:6, display:"flex", alignItems:"center", gap:5,
           }}>
-            <Crosshair size={11}/> Clinical status
+            <Crosshair size={11} aria-hidden/> Clinical status
           </div>
           <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
             {clinChip("stable",            "Stable & improving", Check)}
@@ -313,7 +313,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
                         background:"var(--panel)", color:"var(--decision-start)",
                         border:"1px solid var(--decision-start-line)", cursor:"pointer",
                       }}>
-                      <Pill size={9}/> {n}
+                      <Pill size={10} aria-hidden/> {n}
                     </button>
                   ))}
                 </div>

@@ -920,7 +920,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               onClick={copyNote}
               className="rx-cta-ehr rx-shine-sweep"
             >
-              {copied ? <><Check size={14}/> Copied</> : <><ListChecks size={14}/> Copy as EHR note</>}
+              {copied ? <><Check size={14} aria-hidden/> Copied</> : <><ListChecks size={14} aria-hidden/> Copy as EHR note</>}
             </button>
             <button type="button" onClick={onEditCase}
               style={{
@@ -930,7 +930,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                 background:"var(--panel)", border:"1px solid var(--line)", borderRadius:9,
                 padding:"10px 16px", cursor:"pointer",
               }}>
-              <Pencil size={13}/> Edit case
+              <Pencil size={13} aria-hidden/> Edit case
             </button>
           </div>
 
@@ -943,7 +943,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               borderRadius:8, fontSize:11.5, color:"var(--muted)", lineHeight:1.55,
               display:"flex", gap:8, alignItems:"flex-start",
             }}>
-            <ShieldCheck size={13} style={{ flex:"0 0 auto", marginTop:1 }} />
+            <ShieldCheck size={13} aria-hidden style={{ flex:"0 0 auto", marginTop:1, color:"var(--ox-bright, var(--ox))" }} />
             Empiric therapy is a time-limited bridge. Reassess against cultures at 48–72 h and narrow or stop — breadth held longer is harm, not safety. Decision support only; verify every order against the local antibiogram and clinical pharmacy.
           </div>
 
