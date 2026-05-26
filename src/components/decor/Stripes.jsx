@@ -34,6 +34,11 @@ export function Stripes({
   style,
 }) {
   const color = ACCENT[variant] || ACCENT.cyan;
+  /* Bad-prop tolerance — non-finite numeric props fall back to defaults
+     so a downstream typo (NaN, null, string) can't poison the CSS string. */
+  const safeAngle = (typeof angle === "number" && Number.isFinite(angle)) ? angle : 135;
+  const safeWidth = (typeof width === "number" && Number.isFinite(width) && width > 0) ? width : 80;
+  const safeHeight = (typeof height === "number" && Number.isFinite(height) && height > 0) ? height : 40;
   return (
     <div
       aria-hidden="true"
@@ -41,11 +46,11 @@ export function Stripes({
       data-variant={variant}
       className={className}
       style={{
-        width,
-        height,
+        width: safeWidth,
+        height: safeHeight,
         borderRadius: 8,
         pointerEvents: "none",
-        background: `repeating-linear-gradient(${angle}deg, ${color} 0px, ${color} 3px, transparent 3px, transparent 9px)`,
+        background: `repeating-linear-gradient(${safeAngle}deg, ${color} 0px, ${color} 3px, transparent 3px, transparent 9px)`,
         ...style,
       }}
     />

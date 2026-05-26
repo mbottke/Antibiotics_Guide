@@ -86,9 +86,12 @@ export function NotchedBanner({
   ...rest
 }) {
   const v = VARIANT[severity] || VARIANT.info;
-  const clip = notch === NOTCH
+  /* Bad-prop tolerance — non-finite or negative notch falls back to the
+     default so a stray NaN doesn't break the clip-path geometry. */
+  const safeNotch = (typeof notch === "number" && Number.isFinite(notch) && notch >= 0) ? notch : NOTCH;
+  const clip = safeNotch === NOTCH
     ? CLIP_PATH
-    : `polygon(${notch}px 0, 100% 0, 100% calc(100% - ${notch}px), calc(100% - ${notch}px) 100%, 0 100%, 0 ${notch}px)`;
+    : `polygon(${safeNotch}px 0, 100% 0, 100% calc(100% - ${safeNotch}px), calc(100% - ${safeNotch}px) 100%, 0 100%, 0 ${safeNotch}px)`;
 
   return (
     <div

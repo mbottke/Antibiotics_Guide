@@ -26,10 +26,13 @@ export function Sparkle({
   style,
   ...rest
 }) {
+  /* Bad-prop tolerance — non-finite or non-positive size falls back to
+     12 so a stray NaN doesn't render a 0x0 sparkle. */
+  const safeSize = (typeof size === "number" && Number.isFinite(size) && size > 0) ? size : 12;
   return (
     <svg
-      width={size}
-      height={size}
+      width={safeSize}
+      height={safeSize}
       viewBox="0 0 24 24"
       aria-hidden="true"
       focusable="false"
