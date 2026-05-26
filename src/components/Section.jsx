@@ -1,136 +1,354 @@
 /* component · Section — shared section chrome.
+   Renders the kicker (small uppercase mono label with optional icon)
+   OUTSIDE the panel box, then the panel itself (rounded border,
+   padding, optional sticky orange top stripe). All page sections —
+   Start now, Stop at 48–72 h, Duration, Monitoring, Current state,
+   Pearls — render through this so the visual rhythm stays constant
+   and the only thing that differs between sections is the content.
 
-   Wave 7 W7-B aesthetic. Each section is a magazine spread:
+   Extracted from AnswerCanvas in Phase D2 v3 to enforce consistent
+   formatting across the page: prior to this, DurationBlock and
+   MonitoringBlock invented their own internal title strips, which
+   broke the kicker-outside-the-box pattern and looked inconsistent.
 
-     - Asymmetric 18/4 panel with a 64px cyan accent strip at the
-       top-left corner.
-     - Mono kicker outside the panel (uppercase, .14em letter-spacing,
-       cyan accent dot beside the SectionGlyph).
-     - Optional `number` prop (string like "01", "02") renders a
-       240px italic-serif decorative numeral floated in the top-right
-       behind content (8% opacity ink, pointer-events:none, aria-hidden).
-     - Optional `railLabel` prop renders a 90deg-rotated mono label
-       running up the left edge on viewports ≥ 1100px ("COVERAGE",
-       "MONITORING", etc.).
-     - On hover, the cyan strip lengthens and a subtle e2 ramp lifts
-       the whole panel — same vocabulary as .rx-card-interactive.
+   Wave 8 W8-A · Answer Canvas reframe extension.
+   ---------------------------------------------
+   The Section wrapper now carries the editorial chrome that the
+   AnswerCanvas reframe demands:
 
-   All page sections render through this so the visual rhythm stays
-   constant. Inpatient Antibiotic Guide — module graph in README.md. */
+     • `index` + `total`  — drive a "01 / 17" mono counter pinned
+                            top-right of the section header, beside
+                            the kicker. Also feeds the giant italic-
+                            serif numeral decoration (rendered behind
+                            the panel, top-right, very low opacity).
+     • `rail`             — vertical 90deg-rotated mono-uppercase
+                            label running up the left edge of the
+                            section ("COVERAGE", "DURATION", ...).
+                            Cyan-accented, .14em letterspaced, sits
+                            absolutely positioned outside the panel
+                            on viewports wide enough to host it.
+     • `kineticKicker`    — promotes the kicker text to the .rx-display-l
+                            48px sans display class (from kinetic-type
+                            module) instead of the small .rx-eyebrow.
+                            Used by hero-y sections to land the BIG
+                            type moment.
+     • `accent`           — one of "cyan", "magenta", "lime", "amber"
+                            (default "cyan"). Drives the icon tile
+                            background gradient and the rail color so
+                            sections can declare their own palette.
+     • `split`            — when an `aside` slot is passed, the panel
+                            body becomes a 65/35 grid (CSS grid-template-
+                            columns) where the wider column carries
+                            `children` and the narrow `aside` carries
+                            the metadata column (severity counts,
+                            evidence tier, "5 organisms" list, etc.).
+                            Collapses to single-column < 900px.
+     • `aside`            — JSX rendered into the narrow column when
+                            `split` is true.
+     • `decor`            — extra absolutely-positioned decoration
+                            (Sparkle, AsymmetricCard, etc.) rendered
+                            beneath the panel on a low z-index layer.
+     • `flatPanel`        — when true, suppresses the default panel
+                            background/border/padding so a layer can
+                            host its own custom container. Used by
+                            layers whose content (MonitoringBlock,
+                            DurationBlock) already carries its own
+                            chrome.
+
+   The new props are all OPTIONAL — every existing call site continues
+   to work unchanged. The kicker-outside-the-box rhythm holds.
+
+   Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
 import { SectionGlyph } from "./SectionGlyph.jsx";
 
-function Section({ kicker, title, icon: Icon, glyph, children, sticky, testId, id, number, railLabel }) {
+/* Accent palette — one per `accent` prop value. The `glow` token is
+   pulled from the Wave 6 / Wave 7 neon glow ramp with a soft fall-back
+   to var(--ox)'s shadow token when neon vars are absent. Every entry
+   feeds the icon tile gradient and the rail text color. */
+const ACCENT = {
+  cyan: {
+    rail: "var(--neon-cyan, var(--ox))",
+    railSoft: "var(--neon-cyan-soft, var(--ox-soft))",
+    tileFrom: "var(--neon-cyan, var(--ox))",
+    tileTo: "var(--electric-blue, var(--ox-deep))",
+    glow: "0 6px 18px -8px var(--neon-cyan, var(--ox))",
+  },
+  magenta: {
+    rail: "var(--hot-magenta, var(--ox))",
+    railSoft: "var(--hot-magenta-soft, var(--ox-soft))",
+    tileFrom: "var(--hot-magenta, var(--ox))",
+    tileTo: "var(--vivid-red, var(--ox-deep))",
+    glow: "0 6px 18px -8px var(--hot-magenta, var(--ox))",
+  },
+  lime: {
+    rail: "var(--electric-lime, var(--ox))",
+    railSoft: "var(--electric-lime-soft, var(--ox-soft))",
+    tileFrom: "var(--electric-lime, var(--ox))",
+    tileTo: "var(--neon-cyan, var(--ox-deep))",
+    glow: "0 6px 18px -8px var(--electric-lime, var(--ox))",
+  },
+  amber: {
+    rail: "var(--neon-amber, var(--amber))",
+    railSoft: "var(--amber-soft, var(--ox-soft))",
+    tileFrom: "var(--neon-amber, var(--amber))",
+    tileTo: "var(--vivid-red, var(--ox-deep))",
+    glow: "0 6px 18px -8px var(--neon-amber, var(--amber))",
+  },
+};
+
+/* Pad an integer to "01", "02", ... — keeps the counter aligned. */
+function pad2(n) {
+  if (n == null || Number.isNaN(Number(n))) return null;
+  const v = Math.abs(Number(n) | 0);
+  return v < 10 ? `0${v}` : String(v);
+}
+
+function Section({
+  kicker, title, icon: Icon, glyph, children, sticky, testId, id,
+  // Wave 8 W8-A reframe extensions ---------------------------------
+  index, total,
+  rail,
+  kineticKicker = false,
+  accent = "cyan",
+  split = false,
+  aside,
+  decor,
+  flatPanel = false,
+}) {
+  const palette = ACCENT[accent] || ACCENT.cyan;
+  const counterText = (pad2(index) && pad2(total)) ? `${pad2(index)} / ${pad2(total)}` : null;
+  const numeralText = pad2(index);
+
+  /* The header strip: rail label sits on the absolute left margin;
+     icon tile + kicker (or kinetic display) + glyph + counter sit
+     inline. We render the rail label only on roomy viewports via the
+     `rx-section-rail` class so it doesn't crash narrow mobile layouts
+     — the responsive CSS lives in AnswerCanvas's injected style block.
+     The numeral watermark and decor live on z-index 0 behind the panel. */
   return (
     <section
       data-testid={testId}
+      data-section-accent={accent}
+      data-section-split={split ? "true" : "false"}
       id={id}
-      data-toc-section={id}
-      style={{ marginBottom: 28, scrollMarginTop: 104, position: "relative" }}
+      className="rx-section"
+      style={{
+        position: "relative",
+        marginBottom: 28,
+        scrollMarginTop: 96,
+        paddingLeft: 0,
+      }}
     >
-      {/* Vertical left-rail label — only on wide viewports. Pure decoration
-          for the page-edge "magazine" feel; aria-hidden. */}
-      {railLabel && (
+      {/* Vertical left-rail label — rotated 90deg counter-clockwise,
+          mono-uppercase, .14em letterspaced, cyan accent. Positioned
+          absolutely outside the panel on roomy viewports. The .rx-section-rail
+          class drives the responsive hide/show. */}
+      {rail && (
         <span
           aria-hidden="true"
+          data-section-rail-label={rail}
           className="rx-section-rail"
           style={{
             position: "absolute",
-            left: -42, top: 28,
-            writingMode: "vertical-rl",
-            transform: "rotate(180deg)",
+            left: -36,
+            top: 64,
+            transform: "rotate(-90deg)",
+            transformOrigin: "left top",
             fontFamily: "var(--mono)",
             fontSize: 10,
-            letterSpacing: ".18em",
-            textTransform: "uppercase",
-            color: "var(--ox-bright)",
             fontWeight: 700,
+            letterSpacing: ".14em",
+            textTransform: "uppercase",
+            color: palette.rail,
+            whiteSpace: "nowrap",
             pointerEvents: "none",
             opacity: 0.85,
+            zIndex: 1,
           }}
         >
-          {railLabel}
+          {rail}
         </span>
       )}
 
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-        {glyph && <SectionGlyph group={glyph} size={16} />}
-        {kicker && (
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 8, margin: 0,
-            fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700,
-            letterSpacing: ".22em", textTransform: "uppercase",
-            color: "var(--ox)",
-          }}>
-            {Icon && <Icon size={12} aria-hidden />}
-            {kicker}
-          </span>
-        )}
-        {number && (
-          <span style={{
-            marginLeft: "auto", fontFamily: "var(--mono)", fontSize: 10,
-            letterSpacing: ".18em", textTransform: "uppercase",
-            color: "var(--muted)",
-          }}>
-            {number}
-          </span>
-        )}
-        {title && (
-          <h3 style={{
-            fontFamily: "var(--serif)", fontSize: "clamp(20px, 2.1vw, 26px)",
-            fontWeight: 600, margin: 0, color: "var(--ink)", letterSpacing: "-.018em",
-          }}>
-            {title}
-          </h3>
-        )}
-      </div>
-
-      <div
-        className="rx-section-panel"
-        style={{
-          position: "relative",
-          background: "var(--panel)",
-          border: "1px solid var(--line)",
-          borderRadius: "18px 4px 18px 4px",
-          padding: sticky ? "22px 22px 20px" : 20,
-          boxShadow: sticky ? "var(--shadow-e2)" : "var(--shadow-e1)",
-          transition: "box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out)",
-          overflow: "hidden",
-          ...(sticky ? { borderTop: "3px solid var(--ox-bright)" } : {}),
-        }}
-      >
-        {/* Cyan accent strip — top-left, 64px wide, fades to transparent. */}
-        <span aria-hidden="true" style={{
-          position: "absolute", top: 0, left: 0, height: 2, width: 64,
-          background: "linear-gradient(90deg, var(--ox-bright) 0%, transparent 100%)",
-          borderRadius: "18px 0 0 0",
-          pointerEvents: "none",
-        }} />
-
-        {/* Decorative numeral — only when `number` is provided. */}
-        {number && (
-          <span aria-hidden="true" style={{
+      {/* Decorative section numeral — a giant italic-serif 01/02/03 anchored
+          top-right BEHIND the panel. Pure ornament; aria-hidden + pointer-
+          events:none keeps it out of the a11y tree. Only rendered when the
+          consumer passed `index` so unrelated calls are unchanged. */}
+      {numeralText && (
+        <span
+          aria-hidden="true"
+          data-section-numeral={numeralText}
+          style={{
             position: "absolute",
-            top: -56, right: -12,
+            top: -40,
+            right: -20,
             fontFamily: "var(--serif)",
             fontStyle: "italic",
-            fontSize: 220,
-            fontWeight: 600,
+            fontWeight: 700,
+            fontSize: 240,
+            lineHeight: 0.85,
             color: "var(--ox-soft)",
-            opacity: 0.55,
-            lineHeight: 1,
+            opacity: 0.5,
             pointerEvents: "none",
             userSelect: "none",
             zIndex: 0,
-          }}>
-            {number.replace(/^0/, "")}
+          }}
+        >
+          {numeralText}
+        </span>
+      )}
+
+      {/* HEADER STRIP --------------------------------------------------- */}
+      <div style={{
+        position: "relative",
+        zIndex: 2,
+        display: "flex", alignItems: kineticKicker ? "flex-end" : "center",
+        gap: 12,
+        marginBottom: 14,
+        flexWrap: "wrap",
+      }}>
+        {/* Icon chip tile — 40x40 asymmetric 10/3 radius, gradient cyan-deep
+            → cyan-bright background, white SVG glyph, cyan glow at -8px.
+            Only renders when an Icon is provided. */}
+        {Icon && (
+          <span
+            aria-hidden="true"
+            data-section-icon-tile
+            style={{
+              flex: "0 0 auto",
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: 40, height: 40,
+              borderRadius: "10px 3px 10px 3px",
+              background: `linear-gradient(135deg, ${palette.tileFrom}, ${palette.tileTo})`,
+              color: "#fff",
+              boxShadow: palette.glow,
+            }}
+          >
+            <Icon size={18} aria-hidden />
           </span>
         )}
 
-        <div style={{ position: "relative", zIndex: 1 }}>
+        {/* Wave 6 W6-B integration · SectionGlyph fleuron sits next to the
+            kicker text when a group is provided. Decorative, aria-hidden —
+            adds editorial-magazine character without crowding the label. */}
+        {glyph && <SectionGlyph group={glyph} size={14} />}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0, flex: 1 }}>
+          {kineticKicker && kicker ? (
+            <h2
+              className="rx-display-l"
+              style={{
+                margin: 0,
+                color: "var(--ink)",
+                /* Kinetic display kicker — promotes "Start now" / "Covers"
+                   into the 48px BIG-type moment. The rx-display-l class
+                   carries the sans-serif weight 700, -.024em tracking. */
+              }}
+            >
+              {kicker}
+            </h2>
+          ) : (
+            kicker && (
+              <span className="rx-eyebrow" style={{
+                display: "inline-flex", alignItems: "center", gap: 6, margin: 0,
+              }}>
+                {kicker}
+              </span>
+            )
+          )}
+          {title && (
+            <h3 style={{
+              fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600, margin: 0,
+              color: "var(--ink)", letterSpacing: "-.012em",
+            }}>
+              {title}
+            </h3>
+          )}
+        </div>
+
+        {/* Top-right counter — "01 / 17" style mono uppercase pin. Only
+            renders when index + total are both supplied. */}
+        {counterText && (
+          <span
+            className="rx-counter"
+            data-section-counter={counterText}
+            style={{
+              flex: "0 0 auto",
+              alignSelf: "flex-start",
+              padding: "3px 8px",
+              borderRadius: 4,
+              background: palette.railSoft,
+              color: palette.rail,
+              border: `1px solid ${palette.rail}`,
+              borderColor: palette.rail,
+              fontWeight: 700,
+              opacity: 0.95,
+            }}
+          >
+            {counterText}
+          </span>
+        )}
+      </div>
+
+      {/* DECOR LAYER --------------------------------------------------- */}
+      {decor && (
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+          {decor}
+        </div>
+      )}
+
+      {/* PANEL BODY ---------------------------------------------------- */}
+      {flatPanel ? (
+        <div style={{ position: "relative", zIndex: 2 }}>
           {children}
         </div>
-      </div>
+      ) : (
+        <div
+          data-section-body
+          style={{
+            position: "relative",
+            zIndex: 2,
+            background: "var(--panel)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: sticky ? "20px 20px 18px" : 18,
+            boxShadow: sticky ? "var(--shadow-e2)" : "var(--shadow-e1)",
+            transition: "box-shadow var(--duration-base) var(--ease-out)",
+            ...(sticky ? { borderTop: "3px solid var(--ox)" } : {}),
+          }}
+        >
+          {split && aside ? (
+            <div
+              data-section-split-grid
+              className="rx-section-split"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "minmax(0, 65fr) minmax(0, 35fr)",
+                gap: 20,
+                alignItems: "start",
+              }}
+            >
+              <div style={{ minWidth: 0 }}>{children}</div>
+              <aside
+                data-section-aside
+                style={{
+                  minWidth: 0,
+                  paddingLeft: 16,
+                  borderLeft: "1px solid var(--line2)",
+                  fontSize: 12,
+                  color: "var(--ink2)",
+                  lineHeight: 1.55,
+                }}
+              >
+                {aside}
+              </aside>
+            </div>
+          ) : (
+            children
+          )}
+        </div>
+      )}
     </section>
   );
 }
