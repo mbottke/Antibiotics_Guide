@@ -385,7 +385,7 @@ function titleCaseFirst(s) {
    members ship safely without code changes. */
 const BETA_LACTAM_RX = /\b(?:penicillin|amoxicillin|ampicillin|dicloxacillin|oxacillin|nafcillin|piperacillin|amp-?sulbactam|amox-?clav|augmentin|pip-?tazo|pip-?taz|cef\w+|carbapenem|meropenem|imipenem|ertapenem|doripenem|β-?lactam|cephalosporin|cephamycin)\b/i;
 
-function OptionCard({ option, selected, primary, onSelect, renderText, accent, content, ctx, d, synId }) {
+function OptionCard({ option, selected, primary, onSelect, renderText, accent, content, ctx, d, synId, tierId }) {
   const accentColor = accent === "add" ? "var(--amber)" : "var(--ox)";
   const accentSoft  = accent === "add" ? "var(--amber-soft)" : "var(--ox-soft)";
   const accentLine  = accent === "add" ? "var(--amber-line)" : "var(--ox-line)";
@@ -415,6 +415,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
       role="radio"
       aria-checked={selected}
       aria-describedby={showAllergyBanner ? `allergy-warn-${synId}-${option.text.slice(0,20).replace(/\W+/g,"-")}` : undefined}
+      data-tier-id={tierId != null ? String(tierId) : undefined}
       onClick={onSelect}
       /* Wave 10 — rx-focus-halo lifts keyboard-focus ring to the same depth
          cyan halo used by all interactive inputs across the canvas, plus
@@ -648,7 +649,15 @@ function RegimenOptions({ rx, accent = "core", renderText, synId, tierLabel, ctx
             content={contentFor(opt.text)}
             ctx={ctx}
             d={d}
-            synId={synId} />
+            synId={synId}
+            /* Wave 12 · CH5 — `data-tier-id` lets the global :has()
+               rule in choreography.js co-spotlight any aside item
+               that carries the matching `data-tier-target`. Display
+               index (1..n) is stable per render-position so e.g.
+               coverage chips marked data-tier-target="1" brighten
+               when the user hovers tier-1. Pure decorative wiring;
+               unsupported browsers (no :has) silently skip. */
+            tierId={displayIdx + 1} />
         ))}
       </div>
     </div>

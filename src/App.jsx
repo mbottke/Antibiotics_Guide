@@ -15,6 +15,7 @@ import { CSS, CSS2, CSS3, CSS4, CSS5, CSS_W10 } from "./styles/app-styles";
 import { KINETIC } from "./styles/kinetic-type";
 import { MICRO } from "./styles/microinteractions";
 import { GLASS } from "./styles/glass";
+import { CHOREOGRAPHY } from "./styles/choreography";
 import { PatientContextBar, DrugCard, OrgCard, RegimenCard, TrialCard, RapidDxTimeout, IVtoPO, MrsaCell, CmpCell, SpectrumCompare } from "./components/cards";
 import { ClassChip, TermChip, renderRx, renderGloss, renderRich } from "./components/rich-text";
 import { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer } from "./components/primitives";
@@ -416,6 +417,290 @@ export default function InpatientAbxGuide() {
     };
   }, []);
 
+  /* ====================================================================
+     WAVE 12 · AMBIENT RESPONSE CHOREOGRAPHY
+     ====================================================================
+     Six (+ one cursor-trail) ambient moves that extend the Wave 9–11
+     cursor-spotlight + mesh-blob vocabulary into the relationships
+     *between* elements. Every move is gated by `prefers-reduced-motion`
+     and (where it matters) `pointer: coarse` — the listeners short-
+     circuit on those configurations so attributes never get written.
+     The CSS counterparts live in `src/styles/choreography.js`. */
+
+  /* ---- CH1 · Focus-mode dimming on sibling .rx-card-interactive ----
+     Delegated mouseover/mouseout listener walks `closest(".rx-card-
+     interactive")` and toggles `data-focus-dim="sibling"` on the
+     hovered card's same-parent siblings that are also interactive
+     cards. The CSS in choreography.js ducks their opacity + saturation
+     so the hovered surface "pops" by contrast — no scale, no shift,
+     just visual focus. Reduced-motion / coarse-pointer short-circuit. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    if(window.matchMedia("(pointer: coarse)").matches) return undefined;
+    let dimmedSet = [];
+    const clearAll = () => {
+      for(let i = 0; i < dimmedSet.length; i++){
+        dimmedSet[i].removeAttribute("data-focus-dim");
+      }
+      dimmedSet = [];
+    };
+    const onOver = (e) => {
+      const t = e.target;
+      if(!t || typeof t.closest !== "function") return;
+      const card = t.closest(".rx-card-interactive");
+      if(!card){
+        clearAll();
+        return;
+      }
+      const parent = card.parentElement;
+      if(!parent){ clearAll(); return; }
+      // Collect same-tier interactive siblings only.
+      const siblings = parent.querySelectorAll(":scope > .rx-card-interactive");
+      // If the hovered card matches an already-active set, no churn.
+      let needsUpdate = false;
+      if(dimmedSet.length !== siblings.length - 1) needsUpdate = true;
+      else {
+        for(let i = 0; i < dimmedSet.length; i++){
+          if(dimmedSet[i] === card){ needsUpdate = true; break; }
+        }
+      }
+      if(!needsUpdate) return;
+      clearAll();
+      for(let i = 0; i < siblings.length; i++){
+        const s = siblings[i];
+        if(s === card) continue;
+        s.setAttribute("data-focus-dim", "sibling");
+        dimmedSet.push(s);
+      }
+    };
+    const onOut = (e) => {
+      const to = e.relatedTarget;
+      if(!to || typeof to.closest !== "function" || !to.closest(".rx-card-interactive")){
+        clearAll();
+      }
+    };
+    document.addEventListener("mouseover", onOver, { passive: true });
+    document.addEventListener("mouseout", onOut, { passive: true });
+    return () => {
+      document.removeEventListener("mouseover", onOver);
+      document.removeEventListener("mouseout", onOut);
+      clearAll();
+    };
+  }, []);
+
+  /* ---- CH3 · Scene-break pulse on section-arrival via scroll ----
+     A single scroll listener (rAF-coalesced) checks every .rx-section
+     against the viewport. The first time a section's top crosses an
+     entry line ~30% down the viewport, the section gets
+     `data-just-entered="true"` for 700ms — the SectionArtwork in the
+     corner pulses cyan via the CH3 keyframe. One-shot per section per
+     page-load. Gated by reduced-motion. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const entered = new WeakSet();
+    let rafId = 0;
+    let pending = false;
+    const tick = () => {
+      rafId = 0;
+      pending = false;
+      const sections = document.querySelectorAll(".rx-section");
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      const line = vh * 0.30;
+      for(let i = 0; i < sections.length; i++){
+        const sec = sections[i];
+        if(entered.has(sec)) continue;
+        const r = sec.getBoundingClientRect();
+        // Top edge has crossed the entry line, AND section is still in view.
+        if(r.top <= line && r.bottom > 0){
+          entered.add(sec);
+          sec.setAttribute("data-just-entered", "true");
+          // Clear after one pulse cycle.
+          window.setTimeout(() => {
+            sec.removeAttribute("data-just-entered");
+          }, 700);
+        }
+      }
+    };
+    const onScroll = () => {
+      if(pending) return;
+      pending = true;
+      rafId = window.requestAnimationFrame(tick);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    // Also run once on mount so above-the-fold sections settle without a pulse
+    // (they're added to the entered set silently — no flash).
+    const sections = document.querySelectorAll(".rx-section");
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    for(let i = 0; i < sections.length; i++){
+      const r = sections[i].getBoundingClientRect();
+      if(r.top < vh * 0.30) entered.add(sections[i]);
+    }
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if(rafId) window.cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  /* ---- CH4 · Idle-state ambient glow + CH7 · CTA cursor-trail ----
+     One mousemove listener serves both behaviors:
+       · CH4 toggles `<html data-user-idle="true">` after 8s of
+         stillness. CSS intensifies mesh-blob opacity + saturation.
+         Removed instantly on next mousemove.
+       · CH7 paints a soft cyan trail on any .rx-chrome-cta whose
+         center is within 80px of the cursor — writes --trail-x,
+         --trail-y, --trail-alpha as CSS custom properties on the
+         button, and toggles data-trail-active so the ::before layer
+         lights up. Both moves are rAF-coalesced into a single frame.
+     Gated by reduced-motion + coarse-pointer. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    if(window.matchMedia("(pointer: coarse)").matches) return undefined;
+    const IDLE_MS = 8000;
+    const TRAIL_RANGE = 80;
+    const root = document.documentElement;
+    let idleTimer = 0;
+    let trailActive = []; // CTAs currently lit
+    let rafId = 0;
+    let pendingEv = null;
+    const clearTrails = () => {
+      for(let i = 0; i < trailActive.length; i++){
+        const el = trailActive[i];
+        el.removeAttribute("data-trail-active");
+        el.style.removeProperty("--trail-x");
+        el.style.removeProperty("--trail-y");
+        el.style.removeProperty("--trail-alpha");
+      }
+      trailActive = [];
+    };
+    const apply = () => {
+      rafId = 0;
+      const e = pendingEv;
+      pendingEv = null;
+      if(!e) return;
+      // CH7 — recompute CTA trail every frame the mouse moves.
+      const ctas = document.querySelectorAll(".rx-chrome-cta");
+      const nextActive = [];
+      for(let i = 0; i < ctas.length; i++){
+        const el = ctas[i];
+        const r = el.getBoundingClientRect();
+        if(r.width === 0 || r.height === 0) continue;
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        // Quick reject — bounding-box-expanded test before sqrt.
+        if(Math.abs(dx) > r.width / 2 + TRAIL_RANGE) { if(el.hasAttribute("data-trail-active")){ el.removeAttribute("data-trail-active"); el.style.removeProperty("--trail-alpha"); } continue; }
+        if(Math.abs(dy) > r.height / 2 + TRAIL_RANGE){ if(el.hasAttribute("data-trail-active")){ el.removeAttribute("data-trail-active"); el.style.removeProperty("--trail-alpha"); } continue; }
+        // Distance to the CTA's edge — approximate via center distance
+        // minus half-diagonal. Negative inside CTA → full alpha.
+        const dist = Math.hypot(dx, dy);
+        const half = Math.hypot(r.width, r.height) / 2;
+        const edge = Math.max(0, dist - half);
+        if(edge > TRAIL_RANGE){
+          if(el.hasAttribute("data-trail-active")){
+            el.removeAttribute("data-trail-active");
+            el.style.removeProperty("--trail-alpha");
+          }
+          continue;
+        }
+        const alpha = (TRAIL_RANGE - edge) / TRAIL_RANGE; // 0..1
+        // Local coords inside the button for the radial origin.
+        const lx = e.clientX - r.left;
+        const ly = e.clientY - r.top;
+        el.style.setProperty("--trail-x", lx + "px");
+        el.style.setProperty("--trail-y", ly + "px");
+        el.style.setProperty("--trail-alpha", alpha.toFixed(3));
+        if(!el.hasAttribute("data-trail-active")) el.setAttribute("data-trail-active", "true");
+        nextActive.push(el);
+      }
+      trailActive = nextActive;
+    };
+    const onMove = (e) => {
+      // CH4 — any movement wakes the surface.
+      if(root.getAttribute("data-user-idle") === "true"){
+        root.removeAttribute("data-user-idle");
+      }
+      if(idleTimer) window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(() => {
+        root.setAttribute("data-user-idle", "true");
+      }, IDLE_MS);
+      // CH7 — schedule a single rAF to update trails.
+      pendingEv = e;
+      if(rafId) return;
+      rafId = window.requestAnimationFrame(apply);
+    };
+    const onLeave = () => {
+      clearTrails();
+    };
+    document.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseleave", onLeave, { passive: true });
+    // Start idle countdown immediately so the surface drifts into the idle
+    // state even if the user never moves the cursor on first load.
+    idleTimer = window.setTimeout(() => {
+      root.setAttribute("data-user-idle", "true");
+    }, IDLE_MS);
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
+      if(idleTimer) window.clearTimeout(idleTimer);
+      if(rafId) window.cancelAnimationFrame(rafId);
+      root.removeAttribute("data-user-idle");
+      clearTrails();
+    };
+  }, []);
+
+  /* ---- CH6 · Section-arrival drift on smooth-scroll target ----
+     A delegated click listener watches anchor links (#section-id) and
+     buttons carrying [data-w12-scroll-target]. When fired, it locates
+     the destination .rx-section (either by id or data-toc-section) and
+     stamps `data-just-arrived="true"` for 1200ms — the CSS in
+     choreography.js drives the MeshWash blobs through a 1.2s arrival
+     drift animation before settling. Reduced-motion short-circuits. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const arrive = (target) => {
+      if(!target) return;
+      const sec = target.classList && target.classList.contains("rx-section")
+        ? target
+        : (target.closest && target.closest(".rx-section"));
+      if(!sec) return;
+      sec.setAttribute("data-just-arrived", "true");
+      window.setTimeout(() => sec.removeAttribute("data-just-arrived"), 1200);
+    };
+    const resolveByHrefOrAttr = (el) => {
+      // Explicit data-w12-scroll-target="<id>"
+      const attr = el.getAttribute && el.getAttribute("data-w12-scroll-target");
+      if(attr){
+        return document.getElementById(attr)
+          || document.querySelector('[data-toc-section="' + attr + '"]');
+      }
+      // Hash anchor #id
+      const href = el.getAttribute && el.getAttribute("href");
+      if(href && href.startsWith("#") && href.length > 1){
+        const id = href.slice(1);
+        return document.getElementById(id)
+          || document.querySelector('[data-toc-section="' + id + '"]');
+      }
+      return null;
+    };
+    const onClick = (e) => {
+      const t = e.target;
+      if(!t || typeof t.closest !== "function") return;
+      // MiniTOC / spine chips dispatch through anchor or data-attr;
+      // we don't preventDefault — the existing scroll handler runs.
+      const trigger = t.closest("a[href^='#'], [data-w12-scroll-target]");
+      if(!trigger) return;
+      const dest = resolveByHrefOrAttr(trigger);
+      if(dest) arrive(dest);
+    };
+    document.addEventListener("click", onClick, { passive: true });
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   /* ---- derived patient quantities: one transform, memoized ---- */
   const d = useMemo(() => deriveCtx(ctx), [ctx]);
   const crcl = d.crcl, crclBand = d.crclBand;
@@ -561,7 +846,7 @@ export default function InpatientAbxGuide() {
        inpatient + decide      → BedsideShell (Phase A/B)
        outpatient + anything   → OutpatientShell placeholder
        inpatient + reference   → the existing classic UI (falls through) */
-  const styleTag = <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS + CSS_W10}</style>;
+  const styleTag = <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS + CSS_W10 + CHOREOGRAPHY}</style>;
   const bar = (
     <SurfaceBar
       surface={surface}
@@ -850,7 +1135,7 @@ export default function InpatientAbxGuide() {
   /* ============ RETURN — inpatient + reference (the classic 11-tab UI) === */
   return (
     <div className="rx-root">
-      <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS + CSS_W10}</style>
+      <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS + CSS_W10 + CHOREOGRAPHY}</style>
 
       <GlobalScrollProgress />
       {bar}

@@ -67,9 +67,10 @@
    to work unchanged. The kicker-outside-the-box rhythm holds.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React from "react";
+import React, { useRef } from "react";
 import { SectionGlyph } from "./SectionGlyph.jsx";
 import { SectionArtwork } from "./decor/SectionArtwork.jsx";
+import { useRevealOnScroll } from "./util/useRevealOnScroll.js";
 
 /* Accent palette — one per `accent` prop value. The `glow` token is
    pulled from the Wave 6 / Wave 7 neon glow ramp with a soft fall-back
@@ -133,6 +134,16 @@ function Section({
   const palette = ACCENT[accent] || ACCENT.cyan;
   const counterText = (pad2(index) && pad2(total)) ? `${pad2(index)} / ${pad2(total)}` : null;
 
+  /* Wave 12 · CH2 — scroll-into-view reveal cascade. The hook attaches
+     an IntersectionObserver to the section root; the first time the
+     section enters the viewport it sets data-revealed="true" and the
+     CSS in src/styles/choreography.js animates the section's direct
+     interactive children (rx-card / rx-acc / rx-tnode / rx-step) with
+     a 60ms stagger. One-shot per page-load (the observer disconnects
+     after firing). Gated by prefers-reduced-motion at the hook level. */
+  const sectionRef = useRef(null);
+  useRevealOnScroll(sectionRef);
+
   /* The header strip: rail label sits on the absolute left margin;
      icon tile + kicker (or kinetic display) + glyph + counter sit
      inline. We render the rail label only on roomy viewports via the
@@ -141,6 +152,7 @@ function Section({
      The numeral watermark and decor live on z-index 0 behind the panel. */
   return (
     <section
+      ref={sectionRef}
       data-testid={testId}
       data-section-accent={accent}
       data-section-split={split ? "true" : "false"}
