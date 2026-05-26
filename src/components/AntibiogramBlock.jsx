@@ -63,6 +63,15 @@ function FlagChip({ flag, size = "md" }) {
   const Icon = sty.Icon;
   const pad = size === "sm" ? "1px 5px" : "2px 7px";
   const fs = size === "sm" ? 8.5 : 9;
+  /* W10 · escalating tiers pick up a tinted outer halo so the severity
+     ladder reads as three deliberate glow levels rather than three flat
+     colored chips. "OK" / "N/A" stay flat — promoting them with halos
+     would dilute the "this is critical" signal the red glow carries. */
+  const halo = flag === "poor"
+    ? "0 0 10px -2px color-mix(in srgb, " + sty.color + " 65%, transparent)"
+    : flag === "borderline"
+    ? "0 0 8px -2px color-mix(in srgb, " + sty.color + " 50%, transparent)"
+    : "none";
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 3,
@@ -70,6 +79,7 @@ function FlagChip({ flag, size = "md" }) {
       color: "#fff", background: sty.color,
       padding: pad, borderRadius: 3, letterSpacing: ".06em",
       whiteSpace: "nowrap",
+      boxShadow: halo,
     }}>
       <Icon size={size === "sm" ? 8 : 9} aria-hidden /> {sty.label}
     </span>

@@ -7,6 +7,7 @@ import { ORG_BY_ID } from "../data/organisms.js";
 import { SRC_CONTROL } from "../data/syndromes.js";
 import { childPugh, childPughComponentPoints, doseAdjustments } from "../engines/dosing.js";
 import { CP_COMPONENTS, _ADJ_META } from "../data/dosing.js";
+import { Sparkle } from "./decor/Sparkle.jsx";
 
 /* DoseAdjustBar — renders the triggered adjustments for one rx line beneath the
    verbatim prose. Silent when nothing is triggered. Agent names open monographs. */
@@ -39,12 +40,16 @@ function DoseAdjustBar({ rx, ctx, d, onDrug, synId }){
 
 /* Outer Glyph removed — it was unused; the Spectrum module defines its own. */
 
-function BugTag({ id, onClick }) {
+function BugTag({ id, onClick, doc }) {
   const o = ORG_BY_ID[id];
   if (!o) return null;            /* graceful for users; the integrity check warns at author time */
+  /* W10 · adopt .rx-glow-lift on the asymmetric organism chip for the
+     spring-style hover + cyan glow trail. The `doc` prop opts the chip
+     into a drug-of-choice marker (small Sparkle in neon-cyan) sat
+     directly before the label — used by tier-1 / DoC rows. */
   return (
-    <button className="rx-tag t-neutral clk" onClick={() => onClick && onClick(id)} title={"Open the organism card"}>
-      <Bug size={11} /> {o.label}
+    <button className="rx-tag t-neutral clk rx-glow-lift" onClick={() => onClick && onClick(id)} title={"Open the organism card"}>
+      <Bug size={11} /> {doc ? <Sparkle size={11} color="var(--neon-cyan, var(--ox))" style={{ marginRight: 1 }} /> : null}{o.label}
     </button>
   );
 }
@@ -55,12 +60,23 @@ function BugTag({ id, onClick }) {
 function Cite({ id, onClick }) {
   const g = GUIDELINES[id];
   if (!g) return null;
-  const label = g.year ? `${g.body} \u2019${String(g.year).slice(2)}` : g.body;
+  /* W10 \u00b7 split the year into its own italic-serif tabular-numeric span
+     in neon-cyan so the publication body and year scan as two distinct
+     fields. Inline style so it doesn't depend on a stylesheet edit. */
   return (
     <span className={"rx-cite" + (onClick ? " cl" : "")}
       title={`${g.body}${g.year ? " " + g.year : ""} \u2014 ${g.title}`}
       onClick={onClick ? () => onClick(id) : undefined}>
-      {label}
+      {g.body}
+      {g.year && (
+        <span style={{
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
+          fontVariantNumeric: "tabular-nums",
+          color: "var(--neon-cyan, var(--ox-bright, var(--ox)))",
+          marginLeft: 4,
+        }}>{"\u2019" + String(g.year).slice(2)}</span>
+      )}
     </span>
   );
 }
@@ -68,6 +84,23 @@ function Cite({ id, onClick }) {
 function Ev({ kind }) {
   const map = { rct:["ev-rct","RCT"], guide:["ev-guide","Guideline"], obs:["ev-obs","Observational"] };
   const [c, t] = map[kind] || map.guide;
+  /* W10 · promote highest-tier evidence (RCT) with an inline chrome
+     gradient (ox-deep → ox-bright) + cyan-tinted border + outer halo,
+     so the strongest evidence visually outranks guideline /
+     observational. Lower tiers keep the existing flat palette. */
+  if (kind === "rct") {
+    return (
+      <span className={"rx-ev " + c}
+        style={{
+          color: "#fff",
+          background: "linear-gradient(135deg, var(--ox-deep, var(--ox)) 0%, var(--ox-bright, var(--ox)) 100%)",
+          border: "1px solid color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 45%, transparent)",
+          boxShadow: "0 0 10px -3px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 55%, transparent)",
+        }}>
+        <span className="dot" style={{ background: "#fff" }} />{t}
+      </span>
+    );
+  }
   return <span className={"rx-ev " + c}><span className="dot" />{t}</span>;
 }
 
@@ -205,10 +238,24 @@ function ChildPughScorer({ cp, onField, hepatic }){
   );
 }
 
-/* ---- matrix cell primitives (penetration / safety) ---- */
-const PDot = ({ lv }) => { const m={good:"d-good",mod:"d-mod",poor:"d-poor",var:"d-var",na:"d-na"}; return <span className={"rx-dot "+(m[lv]||"d-poor")} aria-label={lv} title={({good:"good penetration",mod:"moderate",poor:"poor / inadequate",var:"variable",na:"not applicable"})[lv]} />; };
+/* ---- matrix cell primitives (penetration / safety) ----
+   W10 · the existing .rx-dot / .tox-d glyphs are kept as the structural
+   shape; the neon light-ring utility (cyan/amber/red) is layered as a
+   second className so the dot reads as a glowing neon ring at the
+   matrix scale. Each variant maps to a severity tier:
+     PDot:   good→cyan, mod/var→amber, poor→red, na→(no ring)
+     ToxDot: hi→red, mod→amber, lo→cyan
+   `na` and the empty ToxDot ("·") keep their muted treatment so absence
+   of data doesn't pretend to be a status. */
+const _PDOT_RING = { good: "rx-light-ring-cyan", mod: "rx-light-ring-amber", var: "rx-light-ring-amber", poor: "rx-light-ring-red" };
+const PDot = ({ lv }) => {
+  const m={good:"d-good",mod:"d-mod",poor:"d-poor",var:"d-var",na:"d-na"};
+  const ring = _PDOT_RING[lv];
+  return <span className={"rx-dot "+(m[lv]||"d-poor")+(ring ? " " + ring : "")} aria-label={lv} title={({good:"good penetration",mod:"moderate",poor:"poor / inadequate",var:"variable",na:"not applicable"})[lv]} />;
+};
 
-const ToxDot = ({ lv }) => lv ? <span className={"tox-d "+(lv==="hi"?"tx-hi":lv==="mod"?"tx-mod":"tx-lo")} title={({hi:"notable / boxed concern",mod:"moderate",lo:"low / class-typical"})[lv]} /> : <span className="tx-dot-txt">&middot;</span>;
+const _TOXDOT_RING = { hi: "rx-light-ring-red", mod: "rx-light-ring-amber", lo: "rx-light-ring-cyan" };
+const ToxDot = ({ lv }) => lv ? <span className={"tox-d "+(lv==="hi"?"tx-hi":lv==="mod"?"tx-mod":"tx-lo")+" "+(_TOXDOT_RING[lv]||"")} title={({hi:"notable / boxed concern",mod:"moderate",lo:"low / class-typical"})[lv]} /> : <span className="tx-dot-txt">&middot;</span>;
 
 /* DecisionTag — semantic decision-channel chip for the Bedside answer canvas.
    Four states aligned to the --decision-* tokens: start (green, go as written),
@@ -264,8 +311,13 @@ function CardCopyButton({ syn }){
     try { (navigator.clipboard && navigator.clipboard.writeText) ? navigator.clipboard.writeText(build()).then(done, done) : done(); }
     catch(e){ done(); }
   };
+  /* W10 · adopt .rx-shine-sweep + .rx-magnetic on the copy affordance
+     so the chrome pill sweeps a diagonal sheen on hover and reads as a
+     first-class CTA. The existing .rx-cardcopy class keeps the
+     layout/typography contract; the additive classes are the only
+     visual change so light/dark variants stay consistent. */
   return (
-    <button className="rx-cardcopy" onClick={onCopy} title="Copy this card as a plain-text note">
+    <button className="rx-cardcopy rx-shine-sweep rx-magnetic" onClick={onCopy} title="Copy this card as a plain-text note">
       {copied ? <><Check size={13}/> Copied</> : <><ListChecks size={13}/> Copy as note</>}
     </button>
   );
