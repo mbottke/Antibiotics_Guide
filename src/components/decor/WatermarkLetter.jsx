@@ -45,10 +45,15 @@ export function WatermarkLetter({
 }) {
   const pos = POS[position] || POS["top-right"];
   const ref = useRef(null);
+  /* Bad-prop tolerance — non-finite size/opacity/parallax fall back to
+     defaults so a downstream typo (NaN, null) can't break layout. */
+  const safeSize = (typeof size === "number" && Number.isFinite(size) && size > 0) ? size : 240;
+  const safeOpacity = (typeof opacity === "number" && Number.isFinite(opacity)) ? opacity : 0.08;
+  const safeParallax = (typeof parallax === "number" && Number.isFinite(parallax)) ? parallax : 0.2;
   // Wave 9 · z-axis parallax. Watermark drifts opposite to scroll for an
   // editorial depth effect. parallax=0 disables. Reduced-motion no-ops in
   // the hook itself.
-  useParallaxScroll(ref, { speed: parallax });
+  useParallaxScroll(ref, { speed: safeParallax });
   return (
     <span
       ref={ref}
@@ -62,10 +67,10 @@ export function WatermarkLetter({
         fontFamily: "var(--serif)",
         fontStyle: "italic",
         fontWeight: 700,
-        fontSize: size,
+        fontSize: safeSize,
         lineHeight: 1,
         color,
-        opacity,
+        opacity: safeOpacity,
         pointerEvents: "none",
         userSelect: "none",
         ...style,
