@@ -65,7 +65,7 @@ function SiteCard({ site }) {
           {site.site}
         </div>
         {site.description && (
-          <div style={{ fontSize: 11, color: "var(--ink2)", marginTop: 2, fontStyle: "italic", lineHeight: 1.4 }}>
+          <div style={{ fontSize: 11, color: "var(--ink2)", marginTop: 2, fontStyle: "italic", lineHeight: 1.5 }}>
             {site.description}
           </div>
         )}

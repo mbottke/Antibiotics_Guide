@@ -138,7 +138,6 @@ export function NotchedBanner({
         <div style={{ minWidth: 0, flex: 1 }}>
           {label && (
             <div style={{
-              fontFamily: "var(--sans)",
               fontSize: 13,
               fontWeight: 700,
               lineHeight: 1.3,

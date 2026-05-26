@@ -601,7 +601,7 @@ function W8CitationCard({ id, year, body, title, journal, onOpen, delay = 0 }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
         <h5 style={{
           fontFamily: "var(--serif)", fontStyle: "italic",
-          fontSize: 15, fontWeight: 700, lineHeight: 1.34,
+          fontSize: 15, fontWeight: 700, lineHeight: 1.3,
           margin: 0, color: "var(--ink)", letterSpacing: "-0.005em",
         }}>{title}</h5>
         <span style={{

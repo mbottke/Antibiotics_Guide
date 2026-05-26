@@ -172,6 +172,7 @@ function PkPdRow({ name, pkpd, timeToEffect }) {
           <div style={{
             fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink2)",
             lineHeight: 1.45, minWidth: 0, flex: "1 1 220px",
+            fontVariantNumeric: "tabular-nums",
           }}>
             {pkpd.target}
           </div>

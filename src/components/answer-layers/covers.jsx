@@ -117,7 +117,7 @@ export const coversLayer = {
         split
         aside={aside}
       >
-        <div style={{ fontSize: 13.5, color: "var(--ink2)", lineHeight: 1.6 }}>
+        <div style={{ fontSize: 13, color: "var(--ink2)", lineHeight: 1.6 }}>
           <div style={{ marginBottom: 12 }}>
             <span style={{
               display: "inline-flex", alignItems: "center", gap: 5,

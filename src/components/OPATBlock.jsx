@@ -108,6 +108,7 @@ function AgentsTable({ agents }) {
       width: "100%", minWidth: 480,
       borderCollapse: "collapse", fontSize: 11.5,
       border: "1px solid var(--line)", borderRadius: 6, overflow: "hidden",
+      fontVariantNumeric: "tabular-nums",
     }}>
       <thead>
         <tr style={{ background: "var(--paper2)" }}>

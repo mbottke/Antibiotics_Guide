@@ -33,7 +33,7 @@ export const durationLegacyLayer = {
         index={_layerIndex}
         total={_layerTotal}
       >
-        <div style={{ fontSize: 13.5, color: "var(--ink)", lineHeight: 1.55 }}>
+        <div style={{ fontSize: 13, color: "var(--ink)", lineHeight: 1.55 }}>
           <span className="rx-numeric-mega" style={{
             fontSize: 28, lineHeight: 1, marginRight: 6,
             color: "var(--neon-cyan, var(--ox))",
