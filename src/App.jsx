@@ -62,19 +62,28 @@ export default function InpatientAbxGuide() {
      Phase 0 extension: the hash now also encodes case-state stub fields
      (cultures, day-of-therapy, start date) for forward-compat with Phases
      A–B. Old links remain valid — every new key is optional. */
-  const _hashState = (() => {
+  /* parseHash(hashString) — pure parser shared by the initial state computation
+     AND the hashchange/popstate listener below. Returning a plain object keeps
+     the writeback logic trivial to invert. Invalid keys are silently dropped so
+     a malformed bookmark (e.g. `#sec=xyz`) degrades to the default surface. */
+  const parseHash = (rawHash) => {
     try {
-      const h = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+      const h = new URLSearchParams((rawHash || "").replace(/^#/, ""));
       const out = {};
       const t = h.get("t");
       if(t && TABS.some(x => x.id === t)) out.tab = t;
       const sec = h.get("sec");
       if(sec && SECTION_BY_ID[sec]) out.section = sec;
+      const syn = h.get("syn");
+      if(syn && SYNDROMES.some(x => x.id === syn)) out.openSyn = syn;
+      // Bug-hunt N1 — when a deep link carries only #syn=... (no #t / #sec),
+      // assume the user wants to land on the syndrome card: force the empiric
+      // tab + syndromes section so the writeback effect can keep the deep link
+      // alive instead of dropping it on first paint.
+      if(out.openSyn && !out.tab) out.tab = "empiric";
       // Legacy bookmark redirect: when the user has a #t=... but no #sec=...,
       // derive section from the tab so old links land in the right section.
       if(!out.section && out.tab) out.section = sectionForTab(out.tab);
-      const syn = h.get("syn");
-      if(syn && SYNDROMES.some(x => x.id === syn)) out.openSyn = syn;
       const c = h.get("ctx");
       if(c){
         const [age,wt,ht,scr,sex,hep,hd] = c.split(":");
@@ -95,7 +104,8 @@ export default function InpatientAbxGuide() {
       }
       return out;
     } catch(e){ return {}; }
-  })();
+  };
+  const _hashState = parseHash(typeof window !== "undefined" ? window.location.hash : "");
   /* Phase C · two-axis navigation: surface × mode.
        surface ∈ { "inpatient", "outpatient" }    — clinical setting
        mode    ∈ { "reference", "decide" }        — view within the surface
@@ -289,9 +299,48 @@ export default function InpatientAbxGuide() {
     return index.filter(i => (i.name + " " + i.sub + " " + i.kind + " " + (i.hay || "")).toLowerCase().includes(q)).slice(0, 24);
   }, [cmdQ, index]);
 
+  /* Bug-hunt N4 — palette focus return.
+     Save the focused element BEFORE opening the palette (the autoFocus on
+     the palette's input runs during the commit phase, so a useEffect that
+     reads activeElement after open would always see the input). Restore
+     focus on close, deferred one frame so React unmounts the palette tree
+     before the focus call lands. Without this, dismissing the palette via
+     Escape or by clicking the overlay drops focus to <body>, breaking
+     keyboard flow for users who triggered it from a chip or button. */
+  const _cmdLastFocusRef = React.useRef(null);
+  const _captureCmdFocus = () => {
+    if(typeof document !== "undefined") {
+      const a = document.activeElement;
+      // Skip the palette's own input (in case the toggle fires while the
+      // palette already owns focus — we still want to restore to the
+      // pre-open element).
+      if(a && a.tagName !== "BODY" && !(a.closest && a.closest(".rx-cmd"))) {
+        _cmdLastFocusRef.current = a;
+      }
+    }
+  };
+  const _openCmd = () => { _captureCmdFocus(); setCmdOpen(true); setCmdQ(""); setCmdIdx(0); };
+  const _closeCmd = () => { setCmdOpen(false); };
+  useEffect(() => {
+    if(!cmdOpen && _cmdLastFocusRef.current) {
+      const target = _cmdLastFocusRef.current;
+      _cmdLastFocusRef.current = null;
+      if(typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+        window.requestAnimationFrame(() => {
+          if(target && typeof target.focus === "function" && document.contains(target)) {
+            target.focus();
+          }
+        });
+      }
+    }
+  }, [cmdOpen]);
+
   useEffect(() => {
     const onKey = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setCmdOpen(o => !o); setCmdQ(""); setCmdIdx(0); }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        if(cmdOpen) { _closeCmd(); } else { _openCmd(); }
+      }
       else if (e.key === "Escape") setCmdOpen(false);
       else if (cmdOpen && e.key === "ArrowDown") { e.preventDefault(); setCmdIdx(i => Math.min(i + 1, cmdResults.length - 1)); }
       else if (cmdOpen && e.key === "ArrowUp") { e.preventDefault(); setCmdIdx(i => Math.max(i - 1, 0)); }
@@ -737,7 +786,19 @@ export default function InpatientAbxGuide() {
   /* 4.2 · write deep-state back to the URL hash (debounced via effect deps).
      Phase 0 extension: also encode the case-state stub fields (cultures,
      dayOfTx, startDate) when populated. The classic UI does not populate
-     them, so default behavior emits the same hash as before. */
+     them, so default behavior emits the same hash as before.
+
+     Bug-hunt N6 — primary navigation changes (section / tab / openSyn) now use
+     pushState so the browser back/forward buttons traverse the user's nav
+     history. Fine-grained writes (patient context, cultures, clinical bits)
+     stay on replaceState so each character typed in a numeric input doesn't
+     spam history entries. `_lastNavKeyRef` tracks the last pushed nav tuple so
+     we don't push duplicate entries on no-op writebacks.
+
+     Hashchange/popstate listener below mirrors URL → state for the
+     back/forward path and for any external code (or the integration tests)
+     that calls window.location.hash = ... directly. */
+  const _lastNavKeyRef = React.useRef(null);
   useEffect(() => {
     try {
       const p = new URLSearchParams();
@@ -757,9 +818,62 @@ export default function InpatientAbxGuide() {
       }
       const next = p.toString();
       const cur = (window.location.hash || "").replace(/^#/, "");
-      if(next !== cur) window.history.replaceState(null, "", next ? "#"+next : window.location.pathname + window.location.search);
+      // The nav key is section + tab + openSyn(when relevant); the rest are
+      // quiet replaces. Track the previous key so the FIRST user nav after
+      // mount still pushes a history entry (otherwise the initial mount
+      // returned early before recording its own key, and the next nav
+      // mistakenly replaced the landing entry).
+      const navKey = [section, tab, tab === "empiric" ? openSyn : ""].join("|");
+      const prevNav = _lastNavKeyRef.current;
+      _lastNavKeyRef.current = navKey;
+      if(next === cur) return;
+      const url = next ? "#"+next : window.location.pathname + window.location.search;
+      const navChanged = prevNav !== null && prevNav !== navKey;
+      // pushState/replaceState do not fire hashchange or popstate, so we do
+      // not need to suppress our own writes from the listener below.
+      if(navChanged) {
+        window.history.pushState(null, "", url);
+      } else {
+        window.history.replaceState(null, "", url);
+      }
     } catch(e){ /* hash sync is best-effort */ }
   }, [section, tab, openSyn, ctx, caseState.cultures, caseState.dayOfTx, caseState.startDate, caseState.clinical]);
+
+  /* Bug-hunt N1 / N6 — hashchange + popstate listener.
+     The previous build had none, so:
+       · browser back/forward did nothing (we even rewrote with replaceState,
+         which means the only history entry was the landing URL — going back
+         escaped the app entirely);
+       · setting `window.location.hash = '...'` programmatically (Playwright,
+         a bookmark restore script, or a copy-pasted deep link) did not move
+         the UI;
+       · clicking an internal `#sec=...` anchor link only updated the URL.
+     We now re-parse the hash and project it onto the same state hooks the
+     initial mount uses. The suppression ref skips the listener for our own
+     pushState/replaceState writes — those already match state, so projecting
+     them back is a no-op at best and a stale-state overwrite at worst. */
+  useEffect(() => {
+    const sync = () => {
+      const next = parseHash(window.location.hash);
+      const nextTab = next.tab || "approach";
+      const nextSec = next.section || sectionForTab(nextTab);
+      // Apply only when different to avoid render churn.
+      setSection(prev => prev === nextSec ? prev : nextSec);
+      setTab(prev => prev === nextTab ? prev : nextTab);
+      if(next.openSyn) setOpenSyn(prev => prev === next.openSyn ? prev : next.openSyn);
+      if(next.ctx) setCaseState(c => ({ ...c, patient: { ...c.patient, ...next.ctx } }));
+      if(next.cultures) setCaseState(c => ({ ...c, cultures: next.cultures }));
+      if(next.dayOfTx != null) setCaseState(c => ({ ...c, dayOfTx: next.dayOfTx }));
+      if(next.startDate) setCaseState(c => ({ ...c, startDate: next.startDate }));
+      if(next.clinical) setCaseState(c => ({ ...c, clinical: next.clinical }));
+    };
+    window.addEventListener("hashchange", sync);
+    window.addEventListener("popstate", sync);
+    return () => {
+      window.removeEventListener("hashchange", sync);
+      window.removeEventListener("popstate", sync);
+    };
+  }, []);
 
   /* Keep section synced with tab. Callers that switch the tab directly
      (the ⌘K palette, "Open as case" / "Open spectrum" deep-links from
@@ -1140,7 +1254,7 @@ export default function InpatientAbxGuide() {
           onDrug={openDrug}
           onOrg={openOrgDrawer}
           onCite={openTrial}
-          onOpenPalette={() => { setCmdOpen(true); setCmdQ(""); setCmdIdx(0); }}
+          onOpenPalette={_openCmd}
           antibiogram={activeAntibiogram}
           onOpenAntibiogramManager={() => setAntibiogramManagerOpen(true)}
         />
@@ -1206,7 +1320,7 @@ export default function InpatientAbxGuide() {
             </div>
             <div className="rx-searchwrap">
               <span className="rx-search-i"><Search size={15} /></span>
-              <input className="rx-search" placeholder="Search  ⌘K" onFocus={()=>{setCmdOpen(true);setCmdQ("");setCmdIdx(0);}} readOnly />
+              <input className="rx-search" placeholder="Search  ⌘K" onFocus={_openCmd} readOnly />
             </div>
           </div>
           {/* Section-scoped tab sub-nav. Phase B1: filters the 11-tab bar
