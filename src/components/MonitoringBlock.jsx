@@ -25,6 +25,7 @@ import { Section } from "./Section.jsx";
 import { matchesCtx } from "../engines/ctxMatch.js";
 import { RichText } from "./util/richText.jsx";
 import { severityStyle } from "./util/severityStyle.js";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
 
 /* Does this item match the current cross-section selection?
    Returns true when ANY of:
@@ -180,13 +181,44 @@ function MonitoringBlock({ monitoring, pickedAgents = [], pickedBranch, ctx }) {
       {/* Items grouped by severity. Within each severity bucket, matched
           items float to the top (still visible alongside the rest — never
           hidden). The "MATCHES" chip on a matched row, plus the elevated
-          left-border accent, makes the relevant items leap out. */}
-      {items.length > 0 && (
+          left-border accent, makes the relevant items leap out.
+
+          Wave 12 W12 · when the layer renders ≥ 8 items, break the single
+          unified <ul> into three severity sub-lists separated by cyan-blue
+          gradient hairlines. The hairline lives BETWEEN ul groups (never
+          inside one) so screen readers still walk a clean list-of-lists.
+          Below 8 items the original single-ul layout stays. */}
+      {items.length > 0 && items.length < 8 && (
         <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:5 }}>
           {required.map((d, i) => <MonitoringItem key={"r"+i} item={d.item} matched={d.matched} />)}
           {trigger .map((d, i) => <MonitoringItem key={"t"+i} item={d.item} matched={d.matched} />)}
           {consider.map((d, i) => <MonitoringItem key={"c"+i} item={d.item} matched={d.matched} />)}
         </ul>
+      )}
+      {items.length >= 8 && (
+        <>
+          {required.length > 0 && (
+            <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:5 }}>
+              {required.map((d, i) => <MonitoringItem key={"r"+i} item={d.item} matched={d.matched} />)}
+            </ul>
+          )}
+          {required.length > 0 && (trigger.length > 0 || consider.length > 0) && (
+            <GradientHairline variant="cyan-blue" style={{ opacity: .4, margin: "24px 0" }} />
+          )}
+          {trigger.length > 0 && (
+            <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:5 }}>
+              {trigger.map((d, i) => <MonitoringItem key={"t"+i} item={d.item} matched={d.matched} />)}
+            </ul>
+          )}
+          {trigger.length > 0 && consider.length > 0 && (
+            <GradientHairline variant="cyan-blue" style={{ opacity: .4, margin: "24px 0" }} />
+          )}
+          {consider.length > 0 && (
+            <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:5 }}>
+              {consider.map((d, i) => <MonitoringItem key={"c"+i} item={d.item} matched={d.matched} />)}
+            </ul>
+          )}
+        </>
       )}
     </Section>
   );

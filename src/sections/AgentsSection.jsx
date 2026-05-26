@@ -34,6 +34,17 @@ import { Sparkle } from "../components/decor/Sparkle";
 import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { GradientHairline } from "../components/decor/GradientHairline";
 import { MeshWash } from "../components/decor/MeshWash";
+import { SceneBreak } from "../components/decor/SceneBreak";
+
+/* Wave 12 W12 · drug-class family classifier. The formulary panel walks
+   ~7 drug classes; we drop a SceneBreak at the single family transition
+   (β-lactam → non-β-lactam). Anything containing "lactam" or a recognised
+   β-lactam class name lives in the β-lactam family; everything else is
+   "other". Returns the family bucket for a class name. */
+const _BL_CLASS_RE = /(penicillin|cephalosporin|carbapenem|monobactam|β-?lactam|beta-?lactam|novel reserve)/i;
+function _agentFamily(cls) {
+  return _BL_CLASS_RE.test(cls || "") ? "bl" : "non-bl";
+}
 import { drugCoversOrg, drugRoute } from "../engines/lookup";
 import {
   FORMULARY, FORM_FLAT, RENAL_TRIGGERS, TDM, TOX_COLS, SAFE, INTERACTIONS,
@@ -735,9 +746,27 @@ function AgentsSection({
               const FI = FORM_ICON[cl.icon] || Pill;
               const idxNum = String(idx + 1).padStart(2, "0");
               const proto = (cl.drugs && cl.drugs[0]) || null;
+              /* Wave 12 W12 · only render a SceneBreak between class
+                 families when the panel actually contains 5+ classes
+                 (the brief: "when the formulary panel renders 5+ drug
+                 classes"), and only at the single β-lactam → non-β-lactam
+                 transition. With heavy filtering the panel may collapse
+                 to 2 classes — in that case the break is suppressed. */
+              const showFamilyBreak = (
+                fmClasses.length >= 5
+                && idx > 0
+                && _agentFamily(cl.cls) !== _agentFamily(fmClasses[idx - 1].cls)
+              );
               return (
+                <React.Fragment key={cl.cls}>
+                {showFamilyBreak && (
+                  <SceneBreak
+                    variant="phrase"
+                    mark="non-β-lactam agents"
+                    style={{ margin: "16px 0 20px" }}
+                  />
+                )}
                 <article
-                  key={cl.cls}
                   className="rx-fade-in-up"
                   style={{
                     animationDelay: `${80 + idx * 50}ms`,
@@ -948,6 +977,7 @@ function AgentsSection({
                     </aside>
                   </div>
                 </article>
+                </React.Fragment>
               );
             })}
 

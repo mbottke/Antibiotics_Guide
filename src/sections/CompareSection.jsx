@@ -37,6 +37,7 @@ import { GradientHairline } from "../components/decor/GradientHairline";
 import { Stripes } from "../components/decor/Stripes";
 import { MeshWash } from "../components/decor/MeshWash";
 import { SectionArtwork } from "../components/decor/SectionArtwork";
+import { SceneBreak } from "../components/decor/SceneBreak";
 import { SpectrumChartFull } from "../spectrum/Spectrum";
 import { PEN, PEN_SITES } from "../data/drugs";
 import { MECH, ORGS } from "../data/organisms";
@@ -322,6 +323,9 @@ function CompareSection({
             opacity: 0.6,
           }}
         />
+        {/* Wave 12 W12 · chapter mark — the 49×49 matrix is a chapter of
+            its own and earns a phrase-variant SceneBreak announcing it. */}
+        <SceneBreak variant="phrase" mark="The matrix" style={{ margin: "4px 0 10px" }} />
         <SpectrumCompare onDrug={(n)=>openDrug && openDrug(n)} />
       </article>
 

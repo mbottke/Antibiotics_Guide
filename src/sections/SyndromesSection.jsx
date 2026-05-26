@@ -48,6 +48,7 @@ import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { MeshWash } from "../components/decor/MeshWash";
 import { GradientHairline } from "../components/decor/GradientHairline";
 import { Stripes } from "../components/decor/Stripes";
+import { SceneBreak } from "../components/decor/SceneBreak";
 
 // Risk-filter taxonomy for the left rail. Each entry maps a chip label
 // onto a predicate over the syndrome's tags / categories so we can filter
@@ -859,10 +860,27 @@ function SyndromesSection({
               </button>
             </div>
           ) : (
-            SYN_CATS.filter(c => synCat === "all" || c.id === synCat).map((cat, catIdx) => {
-              const items = list.filter(s => s.cat === cat.id);
-              if (!items.length) return null;
+            /* Wave 12 W12 · pre-resolve the visible-category list so we
+               can interleave SceneBreaks between categories using a
+               stable visible-index (raw catIdx skips empty cats and
+               throws off "Category · NN" numbering + scene-break gating).
+               The visible array drives BOTH the editorial numeral and
+               whether a SceneBreak prefixes a category (only when
+               ≥2 visible categories AND it's not the first). */
+            (() => {
+              const visibleCats = SYN_CATS
+                .filter(c => synCat === "all" || c.id === synCat)
+                .map(cat => ({ cat, items: list.filter(s => s.cat === cat.id) }))
+                .filter(entry => entry.items.length > 0);
+              return visibleCats.map(({ cat, items }, catIdx) => {
               const CI = CAT_ICONS[cat.icon] || Stethoscope;
+              /* Scene-break between categories. Variant adapts to the
+                 category's density: prominent (numeral) when the
+                 category carries the richer subhead, minimal otherwise.
+                 Only render after the first visible category and only
+                 when there are ≥2 categories on the page. */
+              const showSceneBreak = catIdx > 0 && visibleCats.length >= 2;
+              const sceneBreakVariant = items.length >= 4 ? "numeral" : "minimal";
               // Categories with 4+ items get a richer subhead — italic
               // serif display with kicker, lede, and big decorative numeral.
               const richHead = items.length >= 4;
@@ -884,8 +902,15 @@ function SyndromesSection({
               const lede = ledeMap[cat.id] || `Empiric coverage for ${cat.label.toLowerCase()}.`;
 
               return (
+                <React.Fragment key={cat.id}>
+                  {showSceneBreak && (
+                    <SceneBreak
+                      variant={sceneBreakVariant}
+                      mark={sceneBreakVariant === "numeral" ? pad2(catIdx + 1) : undefined}
+                      style={{ margin: "8px 0" }}
+                    />
+                  )}
                 <section
-                  key={cat.id}
                   id={`syn-cat-${cat.id}`}
                   style={{
                     position: "relative",
@@ -1394,9 +1419,31 @@ function SyndromesSection({
                     })}
                   </div>
                 </section>
+                </React.Fragment>
               );
-            })
+              });
+            })()
           )}
+        </div>
+      </div>
+
+      {/* Wave 12 W12 · end-of-section signal. A minimal SceneBreak +
+          mono uppercase counter label tells the reader they've crossed
+          the last syndrome category. Helps with long scrolls where the
+          next section's header doesn't appear in the same viewport. */}
+      <div className="rx-fade-in-up" style={{ animationDelay: "200ms" }}>
+        <SceneBreak variant="minimal" style={{ margin: "32px 0 6px" }} />
+        <div className="rx-counter" style={{
+          textAlign: "center",
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: ".24em",
+          color: "var(--ink2)",
+          textTransform: "uppercase",
+          opacity: 0.7,
+          marginBottom: 28,
+        }}>
+          end of syndromes
         </div>
       </div>
 

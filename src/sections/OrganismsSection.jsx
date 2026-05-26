@@ -76,6 +76,7 @@ import { DottedGrid } from "../components/decor/DottedGrid";
 import { Stripes } from "../components/decor/Stripes";
 import { MeshWash } from "../components/decor/MeshWash";
 import { StickySubTOC } from "../components/decor/StickySubTOC";
+import { SceneBreak } from "../components/decor/SceneBreak";
 import { NotchedBanner } from "../components/decor/NotchedBanner";
 
 /* ============================================================
@@ -998,7 +999,11 @@ function OrganismsSection({
         </div>
       </div>
 
-      <GradientHairline variant="cyan-blue" withDot style={{ margin: "40px 0 24px" }} />
+      {/* Wave 12 W12 · epoch transition (directed therapy → MRSA matrix).
+          The phrase "by phenotype" announces the next chapter: we're
+          leaving organism-by-organism directed therapy and entering the
+          MRSA agent-selection matrix that's keyed on the body site. */}
+      <SceneBreak variant="phrase" mark="by phenotype" style={{ margin: "32px 0 20px" }} />
 
       {/* ---- O4 · MRSA by site ---- */}
       <W8SubHead
@@ -1018,7 +1023,11 @@ function OrganismsSection({
       </ul>
       <div className="rx-diag-divider" aria-hidden="true" />
 
-      <GradientHairline variant="cyan-blue" withDot style={{ margin: "40px 0 24px" }} />
+      {/* Wave 12 W12 · epoch transition (MRSA matrix → GNR mechanism).
+          The phrase "by mechanism" frames the chapter wall: MRSA is a
+          single-species phenotype problem, GNR is a multi-species
+          resistance-mechanism problem and reads differently. */}
+      <SceneBreak variant="phrase" mark="by mechanism" style={{ margin: "32px 0 20px" }} />
 
       {/* ---- O5 · Gram-negative by mechanism ---- */}
       <W8SubHead
@@ -1030,6 +1039,21 @@ function OrganismsSection({
         important
       />
       <W8GnrMechanismMatrix openDrug={openDrug} />
+
+      {/* Wave 12 W12 · end-of-section signal closes the Organisms read. */}
+      <SceneBreak variant="minimal" style={{ margin: "36px 0 6px" }} />
+      <div className="rx-counter" style={{
+        textAlign: "center",
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: ".24em",
+        color: "var(--ink2)",
+        textTransform: "uppercase",
+        opacity: 0.7,
+        marginBottom: 8,
+      }}>
+        end of organisms
+      </div>
     </>
   );
 }
