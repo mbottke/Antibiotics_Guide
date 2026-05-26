@@ -27,6 +27,7 @@ import {
 import { SurfaceBar } from "./components/SurfaceBar";
 import { SectionNav } from "./components/SectionNav";
 import { OutpatientShell } from "./components/OutpatientShell";
+import { GlobalScrollProgress } from "./components/GlobalScrollProgress";
 import { SECTIONS, SECTION_BY_ID, sectionForTab, firstTabOfSection } from "./data/sections";
 import { SyndromesSection } from "./sections/SyndromesSection";
 import { AgentsSection } from "./sections/AgentsSection";
@@ -549,6 +550,7 @@ export default function InpatientAbxGuide() {
     return (
       <>
         {styleTag}
+        <GlobalScrollProgress />
         {bar}
         <OutpatientShell onSwitchInpatient={() => setSurface("inpatient")} />
       </>
@@ -602,6 +604,7 @@ export default function InpatientAbxGuide() {
     <div className="rx-root">
       <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO}</style>
 
+      <GlobalScrollProgress />
       {bar}
 
       <SectionNav section={section} onSection={(s) => {

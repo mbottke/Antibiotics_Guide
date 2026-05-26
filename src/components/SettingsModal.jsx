@@ -1,29 +1,22 @@
 /* component · SettingsModal — Wave 5 CL-4 consolidated settings surface.
+   Wave 8 W8 chrome pass — converted from a 560px modal box into a
+   480px glass card with:
+     • Asymmetric 22/4 corner radius
+     • Backdrop-filter blur(24px) on the overlay
+     • 4px cyan top-strip + 1px gradient hairline under the header
+     • Section cards with asymmetric corners + cyan accent rail
+     • A switch-style toggle for the microbiome preference (cyan ON,
+       paper OFF) — replaces the bare HTML checkbox
+     • Mono kicker + italic-serif "Preferences" title
 
    Closes the deferred UI gap: the microbiome-sort default flag has
    shipped since PR-10 but only as a localStorage key with no UI to
    flip it; FontSizeControl + AntibiogramManager lived in fragmented
    surfaces with no shared shell.
 
-   This modal is the gear-icon companion to the global header. It
-   bundles:
-     1. Typography  — mirrors FontSizeControl (single source of
-        truth still owned by FontSizeControl; the modal exposes the
-        same controls + reset).
-     2. Microbiome ranking — toggle `ab_microbiome_sort_default`
-        so a stewardship-forward site flips the default ON across
-        every multi-option RegimenOptions tier.
-     3. Antibiogram overlays — link out to AntibiogramManager (the
-        existing surface stays the canonical editor; this is the
-        discoverability path).
-     4. Keyboard shortcuts — cheat-sheet for ⌘K palette, Esc close,
-        Enter/Space activate, Tab cycle inside drawers.
-
    WCAG: portal-mounted; focus trapped via useFocusTrap; Escape
    closes; restore focus to the trigger on close. Snapshot contract
-   intact — site preferences persist via localStorage (the same
-   pattern Phase E established for antibiograms), per-syndrome UI
-   state never leaks here.
+   intact — site preferences persist via localStorage.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useEffect, useRef, useState } from "react";
@@ -32,8 +25,23 @@ import {
   Activity, Keyboard, Settings as SettingsIcon, ShieldAlert, Type, X,
 } from "lucide-react";
 import { useFocusTrap } from "./util/useFocusTrap.js";
+import { useRipple } from "./util/useRipple.js";
 
 const MICROBIOME_KEY = "ab_microbiome_sort_default";
+
+const TOP_STRIP_BG =
+  "linear-gradient(90deg," +
+  " var(--neon-cyan, var(--ox))," +
+  " var(--electric-blue, var(--ox))," +
+  " var(--hot-magenta, var(--ox)))";
+
+const HAIRLINE_BG =
+  "linear-gradient(90deg," +
+  " transparent 0%," +
+  " rgba(0, 212, 255, 0.45) 18%," +
+  " rgba(61, 122, 255, 0.45) 50%," +
+  " rgba(255, 61, 188, 0.30) 82%," +
+  " transparent 100%)";
 
 function _readBool(key) {
   try {
@@ -50,25 +58,31 @@ function _writeBool(key, val) {
   } catch(e) { /* private mode */ }
 }
 
+/* W8 chrome · settings section — small glass card with asymmetric
+   corners (10/3) and a 2px cyan accent rail along the left edge. */
 function SettingsSection({ icon: Icon, title, children }) {
   return (
-    <section style={{ marginBottom: 18 }}>
+    <section style={{ marginBottom: 16 }}>
       <header style={{
         display: "flex", alignItems: "center", gap: 8,
         marginBottom: 8,
       }}>
-        {Icon && <Icon size={14} aria-hidden color="var(--ox)" />}
+        {Icon && <Icon size={14} aria-hidden color="var(--neon-cyan, var(--ox))" />}
         <h3 style={{
           fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0,
           fontFamily: "var(--sans)", letterSpacing: "-.005em",
         }}>{title}</h3>
       </header>
       <div style={{
-        background: "var(--paper2)",
+        position: "relative",
+        background: "rgba(255, 255, 255, 0.55)",
         border: "1px solid var(--line)",
-        borderRadius: 7,
-        padding: "10px 12px",
-        fontSize: 12, lineHeight: 1.55, color: "var(--ink2)",
+        borderLeft: "2px solid var(--neon-cyan, var(--ox))",
+        /* Asymmetric 10/3 pair — slightly tighter than the panel itself
+            (22/4), so the visual hierarchy reads (card ⊂ panel). */
+        borderRadius: "10px 3px 10px 3px",
+        padding: "11px 13px",
+        fontSize: 12.5, lineHeight: 1.55, color: "var(--ink2)",
       }}>
         {children}
       </div>
@@ -90,6 +104,90 @@ function ShortcutRow({ keys, label }) {
       }}>{keys}</kbd>
       <span style={{ color: "var(--ink2)" }}>{label}</span>
     </div>
+  );
+}
+
+/* Switch-style toggle — cyan when on, paper when off. Wraps the
+   underlying checkbox so RTL tests can still find the labeled
+   input. The checkbox itself is visually hidden but accessible. */
+function SwitchToggle({ checked, onChange, ariaLabel }) {
+  return (
+    <span style={{
+      position: "relative",
+      display: "inline-block",
+      width: 36, height: 20,
+      flex: "0 0 auto",
+    }}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        aria-label={ariaLabel}
+        style={{
+          position: "absolute",
+          opacity: 0,
+          width: 36, height: 20,
+          margin: 0,
+          top: 0, left: 0,
+          cursor: "pointer",
+          zIndex: 2,
+        }}
+      />
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: checked
+            ? "linear-gradient(135deg, var(--ox-deep, #0B0F14) 0%, var(--ox, #1F2937) 50%, var(--neon-cyan, #00D4FF) 240%)"
+            : "var(--paper2)",
+          border: "1px solid " + (checked ? "var(--neon-cyan, var(--ox))" : "var(--line)"),
+          borderRadius: 999,
+          transition: "background .22s, border-color .22s, box-shadow .22s",
+          boxShadow: checked ? "0 0 14px rgba(0, 212, 255, 0.45)" : "none",
+        }}
+      />
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: 2,
+          left: checked ? 18 : 2,
+          width: 16, height: 16,
+          background: "#fff",
+          borderRadius: "50%",
+          boxShadow: "0 1px 2px rgba(0,0,0,.15)",
+          transition: "left .22s var(--ease-out, ease-out)",
+        }}
+      />
+    </span>
+  );
+}
+
+function CloseButton({ onClose, label }) {
+  const ref = useRef(null);
+  useRipple(ref);
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={onClose}
+      aria-label={label}
+      className="rx-magnetic rx-shine-sweep rx-ripple"
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 5,
+        background: "rgba(0, 212, 255, 0.06)",
+        border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+        borderRadius: 999,
+        padding: "5px 12px 5px 10px", cursor: "pointer",
+        color: "var(--ink)",
+        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+        letterSpacing: ".08em", textTransform: "uppercase",
+        transition: "background .18s, color .18s, border-color .18s",
+      }}
+    >
+      <X size={12} aria-hidden /> Close
+    </button>
   );
 }
 
@@ -123,6 +221,22 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
 
   if(!open) return null;
 
+  const panelStyle = {
+    position: "relative",
+    background: "rgba(255, 255, 255, 0.92)",
+    backdropFilter: "saturate(180%) blur(12px)",
+    WebkitBackdropFilter: "saturate(180%) blur(12px)",
+    border: "1px solid var(--line)",
+    /* Asymmetric 22/4 corner pair. */
+    borderRadius: "22px 4px 22px 4px",
+    width: "min(480px, 100%)",
+    maxHeight: "82vh",
+    overflowY: "auto",
+    padding: "24px 24px 22px",
+    boxShadow: "var(--shadow-drawer)",
+    outline: "none",
+  };
+
   const tree = (
     <div
       role="dialog"
@@ -131,7 +245,9 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
       onClick={(e) => { e.stopPropagation(); if(onClose) onClose(); }}
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "var(--scrim)",
+        background: "rgba(15, 23, 42, 0.42)",
+        backdropFilter: "blur(24px) saturate(140%)",
+        WebkitBackdropFilter: "blur(24px) saturate(140%)",
         display: "flex", alignItems: "flex-start", justifyContent: "center",
         padding: "8vh 16px",
       }}
@@ -141,45 +257,61 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         data-testid="settings-modal"
-        style={{
-          background: "var(--paper)",
-          border: "1px solid var(--line)",
-          borderRadius: 10,
-          width: "min(560px, 100%)",
-          maxHeight: "80vh",
-          overflowY: "auto",
-          padding: 22,
-          boxShadow: "var(--shadow-drawer)",
-          outline: "none",
-        }}
+        style={panelStyle}
       >
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 18 }}>
+        {/* 4px cyan-gradient top strip. */}
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: 0, right: 0, top: 0,
+            height: 4,
+            background: TOP_STRIP_BG,
+            borderTopLeftRadius: 22,
+            pointerEvents: "none",
+          }}
+        />
+
+        <div style={{
+          display: "flex", alignItems: "flex-start", justifyContent: "space-between",
+          gap: 12, marginBottom: 14,
+        }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <SettingsIcon size={14} aria-hidden color="var(--ox)" />
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              <SettingsIcon size={14} aria-hidden color="var(--neon-cyan, var(--ox))" />
               <span style={{
-                fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-                color: "var(--ink2)", letterSpacing: ".1em",
+                fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
+                color: "var(--ink2)", letterSpacing: ".14em",
                 textTransform: "uppercase",
               }}>Settings</span>
             </div>
-            <h2 style={{ fontSize: 17, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
+            <h2 style={{
+              /* Italic-serif title — matches the BrandMark subtitle voice. */
+              fontFamily: "var(--serif)",
+              fontStyle: "italic",
+              fontSize: 26,
+              fontWeight: 500,
+              color: "var(--ink)",
+              margin: 0,
+              letterSpacing: "-0.012em",
+              lineHeight: 1.15,
+            }}>
               Preferences
             </h2>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close settings"
-            style={{
-              background: "transparent", border: "1px solid var(--line)",
-              borderRadius: 6, padding: 4, cursor: "pointer",
-              color: "var(--ink2)",
-            }}
-          >
-            <X size={14} aria-hidden />
-          </button>
+          <CloseButton onClose={onClose} label="Close settings" />
         </div>
+
+        {/* Gradient hairline under the header. */}
+        <span
+          aria-hidden="true"
+          style={{
+            display: "block",
+            height: 1,
+            background: HAIRLINE_BG,
+            margin: "0 0 16px",
+          }}
+        />
 
         <SettingsSection icon={Type} title="Typography">
           Text-size adjustment is the gear icon's twin in the global header — use the
@@ -188,16 +320,16 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
         </SettingsSection>
 
         <SettingsSection icon={Activity} title="Microbiome ranking">
-          <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
-            <input
-              type="checkbox"
+          <label style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 12,
+            cursor: "pointer",
+          }}>
+            <SwitchToggle
               checked={microbiomeSort}
               onChange={onToggleMicrobiome}
-              aria-label="Rank empiric options by collateral damage"
-              style={{
-                marginTop: 3, flex: "0 0 auto",
-                width: 14, height: 14, accentColor: "var(--ox)",
-              }}
+              ariaLabel="Rank empiric options by collateral damage"
             />
             <span style={{ minWidth: 0 }}>
               <span style={{ display: "block", fontWeight: 600, color: "var(--ink)" }}>
@@ -213,7 +345,7 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
         </SettingsSection>
 
         <SettingsSection icon={ShieldAlert} title="Antibiogram overlays">
-          <p style={{ margin: "0 0 8px" }}>
+          <p style={{ margin: "0 0 10px" }}>
             Local-resistance overlays live in the Antibiogram manager — upload a CSV
             once per site to drive every regimen panel against your unit's data.
           </p>
@@ -221,14 +353,16 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
             <button
               type="button"
               onClick={() => { onOpenAntibiogramManager(); if(onClose) onClose(); }}
+              className="rx-magnetic rx-shine-sweep"
               style={{
-                background: "var(--ox-soft)",
-                border: "1px solid var(--ox-line)",
-                borderRadius: 6,
-                padding: "5px 10px",
+                background: "rgba(0, 212, 255, 0.08)",
+                border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+                borderRadius: "8px 3px 8px 3px",
+                padding: "6px 12px",
                 fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-                letterSpacing: ".06em", textTransform: "uppercase",
-                color: "var(--ox)", cursor: "pointer",
+                letterSpacing: ".08em", textTransform: "uppercase",
+                color: "var(--ink)", cursor: "pointer",
+                transition: "background .18s, border-color .18s",
               }}
             >
               Open antibiogram manager
