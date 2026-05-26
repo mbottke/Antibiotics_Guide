@@ -71,6 +71,7 @@ import { Stripes } from "../components/decor/Stripes";
 import { MeshWash } from "../components/decor/MeshWash";
 import { StickySubTOC } from "../components/decor/StickySubTOC";
 import { NotchedBanner } from "../components/decor/NotchedBanner";
+import { SceneBreak } from "../components/decor/SceneBreak";
 
 /* ============================================================
    Wave 8 W8 · magazine design tokens (with W7 fallbacks)
@@ -680,6 +681,11 @@ function PrinciplesSection({
         ))}
       </div>
 
+      {/* Wave 12 W12 · breathing room between the reasoning sequence and
+          the sepsis first-hour deck — they are sibling chapters of the
+          Approach panel and the ornament dingbat lets the eye reset. */}
+      <SceneBreak variant="ornament" style={{ margin: "24px 0 12px" }} />
+
       {/* ---- P4 · Sepsis first-hour horizontal scroll deck ---- */}
       <W8SubHead
         id="sub-approach-sepsis"
@@ -963,6 +969,12 @@ function PrinciplesSection({
       <div className="rx-callout"><Info size={15}/><span>{OPAT.oral}</span></div>
       <div className="rx-diag-divider" aria-hidden="true" />
 
+      {/* Wave 12 W12 · phrase break before IV → PO. The previous epoch
+          was about durations and OPAT logistics; the next is about how
+          we actually move the patient off the drip. "when to step down"
+          announces the change in frame. */}
+      <SceneBreak variant="phrase" mark="when to step down" style={{ margin: "20px 0 14px" }} />
+
       {/* ---- P6 · IV → PO sub-section head ---- */}
       <W8SubHead
         id="sub-course-ivpo"
@@ -1172,6 +1184,21 @@ function PrinciplesSection({
         </div>
       </div>
       <div className="rx-callout"><TrendingDown size={15}/><span>The discipline is symmetrical with empiric breadth: start broad enough to be safe, then <b>de-escalate to the narrowest single agent the susceptibilities allow</b> &mdash; combination therapy earns its place only by a named mechanism, not by anxiety.</span></div>
+
+      {/* Wave 12 W12 · end-of-panel signal closes the Principles read. */}
+      <SceneBreak variant="minimal" style={{ margin: "36px 0 6px" }} />
+      <div className="rx-counter" style={{
+        textAlign: "center",
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: ".24em",
+        color: "var(--ink2)",
+        textTransform: "uppercase",
+        opacity: 0.7,
+        marginBottom: 8,
+      }}>
+        end of principles
+      </div>
     </>
   );
 

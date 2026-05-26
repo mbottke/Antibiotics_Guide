@@ -103,6 +103,30 @@ import { DottedGrid } from "./decor/DottedGrid.jsx";
 import { WatermarkLetter } from "./decor/WatermarkLetter.jsx";
 import { GradientHairline } from "./decor/GradientHairline.jsx";
 import { MeshWash } from "./decor/MeshWash.jsx";
+import { SceneBreak } from "./decor/SceneBreak.jsx";
+
+/* Wave 12 W12 · hierarchical breathing rooms.
+   Strategic SceneBreak placements between answer-layer epochs. Each
+   entry maps a layer id to the SceneBreak to render BEFORE that layer,
+   provided at least one prior layer was rendered (so we never open a
+   canvas with a chapter break). Quality > quantity: exactly four
+   transitions, mapped to the clinical reasoning epochs:
+
+     · workup     → start         (numeral "02"  before ans-start)
+     · empiric    → challenge     (phrase before ans-risks)
+     · reassess   → evidence      (phrase before ans-regional)
+     · close      → pearls        (ornament before ans-pearls)
+
+   Layers that don't appear in the visible list (e.g. because their
+   `when` predicate is false) cause the scene break to no-op — the loop
+   only fires it when the marker layer is about to render and at least
+   one earlier layer has already rendered. */
+const W12_SCENE_BREAKS = {
+  "ans-start":    { variant: "numeral",  mark: "02" },
+  "ans-risks":    { variant: "phrase",   mark: "on de-escalation" },
+  "ans-regional": { variant: "phrase",   mark: "evidence overlay" },
+  "ans-pearls":   { variant: "ornament" },
+};
 
 /* ---------- W8 reframe stylesheet ----------
    A scoped style block emitted once at the top of the canvas. Carries:
@@ -889,15 +913,28 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                 _layerTotal: visibleTotal,
               };
               const isLast = i === visibleLayers.length - 1;
+              /* Wave 12 W12 · scene-break interpolation. If this layer
+                 sits at the start of a new clinical-reasoning epoch AND
+                 at least one prior layer rendered, drop a SceneBreak
+                 ABOVE it. The mapping is deliberately sparse (4 entries)
+                 so the canvas reads as 4 chapters, not 17. */
+              const sceneBreak = i > 0 ? W12_SCENE_BREAKS[L.id] : null;
               return (
                 <React.Fragment key={L.id + "-" + i}>
+                  {sceneBreak && (
+                    <SceneBreak
+                      variant={sceneBreak.variant}
+                      mark={sceneBreak.mark}
+                      kicker={sceneBreak.kicker}
+                    />
+                  )}
                   <div
                     className="rx-fade-in-up"
                     style={_stagger()}
                   >
                     {L.render(layerShared)}
                   </div>
-                  {!isLast && (
+                  {!isLast && !W12_SCENE_BREAKS[visibleLayers[i + 1]?.id] && (
                     <GradientHairline
                       variant={i % 3 === 0 ? "cyan-blue" : i % 3 === 1 ? "blue-magenta" : "default"}
                       withDot={i % 4 === 0}

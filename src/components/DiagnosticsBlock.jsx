@@ -27,6 +27,7 @@ import { Section } from "./Section.jsx";
 import { matchesCtx } from "../engines/ctxMatch.js";
 import { RichText } from "./util/richText.jsx";
 import { severityStyle } from "./util/severityStyle.js";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
 
 const CATEGORY_LABELS = {
   cultures:   "Cultures",
@@ -140,30 +141,44 @@ function DiagnosticsBlock({ diagnostics, ctx }) {
         </div>
       )}
 
-      <div style={{ display: "grid", gap: 12 }}>
-        {sections.map(({ key, items }) => {
-          /* Within each category, surface matched items first (still
-             visible alongside the rest — never hidden). */
-          const decorated = items.map(i => ({ item: i, matched: itemMatchesCtx(i, ctx) }));
-          decorated.sort((a, b) => (b.matched ? 1 : 0) - (a.matched ? 1 : 0));
-          return (
-            <div key={key}>
-              <div style={{
-                fontFamily: "var(--mono)", fontSize: 9.5, fontWeight: 700,
-                color: "var(--ink2)", letterSpacing: ".08em",
-                textTransform: "uppercase", marginBottom: 6,
-              }}>
-                {CATEGORY_LABELS[key]}
-              </div>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 5 }}>
-                {decorated.map((d, i) => (
-                  <DiagnosticItem key={`${key}-${i}`} item={d.item} matched={d.matched} />
-                ))}
-              </ul>
-            </div>
-          );
-        })}
-      </div>
+      {/* Wave 12 W12 · when the block renders ≥ 8 total diagnostic items,
+          drop a quiet cyan-blue hairline between category groups so the
+          eye gets a breath between the Required / Confirmatory / Imaging
+          / Consider buckets. Below 8 the existing tight `gap: 12` rhythm
+          stays — hairlines would fragment a small list unnecessarily. */}
+      {(() => {
+        const totalItems = sections.reduce((n, s) => n + s.items.length, 0);
+        const useHairlines = totalItems >= 8;
+        return (
+          <div style={{ display: "grid", gap: 12 }}>
+            {sections.map(({ key, items }, sIdx) => {
+              const decorated = items.map(i => ({ item: i, matched: itemMatchesCtx(i, ctx) }));
+              decorated.sort((a, b) => (b.matched ? 1 : 0) - (a.matched ? 1 : 0));
+              return (
+                <React.Fragment key={key}>
+                  {useHairlines && sIdx > 0 && (
+                    <GradientHairline variant="cyan-blue" style={{ opacity: .4, margin: "12px 0" }} />
+                  )}
+                  <div>
+                    <div style={{
+                      fontFamily: "var(--mono)", fontSize: 9.5, fontWeight: 700,
+                      color: "var(--ink2)", letterSpacing: ".08em",
+                      textTransform: "uppercase", marginBottom: 6,
+                    }}>
+                      {CATEGORY_LABELS[key]}
+                    </div>
+                    <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 5 }}>
+                      {decorated.map((d, i) => (
+                        <DiagnosticItem key={`${key}-${i}`} item={d.item} matched={d.matched} />
+                      ))}
+                    </ul>
+                  </div>
+                </React.Fragment>
+              );
+            })}
+          </div>
+        );
+      })()}
     </Section>
   );
 }

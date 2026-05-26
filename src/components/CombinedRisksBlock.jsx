@@ -21,6 +21,7 @@ import { AlertTriangle, Link2, ShieldAlert, Info } from "lucide-react";
 import { Section } from "./Section.jsx";
 import { detectCombinedRisks } from "../data/combinedRisks.js";
 import { parseBold, RichText } from "./util/richText.jsx";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
 
 /* Shared bold-callout parser — same shape used in DurationBlock /
    MonitoringBlock / RegimenOptions. */
@@ -103,14 +104,51 @@ function CombinedRisksBlock({ pickedAgents = [] }) {
   const risks = detectCombinedRisks(pickedAgents);
   if(risks.length === 0) return null;
 
+  /* Wave 12 W12 · severity-bucketed layout when ≥ 8 risks fire.
+     Severity order is stop ↘ warn ↘ note; between each non-empty
+     bucket we render a quiet cyan-blue hairline so the eye gets a
+     breath at the severity wall. Below 8 the existing single list
+     stays — the rhythm is fine when the list is short. */
+  const stopBucket = risks.filter(r => r.sev === "stop");
+  const warnBucket = risks.filter(r => r.sev === "warn");
+  const noteBucket = risks.filter(r => !["stop", "warn"].includes(r.sev));
+  const useBuckets = risks.length >= 8;
+
   return (
     <Section kicker={`Combined-regimen risks · ${risks.length} firing`} icon={Link2} testId="combined-risks-block">
       <div style={{ fontSize:11.5, color:"var(--ink2)", marginBottom:10, fontStyle:"italic" }}>
         Cross-agent interactions detected from the agents picked across the tiers above. Items fire only when both agents are selected — pick a different card to clear.
       </div>
-      <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:6 }}>
-        {risks.map(r => <RiskRow key={r.id} risk={r} />)}
-      </ul>
+      {!useBuckets && (
+        <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:6 }}>
+          {risks.map(r => <RiskRow key={r.id} risk={r} />)}
+        </ul>
+      )}
+      {useBuckets && (
+        <>
+          {stopBucket.length > 0 && (
+            <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:6 }}>
+              {stopBucket.map(r => <RiskRow key={r.id} risk={r} />)}
+            </ul>
+          )}
+          {stopBucket.length > 0 && (warnBucket.length > 0 || noteBucket.length > 0) && (
+            <GradientHairline variant="cyan-blue" style={{ opacity: .4, margin: "24px 0" }} />
+          )}
+          {warnBucket.length > 0 && (
+            <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:6 }}>
+              {warnBucket.map(r => <RiskRow key={r.id} risk={r} />)}
+            </ul>
+          )}
+          {warnBucket.length > 0 && noteBucket.length > 0 && (
+            <GradientHairline variant="cyan-blue" style={{ opacity: .4, margin: "24px 0" }} />
+          )}
+          {noteBucket.length > 0 && (
+            <ul style={{ listStyle:"none", padding:0, margin:0, display:"grid", gap:6 }}>
+              {noteBucket.map(r => <RiskRow key={r.id} risk={r} />)}
+            </ul>
+          )}
+        </>
+      )}
     </Section>
   );
 }
