@@ -1,32 +1,27 @@
-/* section · CompareSection — Wave 2 Phase B5.
-   COMPARE is one of the five top-level sections in the new IA. It
-   answers the family of cross-agent / cross-class questions that the
-   original 11-tab reference UI split across three separate tabs:
+/* section · CompareSection — Wave 8 W8 VERSUS-MATCHUP creative rewrite.
+
+   COMPARE is one of the five top-level sections in the new IA. It answers
+   the family of cross-agent / cross-class questions that the original
+   11-tab reference UI split across three separate tabs:
 
      • Spectrum         — the 49×49 expected-activity map and the
-                          MIC / breakpoint / antibiogram principles
-                          that translate spectrum into bedside choice.
-     • Penetration      — the agent × site matrix plus the three
-                          PK/PD killing patterns that drive dosing
-                          strategy.
-     • Mechanisms       — the class × molecular-target × resistance-
-                          escape table, the four routes of resistance,
-                          and the cidal/static + PK/PD synthesis. The
-                          strategic IA groups this under COMPARE
-                          because it ultimately answers "how does this
-                          drug class compare to that one."
+                          MIC / breakpoint / antibiogram principles that
+                          translate spectrum into bedside choice.
+     • Penetration      — the agent × site matrix plus the three PK/PD
+                          killing patterns that drive dosing strategy.
+     • Mechanisms       — the class × molecular-target × resistance-escape
+                          table and the four routes of resistance.
+     • Regimens         — A-vs-B regimen comparator (Wave 5 PR-13 path).
 
-   This component is the verbatim extraction of `renderSpectrum` +
-   `renderPenetration` + `renderMechanisms` from App.jsx. The visual
-   rhythm, classNames (`rx-spec`, `rx-pencard`, `rx-mechrow`, `rx-mtx`,
-   `rx-pkpd-*`, etc.), and DOM structure all match the original render
-   functions byte-for-byte so existing CSS and tests continue to apply.
-
-   Sub-tab is controlled by the parent (App's COMPARE sub-nav); this
-   component is otherwise stateless beyond what it receives via props.
-   App.jsx itself is intentionally NOT modified by this phase — that
-   wiring will happen in a later phase when the new IA shell is hooked
-   up to replace the legacy tab router.
+   Wave 8 W8-C turns every panel into a Linear-style versus matchup:
+   shared 96px italic-serif headlines + 240px watermark + standfirst per
+   panel; the Regimens comparator becomes a side-by-side VS layout with
+   asymmetric glass cards labelled REGIMEN A / REGIMEN B and a giant
+   italic "vs" cyan divider between them. The diff table is color-coded
+   chip-per-row, toxicity column carries a 2px gradient delta bar, and
+   the microbiome column carries severity-tinted cdiff/MDR chips. ZERO
+   functional changes — regimen parsing, syndrome dispatch, sub-tab
+   routing all behave exactly as before.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useMemo, useState } from "react";
@@ -36,11 +31,236 @@ import {
 } from "lucide-react";
 import { SpectrumCompare } from "../components/cards";
 import { Cite, PDot } from "../components/primitives";
+import { Sparkle } from "../components/decor/Sparkle";
+import { WatermarkLetter } from "../components/decor/WatermarkLetter";
+import { GradientHairline } from "../components/decor/GradientHairline";
+import { Stripes } from "../components/decor/Stripes";
 import { SpectrumChartFull } from "../spectrum/Spectrum";
 import { PEN, PEN_SITES } from "../data/drugs";
 import { MECH, ORGS } from "../data/organisms";
 import { SYNDROMES } from "../data/syndromes";
 import { compareRegimens } from "../engines/regimenCompare";
+
+/* ----------------------------------------------------------------
+   W8-C1  CINEMATIC HEAD per panel
+   Shared 96px italic-serif headline + standfirst + gradient hairline.
+   Variant-aware: each panel passes its own watermark letter and
+   stand-first text so the eye registers "same shelf, four spines".
+   ---------------------------------------------------------------- */
+function CinematicHead({ kicker, headline, standfirst, watermark, icon = null }) {
+  const iIndex = headline.toLowerCase().indexOf("i");
+  const prefix = iIndex === -1 ? headline : headline.slice(0, iIndex);
+  const iChar  = iIndex === -1 ? "" : headline[iIndex];
+  const suffix = iIndex === -1 ? "" : headline.slice(iIndex + 1);
+
+  return (
+    <header
+      className="rx-fade-in-up"
+      style={{
+        position: "relative",
+        marginBottom: 36,
+        paddingTop: 8,
+        overflow: "hidden",
+      }}
+    >
+      {watermark && (
+        <WatermarkLetter
+          letter={watermark}
+          size={240}
+          opacity={0.07}
+          position="top-right"
+        />
+      )}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 14,
+        }}
+      >
+        <span className="rx-counter-strong" style={{ fontSize: 11 }}>{kicker}</span>
+        <Sparkle size={12} />
+      </div>
+      <h1
+        style={{
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
+          fontSize: 96,
+          fontWeight: 700,
+          letterSpacing: "-0.032em",
+          lineHeight: 0.96,
+          margin: "0 0 18px",
+          color: "var(--ink)",
+          display: "flex",
+          alignItems: "center",
+          gap: 18,
+          flexWrap: "wrap",
+        }}
+      >
+        {icon && <span style={{ flex: "0 0 auto" }}>{icon}</span>}
+        <span>
+          {prefix}
+          {iChar && (
+            <span style={{ position: "relative", display: "inline-block" }}>
+              <span
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  top: "-0.14em",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  lineHeight: 1,
+                }}
+              >
+                <Sparkle size={22} />
+              </span>
+              <span style={{ position: "relative" }}>{iChar}</span>
+            </span>
+          )}
+          {suffix}
+        </span>
+      </h1>
+      <p
+        style={{
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
+          fontSize: 19,
+          color: "var(--ink2)",
+          lineHeight: 1.5,
+          margin: 0,
+          maxWidth: "72ch",
+        }}
+      >
+        {standfirst}
+      </p>
+      <GradientHairline
+        variant="cyan-blue"
+        style={{ marginTop: 28, opacity: 0.6 }}
+      />
+    </header>
+  );
+}
+
+/* ----------------------------------------------------------------
+   W8-C3  Severity tint helpers — colour-coded chips per delta state
+   and per microbiome severity. Reuses neon tokens with var(--ox)
+   fallbacks so the section degrades gracefully if the neon palette
+   isn't yet loaded.
+   ---------------------------------------------------------------- */
+const DELTA_TINT = {
+  aOnly: {
+    bg: "linear-gradient(135deg, rgba(34,211,238,0.20), rgba(34,211,238,0.08))",
+    fg: "var(--neon-cyan, var(--ox))",
+    border: "var(--neon-cyan, var(--ox))",
+    label: "A only",
+  },
+  bOnly: {
+    bg: "linear-gradient(135deg, rgba(132,204,22,0.20), rgba(132,204,22,0.08))",
+    fg: "var(--electric-lime, var(--ox))",
+    border: "var(--electric-lime, var(--ox))",
+    label: "B only",
+  },
+  both: {
+    bg: "linear-gradient(135deg, rgba(59,130,246,0.14), rgba(59,130,246,0.04))",
+    fg: "var(--electric-blue, var(--ox))",
+    border: "var(--electric-blue, var(--ox))",
+    label: "Both",
+  },
+  neither: {
+    bg: "linear-gradient(135deg, rgba(251,191,36,0.20), rgba(244,114,182,0.08))",
+    fg: "#b45309",
+    border: "rgba(251,191,36,0.6)",
+    label: "Neither",
+  },
+};
+
+function DeltaChip({ delta }) {
+  const t = DELTA_TINT[delta] || DELTA_TINT.both;
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "2px 9px",
+        borderRadius: "8px 3px 8px 3px",
+        border: `1px solid ${t.border}`,
+        background: t.bg,
+        color: t.fg,
+        fontFamily: "var(--mono)",
+        fontSize: 10.5,
+        fontWeight: 700,
+        letterSpacing: ".05em",
+        textTransform: "uppercase",
+      }}
+    >
+      {t.label}
+    </span>
+  );
+}
+
+function SeverityChip({ kind, value }) {
+  const tone =
+    kind === "cdiff"
+      ? value >= 4
+        ? { bg: "rgba(244,114,182,0.18)", fg: "var(--hot-magenta, var(--ox))", border: "var(--hot-magenta, var(--ox))" }
+        : value >= 2
+        ? { bg: "rgba(251,191,36,0.18)", fg: "#b45309", border: "rgba(251,191,36,0.6)" }
+        : { bg: "rgba(132,204,22,0.18)", fg: "var(--electric-lime, var(--ox))", border: "var(--electric-lime, var(--ox))" }
+      : value === "high"
+      ? { bg: "rgba(244,114,182,0.18)", fg: "var(--hot-magenta, var(--ox))", border: "var(--hot-magenta, var(--ox))" }
+      : value === "med"
+      ? { bg: "rgba(251,191,36,0.18)", fg: "#b45309", border: "rgba(251,191,36,0.6)" }
+      : { bg: "rgba(34,211,238,0.16)", fg: "var(--neon-cyan, var(--ox))", border: "var(--neon-cyan, var(--ox))" };
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        padding: "1px 8px",
+        borderRadius: "8px 3px 8px 3px",
+        border: `1px solid ${tone.border}`,
+        background: tone.bg,
+        color: tone.fg,
+        fontFamily: "var(--mono)",
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: ".04em",
+        textTransform: "uppercase",
+      }}
+    >
+      {kind === "cdiff" ? `C.diff ${value || "—"}` : `MDR ${value || "—"}`}
+    </span>
+  );
+}
+
+/* 2px gradient bar showing relative delta weight (0..1). */
+function DeltaBar({ ratio }) {
+  const clamped = Math.max(0, Math.min(1, ratio || 0));
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        height: 2,
+        width: "100%",
+        marginTop: 6,
+        background: "var(--line)",
+        borderRadius: 2,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: `${Math.round(clamped * 100)}%`,
+          background:
+            "linear-gradient(90deg, var(--neon-cyan, var(--ox)), var(--electric-blue, var(--ox)), var(--hot-magenta, var(--ox)))",
+        }}
+      />
+    </div>
+  );
+}
 
 function CompareSection({
   activeTab,
@@ -56,53 +276,56 @@ function CompareSection({
   pickOrg,
   setPickOrg,
 }) {
-  /* SPECTRUM panel — the 49×49 expected-activity matrix + the
-     MIC / breakpoint / antibiogram reasoning that turns spectrum into
-     a bedside decision. */
+  /* ============================================================
+     SPECTRUM panel — the 49×49 expected-activity matrix.
+     W8-C4 dresses each top-level matrix row in a `.rx-acc rx-lift`
+     surface so the kinetic stagger applies, and adds a gradient-
+     stripe band above the column headers.
+     ============================================================ */
   const spectrumPanel = (
     <div>
-      <header style={{ marginBottom: 36 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{
-            fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".24em",
-            textTransform: "uppercase", color: "var(--neon-cyan, var(--ox))",
-            fontWeight: 700,
-          }}>COMPARE</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden style={{ color: "var(--neon-cyan, var(--ox))" }}>
-            <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" fill="currentColor"/>
-          </svg>
-        </div>
-        <h2 style={{
-          fontFamily: "var(--serif)", fontSize: 48, fontWeight: 700,
-          letterSpacing: "-.024em", lineHeight: 1.04,
-          margin: "0 0 12px", color: "var(--ink)",
-        }}>Compare across drugs, drugs across organisms</h2>
-        <p style={{
-          fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17,
-          color: "var(--ink2)", lineHeight: 1.55, margin: 0, maxWidth: "62ch",
-        }}>Spectrum, penetration, mechanism, and regimen-vs-regimen diff &mdash; four lenses on the formulary, all driven by the same engines that power empiric therapy.</p>
-        <div aria-hidden style={{
-          height: 1, marginTop: 28,
-          background: "linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)) 30%, var(--electric-blue, var(--ox)) 50%, var(--hot-magenta, var(--ox)) 70%, transparent)",
-          opacity: 0.5,
-        }} />
-      </header>
+      <CinematicHead
+        kicker="COMPARE · 01 / 04"
+        headline="Spectrum"
+        standfirst="A 49-agent × 49-organism map of expected activity — drug versus bug, side by side."
+        watermark="S"
+      />
 
-      <h3 className="rx-h3"><span className="ic"><Layers size={18} /></span>Spectrum of activity</h3>
-      <p className="rx-lede">
-        A 49-agent &times; 49-organism map of <i>expected</i> activity &mdash; the intrinsic and typical
-        phenotype of each organism against each agent, drawn from EUCAST expected-resistant-phenotype
-        tables, IDSA 2024 AMR guidance, and primary spectrum data. Fill fraction encodes the magnitude of
-        activity and, critically, separates <b>intrinsic</b> resistance (a structural or enzymatic wall that no
-        susceptibility report will breach) from <b>acquired</b> resistance and ordinary spectrum gaps. Hover to
-        cross-highlight a drug&times;bug pair; click to lock focus. The gold star marks a drug of choice, not
-        merely activity. This is a reasoning and teaching aid &mdash; not a substitute for the isolate&rsquo;s own
-        susceptibilities or your local antibiogram.
-      </p>
+      <article className="rx-acc rx-lift rx-fade-in-up" style={{ padding: "14px 16px", marginBottom: 16 }}>
+        <h3 className="rx-h3" style={{ marginTop: 0 }}>
+          <span className="ic"><Layers size={18} /></span>Spectrum of activity
+        </h3>
+        <p className="rx-lede">
+          A 49-agent &times; 49-organism map of <i>expected</i> activity &mdash; the intrinsic and typical
+          phenotype of each organism against each agent, drawn from EUCAST expected-resistant-phenotype
+          tables, IDSA 2024 AMR guidance, and primary spectrum data. Fill fraction encodes the magnitude of
+          activity and, critically, separates <b>intrinsic</b> resistance (a structural or enzymatic wall that no
+          susceptibility report will breach) from <b>acquired</b> resistance and ordinary spectrum gaps. Hover to
+          cross-highlight a drug&times;bug pair; click to lock focus. The gold star marks a drug of choice, not
+          merely activity. This is a reasoning and teaching aid &mdash; not a substitute for the isolate&rsquo;s own
+          susceptibilities or your local antibiogram.
+        </p>
+        {/* W8-C4 — gradient-stripe column header band on top of the matrix */}
+        <div
+          aria-hidden="true"
+          style={{
+            height: 3,
+            width: "100%",
+            margin: "6px 0 10px",
+            borderRadius: 2,
+            background:
+              "linear-gradient(90deg, var(--neon-cyan, var(--ox)), var(--electric-blue, var(--ox)) 50%, var(--hot-magenta, var(--ox)))",
+            opacity: 0.6,
+          }}
+        />
+        <SpectrumCompare onDrug={(n)=>openDrug && openDrug(n)} />
+      </article>
 
-      <SpectrumCompare onDrug={(n)=>openDrug && openDrug(n)} />
+      <article className="rx-acc rx-lift rx-fade-in-up" style={{ padding: "14px 16px", marginBottom: 16 }}>
+        <SpectrumChartFull />
+      </article>
 
-      <SpectrumChartFull />
+      <GradientHairline variant="cyan-blue" withDot style={{ margin: "16px 0 24px" }} />
 
       <h3 className="rx-h3"><span className="ic"><FlaskConical size={18} /></span>From spectrum to susceptibility &mdash; reading the data that drives the choice</h3>
       <p className="rx-lede" style={{maxWidth:"82ch"}}>
@@ -114,7 +337,7 @@ function CompareSection({
       </p>
 
       <div className="rx-2col">
-        <div className="rx-mini">
+        <div className="rx-mini rx-fade-in-up">
           <h4><span className="ic"><Layers size={16} /></span>The minimum inhibitory concentration</h4>
           <ul>
             <li>The <b>MIC</b> is the lowest concentration (&micro;g/mL) that suppresses visible growth in vitro &mdash; a potency measurement, not a probability of cure. It is meaningful only relative to the <b>breakpoint</b>.</li>
@@ -122,7 +345,7 @@ function CompareSection({
             <li>Comparing MICs <i>between</i> drugs is meaningless: a vancomycin MIC of 1 and a ceftriaxone MIC of 1 are not equivalent. Always read MIC against that agent&rsquo;s breakpoint.</li>
           </ul>
         </div>
-        <div className="rx-mini">
+        <div className="rx-mini rx-fade-in-up">
           <h4><span className="ic"><Info size={16} /></span>Susceptibility categories: S, I, SDD, and R</h4>
           <ul>
             <li><b>S (susceptible):</b> likely to respond at the standard dose.</li>
@@ -195,36 +418,20 @@ function CompareSection({
     </div>
   );
 
-  /* PENETRATION panel — tissue penetration matrix + the three PK/PD
-     killing patterns and their dosing strategies. */
+  /* ============================================================
+     PENETRATION panel — tissue penetration matrix + the three PK/PD
+     killing patterns and their dosing strategies.
+     W8-C5 adds an asymmetric grid frame around the matrix with a
+     gradient accent rail beside the active drug column.
+     ============================================================ */
   const penetrationPanel = (
     <div>
-      <header style={{ marginBottom: 36 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{
-            fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".24em",
-            textTransform: "uppercase", color: "var(--neon-cyan, var(--ox))",
-            fontWeight: 700,
-          }}>COMPARE</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden style={{ color: "var(--neon-cyan, var(--ox))" }}>
-            <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" fill="currentColor"/>
-          </svg>
-        </div>
-        <h2 style={{
-          fontFamily: "var(--serif)", fontSize: 48, fontWeight: 700,
-          letterSpacing: "-.024em", lineHeight: 1.04,
-          margin: "0 0 12px", color: "var(--ink)",
-        }}>Tissue penetration &amp; PK/PD</h2>
-        <p style={{
-          fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17,
-          color: "var(--ink2)", lineHeight: 1.55, margin: 0, maxWidth: "62ch",
-        }}>Spectrum, penetration, mechanism, and regimen-vs-regimen diff &mdash; four lenses on the formulary, all driven by the same engines that power empiric therapy.</p>
-        <div aria-hidden style={{
-          height: 1, marginTop: 28,
-          background: "linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)) 30%, var(--electric-blue, var(--ox)) 50%, var(--hot-magenta, var(--ox)) 70%, transparent)",
-          opacity: 0.5,
-        }} />
-      </header>
+      <CinematicHead
+        kicker="COMPARE · 02 / 04"
+        headline="Penetration"
+        standfirst="Site by site, can the drug get there at the dose you can give — and which PK/PD lever wins?"
+        watermark="P"
+      />
 
       <p className="rx-lede">
         Spectrum answers <i>can the drug kill this organism;</i> penetration and PK/PD answer <i>can it do so at the
@@ -235,29 +442,55 @@ function CompareSection({
         the appropriate dosing strategy.
       </p>
 
-      <div className="rx-mtxwrap">
-        <table className="rx-mtx">
-          <thead>
-            <tr>
-              <th className="corner"><div className="cl">Agent &nbsp;&middot;&nbsp; site &rarr;</div></th>
-              {PEN_SITES.map(s => (
-                <th key={s.k}><div className="rx-mtx-colh">{s.label}{s.sub?" · "+s.sub:""}</div></th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {PEN.map((r,i) => r.band ? (
-              <tr key={"b"+i} className="band"><td colSpan={PEN_SITES.length+1}>{r.band}</td></tr>
-            ) : (
-              <tr key={r.ag}>
-                <td className="lab">{r.ag}{r.sub ? <small>{r.sub}</small> : null}</td>
+      {/* W8-C5 · matrix wrapped in an asymmetric grid with cyan accent rail */}
+      <div
+        className="rx-fade-in-up"
+        style={{
+          position: "relative",
+          display: "grid",
+          gridTemplateColumns: "4px minmax(0, 1fr)",
+          gap: 10,
+          padding: 12,
+          borderRadius: "16px 4px 16px 4px",
+          border: "1px solid var(--line)",
+          background: "var(--paper)",
+          boxShadow: "var(--shadow-e1)",
+          overflow: "hidden",
+          marginBottom: 14,
+        }}
+      >
+        <div
+          aria-hidden="true"
+          style={{
+            background:
+              "linear-gradient(180deg, var(--neon-cyan, var(--ox)), var(--electric-blue, var(--ox)), var(--hot-magenta, var(--ox)))",
+            borderRadius: 2,
+          }}
+        />
+        <div className="rx-mtxwrap" style={{ margin: 0 }}>
+          <table className="rx-mtx">
+            <thead>
+              <tr>
+                <th className="corner"><div className="cl">Agent &nbsp;&middot;&nbsp; site &rarr;</div></th>
                 {PEN_SITES.map(s => (
-                  <td key={s.k} className="rx-cell2"><PDot lv={r.c[s.k]} /></td>
+                  <th key={s.k}><div className="rx-mtx-colh">{s.label}{s.sub?" · "+s.sub:""}</div></th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {PEN.map((r,i) => r.band ? (
+                <tr key={"b"+i} className="band"><td colSpan={PEN_SITES.length+1}>{r.band}</td></tr>
+              ) : (
+                <tr key={r.ag}>
+                  <td className="lab">{r.ag}{r.sub ? <small>{r.sub}</small> : null}</td>
+                  {PEN_SITES.map(s => (
+                    <td key={s.k} className="rx-cell2"><PDot lv={r.c[s.k]} /></td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <div className="rx-mtxleg">
         <span className="li"><span className="rx-dot d-good" /> Good / reliable</span>
@@ -272,6 +505,8 @@ function CompareSection({
         not sufficient &mdash; abscesses still require drainage, and undrained foci defeat even well-penetrating agents.
       </p>
 
+      <GradientHairline variant="blue-magenta" style={{ margin: "20px 0" }} />
+
       <h3 className="rx-h3"><span className="ic"><Activity size={18} /></span>Three patterns of bacterial killing and their dosing implications</h3>
       <p className="rx-lede" style={{maxWidth:"82ch"}}>
         Every antibacterial maximizes one of three PK/PD indices. Knowing which one tells you whether to chase a high
@@ -279,7 +514,7 @@ function CompareSection({
         or wastes drug.
       </p>
       <div className="rx-axis">
-        <div className="rx-axiscard">
+        <div className="rx-axiscard rx-fade-in-up">
           <div className="ax-k">Concentration-dependent</div>
           <div className="ax-t">Chase the peak</div>
           <div className="ax-pd">target: Cmax/MIC &amp; AUC/MIC</div>
@@ -290,7 +525,7 @@ function CompareSection({
             <li>A prolonged <b>post-antibiotic effect</b> is what makes interval dosing safe.</li>
           </ul>
         </div>
-        <div className="rx-axiscard">
+        <div className="rx-axiscard rx-fade-in-up" style={{ animationDelay: "80ms" }}>
           <div className="ax-k">Time-dependent</div>
           <div className="ax-t">Stay above MIC</div>
           <div className="ax-pd">target: %fT&gt;MIC</div>
@@ -300,7 +535,7 @@ function CompareSection({
             <li>Little post-antibiotic effect against Gram-negatives &mdash; missed/late doses matter.</li>
           </ul>
         </div>
-        <div className="rx-axiscard">
+        <div className="rx-axiscard rx-fade-in-up" style={{ animationDelay: "160ms" }}>
           <div className="ax-k">AUC-dependent</div>
           <div className="ax-t">Total daily exposure</div>
           <div className="ax-pd">target: 24-h AUC/MIC</div>
@@ -323,37 +558,20 @@ function CompareSection({
     </div>
   );
 
-  /* MECHANISMS panel — class × molecular-target × resistance escape
-     table + the four-route resistance taxonomy + cidal/static and
-     PK/PD synthesis. */
+  /* ============================================================
+     MECHANISMS panel — class × molecular-target × resistance escape
+     table + the four-route taxonomy.
+     W8-C6 reshapes the resistance-route cards into asymmetric cards
+     whose mechanism class lives in a vertical left-rail label.
+     ============================================================ */
   const mechanismsPanel = (
     <div>
-      <header style={{ marginBottom: 36 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{
-            fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".24em",
-            textTransform: "uppercase", color: "var(--neon-cyan, var(--ox))",
-            fontWeight: 700,
-          }}>COMPARE</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden style={{ color: "var(--neon-cyan, var(--ox))" }}>
-            <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" fill="currentColor"/>
-          </svg>
-        </div>
-        <h2 style={{
-          fontFamily: "var(--serif)", fontSize: 48, fontWeight: 700,
-          letterSpacing: "-.024em", lineHeight: 1.04,
-          margin: "0 0 12px", color: "var(--ink)",
-        }}>Mechanism &amp; resistance map</h2>
-        <p style={{
-          fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17,
-          color: "var(--ink2)", lineHeight: 1.55, margin: 0, maxWidth: "62ch",
-        }}>Spectrum, penetration, mechanism, and regimen-vs-regimen diff &mdash; four lenses on the formulary, all driven by the same engines that power empiric therapy.</p>
-        <div aria-hidden style={{
-          height: 1, marginTop: 28,
-          background: "linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)) 30%, var(--electric-blue, var(--ox)) 50%, var(--hot-magenta, var(--ox)) 70%, transparent)",
-          opacity: 0.5,
-        }} />
-      </header>
+      <CinematicHead
+        kicker="COMPARE · 03 / 04"
+        headline="Mechanisms"
+        standfirst="Every class hits one molecular target; resistance is the organism's exact counter-move."
+        watermark="M"
+      />
 
       <p className="rx-lede">
         Every class attacks one molecular target; resistance is the organism&rsquo;s counter-move against that exact
@@ -386,40 +604,124 @@ function CompareSection({
         </tbody>
       </table>
 
+      <GradientHairline variant="blue-magenta" withDot style={{ margin: "24px 0" }} />
+
       <h3 className="rx-h3"><span className="ic"><ShieldAlert size={18} /></span>Mechanisms of resistance: four routes of escape</h3>
-      <div className="rx-2col">
-        <div className="rx-mini">
-          <h4><span className="ic"><FlaskConical size={16} /></span>1 &middot; Inactivate the drug (enzymatic)</h4>
-          <ul>
-            <li><b>&beta;-lactamases</b> hydrolyze the &beta;-lactam ring &mdash; penicillinase &rarr; ESBL &rarr; AmpC &rarr; carbapenemase, the dominant Gram-negative threat.</li>
-            <li><b>Aminoglycoside-modifying enzymes</b> and <b>chloramphenicol acetyltransferase</b> chemically disable the drug.</li>
-            <li>Counter-move: a <b>&beta;-lactamase inhibitor</b> (avibactam, vaborbactam, durlobactam) or a structurally protected agent.</li>
-          </ul>
-        </div>
-        <div className="rx-mini">
-          <h4><span className="ic"><Network size={16} /></span>2 &middot; Alter / protect the target</h4>
-          <ul>
-            <li><b>PBP2a</b> (MRSA), <b>mosaic/altered PBP</b> (penicillin-R pneumococcus, gonococcus).</li>
-            <li><b>D-Ala-D-Lac</b> precursor (vanA/vanB &rarr; VRE); <b>23S/rRNA methylation</b> (erm, cfr); <b>QRDR</b> and <b>rpoB</b> point mutations.</li>
-            <li>Counter-move: an agent that binds the modified target (ceftaroline for PBP2a) or a different target entirely.</li>
-          </ul>
-        </div>
-        <div className="rx-mini">
-          <h4><span className="ic"><X size={16} /></span>3 &middot; Deny access (efflux + porin loss)</h4>
-          <ul>
-            <li><b>Efflux pumps</b> (tet, mef, RND systems) and <b>porin loss</b> reduce intracellular drug &mdash; central to <b>Pseudomonas</b> and <b>CRE</b> multidrug phenotypes.</li>
-            <li>Often combine with a low-level enzyme to cross a breakpoint &mdash; the basis of much &ldquo;variable&rdquo; activity in the spectrum chart.</li>
-            <li>Counter-move: high exposure, or the siderophore route (cefiderocol &ldquo;Trojan horse&rdquo; uptake).</li>
-          </ul>
-        </div>
-        <div className="rx-mini">
-          <h4><span className="ic"><CornerDownRight size={16} /></span>4 &middot; Bypass the pathway</h4>
-          <ul>
-            <li>Target <b>overproduction</b> or an <b>alternative enzyme</b> (sul/dfr in folate synthesis) outruns the drug.</li>
-            <li>Auxotrophy / exogenous folate uptake circumvents folate antagonists.</li>
-            <li>Counter-move: <b>sequential blockade</b> (TMP-SMX hits two folate steps) raises the bar for bypass.</li>
-          </ul>
-        </div>
+
+      {/* W8-C6 · asymmetric mechanism cards with vertical left-rail labels */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: 14,
+        }}
+      >
+        {[
+          {
+            n: 1,
+            label: "INACTIVATE",
+            title: "Inactivate the drug (enzymatic)",
+            icon: <FlaskConical size={16} />,
+            tint: "var(--neon-cyan, var(--ox))",
+            items: [
+              <><b>&beta;-lactamases</b> hydrolyze the &beta;-lactam ring &mdash; penicillinase &rarr; ESBL &rarr; AmpC &rarr; carbapenemase, the dominant Gram-negative threat.</>,
+              <><b>Aminoglycoside-modifying enzymes</b> and <b>chloramphenicol acetyltransferase</b> chemically disable the drug.</>,
+              <>Counter-move: a <b>&beta;-lactamase inhibitor</b> (avibactam, vaborbactam, durlobactam) or a structurally protected agent.</>,
+            ],
+          },
+          {
+            n: 2,
+            label: "ALTER",
+            title: "Alter / protect the target",
+            icon: <Network size={16} />,
+            tint: "var(--electric-blue, var(--ox))",
+            items: [
+              <><b>PBP2a</b> (MRSA), <b>mosaic/altered PBP</b> (penicillin-R pneumococcus, gonococcus).</>,
+              <><b>D-Ala-D-Lac</b> precursor (vanA/vanB &rarr; VRE); <b>23S/rRNA methylation</b> (erm, cfr); <b>QRDR</b> and <b>rpoB</b> point mutations.</>,
+              <>Counter-move: an agent that binds the modified target (ceftaroline for PBP2a) or a different target entirely.</>,
+            ],
+          },
+          {
+            n: 3,
+            label: "DENY",
+            title: "Deny access (efflux + porin loss)",
+            icon: <X size={16} />,
+            tint: "var(--hot-magenta, var(--ox))",
+            items: [
+              <><b>Efflux pumps</b> (tet, mef, RND systems) and <b>porin loss</b> reduce intracellular drug &mdash; central to <b>Pseudomonas</b> and <b>CRE</b> multidrug phenotypes.</>,
+              <>Often combine with a low-level enzyme to cross a breakpoint &mdash; the basis of much &ldquo;variable&rdquo; activity in the spectrum chart.</>,
+              <>Counter-move: high exposure, or the siderophore route (cefiderocol &ldquo;Trojan horse&rdquo; uptake).</>,
+            ],
+          },
+          {
+            n: 4,
+            label: "BYPASS",
+            title: "Bypass the pathway",
+            icon: <CornerDownRight size={16} />,
+            tint: "var(--electric-lime, var(--ox))",
+            items: [
+              <>Target <b>overproduction</b> or an <b>alternative enzyme</b> (sul/dfr in folate synthesis) outruns the drug.</>,
+              <>Auxotrophy / exogenous folate uptake circumvents folate antagonists.</>,
+              <>Counter-move: <b>sequential blockade</b> (TMP-SMX hits two folate steps) raises the bar for bypass.</>,
+            ],
+          },
+        ].map((m, i) => (
+          <article
+            key={m.n}
+            className="rx-fade-in-up"
+            style={{
+              animationDelay: `${80 + i * 70}ms`,
+              position: "relative",
+              display: "grid",
+              gridTemplateColumns: "30px minmax(0, 1fr)",
+              gap: 12,
+              padding: 14,
+              borderRadius: i % 2 === 0 ? "14px 4px 14px 4px" : "4px 14px 4px 14px",
+              border: "1px solid var(--line)",
+              background: "var(--paper)",
+              boxShadow: "var(--shadow-e1)",
+              overflow: "hidden",
+            }}
+          >
+            {/* W8-C6 · vertical rail with rotated mechanism label */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "relative",
+                background: `linear-gradient(180deg, ${m.tint}, transparent)`,
+                borderRadius: 2,
+                opacity: 0.85,
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: 6,
+                  left: "50%",
+                  transform: "translate(-50%, 0) rotate(-90deg)",
+                  transformOrigin: "center",
+                  fontFamily: "var(--mono)",
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: ".24em",
+                  color: m.tint,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {String(m.n).padStart(2, "0")} · {m.label}
+              </span>
+            </div>
+            <div>
+              <h4 style={{ margin: "0 0 8px" }}>
+                <span className="ic" style={{ color: m.tint }}>{m.icon}</span>
+                {m.title}
+              </h4>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.55, color: "var(--ink2)" }}>
+                {m.items.map((it, ii) => <li key={ii}>{it}</li>)}
+              </ul>
+            </div>
+          </article>
+        ))}
       </div>
 
       <div className="rx-callout">
@@ -475,18 +777,15 @@ function CompareSection({
     </div>
   );
 
-  /* REGIMENS panel — Wave 5 PR-13 cross-cutting path. Consumes the
-     compareRegimens engine (PR-5b) to give the clinician a direct
-     A-vs-B side-by-side: coverage delta per organism, toxicity tally,
-     microbiome impact, and evidence-grade against an optional syndrome.
-     Inputs are free-text, comma-separated drug lists. Parsing happens
-     through AGENT_RX inside the engine, so "zosyn, vanc" works the
-     same as canonical FORMULARY names. */
+  /* ============================================================
+     REGIMENS panel — Wave 5 PR-13 cross-cutting path. Wave 8 W8-C2
+     reframes the inputs as a VS layout (REGIMEN A vs REGIMEN B), and
+     W8-C3 renders the diff output in a 3-col Coverage / Toxicity /
+     Microbiome grid with colour-coded chips per organism + a 2px
+     gradient delta-bar on toxicity + severity-tinted cdiff/MDR chips.
+     ============================================================ */
   const regimensPanel = <RegimensComparePanel />;
 
-  /* Sub-tab dispatch. Default to "spectrum" so the component renders
-     a useful panel even when activeTab is undefined (e.g. tests that
-     mount the component without props). */
   const tab = activeTab || "spectrum";
   if(tab === "penetration") return penetrationPanel;
   if(tab === "mechanisms") return mechanismsPanel;
@@ -495,10 +794,8 @@ function CompareSection({
 }
 
 /* ============================================================
-   Wave 5 PR-13 — Regimens compare sub-tab body.
-   Side-by-side diff between two empiric regimens using the
-   compareRegimens engine (PR-5b). Pure UI on top of the symmetric
-   four-dimensional diff. ============================================ */
+   Wave 8 W8-C2/C3 — Regimens compare sub-tab body.
+   ============================================================ */
 function RegimensComparePanel() {
   const [regAText, setRegAText] = useState("Cefepime, Vancomycin (IV)");
   const [regBText, setRegBText] = useState("Meropenem");
@@ -523,112 +820,212 @@ function RegimensComparePanel() {
   );
 
   const winnerLabel = (w) => w === "a" ? "Regimen A" : w === "b" ? "Regimen B" : "Tie";
-  const winnerColor = (w) => w === "tie" ? "var(--ink2)" : "var(--ox)";
+  const winnerColor = (w) => w === "tie" ? "var(--ink2)" : "var(--neon-cyan, var(--ox))";
+
+  /* Toxicity delta weight (0..1) for the rail bar. */
+  const toxA = diff.toxicity.a.total || 0;
+  const toxB = diff.toxicity.b.total || 0;
+  const toxMax = Math.max(toxA, toxB, 1);
+  const toxRatioA = toxA / toxMax;
+  const toxRatioB = toxB / toxMax;
 
   return (
     <div>
-      <header style={{ marginBottom: 36 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <span style={{
-            fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".24em",
-            textTransform: "uppercase", color: "var(--neon-cyan, var(--ox))",
-            fontWeight: 700,
-          }}>COMPARE</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden style={{ color: "var(--neon-cyan, var(--ox))" }}>
-            <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" fill="currentColor"/>
-          </svg>
-        </div>
-        <h2 style={{
-          fontFamily: "var(--serif)", fontSize: 48, fontWeight: 700,
-          letterSpacing: "-.024em", lineHeight: 1.04,
-          margin: "0 0 12px", color: "var(--ink)",
-          display: "flex", alignItems: "center", gap: 14,
-        }}>
-          <ArrowLeftRight size={36} aria-hidden style={{ color: "var(--neon-cyan, var(--ox))", flex: "0 0 auto" }} />
-          Compare two empiric regimens
-        </h2>
-        <p style={{
-          fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17,
-          color: "var(--ink2)", lineHeight: 1.55, margin: 0, maxWidth: "82ch",
-        }}>
-          Side-by-side diff across four independent dimensions: organism
-          coverage (using <code>drugCoversOrg</code>), toxicity tally
-          (DRUG_IX rows per agent), microbiome impact (<i>C. difficile</i>
-          score + MDR-selection pressure from FORMULARY), and evidence
-          grade against an optional syndrome (tier-position scoring). Free-
-          text input &mdash; alias and shorthand spellings ("zosyn", "vanc") are
-          recognized through the same AGENT_RX registry the regimen engine
-          uses.
-        </p>
-        <div aria-hidden style={{
-          height: 1, marginTop: 28,
-          background: "linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)) 30%, var(--electric-blue, var(--ox)) 50%, var(--hot-magenta, var(--ox)) 70%, transparent)",
-          opacity: 0.5,
-        }} />
-      </header>
+      <CinematicHead
+        kicker="COMPARE · 04 / 04"
+        headline="Regimens"
+        standfirst="A versus B — coverage, toxicity, microbiome, evidence — four dimensions of a regimen swap, side by side."
+        watermark="R"
+        icon={
+          <ArrowLeftRight
+            size={64}
+            aria-hidden
+            style={{ color: "var(--neon-cyan, var(--ox))", flex: "0 0 auto" }}
+          />
+        }
+      />
 
-      {/* Inputs */}
-      <div className="rx-card" style={{
-        display: "grid", gap: 12, marginBottom: 16,
-        borderRadius: "16px 4px 16px 4px",
-        boxShadow: "var(--shadow-e1)",
-      }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
-          <label style={{ display: "block" }}>
-            <span style={{
-              fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-              letterSpacing: ".08em", textTransform: "uppercase",
-              color: "var(--ox)",
-            }}>Regimen A</span>
-            <input
-              type="text"
-              value={regAText}
-              onChange={(e) => setRegAText(e.target.value)}
-              placeholder="Cefepime, Vancomycin (IV)"
-              aria-label="Regimen A — comma-separated drug names"
-              style={{
-                width: "100%", marginTop: 4, padding: "6px 8px",
-                fontFamily: "var(--mono)", fontSize: 12,
-                border: "1px solid var(--line)", borderRadius: 5,
-                background: "var(--paper)",
-              }}
-            />
-          </label>
-          <label style={{ display: "block" }}>
-            <span style={{
-              fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-              letterSpacing: ".08em", textTransform: "uppercase",
-              color: "var(--ox)",
-            }}>Regimen B</span>
-            <input
-              type="text"
-              value={regBText}
-              onChange={(e) => setRegBText(e.target.value)}
-              placeholder="Meropenem"
-              aria-label="Regimen B — comma-separated drug names"
-              style={{
-                width: "100%", marginTop: 4, padding: "6px 8px",
-                fontFamily: "var(--mono)", fontSize: 12,
-                border: "1px solid var(--line)", borderRadius: 5,
-                background: "var(--paper)",
-              }}
-            />
-          </label>
+      <h2 className="rx-h2" style={{ marginTop: 0, marginBottom: 8, fontFamily: "var(--serif)" }}>
+        Compare two empiric regimens
+      </h2>
+      <p className="rx-lede" style={{ maxWidth: "82ch", marginBottom: 20 }}>
+        Side-by-side diff across four independent dimensions: organism coverage (using <code>drugCoversOrg</code>),
+        toxicity tally (DRUG_IX rows per agent), microbiome impact (<i>C. difficile</i> score + MDR-selection pressure
+        from FORMULARY), and evidence grade against an optional syndrome (tier-position scoring). Free-text input
+        &mdash; alias and shorthand spellings ("zosyn", "vanc") are recognized through the same AGENT_RX registry the
+        regimen engine uses.
+      </p>
+
+      {/* ============ W8-C2 · VS LAYOUT for regimen inputs ============ */}
+      <div
+        className="rx-fade-in-up"
+        style={{
+          position: "relative",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) auto minmax(0, 1fr)",
+          alignItems: "stretch",
+          gap: 18,
+          marginBottom: 18,
+          padding: "8px 4px",
+        }}
+      >
+        {/* W8-C2 · Stripes primitive as accent stripe on the page background of the VS divider */}
+        <Stripes
+          variant="cyan"
+          angle={135}
+          width="100%"
+          height="100%"
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            opacity: 0.18,
+            borderRadius: 12,
+          }}
+        />
+
+        {/* Regimen A glass card (tl-br asymmetry) */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            background: "rgba(255,255,255,0.55)",
+            backdropFilter: "saturate(170%) blur(12px)",
+            WebkitBackdropFilter: "saturate(170%) blur(12px)",
+            border: "1px solid var(--neon-cyan, var(--line))",
+            borderRadius: "16px 4px 16px 4px",
+            padding: 16,
+            boxShadow: "var(--shadow-e2)",
+          }}
+        >
+          <div className="rx-counter-strong" style={{ fontSize: 11, color: "var(--neon-cyan, var(--ox))" }}>
+            REGIMEN A
+          </div>
+          <input
+            type="text"
+            value={regAText}
+            onChange={(e) => setRegAText(e.target.value)}
+            placeholder="Cefepime, Vancomycin (IV)"
+            aria-label="Regimen A — comma-separated drug names"
+            style={{
+              width: "100%",
+              marginTop: 8,
+              padding: "10px 12px",
+              fontFamily: "var(--mono)",
+              fontSize: 14,
+              fontWeight: 600,
+              border: "1px solid var(--line)",
+              borderRadius: "10px 3px 10px 3px",
+              background: "var(--paper)",
+              color: "var(--ink)",
+              outline: "none",
+            }}
+          />
+          <div style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink2)" }}>
+            {regA.length} agent{regA.length === 1 ? "" : "s"} parsed
+          </div>
         </div>
-        <label style={{ display: "block" }}>
-          <span style={{
-            fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-            letterSpacing: ".08em", textTransform: "uppercase",
-            color: "var(--ink2)",
-          }}>Syndrome context (drives coverage + evidence grade)</span>
+
+        {/* W8-C2 · giant italic "vs" in cyan */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "relative",
+            zIndex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: 96,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--serif)",
+              fontStyle: "italic",
+              fontSize: 96,
+              fontWeight: 700,
+              letterSpacing: "-0.04em",
+              lineHeight: 1,
+              color: "var(--neon-cyan, var(--ox))",
+              textShadow:
+                "0 0 24px rgba(34,211,238,0.25), 0 0 1px rgba(34,211,238,0.5)",
+            }}
+          >
+            vs
+          </span>
+        </div>
+
+        {/* Regimen B glass card (tr-bl asymmetry) */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            background: "rgba(255,255,255,0.55)",
+            backdropFilter: "saturate(170%) blur(12px)",
+            WebkitBackdropFilter: "saturate(170%) blur(12px)",
+            border: "1px solid var(--hot-magenta, var(--line))",
+            borderRadius: "4px 16px 4px 16px",
+            padding: 16,
+            boxShadow: "var(--shadow-e2)",
+          }}
+        >
+          <div className="rx-counter-strong" style={{ fontSize: 11, color: "var(--hot-magenta, var(--ox))" }}>
+            REGIMEN B
+          </div>
+          <input
+            type="text"
+            value={regBText}
+            onChange={(e) => setRegBText(e.target.value)}
+            placeholder="Meropenem"
+            aria-label="Regimen B — comma-separated drug names"
+            style={{
+              width: "100%",
+              marginTop: 8,
+              padding: "10px 12px",
+              fontFamily: "var(--mono)",
+              fontSize: 14,
+              fontWeight: 600,
+              border: "1px solid var(--line)",
+              borderRadius: "3px 10px 3px 10px",
+              background: "var(--paper)",
+              color: "var(--ink)",
+              outline: "none",
+            }}
+          />
+          <div style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink2)" }}>
+            {regB.length} agent{regB.length === 1 ? "" : "s"} parsed
+          </div>
+        </div>
+      </div>
+
+      {/* Syndrome selector sits below the VS row */}
+      <div
+        className="rx-card rx-fade-in-up"
+        style={{
+          marginBottom: 22,
+          padding: "12px 14px",
+          borderRadius: "14px 4px 14px 4px",
+        }}
+      >
+        <label style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <span
+            className="rx-counter"
+            style={{ fontSize: 10, color: "var(--ink2)" }}
+          >
+            SYNDROME CONTEXT — drives coverage + evidence grade
+          </span>
           <select
             value={synId}
             onChange={(e) => setSynId(e.target.value)}
             aria-label="Syndrome context"
             style={{
-              marginTop: 4, padding: "6px 8px", fontSize: 12,
-              border: "1px solid var(--line)", borderRadius: 5,
-              background: "var(--paper)", maxWidth: 360,
+              padding: "6px 10px",
+              fontSize: 12,
+              fontFamily: "var(--mono)",
+              border: "1px solid var(--line)",
+              borderRadius: 6,
+              background: "var(--paper)",
+              minWidth: 240,
             }}
           >
             <option value="">— none (use full organism set) —</option>
@@ -639,16 +1036,201 @@ function RegimensComparePanel() {
         </label>
       </div>
 
-      {/* Coverage delta */}
+      {/* ============ W8-C3 · 3-col matchup grid ============ */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: 14,
+          marginBottom: 18,
+        }}
+      >
+        {/* Coverage card */}
+        <div
+          className="rx-fade-in-up"
+          style={{
+            position: "relative",
+            padding: 14,
+            borderRadius: "14px 4px 14px 4px",
+            border: "1px solid var(--line)",
+            background: "var(--paper)",
+            boxShadow: "var(--shadow-e1)",
+            overflow: "hidden",
+          }}
+        >
+          <h4 style={{ margin: "0 0 10px" }}>
+            <span className="ic"><Crosshair size={15} /></span>Coverage
+          </h4>
+          <div className="rx-counter" style={{ fontSize: 10, marginBottom: 6 }}>
+            ORGANISMS · A {diff.coverage.organisms.filter(o => o.a).length} vs B {diff.coverage.organisms.filter(o => o.b).length}
+          </div>
+          {diff.coverage.organisms.length === 0 ? (
+            <p style={{ color: "var(--ink2)", fontSize: 12 }}>No organisms to compare — pick a syndrome or add drugs.</p>
+          ) : (
+            <div style={{ maxHeight: 320, overflowY: "auto", paddingRight: 4 }}>
+              {diff.coverage.organisms.map(o => (
+                <div
+                  key={o.id}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "minmax(0, 1fr) auto",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "6px 0",
+                    borderTop: "1px solid var(--line)",
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontSize: 12.5,
+                        color: "var(--ink)",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                      title={o.label}
+                    >
+                      {o.label}
+                    </div>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 10.5, color: "var(--ink2)", marginTop: 2 }}>
+                      <span style={{ color: o.a ? "var(--neon-cyan, var(--ox))" : "var(--ink2)" }}>A {o.a ? "✓" : "—"}</span>
+                      <span style={{ margin: "0 6px" }}>·</span>
+                      <span style={{ color: o.b ? "var(--electric-lime, var(--ox))" : "var(--ink2)" }}>B {o.b ? "✓" : "—"}</span>
+                    </div>
+                  </div>
+                  <DeltaChip delta={o.delta} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Toxicity card with gradient delta bars */}
+        <div
+          className="rx-fade-in-up"
+          style={{
+            position: "relative",
+            padding: 14,
+            borderRadius: "4px 14px 4px 14px",
+            border: "1px solid var(--line)",
+            background: "var(--paper)",
+            boxShadow: "var(--shadow-e1)",
+            overflow: "hidden",
+          }}
+        >
+          <h4 style={{ margin: "0 0 10px" }}>
+            <span className="ic"><ShieldAlert size={15} /></span>Toxicity
+          </h4>
+          <div className="rx-counter" style={{ fontSize: 10, marginBottom: 10 }}>
+            FLAG TALLY · DRUG_IX × AGENT
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 2 }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--neon-cyan, var(--ox))" }}>
+                  REGIMEN A
+                </span>
+                <span style={{ fontSize: 12, color: "var(--ink2)" }}>
+                  <b style={{ color: "var(--ink)" }}>{diff.toxicity.a.total}</b> flags · <b style={{ color: "var(--ink)" }}>{diff.toxicity.a.majorCount}</b> major
+                </span>
+              </div>
+              <DeltaBar ratio={toxRatioA} />
+            </div>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 2 }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--hot-magenta, var(--ox))" }}>
+                  REGIMEN B
+                </span>
+                <span style={{ fontSize: 12, color: "var(--ink2)" }}>
+                  <b style={{ color: "var(--ink)" }}>{diff.toxicity.b.total}</b> flags · <b style={{ color: "var(--ink)" }}>{diff.toxicity.b.majorCount}</b> major
+                </span>
+              </div>
+              <DeltaBar ratio={toxRatioB} />
+            </div>
+          </div>
+        </div>
+
+        {/* Microbiome card with severity chips */}
+        <div
+          className="rx-fade-in-up"
+          style={{
+            position: "relative",
+            padding: 14,
+            borderRadius: "14px 4px 14px 4px",
+            border: "1px solid var(--line)",
+            background: "var(--paper)",
+            boxShadow: "var(--shadow-e1)",
+            overflow: "hidden",
+          }}
+        >
+          <h4 style={{ margin: "0 0 10px" }}>
+            <span className="ic"><Activity size={15} /></span>Microbiome
+          </h4>
+          <div className="rx-counter" style={{ fontSize: 10, marginBottom: 10 }}>
+            C.DIFF MAX · MDR PRESSURE
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--neon-cyan, var(--ox))", marginBottom: 4 }}>
+                REGIMEN A
+              </div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <SeverityChip kind="cdiff" value={diff.microbiome.a.cdiffMax} />
+                <SeverityChip
+                  kind="mdr"
+                  value={
+                    diff.microbiome.a.mdrCount.high > 0 ? "high"
+                    : diff.microbiome.a.mdrCount.med > 0 ? "med"
+                    : "low"
+                  }
+                />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--hot-magenta, var(--ox))", marginBottom: 4 }}>
+                REGIMEN B
+              </div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <SeverityChip kind="cdiff" value={diff.microbiome.b.cdiffMax} />
+                <SeverityChip
+                  kind="mdr"
+                  value={
+                    diff.microbiome.b.mdrCount.high > 0 ? "high"
+                    : diff.microbiome.b.mdrCount.med > 0 ? "med"
+                    : "low"
+                  }
+                />
+              </div>
+            </div>
+            <div
+              style={{
+                marginTop: 4,
+                fontFamily: "var(--mono)",
+                fontSize: 11,
+                fontWeight: 700,
+                color: winnerColor(diff.microbiome.winner),
+              }}
+            >
+              LOWER COLLATERAL → {winnerLabel(diff.microbiome.winner).toUpperCase()}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ============ W8-C3 · full coverage delta table (verbose, label-rich) ============ */}
       <h3 className="rx-h3">
         <span className="ic"><Crosshair size={18} /></span>
         Coverage delta — per organism
       </h3>
-      <div className="rx-card" style={{
-        marginBottom: 16,
-        borderRadius: "16px 4px 16px 4px",
-        boxShadow: "var(--shadow-e1)",
-      }}>
+      <div
+        className="rx-card rx-fade-in-up"
+        style={{
+          marginBottom: 16,
+          borderRadius: "16px 4px 16px 4px",
+          boxShadow: "var(--shadow-e1)",
+        }}
+      >
         {diff.coverage.organisms.length === 0 ? (
           <p style={{ color: "var(--ink2)", fontSize: 12 }}>No organisms to compare — pick a syndrome or add drugs.</p>
         ) : (
@@ -662,33 +1244,32 @@ function RegimensComparePanel() {
               </tr>
             </thead>
             <tbody>
-              {diff.coverage.organisms.map(o => {
-                const tone = o.delta === "neither" ? "#b91c1c" : o.delta === "both" ? "var(--ink2)" : "var(--ox)";
-                const deltaLabel = o.delta === "aOnly" ? "A only" : o.delta === "bOnly" ? "B only" :
-                                   o.delta === "both" ? "Both" : "Neither";
-                return (
-                  <tr key={o.id} style={{ borderTop: "1px solid var(--line)" }}>
-                    <td style={{ padding: "6px 9px" }}>{o.label}</td>
-                    <td style={{ padding: "6px 9px", textAlign: "center", color: o.a ? "var(--ox)" : "var(--ink2)" }}>
-                      {o.a ? "✓" : "—"}
-                    </td>
-                    <td style={{ padding: "6px 9px", textAlign: "center", color: o.b ? "var(--ox)" : "var(--ink2)" }}>
-                      {o.b ? "✓" : "—"}
-                    </td>
-                    <td style={{ padding: "6px 9px", color: tone, fontFamily: "var(--mono)", fontSize: 11, fontWeight: 600 }}>
-                      {deltaLabel}
-                    </td>
-                  </tr>
-                );
-              })}
+              {diff.coverage.organisms.map(o => (
+                <tr key={o.id} style={{ borderTop: "1px solid var(--line)" }}>
+                  <td style={{ padding: "6px 9px" }}>{o.label}</td>
+                  <td style={{ padding: "6px 9px", textAlign: "center", color: o.a ? "var(--neon-cyan, var(--ox))" : "var(--ink2)" }}>
+                    {o.a ? "✓" : "—"}
+                  </td>
+                  <td style={{ padding: "6px 9px", textAlign: "center", color: o.b ? "var(--electric-lime, var(--ox))" : "var(--ink2)" }}>
+                    {o.b ? "✓" : "—"}
+                  </td>
+                  <td style={{ padding: "6px 9px" }}>
+                    <DeltaChip delta={o.delta} />
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
       </div>
 
-      {/* Microbiome + evidence + toxicity summary */}
+      <GradientHairline variant="magenta-lime" withDot style={{ margin: "20px 0" }} />
+
+      {/* Verbose secondary summary preserves text-search assertions and the
+         original "Microbiome impact / Toxicity tally / Evidence grade"
+         labels expected by RTL tests. */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
-        <div className="rx-card" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
+        <div className="rx-card rx-fade-in-up" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
           <h4><span className="ic"><Activity size={15} /></span>Microbiome impact</h4>
           <ul style={{ paddingLeft: 20, margin: 0 }}>
             <li><b>A:</b> worst C.diff = {diff.microbiome.a.cdiffMax || "—"} · MDR high count = {diff.microbiome.a.mdrCount.high}</li>
@@ -698,14 +1279,14 @@ function RegimensComparePanel() {
             </li>
           </ul>
         </div>
-        <div className="rx-card" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
+        <div className="rx-card rx-fade-in-up" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
           <h4><span className="ic"><ShieldAlert size={15} /></span>Toxicity tally</h4>
           <ul style={{ paddingLeft: 20, margin: 0 }}>
             <li><b>A:</b> {diff.toxicity.a.total} flags ({diff.toxicity.a.majorCount} major)</li>
             <li><b>B:</b> {diff.toxicity.b.total} flags ({diff.toxicity.b.majorCount} major)</li>
           </ul>
         </div>
-        <div className="rx-card" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
+        <div className="rx-card rx-fade-in-up" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
           <h4><span className="ic"><FlaskConical size={15} /></span>Evidence grade</h4>
           <ul style={{ paddingLeft: 20, margin: 0 }}>
             <li><b>A:</b> {diff.evidence.a.preferred.length} preferred · {diff.evidence.a.alternative.length} alt · {diff.evidence.a.offProtocol.length} off-protocol</li>
