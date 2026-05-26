@@ -159,8 +159,32 @@ function AgentsSection({
     };
     return (
       <>
-        <h2 className="rx-h2">Formulary</h2>
-        <p className="rx-lede">The spectrum matrix, the drug formulary, the β-lactamase resistance ladder, and the allergy cross-reactivity map — the look-up layer beneath the syndrome and organism views.</p>
+        <header style={{ marginBottom: 36 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <span style={{
+              fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".24em",
+              textTransform: "uppercase", color: "var(--neon-cyan, var(--ox))",
+              fontWeight: 700,
+            }}>FORMULARY</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden style={{ color: "var(--neon-cyan, var(--ox))" }}>
+              <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" fill="currentColor"/>
+            </svg>
+          </div>
+          <h2 style={{
+            fontFamily: "var(--serif)", fontSize: 48, fontWeight: 700,
+            letterSpacing: "-.024em", lineHeight: 1.04,
+            margin: "0 0 12px", color: "var(--ink)",
+          }}>Antibiotic agents</h2>
+          <p style={{
+            fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17,
+            color: "var(--ink2)", lineHeight: 1.55, margin: 0, maxWidth: "62ch",
+          }}>Every agent in the formulary, filterable by spectrum, route, and microbiome impact. Click an agent to open its monograph.</p>
+          <div aria-hidden style={{
+            height: 1, marginTop: 28,
+            background: "linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)) 30%, var(--electric-blue, var(--ox)) 50%, var(--hot-magenta, var(--ox)) 70%, transparent)",
+            opacity: 0.5,
+          }} />
+        </header>
 
         <h3 className="rx-h3"><span className="ic"><LayoutGrid size={18}/></span>Spectrum of activity</h3>
         <div className="rx-card" style={{display:"flex",gap:"14px",alignItems:"flex-start"}}>
@@ -183,6 +207,19 @@ function AgentsSection({
         <h3 className="rx-h3"><span className="ic"><Pill size={18}/></span>Formulary</h3>
         {ctx.on && <p className="rx-fnote-ctx"><Activity size={13}/> Doses below are adjusted for the active patient (CrCl <Num>{d.crcl ?? "—"}</Num> mL/min). Standard dose shown struck through where it changes.</p>}
 
+        <div style={{
+          background: "rgba(255,255,255,0.55)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid var(--line)",
+          borderRadius: 14,
+          padding: "14px 16px",
+          boxShadow: "var(--shadow-e1)",
+          marginBottom: 14,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}>
         <div className="rx-fmbar">
           <span className="rx-fmbar-lab"><Filter size={13}/> Filter</span>
           <label className="rx-fmbar-field">
@@ -257,6 +294,7 @@ function AgentsSection({
             </select>
           </label>
         </div>
+        </div>
 
         {fmCover && <p className="rx-fmbar-note">Showing agents with first- or second-line activity against <b>{(ORG_BY_ID[fmCover]||{}).label}</b> (derived from the spectrum matrix). Confirm against the local antibiogram.</p>}
 
@@ -265,7 +303,15 @@ function AgentsSection({
           : fmClasses.map(cl => {
           const FI = FORM_ICON[cl.icon] || Pill;
           return (
-            <div key={cl.cls}>
+            <div key={cl.cls} style={{
+              borderRadius: "16px 4px 16px 4px",
+              border: "1px solid var(--line)",
+              background: "var(--paper)",
+              boxShadow: "var(--shadow-e1)",
+              padding: "12px 14px 4px",
+              marginBottom: 14,
+              transition: "transform .18s ease, box-shadow .18s ease",
+            }}>
               <div className="rx-classhdr"><span className="ic"><FI size={15}/></span>{cl.cls}</div>
               <table className="rx-ftable">
                 <thead><tr><th>Agent</th><th>Typical adult IV dose</th><th>Renal</th><th>Decision-changing pearl</th></tr></thead>

@@ -29,7 +29,7 @@ import {
 } from "../data/syndromeDecision.js";
 import { LAYERS } from "./answer-layers/_index.js";
 import { MechanismDrawer } from "./MechanismDrawer.jsx";
-import { EditorialHero } from "./EditorialHero.jsx";
+import { GradientMeshHero } from "./GradientMeshHero.jsx";
 
 /* ---------- the canvas itself ---------- */
 function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite, antibiogram, onOpenAntibiogramManager }) {
@@ -328,11 +328,11 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
 
   return (
     <div style={{ marginTop: 6 }}>
-      <EditorialHero
+      <GradientMeshHero
+        kicker="Bedside / The Answer"
         syndromeName={s.name}
         syndromeLine={s.line}
         patientChips={patientChips}
-        riskLabels={riskLabels}
         onEditCase={onEditCase}
       />
 
@@ -341,9 +341,10 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           <span style={{
             display: "inline-flex", alignItems: "center", gap: 5,
             fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600,
-            color: "var(--ox)", background: "var(--ox-soft)",
+            color: "var(--neon-cyan, var(--ox))",
+            background: "var(--neon-cyan-soft, var(--ox-soft))",
             padding: "3px 8px", borderRadius: 4,
-            border: "1px solid var(--ox-line)",
+            border: "1px solid var(--neon-cyan-line, var(--ox-line))",
             letterSpacing: ".06em", textTransform: "uppercase",
           }}>
             <BookOpen size={10} aria-hidden /> {_depthCount} depth layers · scroll + expand for full detail
@@ -367,10 +368,11 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
             position: "sticky", top: 0, zIndex: 5,
             margin: "-2px -2px 14px",
             padding: "9px 10px",
-            background: "color-mix(in srgb, var(--paper) 72%, transparent)",
+            background: "color-mix(in srgb, var(--paper) 68%, var(--neon-cyan-soft, var(--ox-soft)) 32%)",
             backdropFilter: "saturate(170%) blur(16px)",
             WebkitBackdropFilter: "saturate(170%) blur(16px)",
-            border: "1px solid var(--line)",
+            border: "1px solid",
+            borderColor: "color-mix(in srgb, var(--line) 70%, var(--neon-cyan-line, var(--line)) 30%)",
             borderRadius: 12,
             boxShadow: "0 1px 0 rgba(255,255,255,.7) inset, var(--shadow-e1)",
           }}>
@@ -449,11 +451,12 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                 fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
                 letterSpacing: ".06em", textTransform: "uppercase",
                 color: active ? "#fff" : "var(--ink2)",
-                background: active ? "var(--ox)" : "var(--panel)",
-                border: `1px solid ${active ? "var(--ox)" : "var(--line)"}`,
+                background: active ? "var(--neon-cyan, var(--ox))" : "var(--panel)",
+                border: `1px solid ${active ? "var(--neon-cyan, var(--ox))" : "var(--line)"}`,
                 borderRadius: 999,
                 padding: "5px 13px", cursor: "pointer",
-                transition: "background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out)",
+                boxShadow: active ? "var(--neon-cyan-glow, var(--shadow-e2))" : "var(--shadow-e0)",
+                transition: "background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out)",
               }}
             >
               {t.label}
@@ -510,7 +513,8 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
         <button type="button" onClick={onEditCase}
           style={{
             display:"inline-flex", alignItems:"center", gap:7,
-            fontFamily:"var(--sans)", fontSize:13, fontWeight:500, color:"var(--ink2)",
+            fontFamily:"var(--sans)", fontSize:13, fontWeight:500,
+            color:"var(--neon-cyan, var(--ox))",
             background:"var(--panel)", border:"1px solid var(--line)", borderRadius:9,
             padding:"10px 16px", cursor:"pointer",
           }}>
