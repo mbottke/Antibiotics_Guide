@@ -146,10 +146,10 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
     padding: scrolled ? "4px 9px" : "5px 11px",
     cursor: "pointer",
     transition:
-      "padding .18s var(--ease-out, ease-out)," +
-      " background .18s var(--ease-out, ease-out)," +
-      " border-color .18s var(--ease-out, ease-out)," +
-      " box-shadow .18s var(--ease-out, ease-out)",
+      "padding var(--duration-base, .18s) var(--ease-out, ease-out)," +
+      " background var(--duration-base, .18s) var(--ease-out, ease-out)," +
+      " border-color var(--duration-base, .18s) var(--ease-out, ease-out)," +
+      " box-shadow var(--duration-base, .18s) var(--ease-out, ease-out)",
     ...extra,
   });
 
@@ -189,7 +189,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
           padding: scrolled ? "6px 0" : "10px 0",
           gap: 12,
           flexWrap: "wrap",
-          transition: "padding .18s var(--ease-out, ease-out)",
+          transition: "padding var(--duration-base, .18s) var(--ease-out, ease-out)",
         }}>
           <button
             type="button"

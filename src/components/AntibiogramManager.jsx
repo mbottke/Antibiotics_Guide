@@ -210,7 +210,7 @@ function ChromeButton({ variant = "ghost", onClick, title, disabled, children, t
         cursor: disabled ? "not-allowed" : "pointer",
         whiteSpace: "nowrap",
         opacity: disabled ? 0.5 : 1,
-        transition: "background .18s, border-color .18s",
+        transition: "background var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease)",
       }}
     >
       {children}

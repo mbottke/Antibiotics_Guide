@@ -204,7 +204,7 @@ export function GradientMeshHero({
             filter: "blur(48px)",
             animation: blob.animation,
             willChange: "transform",
-            transition: "top 300ms cubic-bezier(0.16, 1, 0.3, 1), left 300ms cubic-bezier(0.16, 1, 0.3, 1), right 300ms cubic-bezier(0.16, 1, 0.3, 1), bottom 300ms cubic-bezier(0.16, 1, 0.3, 1)",
+            transition: "top var(--duration-slow, 300ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), left var(--duration-slow, 300ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), right var(--duration-slow, 300ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), bottom var(--duration-slow, 300ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1))",
             zIndex: 0,
           }}
         />

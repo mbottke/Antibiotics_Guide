@@ -180,7 +180,7 @@ const W8_STYLES = `
   padding: 4px 4px 4px 18px;
   cursor: pointer;
   text-align: left;
-  transition: color 200ms var(--ease-out), transform 200ms var(--ease-out);
+  transition: color var(--duration-base, 200ms) var(--ease-out), transform var(--duration-base, 200ms) var(--ease-out);
 }
 .rx-vertical-rail__item::before{
   content: "";
@@ -192,7 +192,7 @@ const W8_STYLES = `
   border-radius: 50%;
   background: var(--line);
   transform: translate(-50%, -50%);
-  transition: background 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+  transition: background var(--duration-base, 200ms) var(--ease-out), box-shadow var(--duration-base, 200ms) var(--ease-out);
 }
 .rx-vertical-rail__item:hover{
   color: var(--ink);

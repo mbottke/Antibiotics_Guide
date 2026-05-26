@@ -212,7 +212,7 @@ function CloseButton({ onClose, label }) {
         color: "var(--ink)",
         fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
         letterSpacing: ".08em", textTransform: "uppercase",
-        transition: "background .18s, color .18s, border-color .18s",
+        transition: "background var(--duration-base, .18s) var(--ease-out, ease), color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease)",
       }}
     >
       <X size={12} aria-hidden /> Close

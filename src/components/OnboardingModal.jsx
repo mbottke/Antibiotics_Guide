@@ -151,7 +151,7 @@ function CtaPill({ onClick, label, ariaLabel, leadingIcon, trailingIcon, variant
         color: "var(--ink2)",
         display: "inline-flex", alignItems: "center", gap: 6,
         boxShadow: "none",
-        transition: "background .18s, color .18s, border-color .18s, box-shadow .18s, transform .18s",
+        transition: "background var(--duration-base, .18s) var(--ease-out, ease), color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease), transform var(--duration-base, .18s) var(--ease-out, ease)",
       }}
     >
       {Leading && <Leading size={11} aria-hidden />}

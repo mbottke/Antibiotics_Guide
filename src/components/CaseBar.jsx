@@ -101,7 +101,7 @@ const W10_CASEBAR_CSS = `
   min-width: 0;
   box-sizing: border-box;
   outline: none;
-  transition: border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease), background .18s var(--ease-out, ease);
+  transition: border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease), background var(--duration-base, .18s) var(--ease-out, ease);
 }
 [data-w10-casebar] .rx-w10-input::placeholder {
   font-family: var(--serif);
@@ -163,7 +163,7 @@ const W10_CASEBAR_CSS = `
     inset 0 -1px 0 rgba(0,0,0,0.30),
     0 6px 14px -4px rgba(11,15,20,0.45),
     0 0 18px -6px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 50%, transparent);
-  transition: box-shadow .18s var(--ease-out, ease), transform .12s var(--ease-out, ease);
+  transition: box-shadow var(--duration-base, .18s) var(--ease-out, ease), transform var(--duration-fast, .12s) var(--ease-out, ease);
   will-change: transform;
 }
 [data-w10-casebar] .rx-w10-cta::after {
@@ -201,7 +201,7 @@ const W10_CASEBAR_CSS = `
   border: 1px solid color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 35%, var(--line));
   border-radius: 10px 3px 10px 3px;
   padding: 8px 12px; cursor: pointer;
-  transition: color .18s var(--ease-out, ease), border-color .18s var(--ease-out, ease), background .18s var(--ease-out, ease);
+  transition: color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease), background var(--duration-base, .18s) var(--ease-out, ease);
 }
 [data-w10-casebar] .rx-w10-ghost:hover {
   color: var(--neon-cyan, var(--ox));

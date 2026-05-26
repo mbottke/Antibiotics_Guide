@@ -291,7 +291,7 @@ function W8TaxonomicRail({ counts, activeId, onSelect, totalOrgs }) {
               transform: active ? "translateY(-1px)" : "translateY(0)",
               cursor: "pointer",
               textAlign: "left",
-              transition: "all 200ms var(--ease-out, ease)",
+              transition: "all var(--duration-base, 180ms) var(--ease-out, ease)",
               fontFamily: "inherit",
               color: "inherit",
               appearance: "none",

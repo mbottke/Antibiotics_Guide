@@ -170,6 +170,11 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                   type={interactive ? "button" : undefined}
                   onClick={interactive ? toggle : undefined}
                   aria-pressed={interactive ? active : undefined}
+                  /* Wave 11 — clickable branch tiles opt in to the global
+                     cursor-spotlight + focus-halo so they react with the
+                     same polish as every other major interactive surface.
+                     Static (non-interactive) tiles stay inert. */
+                  className={interactive ? "rx-card-interactive rx-focus-halo" : undefined}
                   style={{
                     textAlign: "left",
                     background: active ? accentBg : "var(--paper2)",
@@ -179,7 +184,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                     padding: "8px 10px 8px 9px",
                     display:"flex", flexDirection:"column", gap:4,
                     cursor: interactive ? "pointer" : "default",
-                    transition: "background .12s, border-color .12s",
+                    transition: "background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
                     boxShadow: active ? "inset 0 0 0 1px var(--ox-line)" : "none",
                   }}>
                   <div style={{ display:"flex", alignItems:"baseline", gap:8, justifyContent:"space-between" }}>
@@ -256,7 +261,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                 WebkitBackdropFilter:"blur(10px) saturate(160%)",
                 color:"var(--ink)",
                 outline:"none",
-                transition:"border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
+                transition:"border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
               }} />
           </label>
           <div style={{ fontSize: 12, color: "var(--ink2)", textAlign: "right" }}>
@@ -338,7 +343,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                       border: ctxFires ? "1px solid var(--amber-line)" : "none",
                       borderLeft: ctxFires ? "3px solid var(--amber)" : "none",
                       borderRadius: ctxFires ? 5 : 0,
-                      transition: "background .12s, border-color .12s",
+                      transition: "background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
                     }}>
                       <AlertTriangle size={11} aria-hidden style={{ color:"var(--amber)", flexShrink: 0, marginTop: 3 }} />
                       <span style={{ flex: 1 }}>
