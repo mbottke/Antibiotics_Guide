@@ -33,6 +33,7 @@ import { doseAdjustments } from "../engines/dosing.js";
 import { matchesCtx } from "../engines/ctxMatch.js";
 import { AGENT_RX, DRUG_ALIASES, FORMULARY } from "../data/drugs.js";
 import { parseBold, RichText } from "./util/richText.jsx";
+import { Sparkle } from "./decor/Sparkle.jsx";
 
 /* Wave 5 PR-10 — microbiome collateral-damage signals.
    FORMULARY lookup keyed by canonical FORMULARY name; AGENT_RX is the
@@ -401,6 +402,11 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
       aria-checked={selected}
       aria-describedby={showAllergyBanner ? `allergy-warn-${synId}-${option.text.slice(0,20).replace(/\W+/g,"-")}` : undefined}
       onClick={onSelect}
+      /* Wave 10 — rx-focus-halo lifts keyboard-focus ring to the same depth
+         cyan halo used by all interactive inputs across the canvas, plus
+         rx-glow-lift gives the selected card a subtle spring on hover.
+         Both classes are inert under reduced-motion / coarse-pointer. */
+      className={"rx-focus-halo" + (selected ? " rx-glow-lift" : "")}
       style={{
         textAlign:"left",
         background: selected
@@ -448,14 +454,20 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
           <RouteBadge route={option.route} />
           {primary && (
             <span style={{
-              display:"inline-flex", alignItems:"center", gap:3,
+              display:"inline-flex", alignItems:"center", gap:4,
               fontFamily:"var(--mono)", fontSize:9, letterSpacing:".08em",
               textTransform:"uppercase", fontWeight:700,
               color:"#fff", background: accentColor,
               border: "1px solid " + accentColor,
               borderRadius: 4, padding:"2px 6px",
               whiteSpace:"nowrap",
-            }}>Recommended</span>
+            }}>
+              {/* Wave 10 — Sparkle glyph on the "Recommended" chip so the
+                  badge carries the same "considered / curated" mark the
+                  drug-of-choice gloss uses elsewhere in the answer-canvas. */}
+              <Sparkle size={9} color="#fff" />
+              Recommended
+            </span>
           )}
           <MicrobiomeChips optionText={option.text} />
         </div>

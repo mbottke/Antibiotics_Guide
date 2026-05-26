@@ -126,14 +126,18 @@ function RegionalResistanceBlock({ patterns }) {
 
   return (
     <Section kicker="Regional resistance · Antibiogram alerts" icon={Globe} glyph="local" testId="regional-resistance-block">
-      <div style={{
+      {/* Wave 10 — headline scope-note picks up rx-glass-bleed to match
+          the shared "this is the bottom-line context" panel chrome used
+          by Monitoring + Duration + Research + Novel agents. */}
+      <div className="rx-glass-bleed" style={{
         background: accentBg,
         border: "1px solid var(--ox-line)",
         borderRadius: 7,
         padding: "8px 11px",
         marginBottom: 10,
+        position: "relative",
       }}>
-        <div style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--ink)", fontWeight: 500 }}>
+        <div style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--ink)", fontWeight: 500, position: "relative", zIndex: 2 }}>
           Resistance patterns that materially change the empiric strategy here. Always confirm against your <b>local antibiogram</b> — these are population-level signals, not patient-specific.
         </div>
       </div>

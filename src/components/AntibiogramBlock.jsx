@@ -252,15 +252,24 @@ function AntibiogramBlock({ antibiogram, syndrome, onOpenManager }) {
               ‡ {summary.coverage.context} breakpoints
             </span>
           )}
+          {/* Wave 10 — Manage button promoted from a flat ghost-button to
+              the rx-chrome-cta metallic pill so the only call-to-action
+              on the antibiogram strip reads as a deliberate affordance
+              (it opens a destructive-capable manager). The pill keeps
+              the existing onClick + title; only the visual chrome
+              changes. We scale down the typography to fit the existing
+              header strip's vertical rhythm. */}
           {onOpenManager && (
-            <button type="button" onClick={onOpenManager} title="Manage hospital antibiograms"
+            <button
+              type="button"
+              onClick={onOpenManager}
+              title="Manage hospital antibiograms"
+              className="rx-chrome-cta"
               style={{
-                display: "inline-flex", alignItems: "center", gap: 4, flex: "0 0 auto",
-                fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600,
+                fontSize: 10, padding: "4px 10px", gap: 5,
                 letterSpacing: ".06em", textTransform: "uppercase",
-                color: "var(--ox)", background: "var(--panel)",
-                border: "1px solid var(--ox-line)", borderRadius: 4,
-                padding: "3px 8px", cursor: "pointer",
+                fontFamily: "var(--mono)", borderRadius: "8px 2px 8px 2px",
+                flex: "0 0 auto",
               }}>
               <Settings2 size={10} aria-hidden /> Manage
             </button>

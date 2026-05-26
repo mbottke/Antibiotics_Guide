@@ -114,20 +114,25 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
 
   return (
     <Section kicker="Duration · When to stop" icon={Clock} glyph="duration" testId="duration-block">
-      {/* Headline + evidence */}
+      {/* Headline + evidence — Wave 10: rx-glass-bleed adds the inner
+          cyan edge-light + 1px outer halo so the bottom-line duration
+          directive carries the same frosted-glass register as the
+          monitoring + diagnostics headlines. The accent background
+          stays underneath; the bleed is purely additive. */}
       {headline && (
-        <div style={{
+        <div className="rx-glass-bleed" style={{
           background: accentBg,
           border: "1px solid var(--ox-line)",
           borderRadius: 7,
           padding: "8px 11px",
           marginBottom: 12,
+          position: "relative",
         }}>
-          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600 }}>
+          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600, position: "relative", zIndex: 2 }}>
             <RichText text={headline} accentColor={accent} />
           </div>
           {evidence && (
-            <div style={{ fontSize: 11, lineHeight: 1.45, color: "var(--ink2)", marginTop: 4, fontStyle: "italic" }}>
+            <div style={{ fontSize: 11, lineHeight: 1.45, color: "var(--ink2)", marginTop: 4, fontStyle: "italic", position: "relative", zIndex: 2 }}>
               <RichText text={evidence} accentColor={accent} />
             </div>
           )}
@@ -223,7 +228,11 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
               fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".08em",
               textTransform:"uppercase", fontWeight:700, color: "var(--ink2)",
             }}>First effective dose</span>
+            {/* Wave 10 — rx-focus-halo wraps the date input in the depth
+                cyan halo on keyboard focus, matching the focus treatment
+                used by inputs across the rest of the canvas. */}
             <input
+              className="rx-focus-halo"
               type="date"
               value={startDate || ""}
               onChange={(e) => onStartDateChange(e.target.value || null)}

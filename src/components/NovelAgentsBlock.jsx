@@ -139,14 +139,18 @@ function NovelAgentsBlock({ agents }) {
 
   return (
     <Section kicker="Novel agents · Newer options for resistant disease" icon={Beaker} testId="novel-agents-block">
-      <div style={{
+      {/* Wave 10 — headline scope-note picks up rx-glass-bleed to match
+          the bottom-line headline chrome across the rest of the
+          answer-canvas (Monitoring + Duration + Research). */}
+      <div className="rx-glass-bleed" style={{
         background: accentBg,
         border: "1px solid var(--ox-line)",
         borderRadius: 7,
         padding: "8px 11px",
         marginBottom: 10,
+        position: "relative",
       }}>
-        <div style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--ink)", fontWeight: 500 }}>
+        <div style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--ink)", fontWeight: 500, position: "relative", zIndex: 2 }}>
           Drugs in clinical practice since 2010 that target specific resistance mechanisms. <b>Pathogen-typing + ID consult</b> drives selection — these are not blanket empiric replacements.
         </div>
       </div>
