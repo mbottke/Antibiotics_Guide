@@ -459,7 +459,12 @@ function SyndromesSection({
       <div
         style={{
           position: "sticky",
-          top: 60,
+          /* W12 bughunt · the global .rx-header is sticky at top:0 with
+             z-index:50 and is ~79 px tall (Syndromes carries no sub-nav).
+             top:60 left the upper 19 px of this pill rail tucked behind
+             the header at scroll-stuck position. top:88 clears the header
+             and matches the StickySubTOC default offset used elsewhere. */
+          top: 88,
           zIndex: 5,
           background: "linear-gradient(180deg, var(--paper) 0%, color-mix(in srgb, var(--paper) 92%, transparent) 100%)",
           paddingTop: 12,
