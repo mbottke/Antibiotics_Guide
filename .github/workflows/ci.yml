@@ -25,7 +25,11 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Bumped from 15 → 25 min as the test surface grew (4,641 vitest
+    # tests + e2e on a richer Wave 6 canvas). Local verify completes
+    # in ~3 min; CI was hitting the cap on Playwright install + e2e
+    # on two viewports against the post-aesthetic-deployment build.
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
