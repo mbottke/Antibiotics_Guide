@@ -55,10 +55,18 @@ function ChecklistItem({ item, matched }) {
       boxShadow: matched ? "inset 0 0 0 1px " + sty.line : "none",
       transition: "border-color .12s, box-shadow .12s",
     }}>
+      {/* W10 · neon light-ring leads the severity column so OPAT speaks
+          the same severity grammar as Monitoring / Diagnostics — three
+          deliberate glow levels (red / amber / cyan) above the icon. */}
       <div style={{
         display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
         paddingTop: 1,
       }}>
+        <span className={
+          item.sev === "required" ? "rx-light-ring-red"
+          : item.sev === "trigger" ? "rx-light-ring-amber"
+          : "rx-light-ring-cyan"
+        } aria-hidden style={{ width: 6, height: 6, borderWidth: 1.5, marginBottom: 1, opacity: 0.85 }} />
         <sty.Icon size={12} color={sty.color} aria-hidden />
         <span style={{
           fontFamily: "var(--mono)", fontSize: 8, fontWeight: 700,

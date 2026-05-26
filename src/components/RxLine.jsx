@@ -72,12 +72,21 @@ const _TONE_FOR = {
    The contract is enforced at the renderFootnotesOnly call site. */
 function FootMark({ idx, step, interactive = true }) {
   const tone = _TONE_FOR[step.type] || _TONE_FOR.note;
-  const color = step.sev === "high" ? "var(--ox)" : step.sev === "med" ? "var(--amber)" : "var(--ink2)";
+  /* W10 · promote the interactive footnote marker to a tiny chip with
+     a sev-tinted radial wash + outer cyan glow on hover/focus, so
+     "click to trace decision" reads as a first-class chip rather than
+     a flat numbered badge. The non-interactive variant keeps the flat
+     fill (no click affordance to signal). */
+  const baseColor = step.sev === "high" ? "var(--ox)" : step.sev === "med" ? "var(--amber)" : "var(--ink2)";
   const supStyle = {
     display:"inline-flex", alignItems:"center", justifyContent:"center",
     minWidth:14, height:14, padding:"0 4px", marginLeft:3,
     fontSize:9, fontFamily:"var(--mono)", fontWeight:700,
-    color:"#fff", background:color, borderRadius:7, verticalAlign:"super",
+    color:"#fff",
+    background: interactive
+      ? `radial-gradient(circle at 32% 30%, color-mix(in srgb, ${baseColor} 60%, var(--neon-cyan, var(--ox-bright))) 0%, ${baseColor} 80%)`
+      : baseColor,
+    borderRadius:7, verticalAlign:"super",
     lineHeight:1, border:"none",
   };
   if(!interactive) {
@@ -102,7 +111,11 @@ function FootMark({ idx, step, interactive = true }) {
         onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(true); }}
         title={`Trace decision — ${tone.label}: ${step.reason}`}
         aria-label={`Trace decision · ${tone.label} on ${step.agent}`}
-        style={{ ...supStyle, cursor:"pointer", appearance:"none" }}
+        className="rx-glow-lift rx-magnetic"
+        style={{
+          ...supStyle, cursor:"pointer", appearance:"none",
+          boxShadow: "0 0 8px -2px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 40%, transparent)",
+        }}
       >
         {idx}
       </button>

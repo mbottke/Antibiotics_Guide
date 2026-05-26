@@ -33,6 +33,7 @@ import { doseAdjustments } from "../engines/dosing.js";
 import { matchesCtx } from "../engines/ctxMatch.js";
 import { AGENT_RX, DRUG_ALIASES, FORMULARY } from "../data/drugs.js";
 import { parseBold, RichText } from "./util/richText.jsx";
+import { Sparkle } from "./decor/Sparkle.jsx";
 
 /* Wave 5 PR-10 — microbiome collateral-damage signals.
    FORMULARY lookup keyed by canonical FORMULARY name; AGENT_RX is the
@@ -117,13 +118,25 @@ function MicrobiomeChips({ optionText }) {
                 : sig.mdrTop === "low"  ? { color: "var(--ink2)", bg: "var(--paper2)", line: "var(--line)" }
                 : null;
 
+  /* W10 · prefix each microbiome chip with a neon light-ring whose
+     severity matches the chip tone (red for cdiffMax≥5 / MDR-high,
+     amber for the middle band, cyan for low). Structural chip layout
+     is unchanged so density stays identical; only the leading severity
+     dot becomes a deliberate glowing ring instead of an implicit
+     text-color hint. */
+  const cdiffRing = cdiffTone
+    ? (sig.cdiffMax >= 5 ? "rx-light-ring-red" : sig.cdiffMax >= 4 ? "rx-light-ring-amber" : sig.cdiffMax >= 1 ? "rx-light-ring-cyan" : null)
+    : null;
+  const mdrRing = mdrTone
+    ? (sig.mdrTop === "high" ? "rx-light-ring-red" : sig.mdrTop === "med" ? "rx-light-ring-amber" : sig.mdrTop === "low" ? "rx-light-ring-cyan" : null)
+    : null;
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
       {cdiffTone && (
         <span
           title={`C. difficile risk score (1 = lowest, 5 = highest). Regimen worst: ${sig.cdiffMax}.`}
           style={{
-            display: "inline-flex", alignItems: "center", gap: 3,
+            display: "inline-flex", alignItems: "center", gap: 4,
             fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700,
             letterSpacing: ".06em", textTransform: "uppercase",
             color: cdiffTone.color, background: cdiffTone.bg,
@@ -132,6 +145,7 @@ function MicrobiomeChips({ optionText }) {
             whiteSpace: "nowrap",
           }}
         >
+          {cdiffRing && <span className={cdiffRing} aria-hidden style={{ width: 7, height: 7, borderWidth: 1.5 }} />}
           C.diff {sig.cdiffMax}
         </span>
       )}
@@ -139,7 +153,7 @@ function MicrobiomeChips({ optionText }) {
         <span
           title={`MDR-selection pressure on gut microbiome. Regimen worst: ${sig.mdrTop}.`}
           style={{
-            display: "inline-flex", alignItems: "center", gap: 3,
+            display: "inline-flex", alignItems: "center", gap: 4,
             fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700,
             letterSpacing: ".06em", textTransform: "uppercase",
             color: mdrTone.color, background: mdrTone.bg,
@@ -148,6 +162,7 @@ function MicrobiomeChips({ optionText }) {
             whiteSpace: "nowrap",
           }}
         >
+          {mdrRing && <span className={mdrRing} aria-hidden style={{ width: 7, height: 7, borderWidth: 1.5 }} />}
           MDR {sig.mdrTop}
         </span>
       )}
@@ -447,15 +462,24 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
         <div style={{ display:"inline-flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
           <RouteBadge route={option.route} />
           {primary && (
+            /* W10 · the "Recommended" tier-1 badge picks up a small
+               Sparkle glyph + cyan-tinted gradient + outer halo so the
+               strongest recommendation reads as the brightest chip in
+               the row (drug-of-choice marker idiom). */
             <span style={{
-              display:"inline-flex", alignItems:"center", gap:3,
+              display:"inline-flex", alignItems:"center", gap:4,
               fontFamily:"var(--mono)", fontSize:9, letterSpacing:".08em",
               textTransform:"uppercase", fontWeight:700,
-              color:"#fff", background: accentColor,
-              border: "1px solid " + accentColor,
+              color:"#fff",
+              background: `linear-gradient(135deg, ${accentColor} 0%, color-mix(in srgb, ${accentColor} 70%, var(--neon-cyan, var(--ox-bright))) 100%)`,
+              border: "1px solid color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 40%, " + accentColor + ")",
               borderRadius: 4, padding:"2px 6px",
               whiteSpace:"nowrap",
-            }}>Recommended</span>
+              boxShadow: "0 0 10px -3px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 45%, transparent)",
+            }}>
+              <Sparkle size={9} color="#fff" />
+              Recommended
+            </span>
           )}
           <MicrobiomeChips optionText={option.text} />
         </div>
