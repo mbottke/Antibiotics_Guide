@@ -24,7 +24,7 @@
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 
 const W9_GLASS_BG     = "rgba(252, 251, 248, 0.92)";
 const W9_GLASS_BORDER = "var(--w7-glass-border, var(--line, #E6E0D8))";
@@ -42,6 +42,18 @@ export function StickySubTOC({
 }) {
   const [active, setActive] = useState(items[0]?.id || null);
   const observerRef = useRef(null);
+
+  /* Bug I4 — every parent re-render passes a new `items` array literal
+     (see OrganismsSection · PrinciplesSection call sites), which made
+     the effect below tear down and re-attach the IntersectionObserver on
+     every render. Verified via a Playwright IO-instantiation counter:
+     three supergroup-rail clicks produced three new IOs. Derive a stable
+     key string from the items so the effect only runs when the set of
+     observed ids actually changes. */
+  const itemsKey = useMemo(
+    () => items.map((it) => it.id).join("|"),
+    [items],
+  );
 
   useEffect(() => {
     if (!items.length) return undefined;
@@ -76,7 +88,11 @@ export function StickySubTOC({
       if (el) obs.observe(el);
     }
     return () => { obs.disconnect(); observerRef.current = null; };
-  }, [items, topOffset]);
+    // `items` is intentionally omitted from deps — itemsKey captures the
+    // identity of the observed set, and using the array directly causes
+    // a re-subscribe storm on every parent re-render (see comment above).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsKey, topOffset]);
 
   const onJump = (e, id) => {
     e.preventDefault();
