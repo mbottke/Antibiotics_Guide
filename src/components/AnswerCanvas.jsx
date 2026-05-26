@@ -422,12 +422,85 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
   const setStartDate = (sd) => setCaseState(c => ({ ...c, startDate: sd || null }));
 
   if(!ans) {
+    /* W10 · upgraded the bedside "no syndrome yet" panel from a flat
+       dashed box to a cinematic editorial empty state. 160px italic-serif
+       "?" cyan-soft glyph, mono kicker, italic-serif headline + standfirst,
+       and a hint that the user can dictate or type into the Case Bar above.
+       aria-live="polite" so screen readers hear the state transition. */
     return (
-      <div style={{
-        background:"var(--panel)", border:"1px dashed var(--line)", borderRadius:12,
-        padding:"24px 20px", textAlign:"center", color:"var(--muted)", fontSize:13.5,
-      }}>
-        Pick a syndrome in the Case Bar above to assemble an empiric regimen.
+      <div
+        role="status"
+        aria-live="polite"
+        className="rx-fade-in-up"
+        style={{
+          position: "relative",
+          padding: "44px 22px 48px",
+          textAlign: "center",
+          background:
+            "linear-gradient(135deg, var(--paper2) 0%, var(--ox-softer, var(--paper)) 100%)",
+          border: "1px dashed var(--line)",
+          borderTopLeftRadius: 18,
+          borderTopRightRadius: 4,
+          borderBottomLeftRadius: 4,
+          borderBottomRightRadius: 18,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            fontFamily: "var(--serif)",
+            fontStyle: "italic",
+            fontWeight: 700,
+            fontSize: 160,
+            lineHeight: 0.95,
+            color: "var(--ox-soft, var(--neon-cyan-soft))",
+            marginBottom: 4,
+            letterSpacing: "-.04em",
+          }}
+        >
+          ?
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: ".22em",
+            textTransform: "uppercase",
+            color: "var(--muted)",
+            marginBottom: 10,
+          }}
+        >
+          Awaiting case
+        </div>
+        <h3
+          style={{
+            fontFamily: "var(--serif)",
+            fontStyle: "italic",
+            fontWeight: 700,
+            fontSize: 24,
+            letterSpacing: "-.02em",
+            margin: "0 0 8px",
+            color: "var(--ink)",
+          }}
+        >
+          Pick a syndrome to assemble an empiric regimen
+        </h3>
+        <p
+          style={{
+            fontFamily: "var(--serif)",
+            fontStyle: "italic",
+            fontSize: 15,
+            color: "var(--ink2)",
+            margin: "0 auto",
+            lineHeight: 1.55,
+            maxWidth: "46ch",
+          }}
+        >
+          Type or dictate into the Case Bar above — once a syndrome is
+          recognised, the regimen, coverage, duration, and pearls compose here.
+        </p>
       </div>
     );
   }

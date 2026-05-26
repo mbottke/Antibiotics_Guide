@@ -622,7 +622,115 @@ function AgentsSection({
 
         {/* ============ W8-A4 · DRUG CLASS BLOCKS — ASYMMETRIC SHOWCASE ============ */}
         {fmTotal === 0
-          ? <p className="rx-dc-muted" style={{padding:"8px 2px"}}>No formulary agent matches these filters. <button className="rx-dc-druglink" onClick={clearAll}>Clear filters</button>.</p>
+          ? (
+            /* W10 · cinematic empty state — replaces the prior plain <p>.
+               160px italic-serif "0" cyan-soft glyph, mono kicker, italic
+               headline + standfirst, cyan-gradient CTA. Lives inside an
+               asymmetric 18/4 radius card with .rx-fade-in-up entrance. */
+            <div
+              role="status"
+              aria-live="polite"
+              className="rx-fade-in-up"
+              style={{
+                position: "relative",
+                padding: "44px 22px 48px",
+                textAlign: "center",
+                background:
+                  "linear-gradient(135deg, var(--paper2) 0%, var(--ox-softer, var(--paper)) 100%)",
+                border: "1px solid var(--line)",
+                borderTopLeftRadius: 18,
+                borderTopRightRadius: 4,
+                borderBottomLeftRadius: 4,
+                borderBottomRightRadius: 18,
+                overflow: "hidden",
+                marginBottom: 18,
+              }}
+            >
+              <div
+                aria-hidden
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: 160,
+                  lineHeight: 0.95,
+                  color: "var(--ox-soft, var(--neon-cyan-soft))",
+                  marginBottom: 4,
+                  letterSpacing: "-.04em",
+                }}
+              >
+                0
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--mono)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: ".22em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: 10,
+                }}
+              >
+                No matches
+              </div>
+              <h3
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: 24,
+                  letterSpacing: "-.02em",
+                  margin: "0 0 8px",
+                  color: "var(--ink)",
+                }}
+              >
+                No formulary agent matches these filters
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontSize: 15,
+                  color: "var(--ink2)",
+                  margin: "0 auto 22px",
+                  lineHeight: 1.55,
+                  maxWidth: "48ch",
+                }}
+              >
+                Loosen a constraint or clear filters to see the full formulary.
+              </p>
+              <button
+                type="button"
+                onClick={clearAll}
+                className="rx-lift"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 22px",
+                  fontFamily: "var(--mono)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: ".12em",
+                  textTransform: "uppercase",
+                  color: "#fff",
+                  background:
+                    "linear-gradient(135deg, var(--ox, var(--ink)) 0%, var(--neon-cyan, var(--ox)) 100%)",
+                  border: "1px solid var(--neon-cyan, var(--ox))",
+                  borderTopLeftRadius: 8,
+                  borderTopRightRadius: 2,
+                  borderBottomLeftRadius: 2,
+                  borderBottomRightRadius: 8,
+                  cursor: "pointer",
+                  boxShadow:
+                    "var(--shadow-e1), var(--neon-cyan-glow, 0 0 24px rgba(0,212,255,0.35))",
+                }}
+              >
+                <Filter size={12} /> Clear filters
+              </button>
+            </div>
+          )
           : fmClasses.map((cl, idx) => {
               const FI = FORM_ICON[cl.icon] || Pill;
               const idxNum = String(idx + 1).padStart(2, "0");
