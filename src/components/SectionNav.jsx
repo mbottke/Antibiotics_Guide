@@ -81,11 +81,11 @@ function NavChip({ s, active, onClick, registerRef }) {
           ? "0 6px 18px -4px rgba(0, 212, 255, 0.45), 0 1px 0 rgba(255,255,255,.10) inset"
           : (lifted ? "0 4px 14px -6px rgba(0, 212, 255, 0.30)" : "none"),
         transition:
-          "background .18s var(--ease-out, ease-out)," +
-          " color .18s var(--ease-out, ease-out)," +
-          " border-color .18s var(--ease-out, ease-out)," +
-          " box-shadow .18s var(--ease-out, ease-out)," +
-          " transform .18s var(--ease-out, ease-out)",
+          "background var(--duration-base, .18s) var(--ease-out, ease-out)," +
+          " color var(--duration-base, .18s) var(--ease-out, ease-out)," +
+          " border-color var(--duration-base, .18s) var(--ease-out, ease-out)," +
+          " box-shadow var(--duration-base, .18s) var(--ease-out, ease-out)," +
+          " transform var(--duration-base, .18s) var(--ease-out, ease-out)",
       }}>
       <Icon size={14} aria-hidden /> {s.label}
     </button>
@@ -190,9 +190,9 @@ function SectionNav({ section, onSection }) {
             borderRadius: 2,
             pointerEvents: "none",
             transition:
-              "left .26s var(--ease-out, ease-out)," +
-              " width .26s var(--ease-out, ease-out)," +
-              " opacity .18s var(--ease-out, ease-out)",
+              "left var(--duration-slow, .26s) var(--ease-out, ease-out)," +
+              " width var(--duration-slow, .26s) var(--ease-out, ease-out)," +
+              " opacity var(--duration-base, .18s) var(--ease-out, ease-out)",
             boxShadow: "0 0 10px rgba(0, 212, 255, 0.55)",
           }}
         />

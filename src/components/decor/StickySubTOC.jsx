@@ -139,7 +139,7 @@ export function StickySubTOC({
                     background: on ? CYAN_SOFT : "transparent",
                     border: on ? "1px solid " + CYAN_LINE : "1px solid transparent",
                     textDecoration: "none",
-                    transition: "color .12s, background .12s",
+                    transition: "color var(--duration-fast, .12s) var(--ease-out, ease), background var(--duration-fast, .12s) var(--ease-out, ease)",
                   }}
                 >
                   <span
@@ -225,7 +225,7 @@ export function StickySubTOC({
               border: on ? "1px solid " + CYAN_LINE : "1px solid " + W9_GLASS_BORDER,
               textDecoration: "none",
               whiteSpace: "nowrap",
-              transition: "color .12s, background .12s, border-color .12s",
+              transition: "color var(--duration-fast, .12s) var(--ease-out, ease), background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
               boxShadow: on ? "0 0 14px -4px " + CYAN_BRIGHT : "none",
             }}
           >

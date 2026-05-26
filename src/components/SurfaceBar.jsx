@@ -70,7 +70,7 @@ function _btn({ active, disabled, showSoon, label, hint, Icon, onClick, leading 
         boxShadow: active
           ? "0 6px 18px -4px rgba(0, 212, 255, 0.50), 0 1px 0 rgba(255,255,255,.10) inset"
           : "none",
-        transition:"background .18s, color .18s, border-color .18s, box-shadow .18s, transform .18s",
+        transition:"background var(--duration-base, .18s) var(--ease-out, ease), color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease), transform var(--duration-base, .18s) var(--ease-out, ease)",
       }}>
       <Icon size={13} aria-hidden /> {label}
       {showSoon && <span style={{

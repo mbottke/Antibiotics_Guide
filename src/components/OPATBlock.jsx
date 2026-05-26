@@ -53,7 +53,7 @@ function ChecklistItem({ item, matched }) {
       borderLeft: "3px solid " + (matched ? sty.color : sty.line),
       borderRadius: 6,
       boxShadow: matched ? "inset 0 0 0 1px " + sty.line : "none",
-      transition: "border-color .12s, box-shadow .12s",
+      transition: "border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-fast, .12s) var(--ease-out, ease)",
     }}>
       {/* W10 · neon light-ring leads the severity column so OPAT speaks
           the same severity grammar as Monitoring / Diagnostics — three

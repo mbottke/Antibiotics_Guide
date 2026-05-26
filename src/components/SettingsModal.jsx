@@ -269,7 +269,7 @@ function OpenAntibiogramButton({ onClick }) {
         letterSpacing: ".08em", textTransform: "uppercase",
         color: "var(--ink)", cursor: "pointer",
         boxShadow: "inset 0 1px 0 rgba(255,255,255,.4), 0 0 12px -4px rgba(0,212,255,.35)",
-        transition: "background .18s, border-color .18s, box-shadow .18s",
+        transition: "background var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,.5), 0 0 22px -2px rgba(0,212,255,.55)";
@@ -302,7 +302,7 @@ function CloseButton({ onClose, label }) {
         color: "var(--ink)",
         fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
         letterSpacing: ".08em", textTransform: "uppercase",
-        transition: "background .18s, color .18s, border-color .18s",
+        transition: "background var(--duration-base, .18s) var(--ease-out, ease), color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease)",
       }}
     >
       <X size={12} aria-hidden /> Close

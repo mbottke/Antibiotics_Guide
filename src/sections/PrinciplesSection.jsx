@@ -227,7 +227,7 @@ function W8SubTabRail({ activeTab }) {
                 : "transparent",
               boxShadow: active ? CYAN_GLOW : "none",
               color: active ? "#fff" : "var(--ink2)",
-              transition: "background 200ms var(--ease-out, ease), color 200ms var(--ease-out, ease), box-shadow 200ms var(--ease-out, ease)",
+              transition: "background var(--duration-base, 180ms) var(--ease-out, ease), color var(--duration-base, 180ms) var(--ease-out, ease), box-shadow var(--duration-base, 180ms) var(--ease-out, ease)",
             }}
           >
             <span style={{
@@ -451,7 +451,7 @@ function W8SepsisFlowDeck() {
                   ? `${W7_GLASS_SHADOW}, ${CYAN_GLOW}`
                   : W7_GLASS_SHADOW,
                 transform: isStart ? "translateY(-3px)" : "translateY(0)",
-                transition: "transform 200ms var(--ease-out, ease)",
+                transition: "transform var(--duration-base, 180ms) var(--ease-out, ease)",
               }}
             >
               <div style={{

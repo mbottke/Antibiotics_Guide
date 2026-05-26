@@ -107,7 +107,7 @@ export function NotchedBanner({
         // inset frame using an outline + inset box-shadow combo on
         // a pseudo-free surface. We accept that the cut corners do
         // not carry the line; that's the look.
-        transition: "box-shadow .15s ease-out",
+        transition: "box-shadow var(--duration-fast, .12s) var(--ease-out, ease-out)",
         ...style,
       }}
       {...rest}

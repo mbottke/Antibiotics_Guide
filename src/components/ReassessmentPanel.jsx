@@ -178,7 +178,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
                     WebkitAppearance:"none",
                     MozAppearance:"none",
                     outline:"none",
-                    transition:"border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
+                    transition:"border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
                   }}>
                   <option value="">— pick —</option>
                   {remaining.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}

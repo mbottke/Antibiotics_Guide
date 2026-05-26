@@ -749,7 +749,7 @@ function AgentsSection({
                     padding: "16px 18px 8px",
                     marginBottom: 18,
                     overflow: "hidden",
-                    transition: "transform .18s ease, box-shadow .18s ease",
+                    transition: "transform var(--duration-base, .18s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
                   }}
                 >
                   {/* Wave 9 W9 · removed the per-class 200px italic corner
@@ -835,7 +835,7 @@ function AgentsSection({
                                 style={{
                                   animationDelay: `${100 + idx * 50 + drIdx * 30}ms`,
                                   borderRadius: "10px 3px 10px 3px",
-                                  transition: "transform .14s ease, box-shadow .14s ease, border-color .14s ease",
+                                  transition: "transform var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
                                 }}
                               >
                                 <td className="tdname" data-l="Agent">

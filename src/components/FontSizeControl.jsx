@@ -59,12 +59,14 @@ function FontSizeControl() {
     width: 24, height: 24,
     background: "transparent",
     border: "none",
-    color: disabled ? "var(--muted)" : "var(--ink2)",
+    /* Wave 11 — disabled state unified to the canvas-wide vocabulary:
+       color var(--faint) + opacity 0.5 + cursor not-allowed. */
+    color: disabled ? "var(--faint, var(--muted))" : "var(--ink2)",
     cursor: disabled ? "not-allowed" : "pointer",
     padding: 0,
-    opacity: disabled ? 0.4 : 1,
+    opacity: disabled ? 0.5 : 1,
     borderRadius: 999,
-    transition: "color .15s var(--ease-out, ease), background .15s var(--ease-out, ease)",
+    transition: "color var(--duration-fast, .12s) var(--ease-out, ease), background var(--duration-fast, .12s) var(--ease-out, ease)",
   });
 
   return (
@@ -90,7 +92,7 @@ function FontSizeControl() {
         title="Decrease text size"
         style={btnStyle(atMin)}
         onMouseEnter={(e) => { if(!atMin) e.currentTarget.style.color = "var(--neon-cyan, var(--ox))"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = atMin ? "var(--muted)" : "var(--ink2)"; }}>
+        onMouseLeave={(e) => { e.currentTarget.style.color = atMin ? "var(--faint, var(--muted))" : "var(--ink2)"; }}>
         <Minus size={12} aria-hidden />
       </button>
       <button type="button"
@@ -111,7 +113,7 @@ function FontSizeControl() {
           padding: "0 4px",
           cursor: atDefault ? "default" : "pointer",
           letterSpacing: "-.01em",
-          transition: "color .18s var(--ease-out, ease)",
+          transition: "color var(--duration-base, .18s) var(--ease-out, ease)",
         }}>
         {Math.round(scale*100)}%
       </button>
@@ -122,7 +124,7 @@ function FontSizeControl() {
         title="Increase text size"
         style={btnStyle(atMax)}
         onMouseEnter={(e) => { if(!atMax) e.currentTarget.style.color = "var(--neon-cyan, var(--ox))"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = atMax ? "var(--muted)" : "var(--ink2)"; }}>
+        onMouseLeave={(e) => { e.currentTarget.style.color = atMax ? "var(--faint, var(--muted))" : "var(--ink2)"; }}>
         <Plus size={12} aria-hidden />
       </button>
     </div>

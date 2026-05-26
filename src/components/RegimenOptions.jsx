@@ -306,7 +306,7 @@ function DecisionContent({ content, accent, ctx }) {
                   border: ctxFires ? "1px solid " + sty.line : "none",
                   borderLeft: ctxFires ? "3px solid " + sty.color : "none",
                   borderRadius: ctxFires ? 5 : 0,
-                  transition: "background .12s, border-color .12s",
+                  transition: "background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
                 }}>
                   <sty.Icon size={11} aria-hidden style={{ color: sty.color, flexShrink: 0, marginTop: 3 }} />
                   <span style={{ flex: 1 }}>
@@ -419,8 +419,12 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
       /* Wave 10 — rx-focus-halo lifts keyboard-focus ring to the same depth
          cyan halo used by all interactive inputs across the canvas, plus
          rx-glow-lift gives the selected card a subtle spring on hover.
-         Both classes are inert under reduced-motion / coarse-pointer. */
-      className={"rx-focus-halo" + (selected ? " rx-glow-lift" : "")}
+         Wave 11 — rx-card-interactive opts in to the global cursor-spotlight
+         delegated listener in App.jsx so this primary clickable card carries
+         the same neon-cyan radial halo on pointer move as every other major
+         interactive surface. All three classes are inert under
+         reduced-motion / coarse-pointer. */
+      className={"rx-focus-halo rx-card-interactive" + (selected ? " rx-glow-lift" : "")}
       style={{
         textAlign:"left",
         background: selected
@@ -432,7 +436,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
         borderRadius:10,
         padding:"11px 12px 12px",
         cursor:"pointer",
-        transition:"background .12s, border-color .12s, transform .08s",
+        transition:"background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease), transform var(--duration-fast, .12s) var(--ease-out, ease)",
         boxShadow: selected ? "inset 0 0 0 1px " + accentLine : "none",
         opacity: selected ? 1 : 0.94,
       }}>

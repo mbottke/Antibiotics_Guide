@@ -947,7 +947,7 @@ function RegimensComparePanel() {
               WebkitBackdropFilter: "blur(10px) saturate(160%)",
               color: "var(--ink)",
               outline: "none",
-              transition: "border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
+              transition: "border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
             }}
           />
           <div style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink2)" }}>
@@ -1031,7 +1031,7 @@ function RegimensComparePanel() {
               WebkitBackdropFilter: "blur(10px) saturate(160%)",
               color: "var(--ink)",
               outline: "none",
-              transition: "border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
+              transition: "border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
             }}
           />
           <div style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink2)" }}>
@@ -1087,7 +1087,7 @@ function RegimensComparePanel() {
               outline: "none",
               cursor: "pointer",
               minWidth: 240,
-              transition: "border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
+              transition: "border-color var(--duration-fast, .12s) var(--ease-out, ease), box-shadow var(--duration-base, .18s) var(--ease-out, ease)",
             }}
           >
             <option value="">— none (use full organism set) —</option>
