@@ -318,6 +318,103 @@ export default function InpatientAbxGuide() {
     else console.warn(integrityLine(result));
   }, []);
 
+  /* ---- Wave 9 · global cursor-spotlight on every .rx-card-interactive ----
+     One delegated mousemove listener on document, no per-card useEffect
+     wiring. As the cursor moves, we walk up from the event target until
+     we hit a .rx-card-interactive (closest()) and write --cursor-x /
+     --cursor-y / --cursor-active onto that element. mouseout flips the
+     active flag back to 0. Reduced-motion + coarse-pointer short-circuit
+     so the listener is never installed on those configurations — the CSS
+     :hover styling continues to work, just without the cursor halo. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    if(window.matchMedia("(pointer: coarse)").matches) return undefined;
+    let activeEl = null;
+    const onMove = (e) => {
+      const t = e.target;
+      if(!t || typeof t.closest !== "function") return;
+      const card = t.closest(".rx-card-interactive");
+      if(!card){
+        if(activeEl){ activeEl.style.setProperty("--cursor-active", "0"); activeEl = null; }
+        return;
+      }
+      if(activeEl && activeEl !== card){
+        activeEl.style.setProperty("--cursor-active", "0");
+      }
+      const r = card.getBoundingClientRect();
+      card.style.setProperty("--cursor-x", (e.clientX - r.left) + "px");
+      card.style.setProperty("--cursor-y", (e.clientY - r.top) + "px");
+      card.style.setProperty("--cursor-active", "1");
+      activeEl = card;
+    };
+    const onLeaveWindow = () => {
+      if(activeEl){ activeEl.style.setProperty("--cursor-active", "0"); activeEl = null; }
+    };
+    document.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseleave", onLeaveWindow, { passive: true });
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeaveWindow);
+      if(activeEl) activeEl.style.setProperty("--cursor-active", "0");
+    };
+  }, []);
+
+  /* ---- Wave 9 · global magnetic-pull on every .rx-cta-glow CTA ----
+     Single document mousemove computes distance from each .rx-cta-glow
+     center; within `range` it applies a translate3d up to `MAX_PULL`
+     pixels. The buttons keep their existing CSS hover treatment; this
+     just adds a subtle physical "pull" the moment the cursor enters
+     their orbit. Reduced-motion + coarse-pointer short-circuit. */
+  useEffect(() => {
+    if(typeof window === "undefined" || !window.matchMedia) return undefined;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    if(window.matchMedia("(pointer: coarse)").matches) return undefined;
+    const RANGE = 80;
+    const MAX_PULL = 8;
+    let rafId = 0;
+    let pendingEvent = null;
+    const apply = () => {
+      rafId = 0;
+      const e = pendingEvent;
+      if(!e) return;
+      const ctas = document.querySelectorAll(".rx-cta-glow");
+      for(let i = 0; i < ctas.length; i++){
+        const el = ctas[i];
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        if(dist > RANGE){
+          if(el.style.transform){ el.style.transform = ""; }
+          continue;
+        }
+        const factor = (RANGE - dist) / RANGE; // 0..1
+        const px = Math.max(-MAX_PULL, Math.min(MAX_PULL, dx * 0.25 * factor));
+        const py = Math.max(-MAX_PULL, Math.min(MAX_PULL, dy * 0.25 * factor));
+        el.style.transition = "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)";
+        el.style.transform = "translate3d(" + px.toFixed(2) + "px, " + py.toFixed(2) + "px, 0)";
+      }
+    };
+    const onMove = (e) => {
+      pendingEvent = e;
+      if(rafId) return;
+      rafId = window.requestAnimationFrame(apply);
+    };
+    document.addEventListener("mousemove", onMove, { passive: true });
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      if(rafId) window.cancelAnimationFrame(rafId);
+      const ctas = document.querySelectorAll(".rx-cta-glow");
+      for(let i = 0; i < ctas.length; i++){
+        ctas[i].style.transform = "";
+        ctas[i].style.transition = "";
+      }
+    };
+  }, []);
+
   /* ---- derived patient quantities: one transform, memoized ---- */
   const d = useMemo(() => deriveCtx(ctx), [ctx]);
   const crcl = d.crcl, crclBand = d.crclBand;

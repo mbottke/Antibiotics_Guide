@@ -23,7 +23,8 @@
 
      <WatermarkLetter letter="R" position="bottom-left" size={320} /> */
 
-import React from "react";
+import React, { useRef } from "react";
+import { useParallaxScroll } from "../util/useParallaxScroll.js";
 
 const POS = {
   "top-right": { top: -32, right: -16 },
@@ -38,12 +39,19 @@ export function WatermarkLetter({
   color = "var(--neon-cyan, var(--ox))",
   opacity = 0.08,
   position = "top-right",
+  parallax = 0.2,
   className,
   style,
 }) {
   const pos = POS[position] || POS["top-right"];
+  const ref = useRef(null);
+  // Wave 9 · z-axis parallax. Watermark drifts opposite to scroll for an
+  // editorial depth effect. parallax=0 disables. Reduced-motion no-ops in
+  // the hook itself.
+  useParallaxScroll(ref, { speed: parallax });
   return (
     <span
+      ref={ref}
       aria-hidden="true"
       data-testid="watermark-letter"
       data-position={position}
