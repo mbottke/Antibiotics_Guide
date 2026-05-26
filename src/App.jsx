@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { CSS, CSS2, CSS3, CSS4, CSS5 } from "./styles/app-styles";
 import { KINETIC } from "./styles/kinetic-type";
+import { MICRO } from "./styles/microinteractions";
 import { PatientContextBar, DrugCard, OrgCard, RegimenCard, TrialCard, RapidDxTimeout, IVtoPO, MrsaCell, CmpCell, SpectrumCompare } from "./components/cards";
 import { ClassChip, TermChip, renderRx, renderGloss, renderRich } from "./components/rich-text";
 import { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer } from "./components/primitives";
@@ -461,7 +462,7 @@ export default function InpatientAbxGuide() {
        inpatient + decide      → BedsideShell (Phase A/B)
        outpatient + anything   → OutpatientShell placeholder
        inpatient + reference   → the existing classic UI (falls through) */
-  const styleTag = <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC}</style>;
+  const styleTag = <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO}</style>;
   const bar = (
     <SurfaceBar
       surface={surface}
@@ -599,7 +600,7 @@ export default function InpatientAbxGuide() {
   /* ============ RETURN — inpatient + reference (the classic 11-tab UI) === */
   return (
     <div className="rx-root">
-      <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC}</style>
+      <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO}</style>
 
       {bar}
 
