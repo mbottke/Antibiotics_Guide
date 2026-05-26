@@ -101,8 +101,12 @@ const CHOREOGRAPHY = `
    Returns to the default state instantly on next mousemove. */
 [data-user-idle="true"] [data-mesh-blob],
 [data-user-idle="true"] [data-mesh-wash-blob] {
+  /* Bug fix · mesh-blob elements carry an inline filter blur(48px) set
+     by MeshWash.jsx, which wins over a non-!important stylesheet rule,
+     so the saturate(1.08) portion never landed. The idle ambient glow
+     needs !important on filter to override the inline style. */
   opacity: 1.0;
-  filter: saturate(1.08) blur(48px);
+  filter: saturate(1.08) blur(48px) !important;
   transition: opacity 1.5s ease-out, filter 1.5s ease-out;
 }
 
