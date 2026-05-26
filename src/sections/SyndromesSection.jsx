@@ -189,7 +189,7 @@ function SyndromesSection({
               fontSize: 11,
               letterSpacing: ".28em",
               textTransform: "uppercase",
-              color: "var(--neon-cyan, var(--ox))",
+              color: "var(--ox)",
               fontWeight: 700,
             }}
           >
@@ -315,7 +315,7 @@ function SyndromesSection({
                 fontWeight: 600,
                 fontSize: 48,
                 lineHeight: 1,
-                color: "var(--neon-cyan, var(--ox))",
+                color: "var(--ox)",
                 fontVariantNumeric: "tabular-nums",
                 letterSpacing: "-.02em",
               }}
@@ -642,7 +642,7 @@ function SyndromesSection({
                       fontSize: 9,
                       fontWeight: 700,
                       letterSpacing: ".14em",
-                      color: "var(--neon-cyan, var(--ox))",
+                      color: "var(--ox)",
                       fontVariantNumeric: "tabular-nums",
                       minWidth: 18,
                     }}
@@ -746,7 +746,7 @@ function SyndromesSection({
                   fontFamily: "var(--serif)",
                   fontStyle: "italic",
                   fontSize: 12,
-                  color: "var(--neon-cyan, var(--ox))",
+                  color: "var(--ox)",
                   cursor: "pointer",
                   textDecoration: "underline",
                   textUnderlineOffset: 3,
@@ -1229,11 +1229,11 @@ function SyndromesSection({
                                   fontVariantNumeric: "tabular-nums",
                                 }}
                               >
-                                <span><span style={{ color: "var(--neon-cyan, var(--ox))", fontWeight: 700 }}>{agentCount}</span> tier{agentCount === 1 ? "" : "s"}</span>
+                                <span><span style={{ color: "var(--ox)", fontWeight: 700 }}>{agentCount}</span> tier{agentCount === 1 ? "" : "s"}</span>
                                 <span style={{ opacity: 0.4 }}>·</span>
-                                <span><span style={{ color: "var(--neon-cyan, var(--ox))", fontWeight: 700 }}>{drugCount}</span> drug{drugCount === 1 ? "" : "s"}</span>
+                                <span><span style={{ color: "var(--ox)", fontWeight: 700 }}>{drugCount}</span> drug{drugCount === 1 ? "" : "s"}</span>
                                 <span style={{ opacity: 0.4 }}>·</span>
-                                <span><span style={{ color: "var(--neon-cyan, var(--ox))", fontWeight: 700 }}>{bugCount}</span> bug{bugCount === 1 ? "" : "s"}</span>
+                                <span><span style={{ color: "var(--ox)", fontWeight: 700 }}>{bugCount}</span> bug{bugCount === 1 ? "" : "s"}</span>
                               </span>
 
                               {!open && (
@@ -1276,7 +1276,7 @@ function SyndromesSection({
                                     fontWeight: 700,
                                     letterSpacing: ".14em",
                                     textTransform: "uppercase",
-                                    color: "var(--neon-cyan, var(--ox))",
+                                    color: "var(--ox)",
                                     opacity: 0,
                                     transform: "translateX(-8px)",
                                     transition:
@@ -1410,7 +1410,7 @@ function SyndromesSection({
         }
         .syn-card:hover .syn-card-kicker {
           transform: translateX(3px);
-          color: var(--neon-cyan, var(--ox));
+          color: var(--ox);
         }
         .syn-card:hover .syn-card-view {
           opacity: 1 !important;

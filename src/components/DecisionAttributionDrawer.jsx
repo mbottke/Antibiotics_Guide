@@ -218,7 +218,7 @@ function CitationChip({ cite }) {
         fontStyle: "italic",
         fontSize: 16,
         fontWeight: 500,
-        color: "var(--neon-cyan, var(--ox))",
+        color: "var(--ox)",
         letterSpacing: "-0.02em",
         background: "rgba(0, 212, 255, 0.10)",
         borderRight: "1px solid var(--neon-cyan-line, var(--ox-line))",
@@ -386,7 +386,7 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
               {step.replacement && (
                 <>
                   <span style={{
-                    color: "var(--neon-cyan, var(--ox))",
+                    color: "var(--ox)",
                     fontWeight: 500,
                     fontStyle: "normal",
                     margin: "0 8px",
@@ -452,7 +452,7 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
             >
               <Sparkle size={12} color="var(--neon-cyan, var(--ox))" />
               <BookOpen size={12} aria-hidden />
-              Read the mechanism · <span style={{ color: "var(--neon-cyan, var(--ox))" }}>{mechMatch}</span>
+              Read the mechanism · <span style={{ color: "var(--ox)" }}>{mechMatch}</span>
             </button>
           </div>
         )}

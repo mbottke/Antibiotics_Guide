@@ -555,7 +555,7 @@ function AgentsSection({
             <span className="rx-fmbar-count">
               <span
                 className="rx-counter-strong"
-                style={{ fontSize: 13, color: "var(--neon-cyan, var(--ox))" }}
+                style={{ fontSize: 13, color: "var(--ox)" }}
               >
                 <Num>{fmTotal}</Num>
               </span>
@@ -1223,7 +1223,7 @@ function AgentsSection({
                 {/* W10 · corner Σ count — total agents × toxicity columns */}
                 <div aria-hidden="true" style={{
                   fontFamily:"var(--mono)", fontSize:9, letterSpacing:".14em",
-                  textTransform:"uppercase", color:"var(--ox-bright)",
+                  textTransform:"uppercase", color:"var(--ox)",
                   fontWeight:700, padding:"0 12px 9px", opacity:.85,
                 }}>{"Σ "}{SAFE.filter(r=>!r.band).length}{"×"}{TOX_COLS.length}</div>
               </th>

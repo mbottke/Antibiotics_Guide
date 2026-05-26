@@ -44,7 +44,7 @@ export const deescLayer = {
               letterSpacing: ".14em", textTransform: "uppercase",
               color: "var(--muted)", fontWeight: 600, marginBottom: 9,
             }}>
-              <Crosshair size={11} aria-hidden style={{ verticalAlign: "-1px", marginRight: 5, color: "var(--ox-bright, var(--ox))" }} />
+              <Crosshair size={11} aria-hidden style={{ verticalAlign: "-1px", marginRight: 5, color: "var(--ox)" }} />
               Narrow by organism
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

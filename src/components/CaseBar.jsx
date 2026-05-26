@@ -114,8 +114,13 @@ const W10_CASEBAR_CSS = `
 [data-w10-casebar] .rx-w10-select:hover {
   border-color: var(--ox-line);
 }
+/* W12 a11y · cyan-only focus indicator was 1.69:1 vs paper — add a 2px
+   graphite outline outside the cyan glow so the composite clears 3:1.
+   The neon-cyan glow stays as the dominant visual cue. */
 [data-w10-casebar] .rx-w10-input:focus-visible,
 [data-w10-casebar] .rx-w10-select:focus-visible {
+  outline: 2px solid var(--ox);
+  outline-offset: 3px;
   border-color: var(--neon-cyan, var(--ox-bright));
   box-shadow:
     0 0 0 2px var(--neon-cyan, var(--ox-bright)),
@@ -205,7 +210,7 @@ const W10_CASEBAR_CSS = `
   transition: color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease), background var(--duration-base, .18s) var(--ease-out, ease);
 }
 [data-w10-casebar] .rx-w10-ghost:hover {
-  color: var(--neon-cyan, var(--ox));
+  color: var(--ox);
   border-color: var(--neon-cyan, var(--ox));
   background: color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 6%, transparent);
 }
@@ -566,7 +571,7 @@ function CaseBar({ caseState, onApply, onSkip }) {
           <div style={{
             fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".1em",
             textTransform:"uppercase",
-            color:"var(--neon-cyan, var(--ox))",
+            color:"var(--ox)",
             fontWeight:700, marginBottom:6,
           }}>
             Parsed

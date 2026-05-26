@@ -162,7 +162,7 @@ const W8_STYLES = `
   font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--neon-cyan, var(--ox));
+  color: var(--ox);
   margin-bottom: 6px;
   padding-left: 18px;
 }
@@ -198,7 +198,7 @@ const W8_STYLES = `
   color: var(--ink);
 }
 .rx-vertical-rail__item[data-active="true"]{
-  color: var(--neon-cyan, var(--ox));
+  color: var(--ox);
   transform: translateX(2px);
   font-weight: 700;
 }
@@ -759,7 +759,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               <span style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
                 fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600,
-                color: "var(--neon-cyan, var(--ox))",
+                color: "var(--ox)",
                 background: "var(--neon-cyan-soft, var(--ox-soft))",
                 padding: "3px 8px", borderRadius: 4,
                 border: "1px solid var(--neon-cyan-line, var(--ox-line))",
@@ -926,7 +926,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               style={{
                 display:"inline-flex", alignItems:"center", gap:7,
                 fontFamily:"var(--sans)", fontSize:13, fontWeight:500,
-                color:"var(--neon-cyan, var(--ox))",
+                color:"var(--ox)",
                 background:"var(--panel)", border:"1px solid var(--line)", borderRadius:9,
                 padding:"10px 16px", cursor:"pointer",
               }}>
@@ -943,7 +943,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               borderRadius:8, fontSize:11.5, color:"var(--muted)", lineHeight:1.55,
               display:"flex", gap:8, alignItems:"flex-start",
             }}>
-            <ShieldCheck size={13} aria-hidden style={{ flex:"0 0 auto", marginTop:1, color:"var(--ox-bright, var(--ox))" }} />
+            <ShieldCheck size={13} aria-hidden style={{ flex:"0 0 auto", marginTop:1, color:"var(--ox)" }} />
             Empiric therapy is a time-limited bridge. Reassess against cultures at 48–72 h and narrow or stop — breadth held longer is harm, not safety. Decision support only; verify every order against the local antibiogram and clinical pharmacy.
           </div>
 

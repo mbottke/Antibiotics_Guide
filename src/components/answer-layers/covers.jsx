@@ -33,7 +33,7 @@ export const coversLayer = {
         <div style={{
           fontFamily: "var(--mono)", fontSize: 9.5,
           letterSpacing: ".14em", textTransform: "uppercase",
-          color: "var(--neon-cyan, var(--ox))", fontWeight: 700,
+          color: "var(--ox)", fontWeight: 700,
           marginBottom: 8,
         }}>
           Organisms covered
@@ -41,7 +41,7 @@ export const coversLayer = {
         <div className="rx-mixed-pair" style={{ alignItems: "baseline", marginBottom: 10 }}>
           <span
             className="rx-numeric-mega"
-            style={{ fontSize: 48, lineHeight: 1, color: "var(--neon-cyan, var(--ox))" }}
+            style={{ fontSize: 48, lineHeight: 1, color: "var(--ox)" }}
           >
             {orgRoll.length || "—"}
           </span>
@@ -77,7 +77,7 @@ export const coversLayer = {
             borderTop: "1px dashed var(--line2)",
             fontFamily: "var(--mono)", fontSize: 10,
             letterSpacing: ".1em", textTransform: "uppercase",
-            color: "var(--vivid-red, var(--red))", fontWeight: 700,
+            color: "var(--red)", fontWeight: 700,
             display: "flex", flexDirection: "column", gap: 6,
           }}>
             {/* Wave 10 — promote the flag glyph from a flat sparkle to the

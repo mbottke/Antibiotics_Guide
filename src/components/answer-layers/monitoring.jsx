@@ -32,7 +32,7 @@ export const monitoringLayer = {
         <div style={{
           fontFamily: "var(--mono)", fontSize: 9.5,
           letterSpacing: ".14em", textTransform: "uppercase",
-          color: "var(--neon-cyan, var(--ox))", fontWeight: 700,
+          color: "var(--ox)", fontWeight: 700,
           marginBottom: 8,
         }}>
           Reassess targets
@@ -40,7 +40,7 @@ export const monitoringLayer = {
         <div className="rx-mixed-pair" style={{ alignItems: "baseline", marginBottom: 8 }}>
           <span
             className="rx-numeric-mega"
-            style={{ fontSize: 48, lineHeight: 1, color: "var(--neon-cyan, var(--ox))" }}
+            style={{ fontSize: 48, lineHeight: 1, color: "var(--ox)" }}
           >
             {items.length}
           </span>

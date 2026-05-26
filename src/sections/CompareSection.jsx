@@ -155,8 +155,8 @@ function CinematicHead({ kicker, headline, standfirst, watermark, icon = null })
 const DELTA_TINT = {
   aOnly: {
     bg: "linear-gradient(135deg, rgba(34,211,238,0.20), rgba(34,211,238,0.08))",
-    fg: "var(--neon-cyan, var(--ox))",
-    border: "var(--neon-cyan, var(--ox))",
+    fg: "var(--ox)",
+    border: "var(--ox)",
     label: "A only",
   },
   bOnly: {
@@ -215,7 +215,7 @@ function SeverityChip({ kind, value }) {
       ? { bg: "rgba(244,114,182,0.18)", fg: "var(--hot-magenta, var(--ox))", border: "var(--hot-magenta, var(--ox))" }
       : value === "med"
       ? { bg: "rgba(251,191,36,0.18)", fg: "#b45309", border: "rgba(251,191,36,0.6)" }
-      : { bg: "rgba(34,211,238,0.16)", fg: "var(--neon-cyan, var(--ox))", border: "var(--neon-cyan, var(--ox))" };
+      : { bg: "rgba(34,211,238,0.16)", fg: "var(--ox)", border: "var(--ox)" };
   return (
     <span
       style={{
@@ -480,7 +480,7 @@ function CompareSection({
                   {/* W10 · corner Σ count — agents × penetration sites */}
                   <div aria-hidden="true" style={{
                     fontFamily:"var(--mono)", fontSize:9, letterSpacing:".14em",
-                    textTransform:"uppercase", color:"var(--ox-bright)",
+                    textTransform:"uppercase", color:"var(--ox)",
                     fontWeight:700, padding:"0 12px 9px", opacity:.85,
                   }}>{"Σ "}{PEN.filter(r=>!r.band).length}{"×"}{PEN_SITES.length}</div>
                 </th>
@@ -618,7 +618,7 @@ function CompareSection({
 
       <GradientHairline variant="blue-magenta" withDot style={{ margin: "24px 0" }} />
 
-      <h3 className="rx-h3"><span className="ic"><ShieldAlert size={18} /></span>Mechanisms of resistance: four routes of escape <Sparkle size={11} color="var(--neon-cyan, var(--ox))" style={{ marginLeft: 4 }} /></h3>
+      <h3 className="rx-h3"><span className="ic"><ShieldAlert size={18} /></span>Mechanisms of resistance: four routes of escape <Sparkle size={11} color="var(--ox)" style={{ marginLeft: 4 }} /></h3>
 
       {/* W8-C6 · asymmetric mechanism cards with vertical left-rail labels */}
       <div
@@ -634,7 +634,7 @@ function CompareSection({
             label: "INACTIVATE",
             title: "Inactivate the drug (enzymatic)",
             icon: <FlaskConical size={16} />,
-            tint: "var(--neon-cyan, var(--ox))",
+            tint: "var(--ox)",
             items: [
               <><b>&beta;-lactamases</b> hydrolyze the &beta;-lactam ring &mdash; penicillinase &rarr; ESBL &rarr; AmpC &rarr; carbapenemase, the dominant Gram-negative threat.</>,
               <><b>Aminoglycoside-modifying enzymes</b> and <b>chloramphenicol acetyltransferase</b> chemically disable the drug.</>,
@@ -837,7 +837,7 @@ function RegimensComparePanel() {
   );
 
   const winnerLabel = (w) => w === "a" ? "Regimen A" : w === "b" ? "Regimen B" : "Tie";
-  const winnerColor = (w) => w === "tie" ? "var(--ink2)" : "var(--neon-cyan, var(--ox))";
+  const winnerColor = (w) => w === "tie" ? "var(--ink2)" : "var(--ox)";
 
   /* Toxicity delta weight (0..1) for the rail bar. */
   const toxA = diff.toxicity.a.total || 0;
@@ -857,7 +857,7 @@ function RegimensComparePanel() {
           <ArrowLeftRight
             size={64}
             aria-hidden
-            style={{ color: "var(--neon-cyan, var(--ox))", flex: "0 0 auto" }}
+            style={{ color: "var(--ox)", flex: "0 0 auto" }}
           />
         }
       />
@@ -915,7 +915,7 @@ function RegimensComparePanel() {
             boxShadow: "var(--shadow-e2)",
           }}
         >
-          <div className="rx-counter-strong" style={{ fontSize: 11, color: "var(--neon-cyan, var(--ox))" }}>
+          <div className="rx-counter-strong" style={{ fontSize: 11, color: "var(--ox)" }}>
             REGIMEN A
           </div>
           <input
@@ -975,7 +975,7 @@ function RegimensComparePanel() {
               fontWeight: 700,
               letterSpacing: "-0.04em",
               lineHeight: 1,
-              color: "var(--neon-cyan, var(--ox))",
+              color: "var(--ox)",
               textShadow:
                 "0 0 24px rgba(34,211,238,0.25), 0 0 1px rgba(34,211,238,0.5)",
             }}
@@ -998,7 +998,7 @@ function RegimensComparePanel() {
             boxShadow: "var(--shadow-e2)",
           }}
         >
-          <div className="rx-counter-strong" style={{ fontSize: 11, color: "var(--hot-magenta, var(--ox))" }}>
+          <div className="rx-counter-strong" style={{ fontSize: 11, color: "var(--ox)" }}>
             REGIMEN B
           </div>
           <input
@@ -1211,7 +1211,7 @@ function RegimensComparePanel() {
                       {o.label}
                     </div>
                     <div style={{ fontFamily: "var(--mono)", fontSize: 10.5, color: "var(--ink2)", marginTop: 2 }}>
-                      <span style={{ color: o.a ? "var(--neon-cyan, var(--ox))" : "var(--ink2)" }}>A {o.a ? "✓" : "—"}</span>
+                      <span style={{ color: o.a ? "var(--ox)" : "var(--ink2)" }}>A {o.a ? "✓" : "—"}</span>
                       <span style={{ margin: "0 6px" }}>·</span>
                       <span style={{ color: o.b ? "var(--electric-lime, var(--ox))" : "var(--ink2)" }}>B {o.b ? "✓" : "—"}</span>
                     </div>
@@ -1245,7 +1245,7 @@ function RegimensComparePanel() {
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 2 }}>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--neon-cyan, var(--ox))" }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--ox)" }}>
                   REGIMEN A
                 </span>
                 <span style={{ fontSize: 12, color: "var(--ink2)" }}>
@@ -1256,7 +1256,7 @@ function RegimensComparePanel() {
             </div>
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 2 }}>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--hot-magenta, var(--ox))" }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--ox)" }}>
                   REGIMEN B
                 </span>
                 <span style={{ fontSize: 12, color: "var(--ink2)" }}>
@@ -1289,7 +1289,7 @@ function RegimensComparePanel() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--neon-cyan, var(--ox))", marginBottom: 4 }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--ox)", marginBottom: 4 }}>
                 REGIMEN A
               </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -1305,7 +1305,7 @@ function RegimensComparePanel() {
               </div>
             </div>
             <div>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--hot-magenta, var(--ox))", marginBottom: 4 }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700, color: "var(--ox)", marginBottom: 4 }}>
                 REGIMEN B
               </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -1416,7 +1416,7 @@ function RegimensComparePanel() {
               {diff.coverage.organisms.map(o => (
                 <tr key={o.id} style={{ borderTop: "1px solid var(--line)" }}>
                   <td style={{ padding: "6px 9px" }}>{o.label}</td>
-                  <td style={{ padding: "6px 9px", textAlign: "center", color: o.a ? "var(--neon-cyan, var(--ox))" : "var(--ink2)" }}>
+                  <td style={{ padding: "6px 9px", textAlign: "center", color: o.a ? "var(--ox)" : "var(--ink2)" }}>
                     {o.a ? "✓" : "—"}
                   </td>
                   <td style={{ padding: "6px 9px", textAlign: "center", color: o.b ? "var(--electric-lime, var(--ox))" : "var(--ink2)" }}>

@@ -135,7 +135,7 @@ export function StickySubTOC({
                     borderRadius: 6,
                     fontSize: 12,
                     fontWeight: on ? 700 : 500,
-                    color: on ? CYAN_BRIGHT : "var(--ink2, #4a4a4a)",
+                    color: on ? "var(--ox)" : "var(--ink2, #4a4a4a)",
                     background: on ? CYAN_SOFT : "transparent",
                     border: on ? "1px solid " + CYAN_LINE : "1px solid transparent",
                     textDecoration: "none",

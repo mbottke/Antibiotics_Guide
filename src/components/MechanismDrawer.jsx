@@ -148,7 +148,7 @@ function PaperRow({ paper }) {
         fontSize: 18,
         fontWeight: 500,
         lineHeight: 1,
-        color: "var(--neon-cyan, var(--ox))",
+        color: "var(--ox)",
         letterSpacing: "-0.02em",
         textShadow: "0 0 12px rgba(0,212,255,.25)",
         minWidth: 38,

@@ -108,7 +108,7 @@ function FontSizeControl() {
           fontSize: 12,
           fontWeight: 500,
           fontVariantNumeric: "tabular-nums",
-          color: atDefault ? "var(--muted)" : "var(--neon-cyan, var(--ox))",
+          color: atDefault ? "var(--muted)" : "var(--ox)",
           background: "transparent", border: "none",
           padding: "0 4px",
           cursor: atDefault ? "default" : "pointer",

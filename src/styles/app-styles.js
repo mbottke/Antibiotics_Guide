@@ -119,7 +119,7 @@ const CSS = `
 .rx-reveal-fast { animation: rx-fade-rise var(--duration-base) var(--ease-out) both; }
 .rx-fade        { animation: rx-fade-in var(--duration-base) var(--ease-out) both; }
 .rx-lift        { transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out); }
-.rx-lift:hover  { transform: translateY(-2px); box-shadow: var(--shadow-e2), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 24%, transparent); border-color: color-mix(in srgb, var(--line) 40%, var(--ox-bright) 60%); color: var(--ox-bright); }
+.rx-lift:hover  { transform: translateY(-2px); box-shadow: var(--shadow-e2), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 24%, transparent); border-color: color-mix(in srgb, var(--line) 40%, var(--ox-bright) 60%); color: var(--ox); }
 .rx-lift:focus-visible { transform: translateY(-2px); box-shadow: var(--shadow-e3), 0 0 0 2px color-mix(in srgb, var(--ox-bright) 30%, transparent); }
 .rx-cta-glow:focus-visible { box-shadow: var(--shadow-glow-ox); }
 
@@ -173,7 +173,10 @@ const CSS = `
   transition:border-color .15s, width .2s, box-shadow .18s, background .18s;}
 .rx-search::placeholder{font-family:var(--serif); font-style:italic; color:var(--faint); opacity:.8;}
 .rx-search:hover{border-color:color-mix(in srgb, var(--ox-bright) 38%, var(--line));}
-.rx-search:focus{border-color:var(--ox-bright); width:264px; outline:none;
+/* W12 a11y · cyan-only focus halo was 1.69:1 vs paper — composite indicator
+   now adds a 2px graphite outline outside the cyan glow so it clears 3:1
+   against the page; the neon-cyan glow stays as the dominant visual cue. */
+.rx-search:focus{border-color:var(--ox-bright); width:264px; outline:2px solid var(--ox); outline-offset:3px;
   background:linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(245,250,253,0.65) 100%);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.65),
@@ -241,9 +244,9 @@ const CSS = `
 .rx-h2{font-family:var(--serif); font-size:clamp(30px, 3.8vw, 44px); font-weight:600; letter-spacing:-.024em; line-height:1.06; color:var(--ink); margin:0 0 10px;}
 .rx-h3{font-family:var(--serif); font-size:clamp(22px, 2.3vw, 28px); font-weight:600; letter-spacing:-.018em; line-height:1.2; color:var(--ink); margin:40px 0 16px; display:flex; align-items:center; gap:14px;}
 .rx-h3::before{content:""; display:inline-block; width:32px; height:2px; background:linear-gradient(90deg, var(--ox-bright) 0%, transparent 100%); flex:0 0 auto;}
-.rx-h3 .ic{color:var(--ox-bright); display:flex;}
+.rx-h3 .ic{color:var(--ox); display:flex;}
 .rx-h4{font-family:var(--sans); font-size:14px; font-weight:700; letter-spacing:.005em; line-height:1.35; margin:20px 0 10px; display:flex; align-items:center; gap:8px;}
-.rx-h4 .ic{color:var(--ox-bright); display:flex;}
+.rx-h4 .ic{color:var(--ox); display:flex;}
 .rx-lede{color:var(--ink2); font-family:var(--serif); font-style:italic; font-weight:400; font-size:19px; margin:0 0 28px; max-width:62ch; line-height:1.5;}
 .rx-byline{font-family:var(--serif); font-style:italic; font-weight:400; font-size:16px; color:var(--ink2); line-height:1.5; max-width:62ch; margin:0;}
 .rx-eyebrow{font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--ox); margin:0 0 8px; display:inline-flex; align-items:center; gap:6px;}
@@ -255,7 +258,12 @@ const CSS = `
 .rx-num,.rx-dose,.rx-mic,[data-tabular="true"]{font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; letter-spacing:-.002em;}
 /* Optional first-letter dropcap — opt-in only. Apply to a paragraph
    when a single feature lead deserves a magazine-grade entrance. */
-.rx-dropcap::first-letter{font-family:var(--serif); font-weight:600; font-style:italic; font-size:3.6em; line-height:0.82; float:left; padding-right:10px; padding-top:8px; color:var(--ox-bright); background:linear-gradient(180deg, var(--ox-bright) 0%, var(--ox) 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+/* W12 a11y · dropcap gradient flipped so the readable graphite (--ox, 12:1)
+   anchors the top of the letterform where the eye reads first; the cyan
+   accent ends at the bottom as a decorative tail. The solid color
+   fallback is also swapped from --ox-bright to --ox for browsers that
+   ignore -webkit-text-fill-color. */
+.rx-dropcap::first-letter{font-family:var(--serif); font-weight:600; font-style:italic; font-size:3.6em; line-height:0.82; float:left; padding-right:10px; padding-top:8px; color:var(--ox); background:linear-gradient(180deg, var(--ox) 0%, var(--ox-bright) 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
 .rx-disc{display:flex; gap:12px; align-items:flex-start; background:linear-gradient(135deg, var(--ox-softer) 0%, var(--ox-soft) 100%); border:1px solid var(--ox-line); border-left:3px solid var(--ox-bright);
   border-radius:14px 4px 14px 4px; padding:14px 16px; margin:0 0 24px; font-size:12.5px; color:var(--ox-deep); line-height:1.55; box-shadow:var(--shadow-e1);}
 .rx-disc svg{flex:0 0 auto; margin-top:1px;}
@@ -630,7 +638,9 @@ const CSS4 = `
 .rx-axiscard li{margin:0 0 5px;} .rx-axiscard li b{color:var(--ink); font-weight:600;}
 
 /* ---- provenance cite chip (single-source-of-truth registry) ---- */
-.rx-cite{display:inline-flex; align-items:center; gap:4px; font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:2px 6px; border-radius:5px; background:var(--blue-soft); color:var(--blue); border:1px solid var(--blue-line); white-space:nowrap; cursor:help; vertical-align:middle;}
+/* W12 a11y · was --blue (3.37:1) — repointed to --evidence-blue (7.6:1)
+   so the 9px mono citation label clears 4.5:1 on the pale blue chip bg. */
+.rx-cite{display:inline-flex; align-items:center; gap:4px; font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:2px 6px; border-radius:5px; background:var(--evidence-blue-soft); color:var(--evidence-blue); border:1px solid var(--evidence-blue-line); white-space:nowrap; cursor:help; vertical-align:middle;}
 .rx-cite.cl{cursor:pointer; transition:filter .12s;} .rx-cite.cl:hover{filter:brightness(.96);}
 
 /* ---- derived category counts in the syndrome filter bar ---- */
@@ -671,7 +681,11 @@ button.rx-ctxchip{cursor:pointer; font-family:var(--sans); transition:background
 button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-ctxchip-band{border-left:3px solid var(--bandc, #fff); padding-left:8px;}
 .rx-ctxchip-arc{background:var(--amber); border-color:var(--amber);}
-.rx-ctxchip-warn{background:var(--ox-bright); border-color:var(--ox-bright);}
+/* W12 a11y · solid cyan bg + inherited white text was 1.56:1 — fail. Cyan
+   bg pops on the dark ctxbar without needing the white label, so the
+   chip foreground swaps to near-black (12:1 vs cyan). */
+.rx-ctxchip-warn{background:var(--ox-bright); border-color:var(--ox-bright); color:var(--ox-deep);}
+.rx-ctxchip-warn .rx-num{color:var(--ox-deep);}
 .rx-ctxchip-risk{background:rgba(255,255,255,.08); border-style:dashed; font-size:11px; opacity:.95;}
 .rx-ctxbar-clear{margin-left:auto; display:inline-flex; align-items:center; gap:5px; background:none; border:1px solid rgba(255,255,255,.3);
   color:#fff; border-radius:999px; padding:4px 11px; font-family:var(--sans); font-size:11.5px; font-weight:600; cursor:pointer; transition:background .14s;}
@@ -698,7 +712,10 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 
 /* ---- dose-tab calculator additions ---- */
 .rx-field2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
-.rx-field input[aria-invalid="true"]{border-color:var(--ox-bright); box-shadow:0 0 0 3px var(--ox-softer);}
+/* W12 a11y · aria-invalid was cyan (1.69:1) — graphical UI floor is 3:1
+   AND error semantics should NOT be cyan. Repointed to --red so the
+   invalid state reads as an error and clears 3:1 vs paper. */
+.rx-field input[aria-invalid="true"]{border-color:var(--red); box-shadow:0 0 0 3px var(--red-soft);}
 .rx-ctxtoggle{margin-top:14px; width:100%; display:inline-flex; align-items:center; justify-content:center; gap:8px;
   border:1px solid var(--ox-line); background:var(--ox-soft); color:var(--ox); cursor:pointer;
   font-family:var(--sans); font-size:13px; font-weight:600; padding:11px 14px; border-radius:10px; transition:background .15s,color .15s,border-color .15s;}
@@ -845,7 +862,9 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-reg-omit .lab{display:inline-block; font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ox); font-weight:600; margin-right:6px; vertical-align:1px;}
 .rx-reg-deesc{display:flex; gap:7px; align-items:flex-start; font-size:12.5px; color:var(--ink2); line-height:1.5; margin-top:7px; background:var(--blue-soft); border:1px solid var(--blue-line); border-radius:8px; padding:9px 11px;}
 .rx-reg-deesc svg{flex:0 0 auto; margin-top:2px; color:var(--blue);}
-.rx-reg-guard{display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--green); background:var(--green-soft); border:1px solid var(--green-line); border-radius:9px; padding:11px 13px; line-height:1.5; margin-top:16px; min-width:0; overflow-wrap:anywhere;}
+/* W12 a11y · was --green (2.4:1) — repointed to --stable-sage (5.9:1)
+   so the 12px body inside the guard reads as a passing AA paragraph. */
+.rx-reg-guard{display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--stable-sage); background:var(--green-soft); border:1px solid var(--green-line); border-radius:9px; padding:11px 13px; line-height:1.5; margin-top:16px; min-width:0; overflow-wrap:anywhere;}
 .rx-reg-guard svg{flex:0 0 auto; margin-top:1px;}
 .rx-reg-actions{display:flex; gap:9px; margin-top:13px; flex-wrap:wrap;}
 .rx-dc-btn-ghost{color:var(--ink2); background:var(--panel); border-color:var(--line);}
@@ -1565,7 +1584,11 @@ const CSS_W10 = `
   font-variant-numeric: tabular-nums;
 }
 .rx-ftable .rx-fdose-adj{
-  color: var(--ox-bright);
+  /* W12 a11y · was --ox-bright (1.69:1) — bumped to --ox so the bold
+     adjusted-dose digits clear 4.5:1 on paper. The cyan accent moves
+     to the adjacent border/glow tokens (decorative role) on cells
+     that need a visual highlight. */
+  color: var(--ox);
   font-weight: 700;
 }
 

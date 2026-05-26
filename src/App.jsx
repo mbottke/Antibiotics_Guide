@@ -679,7 +679,7 @@ export default function InpatientAbxGuide() {
       <style>{cmdPaletteStyles}</style>
       <div className="rx-cmd" onClick={e=>e.stopPropagation()}>
         <div className="rx-cmd-head">
-          <Search size={18} color="var(--neon-cyan, var(--muted))" />
+          <Search size={18} color="var(--muted)" />
           <input autoFocus value={cmdQ} onChange={e=>{setCmdQ(e.target.value);setCmdIdx(0);}} placeholder="Jump to a syndrome, drug, organism, or section…" />
           <span className="rx-cmd-esc">ESC</span>
         </div>
