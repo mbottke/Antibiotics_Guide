@@ -236,8 +236,15 @@ const CSS = `
 /* Wave 7 W7-B · cinematic ramp. h1 70px / h2 44px / h3 28px responsive.
    Every section heading lands with editorial weight. The tracking ramps
    tighter as size grows — classic display-type discipline. */
-.rx-display{font-family:var(--serif); font-size:clamp(48px, 6.5vw, 72px); font-weight:600; letter-spacing:-.032em; line-height:0.98; color:var(--ink); margin:0 0 16px;}
-.rx-h1{font-family:var(--serif); font-size:clamp(40px, 5vw, 56px); font-weight:600; letter-spacing:-.028em; line-height:1.04; color:var(--ink); margin:0 0 14px;}
+/* W12 viewport density audit · raised the minimum on the editorial
+   display + h1 ramps. At 768px the previous 6.5vw / 5vw functions
+   resolved below the floor (49.9px / 38.4px), pinning the hero to a
+   value that no longer reads as a hero on a 768-wide phone-tablet.
+   The new 52 / 44 floors keep the showstopper feeling at narrow
+   viewports without changing 1024 / 1440 (those still ride the vw
+   curve and resolve well above the floor). */
+.rx-display{font-family:var(--serif); font-size:clamp(52px, 6.5vw, 72px); font-weight:600; letter-spacing:-.032em; line-height:0.98; color:var(--ink); margin:0 0 16px;}
+.rx-h1{font-family:var(--serif); font-size:clamp(44px, 5vw, 56px); font-weight:600; letter-spacing:-.028em; line-height:1.04; color:var(--ink); margin:0 0 14px;}
 .rx-h2{font-family:var(--serif); font-size:clamp(30px, 3.8vw, 44px); font-weight:600; letter-spacing:-.024em; line-height:1.06; color:var(--ink); margin:0 0 10px;}
 .rx-h3{font-family:var(--serif); font-size:clamp(22px, 2.3vw, 28px); font-weight:600; letter-spacing:-.018em; line-height:1.2; color:var(--ink); margin:40px 0 16px; display:flex; align-items:center; gap:14px;}
 .rx-h3::before{content:""; display:inline-block; width:32px; height:2px; background:linear-gradient(90deg, var(--ox-bright) 0%, transparent 100%); flex:0 0 auto;}

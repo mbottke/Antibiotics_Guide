@@ -320,7 +320,9 @@ function W7Glass({ children, flip = false, style = {}, ...rest }) {
       WebkitBackdropFilter: "blur(6px)",
       border: `1px solid ${W7_GLASS_BORDER}`,
       boxShadow: W7_GLASS_SHADOW,
-      padding: 20,
+      /* W12 viewport density · clamp the glass-card gutter so 768-wide
+         devices don't waste a full 20px frame around terse content. */
+      padding: "clamp(14px, 1.6vw, 20px)",
       ...radii,
       ...style,
     }} {...rest}>{children}</div>
@@ -537,7 +539,10 @@ function W8TreeContainer({ index, total, children }) {
         border: `1px solid ${W7_GLASS_BORDER}`,
         boxShadow: "var(--shadow-e2)",
         borderRadius: "18px 4px 18px 4px",
-        padding: 22,
+        /* W12 viewport density · clamp 22 → 16 at the narrow end so the
+           glass panel stays generous on a 1440 canvas but tightens up on a
+           768-wide phablet where 22px chewed the readable text column. */
+        padding: "clamp(16px, 1.8vw, 22px)",
       }}>
         {children}
       </div>

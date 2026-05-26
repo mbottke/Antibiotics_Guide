@@ -283,7 +283,12 @@ function SyndromesSection({
             style={{
               position: "relative",
               overflow: "hidden",
-              padding: "20px 22px",
+              /* W12 viewport density · was a fixed "20px 22px"; at 768px the
+                 stat tile crowds two short numerals against an inflated frame
+                 (22px gutter on each side ≈ 18% of the tile width). Clamp
+                 trims to 14/16 at the narrow end while staying at 20/22 on
+                 a 1440-wide canvas. */
+              padding: "clamp(14px, 1.6vw, 20px) clamp(16px, 1.8vw, 22px)",
               background:
                 "linear-gradient(135deg, var(--paper2) 0%, var(--ox-softer, var(--paper)) 100%)",
               border: "1px solid var(--line)",

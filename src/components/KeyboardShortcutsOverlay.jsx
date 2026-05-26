@@ -327,7 +327,14 @@ function KeyboardShortcutsOverlay() {
                 padding: 0,
                 margin: 0,
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                /* W12 viewport density · 300 was one step too wide for the
+                   modal's `min(90vw, 880px)` envelope at narrow viewports —
+                   at 768 the modal becomes 691px, the inner ul gets ≈630px,
+                   and minmax(300, 1fr) forced 2 cols with a 30px-wide
+                   shortcut label crammed against the key chips. 260 lets
+                   the rows breathe at 768 while still hitting 2-up on the
+                   880-wide desktop modal. */
+                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
                 gap: 10,
               }}>
                 {group.rows.map((s, i) => (
