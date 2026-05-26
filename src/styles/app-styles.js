@@ -236,6 +236,17 @@ const CSS = `
 .rx-callout{background:linear-gradient(135deg, var(--blue-soft) 0%, color-mix(in srgb, var(--blue-soft) 70%, var(--paper) 30%) 100%); border:1px solid var(--blue-line); border-left:3px solid var(--blue); border-radius:14px 4px 14px 4px; padding:14px 16px; font-size:12.5px; color:var(--blue); display:flex; gap:12px; align-items:flex-start; line-height:1.55; margin:18px 0; box-shadow:var(--shadow-e1);}
 .rx-callout svg{flex:0 0 auto; margin-top:1px;}
 
+/* Wave 9 W9 · diagonal hairline divider — a 1px line at 4deg, sitting
+   between sibling panels in place of (some) horizontal dividers. The
+   diagonal is intentionally subtle: enough to read as "designed",
+   never enough to misalign the panels above/below. Gradient runs
+   transparent → cyan → transparent so the line dissolves at the
+   edges and never hits a hard pixel against the page background. */
+.rx-diag-divider{position:relative; height:18px; margin:18px 0; pointer-events:none;}
+.rx-diag-divider::before{content:""; position:absolute; left:6%; right:6%; top:50%; height:1px; background:linear-gradient(90deg, transparent, var(--neon-cyan, var(--ox)), transparent); opacity:0.55; transform:rotate(-4deg); transform-origin:center;}
+.rx-diag-divider::after{content:""; position:absolute; left:50%; top:50%; width:6px; height:6px; border-radius:50%; background:var(--neon-cyan, var(--ox)); transform:translate(-50%, -50%); box-shadow:0 0 8px var(--neon-cyan, var(--ox)); opacity:0.7;}
+@media (prefers-reduced-motion: reduce){ .rx-diag-divider::before{opacity:0.4;} }
+
 /* ----------------------------- TAGS + CHIPS ----------------------------- */
 /* Wave 6 W6-B · chip polish. Pill chips get a hairline shadow at rest
    (so the eye sees them as "tactile" rather than painted-on), and a
