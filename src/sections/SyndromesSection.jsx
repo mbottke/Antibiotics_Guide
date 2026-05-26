@@ -46,6 +46,8 @@ import { SYNDROMES, SYN_CATS, SRC_CONTROL } from "../data/syndromes";
 import { Sparkle } from "../components/decor/Sparkle";
 import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { MeshWash } from "../components/decor/MeshWash";
+import { GradientHairline } from "../components/decor/GradientHairline";
+import { Stripes } from "../components/decor/Stripes";
 
 // Risk-filter taxonomy for the left rail. Each entry maps a chip label
 // onto a predicate over the syndrome's tags / categories so we can filter
@@ -382,13 +384,21 @@ function SyndromesSection({
         <div
           className="rx-builder-risks"
           style={{
+            position: "relative",
             display: "flex",
             flexWrap: "wrap",
             alignItems: "center",
             gap: 8,
           }}
         >
-          <span className="rx-builder-rlab">Host risks</span>
+          <Stripes
+            variant="cyan"
+            angle={135}
+            width="100%"
+            height="100%"
+            style={{ position: "absolute", inset: 0, opacity: 0.08, borderRadius: 8, pointerEvents: "none" }}
+          />
+          <span className="rx-builder-rlab" style={{ position: "relative" }}>Host risks</span>
           {[["mrsaRisk", "MRSA"], ["pseudoRisk", "Pseudomonas"], ["esblRisk", "ESBL / R-GNR"], ["severe", "Severe / shock"]].map(([k, lab]) => {
             const on = !!ctx[k];
             return (
@@ -398,6 +408,7 @@ function SyndromesSection({
                 aria-pressed={on}
                 onClick={() => setCtxField(k, !ctx[k])}
                 style={{
+                  position: "relative",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 6,
@@ -960,6 +971,7 @@ function SyndromesSection({
                         >
                           <CI size={22} style={{ color: "var(--electric-blue, var(--ox))" }} />
                           {cat.label}
+                          <Sparkle size={11} color="var(--neon-cyan, var(--ox))" style={{ opacity: 0.9, marginLeft: 2 }} />
                           <span
                             style={{
                               fontFamily: "var(--mono)",
@@ -977,6 +989,7 @@ function SyndromesSection({
                         </h3>
                       </div>
                       <p
+                        className="rx-dropcap-cyan"
                         style={{
                           fontFamily: "var(--serif)",
                           fontStyle: "italic",
@@ -1076,7 +1089,7 @@ function SyndromesSection({
 
                       return (
                         <article
-                          className="rx-acc rx-lift rx-fade-in-up syn-card"
+                          className="rx-acc rx-lift rx-fade-in-up syn-card rx-card-interactive rx-glow-lift"
                           data-open={open}
                           key={s.id}
                           style={{
@@ -1216,11 +1229,11 @@ function SyndromesSection({
                                   fontVariantNumeric: "tabular-nums",
                                 }}
                               >
-                                <span>{agentCount} tier{agentCount === 1 ? "" : "s"}</span>
+                                <span><span style={{ color: "var(--neon-cyan, var(--ox))", fontWeight: 700 }}>{agentCount}</span> tier{agentCount === 1 ? "" : "s"}</span>
                                 <span style={{ opacity: 0.4 }}>·</span>
-                                <span>{drugCount} drug{drugCount === 1 ? "" : "s"}</span>
+                                <span><span style={{ color: "var(--neon-cyan, var(--ox))", fontWeight: 700 }}>{drugCount}</span> drug{drugCount === 1 ? "" : "s"}</span>
                                 <span style={{ opacity: 0.4 }}>·</span>
-                                <span>{bugCount} bug{bugCount === 1 ? "" : "s"}</span>
+                                <span><span style={{ color: "var(--neon-cyan, var(--ox))", fontWeight: 700 }}>{bugCount}</span> bug{bugCount === 1 ? "" : "s"}</span>
                               </span>
 
                               {!open && (
@@ -1296,12 +1309,13 @@ function SyndromesSection({
                               {s.tiers.map((t, ti) => (
                                 <div className={"rx-tier " + (t.sev ? "sev" : ti > 0 ? "alt" : "")} key={ti}>
                                   <div className="rx-tierlab">
+                                    {ti === 0 && <Sparkle size={11} color="var(--neon-cyan, var(--ox))" style={{ marginRight: 6, verticalAlign: "-1px" }} />}
                                     {t.k}
                                     {t.sev && <span className="rx-pref pref-1">severe / first-hour</span>}
                                   </div>
-                                  <p className="rx-rx" style={{ lineHeight: 1.55 }}>{renderRich(t.rx, openDrug)}</p>
+                                  <p className="rx-rx" style={{ lineHeight: 1.6, marginBottom: 14 }}>{renderRich(t.rx, openDrug)}</p>
                                   <DoseAdjustBar rx={t.rx} ctx={ctx} d={d} onDrug={openDrug} synId={s.id} />
-                                  {t.note && <p className="rx-rxnote" style={{ lineHeight: 1.55 }}>{renderGloss(t.note, openDrug)}</p>}
+                                  {t.note && <p className="rx-rxnote" style={{ lineHeight: 1.6, marginBottom: 14 }}>{renderGloss(t.note, openDrug)}</p>}
                                 </div>
                               ))}
 
@@ -1342,10 +1356,12 @@ function SyndromesSection({
 
                               <div className="rx-coverbox" style={{ marginTop: 12, background: "var(--ox-softer)", borderColor: "var(--ox-line)" }}>
                                 <div className="h" style={{ color: "var(--ox)" }}>De-escalation</div>
-                                <div className="t" style={{ lineHeight: 1.55 }}>{renderGloss(s.deesc, openDrug)}</div>
+                                <div className="t" style={{ lineHeight: 1.6 }}>{renderGloss(s.deesc, openDrug)}</div>
                               </div>
 
-                              <ul className="rx-pearls" style={{ lineHeight: 1.55 }}>
+                              <GradientHairline variant="cyan-blue" style={{ margin: "16px 0 8px", opacity: 0.6 }} />
+
+                              <ul className="rx-pearls" style={{ lineHeight: 1.6 }}>
                                 {s.pearls.map((p, pi) => <li key={pi} dangerouslySetInnerHTML={{ __html: p.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>") }} />)}
                               </ul>
 

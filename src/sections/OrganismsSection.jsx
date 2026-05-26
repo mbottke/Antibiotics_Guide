@@ -180,7 +180,7 @@ function W8FieldGuideHero({ kicker, title, standfirst, watermark = "O", counter 
 }
 
 /* Sub-section magazine head (mirrors the Principles W8SubHead). */
-function W8SubHead({ kicker, title, lede, icon, id }) {
+function W8SubHead({ kicker, title, lede, icon, id, important = false }) {
   return (
     <div id={id} className="rx-fade-in-up" style={{ margin: "40px 0 18px", position: "relative", scrollMarginTop: "100px" }}>
       <div style={{
@@ -208,13 +208,17 @@ function W8SubHead({ kicker, title, lede, icon, id }) {
       }}>
         {icon && <span style={{ color: CYAN_BRIGHT, display: "inline-flex" }}>{icon}</span>}
         {title}
+        {important && <Sparkle size={13} color={CYAN_BRIGHT} style={{ marginLeft: 6, opacity: 0.95 }} />}
       </h3>
       {lede && (
-        <p style={{
-          fontFamily: "var(--serif)", fontStyle: "italic",
-          fontSize: 16, lineHeight: 1.55, color: "var(--ink2)",
-          margin: "10px 0 0", maxWidth: "70ch",
-        }}>{lede}</p>
+        <p
+          className="rx-dropcap-cyan"
+          style={{
+            fontFamily: "var(--serif)", fontStyle: "italic",
+            fontSize: 16, lineHeight: 1.6, color: "var(--ink2)",
+            margin: "12px 0 0", maxWidth: "70ch",
+          }}
+        >{lede}</p>
       )}
     </div>
   );
@@ -387,7 +391,7 @@ function W8DirectedCard({ org, supergroup, openDrug, highlight, anchorId, delay,
       id={anchorId}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className="rx-fade-in-up"
+      className="rx-fade-in-up rx-card-interactive"
       style={{
         position: "relative",
         display: "flex",
@@ -454,8 +458,13 @@ function W8DirectedCard({ org, supergroup, openDrug, highlight, anchorId, delay,
         <div style={{
           fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.24em",
           textTransform: "uppercase", color: CYAN_BRIGHT, marginBottom: 4,
-        }}>First-line</div>
-        <div>{renderRich(org.first, openDrug)}</div>
+          display: "inline-flex", alignItems: "center", gap: 6,
+        }}>
+          <span className="rx-light-ring-cyan" aria-hidden="true" />
+          First-line
+          <Sparkle size={9} color={CYAN_BRIGHT} style={{ opacity: 0.9 }} />
+        </div>
+        <div style={{ lineHeight: 1.6 }}>{renderRich(org.first, openDrug)}</div>
       </div>
 
       {/* Tier badges as asymmetric chips */}
@@ -664,7 +673,7 @@ function W8GnrMechanismMatrix({ openDrug }) {
       {GNR_MATRIX.map((r, i) => (
         <article
           key={i}
-          className="rx-fade-in-up"
+          className="rx-fade-in-up rx-glow-lift"
           style={{
             background: "rgba(255,255,255,0.78)",
             border: `1px solid ${W7_GLASS_BORDER}`,
@@ -834,6 +843,7 @@ function OrganismsSection({
         icon={<Crosshair size={20}/>}
         title="Directed therapy, organism by organism"
         lede="Each card is one pathogen with its first-line agent, alternatives, the caveat that matters, and the syndromes it appears in."
+        important
       />
       <div style={{
         display: "flex",
@@ -915,6 +925,7 @@ function OrganismsSection({
         icon={<Network size={20}/>}
         title="Gram-negative backbone by resistance mechanism"
         lede={<>Match the agent to the carbapenemase or resistance mechanism, not the MIC alone <Cite id="amrgn" onClick={(cid)=>openTrial(cid)} />. Confirm the mechanism before committing a reserve agent.</>}
+        important
       />
       <W8GnrMechanismMatrix openDrug={openDrug} />
     </>

@@ -36,6 +36,7 @@ import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { GradientHairline } from "../components/decor/GradientHairline";
 import { Stripes } from "../components/decor/Stripes";
 import { MeshWash } from "../components/decor/MeshWash";
+import { SectionArtwork } from "../components/decor/SectionArtwork";
 import { SpectrumChartFull } from "../spectrum/Spectrum";
 import { PEN, PEN_SITES } from "../data/drugs";
 import { MECH, ORGS } from "../data/organisms";
@@ -298,7 +299,7 @@ function CompareSection({
         <h3 className="rx-h3" style={{ marginTop: 0 }}>
           <span className="ic"><Layers size={18} /></span>Spectrum of activity
         </h3>
-        <p className="rx-lede">
+        <p className="rx-lede rx-dropcap-cyan">
           A 49-agent &times; 49-organism map of <i>expected</i> activity &mdash; the intrinsic and typical
           phenotype of each organism against each agent, drawn from EUCAST expected-resistant-phenotype
           tables, IDSA 2024 AMR guidance, and primary spectrum data. Fill fraction encodes the magnitude of
@@ -436,7 +437,7 @@ function CompareSection({
         watermark="P"
       />
 
-      <p className="rx-lede">
+      <p className="rx-lede rx-dropcap-cyan">
         Spectrum answers <i>can the drug kill this organism;</i> penetration and PK/PD answer <i>can it do so at the
         site, at this dose.</i> A susceptible report is necessary but not sufficient &mdash; daptomycin is inactivated
         in the lung, moxifloxacin never reaches urine, first-generation cephalosporins do not enter CSF, and
@@ -517,7 +518,7 @@ function CompareSection({
         or wastes drug.
       </p>
       <div className="rx-axis">
-        <div className="rx-axiscard rx-fade-in-up">
+        <div className="rx-axiscard rx-fade-in-up rx-glow-lift">
           <div className="ax-k">Concentration-dependent</div>
           <div className="ax-t">Chase the peak</div>
           <div className="ax-pd">target: Cmax/MIC &amp; AUC/MIC</div>
@@ -528,7 +529,7 @@ function CompareSection({
             <li>A prolonged <b>post-antibiotic effect</b> is what makes interval dosing safe.</li>
           </ul>
         </div>
-        <div className="rx-axiscard rx-fade-in-up" style={{ animationDelay: "80ms" }}>
+        <div className="rx-axiscard rx-fade-in-up rx-glow-lift" style={{ animationDelay: "80ms" }}>
           <div className="ax-k">Time-dependent</div>
           <div className="ax-t">Stay above MIC</div>
           <div className="ax-pd">target: %fT&gt;MIC</div>
@@ -538,7 +539,7 @@ function CompareSection({
             <li>Little post-antibiotic effect against Gram-negatives &mdash; missed/late doses matter.</li>
           </ul>
         </div>
-        <div className="rx-axiscard rx-fade-in-up" style={{ animationDelay: "160ms" }}>
+        <div className="rx-axiscard rx-fade-in-up rx-glow-lift" style={{ animationDelay: "160ms" }}>
           <div className="ax-k">AUC-dependent</div>
           <div className="ax-t">Total daily exposure</div>
           <div className="ax-pd">target: 24-h AUC/MIC</div>
@@ -576,7 +577,7 @@ function CompareSection({
         watermark="M"
       />
 
-      <p className="rx-lede">
+      <p className="rx-lede rx-dropcap-cyan">
         Every class attacks one molecular target; resistance is the organism&rsquo;s counter-move against that exact
         target. Pairing the two explains cross-resistance (why MLS<sub>B</sub> links macrolides, clindamycin, and
         streptogramins), why a single rpoB mutation defeats rifampin monotherapy, and why glycylcyclines were built to
@@ -609,7 +610,7 @@ function CompareSection({
 
       <GradientHairline variant="blue-magenta" withDot style={{ margin: "24px 0" }} />
 
-      <h3 className="rx-h3"><span className="ic"><ShieldAlert size={18} /></span>Mechanisms of resistance: four routes of escape</h3>
+      <h3 className="rx-h3"><span className="ic"><ShieldAlert size={18} /></span>Mechanisms of resistance: four routes of escape <Sparkle size={11} color="var(--neon-cyan, var(--ox))" style={{ marginLeft: 4 }} /></h3>
 
       {/* W8-C6 · asymmetric mechanism cards with vertical left-rail labels */}
       <div
@@ -671,7 +672,7 @@ function CompareSection({
         ].map((m, i) => (
           <article
             key={m.n}
-            className="rx-fade-in-up"
+            className="rx-fade-in-up rx-glow-lift"
             style={{
               animationDelay: `${80 + i * 70}ms`,
               position: "relative",
@@ -686,6 +687,11 @@ function CompareSection({
               overflow: "hidden",
             }}
           >
+            <SectionArtwork
+              variant="prism"
+              accent={m.label === "DENY" ? "magenta" : m.label === "BYPASS" ? "lime" : "cyan"}
+              style={{ top: 4, right: 4, transform: "scale(0.5)", transformOrigin: "top right", opacity: 0.6 }}
+            />
             {/* W8-C6 · vertical rail with rotated mechanism label */}
             <div
               aria-hidden="true"
@@ -741,19 +747,19 @@ function CompareSection({
       <h3 className="rx-h3"><span className="ic"><Activity size={18}/></span>Pharmacokinetic-pharmacodynamic targets</h3>
       <p className="rx-lede" style={{marginBottom:12}}>Killing pattern decides dosing strategy — the same total daily dose succeeds or fails depending on how it is distributed across the interval.</p>
       <div className="rx-pkpd-grid">
-        <div className="rx-pkpd-card">
+        <div className="rx-pkpd-card rx-glow-lift">
           <div className="rx-pkpd-h"><Clock size={14}/> Time-dependent</div>
           <div className="rx-pkpd-tgt">Target: <b>%fT &gt; MIC</b></div>
           <div className="rx-pkpd-ag">β-lactams — carbapenems ~40%, penicillins ~50%, cephalosporins ~60–70%</div>
           <div className="rx-pkpd-do">Maximise time above MIC: <b>extended or continuous infusion</b> and more frequent dosing. Minimal Gram-negative post-antibiotic effect, so a trough that dips below MIC lets regrowth begin.</div>
         </div>
-        <div className="rx-pkpd-card">
+        <div className="rx-pkpd-card rx-glow-lift">
           <div className="rx-pkpd-h"><TrendingDown size={14}/> Concentration-dependent</div>
           <div className="rx-pkpd-tgt">Target: <b>C<sub>max</sub> / MIC</b></div>
           <div className="rx-pkpd-ag">Aminoglycosides (C<sub>max</sub>/MIC ~8–10), daptomycin</div>
           <div className="rx-pkpd-do">Drive the peak: <b>once-daily, extended-interval</b> dosing. A long post-antibiotic effect covers the trough and limits toxicity.</div>
         </div>
-        <div className="rx-pkpd-card">
+        <div className="rx-pkpd-card rx-glow-lift">
           <div className="rx-pkpd-h"><Activity size={14}/> Exposure (AUC)-dependent</div>
           <div className="rx-pkpd-tgt">Target: <b>AUC / MIC</b></div>
           <div className="rx-pkpd-ag">Vancomycin (AUC/MIC 400–600), fluoroquinolones (~125 GNR · 30–40 GP), linezolid</div>
