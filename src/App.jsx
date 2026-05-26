@@ -458,9 +458,16 @@ export default function InpatientAbxGuide() {
       if(!parent){ clearAll(); return; }
       // Collect same-tier interactive siblings only.
       const siblings = parent.querySelectorAll(":scope > .rx-card-interactive");
-      // If the hovered card matches an already-active set, no churn.
+      // If the hovered card matches an already-active set, no churn. Three
+      // conditions force an update: (1) different number of siblings,
+      // (2) the previously-dimmed cards belong to a *different* parent
+      // (cross-row navigation — Bug I1: without this guard, the previous
+      // row's dim attributes lingered because the per-card identity check
+      // below only matched within the same parent), or (3) the hovered card
+      // is one of the currently-dimmed cards (we moved within the same row).
       let needsUpdate = false;
       if(dimmedSet.length !== siblings.length - 1) needsUpdate = true;
+      else if(dimmedSet.length > 0 && dimmedSet[0].parentElement !== parent) needsUpdate = true;
       else {
         for(let i = 0; i < dimmedSet.length; i++){
           if(dimmedSet[i] === card){ needsUpdate = true; break; }
