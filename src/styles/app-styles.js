@@ -72,7 +72,7 @@ const CSS = `
   background-position: 0 0;
 }
 
-/* Wave 9 W9 · `.rx-mesh-wash-soft` utility — a low-opacity scrim wrap
+/* Wave 9 W9 · .rx-mesh-wash-soft utility — a low-opacity scrim wrap
    for any consumer that wants the molten-chrome wash WITHOUT having
    to mount the React component. Pairs with the MeshWash JSX primitive
    for cases where the surface is non-React (e.g. a bare HTML island in
