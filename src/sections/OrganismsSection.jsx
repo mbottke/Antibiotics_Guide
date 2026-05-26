@@ -237,7 +237,11 @@ function W8TaxonomicRail({ counts, activeId, onSelect, totalOrgs }) {
       aria-label="Taxonomic rail"
       style={{
         position: "sticky",
-        top: 16,
+        /* W12 bughunt · global .rx-header is sticky at top:0 with z:50 and
+           ~79 px tall (Organisms has a single tab so no sub-nav). top:16
+           tucked 63 px of the rail under the header at scroll-stuck. 88
+           clears the header and matches the StickySubTOC default. */
+        top: 88,
         alignSelf: "flex-start",
         width: 220,
         flex: "0 0 220px",

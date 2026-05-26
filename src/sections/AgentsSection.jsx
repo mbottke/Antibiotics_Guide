@@ -518,7 +518,12 @@ function AgentsSection({
           className="rx-fade-in-up"
           style={{
             position: "sticky",
-            top: 8,
+            /* W12 bughunt · the global .rx-header is sticky at top:0 with
+               z:50 and runs ~117 px tall on Agents (3-tab sub-nav). top:8
+               left the filter bar entirely hidden behind the header at
+               scroll-stuck position. 120 clears the header so the filter
+               row stays visible while the user scans the formulary. */
+            top: 120,
             zIndex: 4,
             background: "rgba(255,255,255,0.55)",
             backdropFilter: "saturate(170%) blur(12px)",
