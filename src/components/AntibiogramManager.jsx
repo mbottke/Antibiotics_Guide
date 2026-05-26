@@ -26,6 +26,7 @@ import { Hospital, Upload, Trash2, Check, Download, X, AlertCircle, FileText } f
 import { parseAntibiogramCSV, serializeAntibiogramCSV } from "../engines/antibiogramParser.js";
 import { useRipple } from "./util/useRipple.js";
 import { useReducedMotion } from "./util/useReducedMotion.js";
+import { useFocusTrap } from "./util/useFocusTrap.js";
 import { MeshWash } from "./decor/MeshWash.jsx";
 import { GradientHairline } from "./decor/GradientHairline.jsx";
 
@@ -44,6 +45,13 @@ const HAIRLINE_BG =
   " transparent 100%)";
 
 function Backdrop({ onClose, children }) {
+  /* Wave 12 fix · was missing the focus-trap that every sibling modal
+     (MechanismDrawer, DecisionAttributionDrawer, SettingsModal,
+     OnboardingModal, KeyboardShortcutsOverlay) carries via useFocusTrap.
+     Without it, Tab escapes behind the backdrop — WCAG 2.4.3 / 2.1.2.
+     Now traps focus inside the panel and restores it on close. */
+  const panelRef = useRef(null);
+  useFocusTrap(panelRef, true);
   useEffect(() => {
     if(typeof document === "undefined") return;
     const onKey = (e) => { if(e.key === "Escape") onClose(); };
@@ -52,6 +60,7 @@ function Backdrop({ onClose, children }) {
   }, [onClose]);
   return (
     <div
+      ref={panelRef}
       role="dialog"
       aria-modal="true"
       aria-label="Antibiogram manager"

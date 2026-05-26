@@ -291,11 +291,49 @@ function Section({
         </div>
       )}
 
-      {/* PANEL BODY ---------------------------------------------------- */}
+      {/* PANEL BODY ----------------------------------------------------
+          Wave 12 fix · flatPanel + split + aside used to silently drop
+          the aside (the flatPanel branch returned before split was
+          checked). DurationBlock + MonitoringBlock pass all three; the
+          metadata aside (Decision branches · N paths / Reassess targets
+          · N items) was invisible. Now flatPanel + split renders the
+          grid WITHOUT the panel chrome; non-split flatPanel stays as a
+          bare wrapper; non-flatPanel uses the full chrome treatment. */}
       {flatPanel ? (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          {children}
-        </div>
+        split && aside ? (
+          <div
+            data-section-body
+            data-section-split-grid
+            className="rx-section-split"
+            style={{
+              position: "relative",
+              zIndex: 2,
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 65fr) minmax(0, 35fr)",
+              gap: 20,
+              alignItems: "start",
+            }}
+          >
+            <div style={{ minWidth: 0 }}>{children}</div>
+            <aside
+              data-section-aside
+              style={{
+                minWidth: 0,
+                paddingLeft: 16,
+                borderLeft: "1px solid var(--line2)",
+                fontSize: 12,
+                color: "var(--ink2)",
+                lineHeight: 1.55,
+              }}
+            >
+              {aside}
+            </aside>
+          </div>
+        ) : (
+          <div style={{ position: "relative", zIndex: 2 }}>
+            {children}
+          </div>
+        )
       ) : (
         <div
           data-section-body
