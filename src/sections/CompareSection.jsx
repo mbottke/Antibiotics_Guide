@@ -635,6 +635,11 @@ function CompareSection({
              1440 canvas. */
           gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
           gap: 14,
+          /* W12 bughunt · the 4 mechanism cards (INACTIVATE / ALTER / DENY /
+             BYPASS) carry different copy lengths; without align-items:start
+             grid stretches all four to the tallest, leaving up to ~120 px
+             of empty card chrome at the bottom of the shorter ones. */
+          alignItems: "start",
         }}
       >
         {[
@@ -1119,6 +1124,12 @@ function RegimensComparePanel() {
           gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
           gap: 14,
           marginBottom: 18,
+          /* W12 bughunt · Coverage / Spectrum / Mechanism summary cards have
+             very different copy lengths (Coverage carries the full organism
+             list, the others a 3-line spec). Without align-items:start the
+             shorter cards stretch and leave ~230 px of empty card chrome
+             below their content. */
+          alignItems: "start",
         }}
       >
         {/* Coverage card */}
@@ -1451,7 +1462,10 @@ function RegimensComparePanel() {
       {/* Verbose secondary summary preserves text-search assertions and the
          original "Microbiome impact / Toxicity tally / Evidence grade"
          labels expected by RTL tests. */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
+      {/* W12 bughunt · align-items:start keeps the three summary cards
+          (Microbiome / Toxicity / Evidence) at their natural heights when
+          their bullet counts differ. */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, alignItems: "start" }}>
         <div className="rx-card rx-fade-in-up" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
           <h4><span className="ic"><Activity size={15} /></span>Microbiome impact</h4>
           <ul style={{ paddingLeft: 20, margin: 0 }}>

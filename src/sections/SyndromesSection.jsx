@@ -459,7 +459,12 @@ function SyndromesSection({
       <div
         style={{
           position: "sticky",
-          top: 60,
+          /* W12 bughunt · the global .rx-header is sticky at top:0 with
+             z-index:50 and is ~79 px tall (Syndromes carries no sub-nav).
+             top:60 left the upper 19 px of this pill rail tucked behind
+             the header at scroll-stuck position. top:88 clears the header
+             and matches the StickySubTOC default offset used elsewhere. */
+          top: 88,
           zIndex: 5,
           background: "linear-gradient(180deg, var(--paper) 0%, color-mix(in srgb, var(--paper) 92%, transparent) 100%)",
           paddingTop: 12,
@@ -1099,6 +1104,14 @@ function SyndromesSection({
                       display: "grid",
                       gap: 24,
                       gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                      /* W12 bughunt · prevent CSS Grid from stretching closed
+                         syndrome cards to the height of an open card in the
+                         same row. Without this, opening one card made every
+                         other card in its row grow to ~1250px tall — content
+                         stayed at the top but the cyan hover border + lift
+                         painted across the empty stretched area, reading as
+                         "the syndrome went invisible" on hover. */
+                      alignItems: "start",
                     }}
                   >
                     {items.map((s, sIdx) => {
