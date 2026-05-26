@@ -1,4 +1,9 @@
 /* component · SurfaceBar — Phase C top-level navigation reframe.
+   Wave 8 W8 chrome pass — frosted strip background, asymmetric chip
+   corners (matching the SectionNav rail below), cyan-gradient active
+   state with neon glow, and a hairline gradient bottom border so the
+   bar feels like part of one continuous chrome system.
+
    The two-axis primary nav for the antibiotic guide. Sits above every
    other surface so the clinical context (inpatient vs outpatient) and
    the view (reference textbook vs the decide-mode workflow) are always
@@ -21,6 +26,24 @@ const MODES = [
   { id: "decide",    label: "Decide",    icon: Crosshair,  hint: "Snapshot consult: describe the patient, see multiple regimen options side-by-side with patient-specific refinements" },
 ];
 
+/* W8 chrome — the same gradient used everywhere on active surfaces. */
+const ACTIVE_BG =
+  "linear-gradient(135deg," +
+  " var(--ox-deep, #0B0F14) 0%," +
+  " var(--ox, #1F2937) 50%," +
+  " var(--neon-cyan, #00D4FF) 240%)";
+
+/* Hairline cyan gradient — a 1px bottom border at low alpha. Provides
+   the same visual cue as a frosted-glass header without dominating
+   the eye. */
+const HAIRLINE_BG =
+  "linear-gradient(90deg," +
+  " transparent 0%," +
+  " rgba(0, 212, 255, 0.45) 18%," +
+  " rgba(61, 122, 255, 0.45) 50%," +
+  " rgba(255, 61, 188, 0.30) 82%," +
+  " transparent 100%)";
+
 function _btn({ active, disabled, showSoon, label, hint, Icon, onClick, leading }){
   return (
     <button
@@ -30,18 +53,23 @@ function _btn({ active, disabled, showSoon, label, hint, Icon, onClick, leading 
       aria-pressed={active}
       aria-disabled={disabled || undefined}
       title={hint}
+      className={"rx-magnetic rx-shine-sweep" + (disabled ? "" : " rx-ripple")}
       style={{
         display:"inline-flex", alignItems:"center", gap:6,
         fontFamily:"var(--sans)", fontSize:12.5, fontWeight: active ? 700 : 500,
         color: active ? "#fff" : disabled ? "var(--faint)" : "var(--ink2)",
-        background: active ? "linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 240%)" : "transparent",
-        border:"1px solid " + (active ? "var(--ox-deep)" : "var(--line)"),
+        background: active ? ACTIVE_BG : "var(--paper)",
+        border:"1px solid " + (active ? "var(--neon-cyan, var(--ox-deep))" : "var(--line)"),
+        /* Asymmetric: leading chip has soft-left/sharp-right; trailing
+            chip mirrors. Matches the W8 chrome 8/3 vocabulary. */
         borderRadius: leading ? "10px 3px 3px 10px" : "3px 10px 10px 3px",
         padding:"7px 14px",
         cursor: disabled ? "not-allowed" : "pointer",
         marginLeft: leading ? 0 : -1,
         whiteSpace:"nowrap",
-        boxShadow: active ? "0 4px 14px -4px var(--ox-bright), 0 1px 0 rgba(255,255,255,.08) inset" : "none",
+        boxShadow: active
+          ? "0 6px 18px -4px rgba(0, 212, 255, 0.50), 0 1px 0 rgba(255,255,255,.10) inset"
+          : "none",
         transition:"background .18s, color .18s, border-color .18s, box-shadow .18s, transform .18s",
       }}>
       <Icon size={13} aria-hidden /> {label}
@@ -64,12 +92,18 @@ function SurfaceBar({ surface, mode, onSurface, onMode }) {
       aria-label="Surface and mode"
       data-testid="surface-bar"
       style={{
-        background:"var(--paper2)",
-        borderBottom:"1px solid var(--line)",
+        /* Frosted strip — soft white wash with cyan tint and a slight
+            blur. The hairline below is painted as a separate absolute
+            element so it can carry the gradient. */
+        background:"rgba(250, 250, 252, 0.86)",
+        backdropFilter: "saturate(180%) blur(14px)",
+        WebkitBackdropFilter: "saturate(180%) blur(14px)",
+        borderBottom: "1px solid transparent",
+        position: "relative",
       }}>
       <div style={{
         maxWidth:1180, margin:"0 auto",
-        padding:"7px 22px",
+        padding:"8px 22px",
         display:"flex", alignItems:"center", justifyContent:"space-between", gap:14,
         flexWrap:"wrap",
       }}>
@@ -105,6 +139,18 @@ function SurfaceBar({ surface, mode, onSurface, onMode }) {
           </div>
         </div>
       </div>
+      {/* 1px gradient hairline along the bottom edge — provides the
+          chrome system's cyan accent without a full border. */}
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: 0, right: 0, bottom: 0,
+          height: 1,
+          background: HAIRLINE_BG,
+          pointerEvents: "none",
+        }}
+      />
     </div>
   );
 }

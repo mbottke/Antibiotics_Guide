@@ -1,4 +1,12 @@
 /* component · KeyboardShortcutsOverlay — Wave 6 W6-D first-impression piece.
+   Wave 8 W8 chrome pass — converted from a small centered modal into a
+   glassmorphic 90vw card with:
+     • Asymmetric 24/4 corner radius
+     • Cyan gradient top strip + gradient hairline
+     • Two-column grid of shortcut chips
+     • Each shortcut: monospace key in a cyan-bordered chip + label in
+       serif italic
+     • 64px italic-display "Shortcuts" title
 
    `?` opens a printable cheat-sheet of the global keybindings. Settings-
    modal already documents these, but this is the discoverability path —
@@ -9,13 +17,27 @@
      • Single global `keydown` listener on `?` toggles open.
      • Portal-mounted so it floats above any open modal / drawer.
      • Focus-trapped via useFocusTrap; Escape closes; backdrop click closes.
-     • Snapshot-only — no preference state to persist; pure UI.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Keyboard, X } from "lucide-react";
 import { useFocusTrap } from "./util/useFocusTrap.js";
+import { useRipple } from "./util/useRipple.js";
+
+const TOP_STRIP_BG =
+  "linear-gradient(90deg," +
+  " var(--neon-cyan, var(--ox))," +
+  " var(--electric-blue, var(--ox))," +
+  " var(--hot-magenta, var(--ox)))";
+
+const HAIRLINE_BG =
+  "linear-gradient(90deg," +
+  " transparent 0%," +
+  " rgba(0, 212, 255, 0.45) 18%," +
+  " rgba(61, 122, 255, 0.45) 50%," +
+  " rgba(255, 61, 188, 0.30) 82%," +
+  " transparent 100%)";
 
 const SHORTCUTS = [
   { keys: "⌘ K", what: "Open the search palette — jump to any syndrome, agent, organism, or trial." },
@@ -27,13 +49,38 @@ const SHORTCUTS = [
   { keys: "Click footnote", what: "Open the Decision Attribution drawer — see the rule, evidence, and mechanism behind a refinement." },
 ];
 
+function CloseButton({ onClose, label }) {
+  const ref = useRef(null);
+  useRipple(ref);
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={onClose}
+      aria-label={label}
+      className="rx-magnetic rx-shine-sweep rx-ripple"
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 5,
+        background: "rgba(0, 212, 255, 0.06)",
+        border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+        borderRadius: 999,
+        padding: "5px 12px 5px 10px", cursor: "pointer",
+        color: "var(--ink)",
+        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+        letterSpacing: ".08em", textTransform: "uppercase",
+        transition: "background .18s, color .18s, border-color .18s",
+      }}
+    >
+      <X size={12} aria-hidden /> Close
+    </button>
+  );
+}
+
 function KeyboardShortcutsOverlay() {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef(null);
 
-  /* Global ? listener — only fires when the focus isn't inside an input.
-     This is important: a clinician typing "What's that pneumonia?" in
-     the Case Bar must not have a question mark hijacked by the overlay. */
+  /* Global ? listener — only fires when the focus isn't inside an input. */
   useEffect(() => {
     const onKey = (e) => {
       const t = e.target;
@@ -54,6 +101,22 @@ function KeyboardShortcutsOverlay() {
 
   if(!open) return null;
 
+  const panelStyle = {
+    position: "relative",
+    background: "rgba(255, 255, 255, 0.86)",
+    backdropFilter: "saturate(180%) blur(20px)",
+    WebkitBackdropFilter: "saturate(180%) blur(20px)",
+    border: "1px solid var(--line)",
+    /* Asymmetric 24/4 corners — same as drawer panels. */
+    borderRadius: "24px 4px 24px 4px",
+    width: "min(90vw, 880px)",
+    maxHeight: "84vh",
+    overflowY: "auto",
+    padding: "28px 30px 26px",
+    boxShadow: "var(--shadow-drawer)",
+    outline: "none",
+  };
+
   const tree = (
     <div
       role="dialog"
@@ -62,9 +125,11 @@ function KeyboardShortcutsOverlay() {
       onClick={(e) => { e.stopPropagation(); setOpen(false); }}
       style={{
         position: "fixed", inset: 0, zIndex: 1100,
-        background: "var(--scrim)",
+        background: "rgba(15, 23, 42, 0.42)",
+        backdropFilter: "blur(20px) saturate(140%)",
+        WebkitBackdropFilter: "blur(20px) saturate(140%)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "8vh 16px",
+        padding: "5vh 16px",
       }}
     >
       <div
@@ -72,73 +137,117 @@ function KeyboardShortcutsOverlay() {
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         data-testid="keyboard-shortcuts-overlay"
-        style={{
-          background: "var(--paper)",
-          border: "1px solid var(--line)",
-          borderRadius: 10,
-          width: "min(540px, 100%)",
-          maxHeight: "80vh",
-          overflowY: "auto",
-          padding: 22,
-          boxShadow: "var(--shadow-drawer)",
-          outline: "none",
-        }}
+        style={panelStyle}
       >
+        {/* 4px cyan-gradient top strip. */}
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: 0, right: 0, top: 0,
+            height: 4,
+            background: TOP_STRIP_BG,
+            borderTopLeftRadius: 24,
+            pointerEvents: "none",
+          }}
+        />
+
         <div style={{
           display: "flex", alignItems: "flex-start", justifyContent: "space-between",
-          gap: 12, marginBottom: 16,
+          gap: 12, marginBottom: 14,
         }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <Keyboard size={14} aria-hidden color="var(--ox)" />
+              <Keyboard size={14} aria-hidden color="var(--neon-cyan, var(--ox))" />
               <span style={{
-                fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-                color: "var(--ink2)", letterSpacing: ".1em",
+                fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
+                color: "var(--ink2)", letterSpacing: ".14em",
                 textTransform: "uppercase",
               }}>Keyboard</span>
             </div>
-            <h2 style={{ fontSize: 17, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
+            <h2 style={{
+              /* The display title — 64px italic serif. Reads as
+                  "you opened a book, here are the chapter headings." */
+              fontFamily: "var(--serif)",
+              fontStyle: "italic",
+              fontSize: "clamp(38px, 6vw, 64px)",
+              fontWeight: 500,
+              color: "var(--ink)",
+              margin: "0 0 4px",
+              letterSpacing: "-0.018em",
+              lineHeight: 1,
+            }}>
               Shortcuts
             </h2>
           </div>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            aria-label="Close keyboard shortcuts"
-            style={{
-              background: "transparent", border: "1px solid var(--line)",
-              borderRadius: 6, padding: 4, cursor: "pointer",
-              color: "var(--ink2)",
-            }}
-          >
-            <X size={14} aria-hidden />
-          </button>
+          <CloseButton onClose={() => setOpen(false)} label="Close keyboard shortcuts" />
         </div>
 
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
+        {/* Gradient hairline under the header. */}
+        <span
+          aria-hidden="true"
+          style={{
+            display: "block",
+            height: 1,
+            background: HAIRLINE_BG,
+            margin: "8px 0 18px",
+          }}
+        />
+
+        {/* Two-column grid of shortcut chips. On narrow viewports the
+            grid collapses to a single column. */}
+        <ul style={{
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: 10,
+        }}>
           {SHORTCUTS.map((s, i) => (
             <li key={i} style={{
-              display: "grid", gridTemplateColumns: "auto 1fr",
-              gap: 14, alignItems: "start",
-              padding: "8px 11px",
-              background: "var(--paper2)",
+              display: "grid",
+              gridTemplateColumns: "auto 1fr",
+              gap: 12,
+              alignItems: "start",
+              padding: "10px 13px",
+              background: "rgba(255, 255, 255, 0.55)",
               border: "1px solid var(--line)",
-              borderRadius: 6,
+              borderLeft: "2px solid var(--neon-cyan, var(--ox))",
+              borderRadius: "10px 3px 10px 3px",
             }}>
               <kbd style={{
-                fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700,
-                background: "var(--panel)", border: "1px solid var(--line)",
-                borderRadius: 4, padding: "3px 8px",
-                color: "var(--ink)", whiteSpace: "nowrap", minWidth: 60, textAlign: "center",
+                fontFamily: "var(--mono)",
+                fontSize: 11,
+                fontWeight: 700,
+                background: "rgba(0, 212, 255, 0.08)",
+                border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+                /* The keys chip — cyan-bordered, mono, tight padding so
+                    the key glyph is the visual anchor. */
+                borderRadius: 6,
+                padding: "3px 9px",
+                color: "var(--ink)",
+                whiteSpace: "nowrap",
+                minWidth: 70,
+                textAlign: "center",
+                boxShadow: "inset 0 -1px 0 rgba(0, 212, 255, 0.18)",
               }}>{s.keys}</kbd>
-              <span style={{ fontSize: 12, lineHeight: 1.5, color: "var(--ink2)" }}>{s.what}</span>
+              <span style={{
+                fontFamily: "var(--serif)",
+                fontStyle: "italic",
+                fontSize: 13,
+                lineHeight: 1.5,
+                color: "var(--ink2)",
+              }}>{s.what}</span>
             </li>
           ))}
         </ul>
 
         <p style={{
-          fontSize: 11, lineHeight: 1.5, color: "var(--muted)",
-          marginTop: 14, marginBottom: 0, fontStyle: "italic",
+          fontSize: 11.5, lineHeight: 1.55, color: "var(--muted)",
+          marginTop: 16, marginBottom: 0,
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
         }}>
           The same list lives in the Settings modal under "Keyboard shortcuts."
           Press <kbd style={{

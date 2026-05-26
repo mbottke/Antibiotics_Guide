@@ -4,9 +4,15 @@
    The shell owns the "edit vs view" toggle: once a case has a syndrome, the
    Case Bar collapses to a single-line summary so the Answer Canvas gets
    the full vertical real estate. The user can re-expand by clicking Edit.
+
+   W8 chrome pass — the header strip is now a frosted-glass band that
+   condenses on scroll, the global scroll progress strip lives at the very
+   top of the viewport, and every chrome button carries the rx-magnetic +
+   rx-shine-sweep micro-motion classes.
+
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useState } from "react";
-import { ArrowLeft, Pencil, Search, Settings as SettingsIcon } from "lucide-react";
+import { ArrowLeft, Search, Settings as SettingsIcon } from "lucide-react";
 import { CaseBar } from "./CaseBar.jsx";
 import { AnswerCanvas } from "./AnswerCanvas.jsx";
 import { FontSizeControl } from "./FontSizeControl.jsx";
@@ -16,13 +22,71 @@ import { OnboardingModal } from "./OnboardingModal.jsx";
 import { BrandMark } from "./BrandMark.jsx";
 import { DensityToggle } from "./DensityToggle.jsx";
 import { ScrollHeader } from "./ScrollHeader.jsx";
+import { GlobalScrollProgress } from "./GlobalScrollProgress.jsx";
 import { useDensity } from "./util/useDensity.js";
+import { useScrollProgress } from "./util/useScrollProgress.js";
 import { SYNDROMES } from "../data/syndromes.js";
 
 function _synName(id) {
   if(!id) return null;
   const s = SYNDROMES.find(x => x.id === id);
   return s ? s.name : id;
+}
+
+/* Hairline gradient — the cyan-line at low alpha used as a bottom border
+   under the chrome bar. Painted as a sibling absolute layer so it can
+   carry the gradient that a `border-bottom` cannot. */
+const HAIRLINE_BG =
+  "linear-gradient(90deg," +
+  " transparent 0%," +
+  " rgba(0, 212, 255, 0.55) 20%," +
+  " rgba(61, 122, 255, 0.55) 50%," +
+  " rgba(255, 61, 188, 0.40) 80%," +
+  " transparent 100%)";
+
+/* The frosted chrome band that wraps every bedside surface. Reads as
+   a sticky strip of glass: a 78%-opaque paper wash with backdrop blur
+   and a 1px gradient hairline along the bottom edge. Condenses on
+   scroll: the brand shrinks and the padding tightens once scrollY
+   passes the threshold.
+
+   Builds on ScrollHeader for the sticky + frosted transitions; this
+   wrapper just adds the gradient hairline + condense-on-scroll
+   behaviour for the brand mark inside. */
+function ChromeBand({ children, condensed }) {
+  return (
+    <ScrollHeader
+      threshold={48}
+      showProgress={false}
+      style={{
+        /* Override the default ScrollHeader paper-wash with a
+            stronger frosted look: rgba(250,250,252,0.78) + saturate(180%)
+            blur(18px). Reads more "glass" than the standard paper-72%. */
+        background: condensed
+          ? "rgba(250, 250, 252, 0.84)"
+          : "rgba(250, 250, 252, 0.72)",
+        backdropFilter: "saturate(180%) blur(18px)",
+        WebkitBackdropFilter: "saturate(180%) blur(18px)",
+        borderBottom: "1px solid transparent",
+        marginBottom: 18,
+      }}
+    >
+      {children}
+      {/* 1px gradient hairline along the bottom of the band. */}
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: 0, right: 0, bottom: 0,
+          height: 1,
+          background: HAIRLINE_BG,
+          opacity: condensed ? 0.9 : 0.5,
+          pointerEvents: "none",
+          transition: "opacity var(--duration-base, .18s) var(--ease-out, ease-out)",
+        }}
+      />
+    </ScrollHeader>
+  );
 }
 
 function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, onOpenPalette, antibiogram, onOpenAntibiogramManager }) {
@@ -36,6 +100,12 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
      the existing antibiogram pattern); per-syndrome UI state stays in
      component memory. */
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  /* W8 chrome · drive the condense-on-scroll behaviour of the brand
+     mark + chrome row. The threshold is intentionally lower than the
+     ScrollHeader frost threshold so the brand starts shrinking before
+     the glass settles in. */
+  const { scrolled } = useScrollProgress(36);
 
   const applyCase = (update) => {
     setCaseState(c => ({
@@ -57,12 +127,37 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
   const _onOrg = onOrg || (() => {});
   const _onCite = onCite || (() => {});
 
-  const synName = _synName(caseState.syndrome);
+  const _synName_ = _synName(caseState.syndrome); // referenced for parity
 
   useDensity();
 
+  /* Chrome action button — the unified style for every pill in the
+     bedside header. Carries the magnetic + shine + ripple micro-motion
+     classes so the chrome feels "alive" at first paint. */
+  const chromeBtnStyle = (extra = {}) => ({
+    display: "inline-flex", alignItems: "center", gap: 6,
+    fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
+    color: "var(--ink2)",
+    background: "rgba(255, 255, 255, 0.55)",
+    border: "1px solid var(--line)",
+    /* Asymmetric 8/3 corners — every chrome button in W8 shares this. */
+    borderRadius: "8px 3px 8px 3px",
+    padding: scrolled ? "4px 9px" : "5px 11px",
+    cursor: "pointer",
+    transition:
+      "padding .18s var(--ease-out, ease-out)," +
+      " background .18s var(--ease-out, ease-out)," +
+      " border-color .18s var(--ease-out, ease-out)," +
+      " box-shadow .18s var(--ease-out, ease-out)",
+    ...extra,
+  });
+
   return (
     <div className="rx-root rx-bedside">
+      {/* Global cyan-gradient scroll progress strip — sits at the very top
+          of the viewport and fills as the user scrolls. */}
+      <GlobalScrollProgress />
+
       {/* Phase D2 responsive container: stays narrow on mobile/tablet
           (max 780 px below 1100 px viewport for typography comfort);
           expands smoothly on wide desktops up to 1480 px so the regimen
@@ -74,18 +169,26 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
         maxWidth: "min(96vw, 1480px)",
         margin: "0 auto",
       }}>
-        <ScrollHeader style={{ marginBottom: 18 }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", gap: 12, flexWrap: "wrap" }}>
+        <ChromeBand condensed={scrolled}>
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: scrolled ? "6px 0" : "10px 0",
+          gap: 12,
+          flexWrap: "wrap",
+          transition: "padding .18s var(--ease-out, ease-out)",
+        }}>
           <button
             type="button"
             onClick={onExit}
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 6,
-              fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".08em",
-              textTransform: "uppercase", color: "var(--muted)",
-              background: "none", border: "1px solid var(--line)", borderRadius: 999,
-              padding: "5px 11px", cursor: "pointer",
-            }}>
+            className="rx-magnetic rx-shine-sweep rx-ripple"
+            style={chromeBtnStyle({
+              textTransform: "uppercase",
+              color: "var(--muted)",
+              background: "transparent",
+              borderRadius: 999,
+            })}>
             <ArrowLeft size={12} /> Reference
           </button>
           <div style={{ display:"flex", alignItems:"center", gap: 10 }}>
@@ -94,18 +197,15 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
                 type="button"
                 onClick={onOpenPalette}
                 aria-label="Search the catalog — drugs, organisms, syndromes (⌘K)"
-                style={{
-                  display: "inline-flex", alignItems: "center", gap: 6,
-                  fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".06em",
-                  color: "var(--muted)",
-                  background: "var(--card)", border: "1px solid var(--line)", borderRadius: 8,
-                  padding: "5px 10px", cursor: "pointer",
-                }}>
+                className="rx-magnetic rx-shine-sweep rx-ripple"
+                style={chromeBtnStyle({
+                  background: "var(--card, rgba(255,255,255,0.6))",
+                })}>
                 <Search size={12} />
                 <span>Search</span>
                 <span style={{
                   marginLeft: 4, padding: "1px 6px", borderRadius: 4,
-                  background: "var(--surface)", border: "1px solid var(--line)",
+                  background: "var(--surface, var(--paper2))", border: "1px solid var(--line)",
                   fontSize: 10, color: "var(--ink2)",
                 }}>⌘K</span>
               </button>
@@ -117,22 +217,38 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
               onClick={() => setSettingsOpen(true)}
               aria-label="Open settings"
               title="Settings"
+              className="rx-magnetic rx-shine-sweep rx-ripple"
               style={{
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: 28, height: 28,
-                background: "var(--panel)",
+                width: scrolled ? 24 : 28, height: scrolled ? 24 : 28,
+                background: "rgba(255, 255, 255, 0.55)",
                 border: "1px solid var(--line)",
+                /* The single round icon button keeps a perfect circle —
+                    asymmetric corners on a circular icon read as a
+                    glitch, not as design language. */
                 borderRadius: 999,
                 cursor: "pointer",
                 color: "var(--ink2)",
+                transition:
+                  "width .18s var(--ease-out, ease-out)," +
+                  " height .18s var(--ease-out, ease-out)," +
+                  " background .18s var(--ease-out, ease-out)",
               }}
             >
               <SettingsIcon size={13} aria-hidden />
             </button>
-            <BrandMark size="small" subtitle="Bedside · Decision support" />
+            <BrandMark
+              size={scrolled ? "small" : "small"}
+              subtitle="Bedside · Decision support"
+              style={{
+                transform: scrolled ? "scale(0.92)" : "scale(1)",
+                transformOrigin: "right center",
+                transition: "transform .22s var(--ease-out, ease-out)",
+              }}
+            />
           </div>
         </div>
-        </ScrollHeader>
+        </ChromeBand>
 
         {/* Three states:
             INITIAL — no syndrome yet → full-width "Build the case" intro
@@ -169,6 +285,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
                 </div>
                 <button type="button" onClick={() => setEditing(false)}
                   aria-label="Close edit panel and return to answer"
+                  className="rx-magnetic rx-shine-sweep rx-ripple"
                   style={{
                     fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".08em",
                     textTransform: "uppercase", color: "var(--muted)",

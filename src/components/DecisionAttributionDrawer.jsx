@@ -1,4 +1,8 @@
 /* component · DecisionAttributionDrawer — Wave 5 PR-14
+   Wave 8 W8 chrome pass — full-takeover drawer with cyan top-strip,
+   asymmetric 24/4 radius, large italic-serif title, glassmorphic
+   backdrop blur, and a pill close button with ripple.
+
    "Trace this decision" drawer that opens from every refinement-step
    FootMark in the Answer Canvas. The user clicks the small numbered
    superscript next to a refined agent and gets the full attribution:
@@ -9,34 +13,15 @@
      • the evidence citation chip (mono / stew / trial reference)
      • severity grade
      • a link out to the mechanism drawer when the rule references
-       a drug class or resistance vocabulary (e.g. β-lactam allergy
-       → opens the β-lactam-class mechanism panel)
+       a drug class or resistance vocabulary
 
    Renders nothing when `open` is false or `step` is null. Closes on
    Escape, click-outside, and the explicit close button.
 
-   Visual language matches the rest of the answer canvas — Section-
-   style chrome on a modal overlay, monospace severity badges, oxblood
-   accent.
-
    SEVERITY VOCABULARY · two-grammar architecture
    ----------------------------------------------
    This drawer uses (high / med / low) — the engine-native severity
-   grammar produced by refineRegimen in src/engines/regimen.js. Every
-   step in `composeAnswer.refinement.steps` carries `sev: "high" | "med" | "low"`.
-
-   The content-authoring layers (MonitoringBlock, DiagnosticsBlock,
-   OPATBlock, MechanismDrawer) use (required / trigger / consider) —
-   the same severity *concept* but framed for authored content rather
-   than engine output. The two grammars coexist by design:
-
-     • engine grammar (high/med/low)  — graded RULE FIRING urgency
-     • content grammar (required/trigger/consider) — authored ORDER tier
-
-   Conflating them would require authors to think in engine terms or
-   engines to emit content-tier language; neither maps cleanly. This
-   doc-block + the audit-gate vocabulary check keep them documented and
-   intentional.
+   grammar produced by refineRegimen in src/engines/regimen.js.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useEffect, useRef } from "react";
@@ -44,6 +29,23 @@ import { createPortal } from "react-dom";
 import { AlertTriangle, BookOpen, CheckCircle2, Crosshair, Info, X } from "lucide-react";
 import { RichText as _RichText } from "./util/richText.jsx";
 import { useFocusTrap } from "./util/useFocusTrap.js";
+import { useRipple } from "./util/useRipple.js";
+
+/* Cyan-gradient top strip — same gradient as MechanismDrawer so the
+   two drawers feel like part of one chrome system. */
+const TOP_STRIP_BG =
+  "linear-gradient(90deg," +
+  " var(--neon-cyan, var(--ox))," +
+  " var(--electric-blue, var(--ox))," +
+  " var(--hot-magenta, var(--ox)))";
+
+const HAIRLINE_BG =
+  "linear-gradient(90deg," +
+  " transparent 0%," +
+  " rgba(0, 212, 255, 0.45) 18%," +
+  " rgba(61, 122, 255, 0.45) 50%," +
+  " rgba(255, 61, 188, 0.30) 82%," +
+  " transparent 100%)";
 
 function _ruleTone(type, sev) {
   if(type === "eliminate") return { color: "var(--red)", bg: "var(--red-soft)", line: "var(--red-line)", label: "Eliminate", Icon: AlertTriangle };
@@ -63,6 +65,33 @@ const CITE_LABEL = {
   stew: "Antimicrobial stewardship principle",
   trial: "Clinical trial",
 };
+
+function CloseButton({ onClose, label }) {
+  const ref = useRef(null);
+  useRipple(ref);
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={onClose}
+      aria-label={label}
+      className="rx-magnetic rx-shine-sweep rx-ripple"
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 5,
+        background: "rgba(0, 212, 255, 0.06)",
+        border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+        borderRadius: 999,
+        padding: "5px 12px 5px 10px", cursor: "pointer",
+        color: "var(--ink)",
+        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+        letterSpacing: ".08em", textTransform: "uppercase",
+        transition: "background .18s, color .18s, border-color .18s",
+      }}
+    >
+      <X size={12} aria-hidden /> Close
+    </button>
+  );
+}
 
 function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
   const dialogRef = useRef(null);
@@ -84,25 +113,31 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
 
   /* When the step's reason mentions a known resistance / class vocab,
      the drawer surfaces a "Read the mechanism" button that calls back
-     up to the canvas to open the MechanismDrawer with the right key.
-     The matched key is the canonical mechanism vocabulary; the parent
-     decides whether MECHANISMS has an authored entry (PR-7 graceful-
-     fallback). */
+     up to the canvas to open the MechanismDrawer with the right key. */
   const reasonText = step.reason || "";
-  /* MECH_HINTS — keys that MechanismDrawer can resolve via getMechanism().
-     Audit found "β-lactam" had no matching MECHANISMS entry (would render
-     a dead button); dropped until either authored or aliased. */
   const MECH_HINTS = [
     "ESBL", "AmpC", "KPC", "Metallo-β-lactamase", "MBL", "NDM", "VIM",
     "MRSA", "PBP2a", "VRE", "vanA", "Daptomycin",
   ];
   const mechMatch = MECH_HINTS.find(h => reasonText.toLowerCase().includes(h.toLowerCase()));
 
+  const panelStyle = {
+    background: "var(--paper)",
+    border: "1px solid var(--line)",
+    /* Asymmetric 24/4 radius — the defining shape of every W8 drawer. */
+    borderRadius: "24px 4px 24px 4px",
+    width: "min(80vw, 880px)",
+    maxHeight: "88vh",
+    overflowY: "auto",
+    padding: "26px 28px 24px",
+    boxShadow: "var(--shadow-drawer)",
+    outline: "none",
+    position: "relative",
+  };
+
   /* Wave 5 PR-14 fix: render through React portal so the overlay lives
      at document.body, not inside whatever interactive ancestor (e.g.,
-     OptionCard <button>) is mounting the trigger. Without this, a click
-     on the backdrop bubbles up to the parent button and silently
-     changes the selected regimen. */
+     OptionCard <button>) is mounting the trigger. */
   const drawerTree = (
     <div
       role="dialog"
@@ -111,9 +146,11 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
       onClick={(e) => { e.stopPropagation(); if(onClose) onClose(); }}
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "var(--scrim)",
+        background: "rgba(15, 23, 42, 0.42)",
+        backdropFilter: "blur(20px) saturate(140%)",
+        WebkitBackdropFilter: "blur(20px) saturate(140%)",
         display: "flex", alignItems: "flex-start", justifyContent: "center",
-        padding: "8vh 16px",
+        padding: "6vh 16px",
       }}
     >
       <div
@@ -121,26 +158,41 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         data-testid="decision-attribution-drawer"
-        style={{
-          background: "var(--paper)",
-          border: "1px solid var(--line)",
-          borderRadius: 10,
-          width: "min(620px, 100%)",
-          maxHeight: "80vh",
-          overflowY: "auto",
-          padding: 22,
-          boxShadow: "var(--shadow-drawer)",
-          outline: "none",
-        }}
+        style={panelStyle}
       >
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+        {/* 4px cyan-gradient top strip. */}
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: 0, right: 0, top: 0,
+            height: 4,
+            background: TOP_STRIP_BG,
+            borderTopLeftRadius: 24,
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Header — mono kicker + rule/sev badges, then italic-serif title. */}
+        <div style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 16,
+          marginBottom: 16,
+        }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 10,
+              flexWrap: "wrap",
+            }}>
               <rule.Icon size={14} color={rule.color} aria-hidden />
               <span style={{
-                fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-                color: "var(--ink2)", letterSpacing: ".1em",
+                fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
+                color: "var(--ink2)", letterSpacing: ".14em",
                 textTransform: "uppercase",
               }}>
                 Trace this decision
@@ -163,65 +215,84 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
                 {sev.label}
               </span>
             </div>
-            <h2 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
+            <h2 style={{
+              /* Big italic-serif title — agent → replacement. The "→"
+                  is part of the editorial flow, not a separator. */
+              fontFamily: "var(--serif)",
+              fontStyle: "italic",
+              fontSize: "clamp(24px, 3.2vw, 40px)",
+              fontWeight: 500,
+              color: "var(--ink)",
+              margin: 0,
+              letterSpacing: "-0.012em",
+              lineHeight: 1.1,
+            }}>
               {step.agent}
               {step.replacement && (
                 <>
-                  <span style={{ color: "var(--ink2)", fontWeight: 500, margin: "0 6px" }}>→</span>
+                  <span style={{
+                    color: "var(--neon-cyan, var(--ox))",
+                    fontWeight: 500,
+                    fontStyle: "normal",
+                    margin: "0 8px",
+                  }}>→</span>
                   {step.replacement}
                 </>
               )}
             </h2>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close decision attribution"
-            style={{
-              background: "transparent", border: "1px solid var(--line)",
-              borderRadius: 6, padding: 4, cursor: "pointer",
-              color: "var(--ink2)",
-            }}
-          >
-            <X size={14} aria-hidden />
-          </button>
+          <CloseButton onClose={onClose} label="Close decision attribution" />
         </div>
+
+        {/* Hairline gradient under the header. */}
+        <span
+          aria-hidden="true"
+          style={{
+            display: "block",
+            height: 1,
+            background: HAIRLINE_BG,
+            margin: "0 0 18px",
+          }}
+        />
 
         {/* Reason */}
         <div style={{
-          background: rule.bg, border: "1px solid " + rule.line,
-          borderRadius: 7, padding: "10px 12px", marginBottom: 14,
+          background: rule.bg,
+          border: "1px solid " + rule.line,
+          borderRadius: "12px 3px 12px 3px",
+          padding: "12px 14px", marginBottom: 16,
         }}>
           <div style={{
-            fontFamily: "var(--mono)", fontSize: 9.5, fontWeight: 700,
-            color: "var(--ink2)", letterSpacing: ".08em",
-            textTransform: "uppercase", marginBottom: 4,
+            fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+            color: "var(--ink2)", letterSpacing: ".12em",
+            textTransform: "uppercase", marginBottom: 6,
           }}>
             Why this fired
           </div>
-          <div style={{ fontSize: 13, lineHeight: 1.55, color: "var(--ink)" }}>
+          <div style={{ fontSize: 14, lineHeight: 1.6, color: "var(--ink)" }}>
             <_RichText text={step.reason || ""} accentColor={rule.color} />
           </div>
         </div>
 
         {/* Citation chip — when the rule was tagged with one */}
         {step.cite && (
-          <div style={{ marginBottom: 14 }}>
+          <div style={{ marginBottom: 16 }}>
             <div style={{
-              fontFamily: "var(--mono)", fontSize: 9.5, fontWeight: 700,
-              color: "var(--ink2)", letterSpacing: ".08em",
-              textTransform: "uppercase", marginBottom: 4,
+              fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+              color: "var(--ink2)", letterSpacing: ".12em",
+              textTransform: "uppercase", marginBottom: 6,
             }}>
               Evidence anchor
             </div>
             <span style={{
               display: "inline-flex", alignItems: "center", gap: 6,
-              fontSize: 11.5, lineHeight: 1.45, color: "var(--ink)",
-              padding: "4px 8px",
-              background: "var(--paper2)", border: "1px solid var(--line)",
-              borderRadius: 5,
+              fontSize: 12.5, lineHeight: 1.45, color: "var(--ink)",
+              padding: "5px 10px",
+              background: "var(--paper2)",
+              border: "1px solid var(--line)",
+              borderRadius: "8px 3px 8px 3px",
             }}>
-              <CheckCircle2 size={11} color="var(--ox)" aria-hidden />
+              <CheckCircle2 size={12} color="var(--neon-cyan, var(--ox))" aria-hidden />
               {CITE_LABEL[step.cite] || step.cite}
             </span>
           </div>
@@ -233,16 +304,21 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
             <button
               type="button"
               onClick={() => { onOpenMechanism(mechMatch); }}
+              className="rx-magnetic rx-shine-sweep"
               style={{
                 display: "inline-flex", alignItems: "center", gap: 6,
-                fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-                letterSpacing: ".06em", textTransform: "uppercase",
-                color: "var(--ox)", background: "var(--ox-soft)",
-                border: "1px solid var(--ox-line)",
-                padding: "5px 10px", borderRadius: 5, cursor: "pointer",
+                fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700,
+                letterSpacing: ".08em", textTransform: "uppercase",
+                color: "var(--ink)",
+                background: "rgba(0, 212, 255, 0.08)",
+                border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+                padding: "6px 12px",
+                borderRadius: "8px 3px 8px 3px",
+                cursor: "pointer",
+                transition: "background .18s, border-color .18s",
               }}
             >
-              <BookOpen size={11} aria-hidden />
+              <BookOpen size={12} aria-hidden />
               Read the mechanism · {mechMatch}
             </button>
           </div>
