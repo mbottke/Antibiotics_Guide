@@ -217,7 +217,7 @@ function OutpatientShell({ onSwitchInpatient }) {
               isolation: "isolate",
             }}
           >
-            <ArrowLeft size={13}/> Back to Inpatient
+            <ArrowLeft size={13}/> Back to inpatient
           </button>
         </div>
       </div>
