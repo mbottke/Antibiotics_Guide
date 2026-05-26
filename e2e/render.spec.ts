@@ -62,9 +62,10 @@ test.describe("regimen drawer renders without runtime errors", () => {
     expect(info.some((l) => /integrity check: clean/.test(l))).toBe(true);
   });
 
-  // No horizontal page overflow on any primary surface. This is the high-value
-  // mobile-only check (axe + error-listening don't catch layout overflow); it
-  // matters at the narrow viewport where the responsive grids must collapse.
+  // No horizontal page overflow on any primary surface. Axe + error-listening
+  // don't catch layout overflow; this check does. Desktop Chromium catches
+  // the same overflow class as mobile because the test reads scrollWidth vs
+  // clientWidth at whatever viewport the project ships.
   for (const [name, hash] of [["approach", "#t=approach"], ["empiric", "#t=empiric"], ["spectrum", "#t=spectrum"], ["course", "#t=course"]]) {
     test(`no horizontal overflow on ${name}`, async ({ page }) => {
       await page.goto("/" + hash);
@@ -80,7 +81,7 @@ test.describe("regimen drawer renders without runtime errors", () => {
 });
 
 /* Bedside mode (Phase A) — the new case-driven surface behind `?bedside=1`.
-   Runs against both the desktop and mobile projects defined in
+   Runs against the desktop Chromium project defined in
    playwright.config.ts so the responsive layout is exercised, not just
    asserted to exist. */
 test.describe("bedside mode renders without runtime errors", () => {
