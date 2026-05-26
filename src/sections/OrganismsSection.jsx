@@ -75,6 +75,8 @@ import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { DottedGrid } from "../components/decor/DottedGrid";
 import { Stripes } from "../components/decor/Stripes";
 import { MeshWash } from "../components/decor/MeshWash";
+import { StickySubTOC } from "../components/decor/StickySubTOC";
+import { NotchedBanner } from "../components/decor/NotchedBanner";
 
 /* ============================================================
    Wave 8 W8 · magazine design tokens (with W7 fallbacks)
@@ -179,9 +181,9 @@ function W8FieldGuideHero({ kicker, title, standfirst, watermark = "O", counter 
 }
 
 /* Sub-section magazine head (mirrors the Principles W8SubHead). */
-function W8SubHead({ kicker, title, lede, icon }) {
+function W8SubHead({ kicker, title, lede, icon, id }) {
   return (
-    <div className="rx-fade-in-up" style={{ margin: "40px 0 18px", position: "relative" }}>
+    <div id={id} className="rx-fade-in-up" style={{ margin: "40px 0 18px", position: "relative", scrollMarginTop: "100px" }}>
       <div style={{
         display: "inline-flex", alignItems: "center", gap: 10,
         fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.22em",
@@ -818,8 +820,17 @@ function OrganismsSection({
 
       <div className="rx-callout"><Info size={15}/><span>Definitive therapy is almost always narrower than the empiric regimen. The resistant-Gram-negative rows follow IDSA guidance <Cite id="amrgn" onClick={(cid)=>openTrial(cid)} />; confirm the carbapenemase type for CRE &mdash; it changes the agent.</span></div>
 
+      {/* W9 · Sticky sub-TOC across the three major sub-sections of the
+          Organisms section (directed grid · MRSA matrix · GNR mechanism). */}
+      <StickySubTOC items={[
+        { id: "sub-org-directed", label: "Directed grid" },
+        { id: "sub-org-mrsa",     label: "MRSA by site" },
+        { id: "sub-org-gnr",      label: "GNR mechanism" },
+      ]} />
+
       {/* ---- O2 + O3 · taxonomic rail + directed-therapy card grid ---- */}
       <W8SubHead
+        id="sub-org-directed"
         kicker="DIRECTED · BY ORGANISM"
         icon={<Crosshair size={20}/>}
         title="Directed therapy, organism by organism"
@@ -880,6 +891,7 @@ function OrganismsSection({
 
       {/* ---- O4 · MRSA by site ---- */}
       <W8SubHead
+        id="sub-org-mrsa"
         kicker="MRSA · BY SITE"
         icon={<Crosshair size={20}/>}
         title="MRSA agent selection by site"
@@ -893,11 +905,13 @@ function OrganismsSection({
       <ul className="rx-mxnotes">
         {MRSA_MATRIX.rows.map(r => <li key={r.ag}><b>{r.ag.split(" / ")[0]}:</b> {renderGloss(r.note, openDrug)}</li>)}
       </ul>
+      <div className="rx-diag-divider" aria-hidden="true" />
 
       <GradientHairline variant="cyan-blue" withDot style={{ margin: "40px 0 24px" }} />
 
       {/* ---- O5 · Gram-negative by mechanism ---- */}
       <W8SubHead
+        id="sub-org-gnr"
         kicker="GRAM-NEGATIVE · MECHANISM"
         icon={<Network size={20}/>}
         title="Gram-negative backbone by resistance mechanism"

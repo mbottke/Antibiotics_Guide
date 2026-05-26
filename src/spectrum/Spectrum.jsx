@@ -178,6 +178,97 @@ const CSS2 = `
   .sx-root{background:#fff;}
 }
 
+/* ============================================================
+   Wave 9 W9 · SPECTRUM matrix creative chrome
+   ----------------------------------------------------------
+   Visual-only refresh — the data + cell semantics are PRESERVED.
+   Every cell still resolves the same activity level, the row +
+   column identity is unchanged, click and hover handlers are
+   untouched. We layer:
+     • Asymmetric 4/0/4/0 cell corners (very tight)
+     • Iridescent gradient top border on column headers
+     • Glass / frosted backdrop on row headers
+     • Cyan halo for hovered row + column header pair
+     • Inset shadow on cells carrying coverage (lv-first / lv-sec)
+     • Neon light-ring upgrade to the coverage glyph
+     • Mesh corner accent on the top-left frozen corner
+   The new selectors are ADDITIVE — they share specificity with the
+   existing .sx-* classes and inherit when the data model wins.
+   ============================================================ */
+.sx-cell{ border-radius:4px 0 4px 0; }
+.sx-mx tbody tr td:first-child.sx-lab{ border-radius:0 12px 0 12px; }
+
+/* Iridescent gradient border on column (organism) headers */
+.sx-orgth{
+  background-image: linear-gradient(180deg, var(--panel) 0, var(--panel) 100%),
+                    linear-gradient(90deg, var(--neon-cyan, #00D4FF), var(--hot-magenta, #ff3b9a), var(--electric-lime, #a6e22e), var(--neon-cyan, #00D4FF));
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  border-top: 1.5px solid transparent;
+}
+@media (prefers-reduced-motion: no-preference){
+  .sx-orgth{ animation: sx-irid-shift 18s linear infinite; background-size: 100% 100%, 400% 100%; }
+  @keyframes sx-irid-shift { 0% { background-position: 0 0, 0 0; } 100% { background-position: 0 0, 400% 0; } }
+}
+
+/* Frosted glass treatment on row (agent) labels */
+.sx-lab{
+  background: linear-gradient(180deg, rgba(252,251,248,0.86), rgba(252,251,248,0.74));
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+}
+.sx-row-on .sx-lab{
+  background: linear-gradient(180deg, rgba(0,212,255,0.10), rgba(0,212,255,0.04));
+  box-shadow: inset 3px 0 0 var(--neon-cyan, #00D4FF), 0 0 18px -6px var(--neon-cyan, #00D4FF);
+}
+
+/* Cyan halo for hovered/active column header (drug-name) */
+.sx-orgth.sx-col-on{
+  background: var(--neon-cyan-soft, rgba(0, 212, 255, 0.12));
+  box-shadow: inset 0 -3px 0 var(--neon-cyan, #00D4FF), 0 0 18px -6px var(--neon-cyan, #00D4FF);
+}
+.sx-orgth.sx-col-on .sx-orgbtn{ color: var(--neon-cyan, var(--ox)); font-weight: 700; }
+
+/* Subtle inset depression for cells with active coverage. We can't
+   target a class on the cell from a CSS-only approach (the glyph
+   level is rendered inside the cell as a child), so we use :has
+   when available — graceful no-op otherwise. */
+.sx-cell:has(.sx-gly.lv-first), .sx-cell:has(.sx-gly.lv-sec){
+  box-shadow: inset 0 0 0 1px rgba(15, 76, 129, 0.06), inset 0 -2px 4px rgba(15, 76, 129, 0.08);
+}
+
+/* Neon light-ring upgrade for the first-line coverage glyph */
+.sx-gly.lv-first{
+  background: radial-gradient(circle at 50% 50%, var(--neon-cyan, var(--ox)) 0 35%, var(--ox) 36% 70%, transparent 71%);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 0 0 8px -1px var(--neon-cyan, var(--ox)), 0 0 0 1px rgba(0, 212, 255, 0.35);
+}
+.xhit .sx-gly.lv-first{
+  box-shadow: 0 0 14px var(--neon-cyan, var(--ox)), 0 0 0 2px rgba(0, 212, 255, 0.6);
+}
+
+/* MeshWash corner accent — paints a soft cyan/magenta gradient in
+   the top-left frozen corner where row + column headers meet. */
+.sx-corner{
+  background:
+    radial-gradient(circle at 16px 16px, var(--neon-cyan-soft, rgba(0, 212, 255, 0.18)) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(255, 59, 154, 0.10) 0%, transparent 65%),
+    var(--panel);
+  border-radius: 12px 0 0 0;
+}
+.sx-corner::after{
+  content:"";
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 14px; height: 14px;
+  background: conic-gradient(from 0deg, var(--neon-cyan, var(--ox)), var(--hot-magenta, var(--ox)), var(--electric-lime, var(--ox)), var(--neon-cyan, var(--ox)));
+  border-radius: 50%;
+  opacity: 0.65;
+  pointer-events: none;
+}
+.sx-corner{ position: sticky; }
+
 /* ---------------- FULLSCREEN MODE ----------------
    When the user clicks "Fullscreen", the SpectrumChart root takes the
    whole viewport. The header, footnotes, sources, and disclaimer

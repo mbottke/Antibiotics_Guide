@@ -68,6 +68,8 @@ import { Sparkle } from "../components/decor/Sparkle";
 import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { DottedGrid } from "../components/decor/DottedGrid";
 import { Stripes } from "../components/decor/Stripes";
+import { StickySubTOC } from "../components/decor/StickySubTOC";
+import { NotchedBanner } from "../components/decor/NotchedBanner";
 
 /* ============================================================
    Wave 8 W8 · magazine design tokens (with W7 fallbacks)
@@ -252,9 +254,9 @@ function W8SubTabRail({ activeTab }) {
    36px italic-serif sub-headline · italic-serif lede beneath.
    Replaces the previous W7SubHead in editorial weight.
    ============================================================ */
-function W8SubHead({ kicker, title, lede, icon }) {
+function W8SubHead({ kicker, title, lede, icon, id }) {
   return (
-    <div className="rx-fade-in-up" style={{ margin: "40px 0 18px", position: "relative" }}>
+    <div id={id} className="rx-fade-in-up" style={{ margin: "40px 0 18px", position: "relative", scrollMarginTop: "100px" }}>
       <div style={{
         display: "inline-flex", alignItems: "center", gap: 10,
         fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.22em",
@@ -630,6 +632,15 @@ function PrinciplesSection({
       <W8SubTabRail activeTab="approach" />
       <SectionDisc />
 
+      {/* W9 · Sticky sub-TOC for in-section navigation across the
+          four long sub-sections of the approach panel. */}
+      <StickySubTOC items={[
+        { id: "sub-approach-sequence", label: "Sequence" },
+        { id: "sub-approach-sepsis",   label: "Sepsis first hour" },
+        { id: "sub-approach-trigger",  label: "Broaden / withhold" },
+        { id: "sub-approach-algos",    label: "Algorithms" },
+      ]} />
+
       <div className="rx-quick rx-fade-in-up" style={{ animationDelay: "120ms" }}>
         <div className="rx-qc"><div className="k"><Zap size={13}/> A time-limited bridge</div><div className="b">In septic shock, deliver effective therapy within <b>one hour</b>. Empiric breadth is provisional — reassess against culture data at <b>48&ndash;72 hours</b> in every case.</div></div>
         <div className="rx-qc"><div className="k"><Crosshair size={13}/> Source determines all</div><div className="b">The probable organisms, the appropriate agent, and the treatment duration each follow from the <b>anatomic source</b>. An undrained focus is not salvaged by any antibiotic.</div></div>
@@ -638,6 +649,7 @@ function PrinciplesSection({
 
       {/* ---- P3 · Reasoning spine (asymmetric stepped cards) ---- */}
       <W8SubHead
+        id="sub-approach-sequence"
         kicker="SEQUENCE · 01"
         icon={<ListChecks size={20}/>}
         title="The empiric reasoning sequence"
@@ -659,6 +671,7 @@ function PrinciplesSection({
 
       {/* ---- P4 · Sepsis first-hour horizontal scroll deck ---- */}
       <W8SubHead
+        id="sub-approach-sepsis"
         kicker="SEQUENCE · 02"
         icon={<Activity size={20}/>}
         title="Sepsis and septic shock: the first-hour sequence"
@@ -668,11 +681,34 @@ function PrinciplesSection({
 
       {/* ---- Trigger pair (broaden / withhold) ---- */}
       <W8SubHead
+        id="sub-approach-trigger"
         kicker="DECISION"
         icon={<GitBranch size={20}/>}
         title="Indications to broaden or to withhold coverage"
         lede="Adding a layer is justified by a named risk; withholding it is justified by the absence of that risk."
       />
+      {/* W9 · Notched-corner severity banners frame the broaden/withhold
+          pair with an "industrial label" treatment. Decorative only —
+          the existing trigger cards still carry the full body content. */}
+      <div className="rx-fade-in-up" style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: 12,
+        marginBottom: 14,
+      }}>
+        <NotchedBanner
+          severity="trigger"
+          label="When to broaden"
+          secondary="Add a named layer for a named risk"
+          icon={<Plus size={15} aria-hidden="true" />}
+        />
+        <NotchedBanner
+          severity="stable"
+          label="When to withhold"
+          secondary="Absent risk · spare the broad agent"
+          icon={<Check size={15} aria-hidden="true" />}
+        />
+      </div>
       <div className="rx-trig rx-fade-in-up">
         <div className="rx-card rx-trigcard">
           <h4><span className="ic"><Plus size={15}/></span>Broaden coverage when</h4>
@@ -696,6 +732,7 @@ function PrinciplesSection({
 
       {/* ---- P5 · Decision trees in glass containers with rotated rail ---- */}
       <W8SubHead
+        id="sub-approach-algos"
         kicker="ALGORITHMS"
         icon={<Layers size={20}/>}
         title="Core decision algorithms"
@@ -766,6 +803,7 @@ function PrinciplesSection({
         );
       })}
 
+      <div className="rx-diag-divider" aria-hidden="true" />
       <RapidDxTimeout onCite={(id)=>openTrial(id)} />
     </>
   );
@@ -784,7 +822,17 @@ function PrinciplesSection({
       />
       <W8SubTabRail activeTab="course" />
 
+      {/* W9 · Sticky sub-TOC across the four long sub-sections of the
+          course panel. */}
+      <StickySubTOC items={[
+        { id: "sub-course-duration", label: "Duration" },
+        { id: "sub-course-narrow",   label: "De-escalation" },
+        { id: "sub-course-opat",     label: "OPAT" },
+        { id: "sub-course-ivpo",     label: "IV → PO" },
+      ]} />
+
       <W8SubHead
+        id="sub-course-duration"
         kicker="DURATION"
         icon={<Clock size={20}/>}
         title="Evidence-based durations"
@@ -825,27 +873,68 @@ function PrinciplesSection({
       </div>
 
       <W8SubHead
+        id="sub-course-narrow"
         kicker="NARROW"
         icon={<TrendingDown size={20}/>}
         title="De-escalation discipline"
         lede="A scheduled 48–72 hour reassessment is mandatory — the moment the empiric breadth is paid down."
       />
-      <div className="rx-card rx-mini rx-fade-in-up">
-        <ul>
-          <li><b>Reassess at 48–72 h in every patient.</b> Cultures and clinical trajectory drive the narrowing decision at a scheduled review.</li>
-          <li><b>Narrow to one targeted agent.</b> De-escalation does not worsen outcomes and reduces resistance, C. difficile, and toxicity.</li>
-          <li><b>Stop redundant coverage.</b> Drop empiric vancomycin at 48 h if MRSA is not isolated; collapse double Gram-negative coverage to a single active agent.</li>
-          <li><b>Source control takes precedence over spectrum.</b> Apparent failure most often reflects an undrained focus rather than a resistant organism — re-image before escalating.</li>
-          <li><b>Procalcitonin can support stopping</b> in respiratory infection and sepsis, but never gates starting therapy.</li>
-        </ul>
+      {/* W9 · Asymmetric 1fr / clamp side-by-side — wider main card,
+          narrow metadata aside with severity banners on wide viewports. */}
+      <div className="rx-fade-in-up" style={{
+        display: "grid",
+        gridTemplateColumns: "1fr clamp(180px, 28vw, 320px)",
+        gap: 16,
+        alignItems: "start",
+      }}>
+        <div className="rx-card rx-mini" style={{ minWidth: 0 }}>
+          <ul>
+            <li><b>Reassess at 48–72 h in every patient.</b> Cultures and clinical trajectory drive the narrowing decision at a scheduled review.</li>
+            <li><b>Narrow to one targeted agent.</b> De-escalation does not worsen outcomes and reduces resistance, C. difficile, and toxicity.</li>
+            <li><b>Stop redundant coverage.</b> Drop empiric vancomycin at 48 h if MRSA is not isolated; collapse double Gram-negative coverage to a single active agent.</li>
+            <li><b>Source control takes precedence over spectrum.</b> Apparent failure most often reflects an undrained focus rather than a resistant organism — re-image before escalating.</li>
+            <li><b>Procalcitonin can support stopping</b> in respiratory infection and sepsis, but never gates starting therapy.</li>
+          </ul>
+        </div>
+        <aside style={{ display: "grid", gap: 10 }}>
+          <NotchedBanner
+            severity="required"
+            label="48–72 h gate"
+            secondary="Scheduled reassessment"
+            icon={<Clock size={14} aria-hidden="true" />}
+          />
+          <NotchedBanner
+            severity="trigger"
+            label="Apparent failure?"
+            secondary="Re-image before escalating"
+            icon={<AlertTriangle size={14} aria-hidden="true" />}
+          />
+          <NotchedBanner
+            severity="stable"
+            label="One targeted agent"
+            secondary="De-escalate, don't broaden"
+            icon={<Check size={14} aria-hidden="true" />}
+          />
+        </aside>
       </div>
 
       {/* ---- P6 · OPAT sub-section head ---- */}
       <W8SubHead
+        id="sub-course-opat"
         kicker="OPAT"
         icon={<Hospital size={20}/>}
         title="Outpatient parenteral antimicrobial therapy"
         lede={OPAT.intro}
+      />
+      {/* W9 · Notched severity banner introducing the OPAT eligibility
+          frame. Decorative only — the candidate criteria card retains
+          the full body content. */}
+      <NotchedBanner
+        severity="required"
+        label="Stable, definitive plan, working access"
+        secondary="OPAT preconditions"
+        icon={<Hospital size={15} aria-hidden="true" />}
+        style={{ marginBottom: 12 }}
       />
       <div className="rx-2col rx-fade-in-up">
         <div className="rx-card rx-mini">
@@ -860,9 +949,11 @@ function PrinciplesSection({
         </div>
       </div>
       <div className="rx-callout"><Info size={15}/><span>{OPAT.oral}</span></div>
+      <div className="rx-diag-divider" aria-hidden="true" />
 
       {/* ---- P6 · IV → PO sub-section head ---- */}
       <W8SubHead
+        id="sub-course-ivpo"
         kicker="IV → PO"
         icon={<ArrowRight size={20}/>}
         title="Intravenous-to-oral conversion: bioavailability as the determinant"
@@ -922,8 +1013,19 @@ function PrinciplesSection({
       />
       <W8SubTabRail activeTab="adjuncts" />
 
+      {/* W9 · Sticky sub-TOC across the five long sub-sections of the
+          adjuncts panel. */}
+      <StickySubTOC items={[
+        { id: "sub-adj-prophy", label: "Prophylaxis" },
+        { id: "sub-adj-scope",  label: "Scope" },
+        { id: "sub-adj-evol",   label: "Evolving" },
+        { id: "sub-adj-refs",   label: "References" },
+        { id: "sub-adj-combo",  label: "Combination" },
+      ]} />
+
       {/* ---- P6 · PROPHYLAXIS sub-section head ---- */}
       <W8SubHead
+        id="sub-adj-prophy"
         kicker="PROPHYLAXIS"
         icon={<Scissors size={20}/>}
         title="Surgical antimicrobial prophylaxis"
@@ -943,6 +1045,7 @@ function PrinciplesSection({
       </div>
 
       <W8SubHead
+        id="sub-adj-scope"
         kicker="SCOPE"
         icon={<Layers size={20}/>}
         title="Scope of this reference"
@@ -972,6 +1075,7 @@ function PrinciplesSection({
 
       {/* ---- P6 · EVOLVING sub-section head ---- */}
       <W8SubHead
+        id="sub-adj-evol"
         kicker="EVOLVING"
         icon={<TrendingDown size={20}/>}
         title="What's changing"
@@ -989,6 +1093,7 @@ function PrinciplesSection({
 
       {/* ---- P7 · REFERENCES masonry grid of citation cards ---- */}
       <W8SubHead
+        id="sub-adj-refs"
         kicker="REFERENCES"
         icon={<BookOpen size={20}/>}
         title="Primary sources"
@@ -1026,6 +1131,7 @@ function PrinciplesSection({
       <GradientHairline variant="cyan-blue" withDot style={{ margin: "32px 0 24px" }} />
 
       <W8SubHead
+        id="sub-adj-combo"
         kicker="COMBINATION"
         icon={<Plus size={20}/>}
         title="Combination therapy: established synergy versus unsupported use"
