@@ -102,6 +102,7 @@ import { GradientMeshHero } from "./GradientMeshHero.jsx";
 import { DottedGrid } from "./decor/DottedGrid.jsx";
 import { WatermarkLetter } from "./decor/WatermarkLetter.jsx";
 import { GradientHairline } from "./decor/GradientHairline.jsx";
+import { MeshWash } from "./decor/MeshWash.jsx";
 
 /* ---------- W8 reframe stylesheet ----------
    A scoped style block emitted once at the top of the canvas. Carries:
@@ -713,9 +714,20 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               aria-label="Answer sections"
               data-bedside-spine="true"
               className="rx-horizontal-spine rx-fade-in-up"
-              style={_stagger()}
+              style={{ ..._stagger(), position: "sticky", top: 0, zIndex: 5 }}
             >
+              {/* Wave 9 W9 · molten chrome under the spine bar. As the
+                  user scrolls, the sticky spine reads as glass with
+                  light moving through it — the band wash sits behind
+                  the flat backdrop-filter blur the spine already had. */}
+              <MeshWash
+                variant="band"
+                intensity="strong"
+                palette="cyan-magenta-lime"
+              />
               <div style={{
+                position: "relative",
+                zIndex: 1,
                 display: "flex", gap: 6, overflowX: "auto",
                 scrollbarWidth: "thin",
               }}>

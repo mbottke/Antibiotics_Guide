@@ -74,6 +74,7 @@ import { Sparkle } from "../components/decor/Sparkle";
 import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { DottedGrid } from "../components/decor/DottedGrid";
 import { Stripes } from "../components/decor/Stripes";
+import { MeshWash } from "../components/decor/MeshWash";
 
 /* ============================================================
    Wave 8 W8 · magazine design tokens (with W7 fallbacks)
@@ -129,6 +130,10 @@ function W8FieldGuideHero({ kicker, title, standfirst, watermark = "O", counter 
         boxShadow: W7_GLASS_SHADOW,
       }}
     >
+      {/* Wave 9 W9 · molten chrome behind the Organisms field-guide hero.
+          lime-amber is the warmer accent chord — organisms feel more
+          "natural history" than "lab report", so the wash leans warm. */}
+      <MeshWash variant="full" intensity="soft" palette="lime-amber" />
       <DottedGrid size={28} opacity={0.35} />
       <WatermarkLetter letter={watermark} size={240} color={CYAN_BRIGHT} opacity={0.06} position="top-right" />
       <div style={{ position: "relative" }}>

@@ -45,6 +45,7 @@ import { CAT_ICONS, SYN_ICON } from "../data/ui-maps";
 import { SYNDROMES, SYN_CATS, SRC_CONTROL } from "../data/syndromes";
 import { Sparkle } from "../components/decor/Sparkle";
 import { WatermarkLetter } from "../components/decor/WatermarkLetter";
+import { MeshWash } from "../components/decor/MeshWash";
 
 // Risk-filter taxonomy for the left rail. Each entry maps a chip label
 // onto a predicate over the syndrome's tags / categories so we can filter
@@ -166,6 +167,9 @@ function SyndromesSection({
           overflow: "hidden",
         }}
       >
+        {/* Wave 9 W9 · molten chrome behind the Syndromes hero. cyan-magenta-lime
+            palette anchors this surface in the brand's most saturated chord. */}
+        <MeshWash variant="full" intensity="soft" palette="cyan-magenta-lime" />
         <WatermarkLetter
           letter="S"
           size={240}

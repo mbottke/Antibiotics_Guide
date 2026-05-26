@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 import { useRipple } from "./util/useRipple.js";
+import { MeshWash } from "./decor/MeshWash.jsx";
 
 const MICROBIOME_KEY = "ab_microbiome_sort_default";
 
@@ -272,9 +273,16 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
           }}
         />
 
+        {/* Wave 9 W9 · molten-chrome band behind the settings header. */}
+        <MeshWash
+          variant="band"
+          intensity="normal"
+          palette="cyan-blue"
+        />
         <div style={{
           display: "flex", alignItems: "flex-start", justifyContent: "space-between",
           gap: 12, marginBottom: 14,
+          position: "relative", zIndex: 1,
         }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>

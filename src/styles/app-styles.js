@@ -58,15 +58,33 @@ const CSS = `
 .rx-root .rx-card:nth-child(6),
 .rx-root .rx-acc:nth-child(6)    { animation-delay: 200ms; }
 
-/* Wave 7 W7-B · ambient dot-grid backdrop on the bedside surface.
-   The dots are 1px @ 1.5% opacity ink, spaced 24px apart — invisible until
-   you look for them, but they read as "intentional grid system" rather
-   than "blank canvas". Applied to .rx-bedside-container so the reference
-   pages stay clean. */
+/* Wave 9 W9 · molten-chrome ambient backdrop on the bedside surface.
+   The earlier dot-grid backdrop (radial-gradient dots @ 4% ink, 28px
+   grid) is replaced by a <MeshWash variant="ambient"> mounted inside
+   BedsideShell so the bedside reference reads as the same molten cyan
+   field the GradientMeshHero introduced. The dots remain layered at
+   1% opacity for fine-grain texture — the mesh provides the chroma,
+   the dots provide the "intentional grid system" affordance. */
 .rx-root .rx-bedside-container {
-  background-image: radial-gradient(circle at center, color-mix(in srgb, var(--ink) 4%, transparent) 0.8px, transparent 1.2px);
+  position: relative;
+  background-image: radial-gradient(circle at center, color-mix(in srgb, var(--ink) 2%, transparent) 0.7px, transparent 1.1px);
   background-size: 28px 28px;
   background-position: 0 0;
+}
+
+/* Wave 9 W9 · `.rx-mesh-wash-soft` utility — a low-opacity scrim wrap
+   for any consumer that wants the molten-chrome wash WITHOUT having
+   to mount the React component. Pairs with the MeshWash JSX primitive
+   for cases where the surface is non-React (e.g. a bare HTML island in
+   the docs site or a static skeleton). The class only handles the
+   wrapper positioning + soft alpha; the blobs themselves still need to
+   be drawn by JS or by adding child gradient layers. */
+.rx-mesh-wash-soft {
+  position: relative;
+  isolation: isolate;
+}
+.rx-mesh-wash-soft > [data-mesh-wash] {
+  opacity: 0.6;
 }
 
 /* Wave 7 W7-B · diagonal gradient hairline. Between any two adjacent

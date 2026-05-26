@@ -30,6 +30,7 @@ import { AlertTriangle, BookOpen, CheckCircle2, Crosshair, Info, X } from "lucid
 import { RichText as _RichText } from "./util/richText.jsx";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 import { useRipple } from "./util/useRipple.js";
+import { MeshWash } from "./decor/MeshWash.jsx";
 
 /* Cyan-gradient top strip — same gradient as MechanismDrawer so the
    two drawers feel like part of one chrome system. */
@@ -173,6 +174,12 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
           }}
         />
 
+        {/* Wave 9 W9 · molten-chrome band behind the drawer header band. */}
+        <MeshWash
+          variant="band"
+          intensity="normal"
+          palette="cyan-magenta-lime"
+        />
         {/* Header — mono kicker + rule/sev badges, then italic-serif title. */}
         <div style={{
           display: "flex",
@@ -180,6 +187,8 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
           justifyContent: "space-between",
           gap: 16,
           marginBottom: 16,
+          position: "relative",
+          zIndex: 1,
         }}>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{
