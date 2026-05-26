@@ -303,11 +303,15 @@ function AntibiogramManager({ open, onClose, antibiograms, activeId, onSelect, o
             </h2>
           </div>
           <button type="button" onClick={onClose} aria-label="Close antibiogram manager"
+            title="Close (Esc)"
             style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
-              width: 28, height: 28,
+              /* W10 density: 28x28 → 32x32 so the close hit-target clears
+                 the WCAG 2.5.5 24-CSS-px minimum with margin on touch. */
+              width: 32, height: 32,
               color: "var(--ink2)", background: "transparent",
               border: "1px solid var(--line)", borderRadius: 6, cursor: "pointer",
+              transition: "color .14s ease, background .14s ease, border-color .14s ease",
             }}>
             <X size={14} aria-hidden />
           </button>

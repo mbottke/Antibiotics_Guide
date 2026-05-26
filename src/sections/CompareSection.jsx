@@ -1076,7 +1076,62 @@ function RegimensComparePanel() {
             ORGANISMS · A {diff.coverage.organisms.filter(o => o.a).length} vs B {diff.coverage.organisms.filter(o => o.b).length}
           </div>
           {diff.coverage.organisms.length === 0 ? (
-            <p style={{ color: "var(--ink2)", fontSize: 12 }}>No organisms to compare — pick a syndrome or add drugs.</p>
+            /* W10 · beautiful empty state for the compact coverage card.
+               Compact variant — italic-serif headline + standfirst with a
+               cyan-soft em-dash glyph, sized for the card body (no CTA;
+               the parent inputs already fill that role). */
+            <div
+              role="status"
+              aria-live="polite"
+              style={{
+                padding: "24px 12px 22px",
+                textAlign: "center",
+                background:
+                  "linear-gradient(180deg, transparent 0%, var(--ox-softer, var(--paper)) 100%)",
+                border: "1px dashed var(--line)",
+                borderRadius: "12px 4px 12px 4px",
+              }}
+            >
+              <div
+                aria-hidden
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: 64,
+                  lineHeight: 0.85,
+                  color: "var(--ox-soft, var(--neon-cyan-soft))",
+                  marginBottom: 6,
+                }}
+              >
+                —
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--mono)",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: ".18em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: 6,
+                }}
+              >
+                Nothing to compare yet
+              </div>
+              <p
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontSize: 13,
+                  color: "var(--ink2)",
+                  margin: 0,
+                  lineHeight: 1.55,
+                }}
+              >
+                Pick a syndrome or add drugs to see the coverage delta.
+              </p>
+            </div>
           ) : (
             <div style={{ maxHeight: 320, overflowY: "auto", paddingRight: 4 }}>
               {diff.coverage.organisms.map(o => (
@@ -1243,7 +1298,59 @@ function RegimensComparePanel() {
         }}
       >
         {diff.coverage.organisms.length === 0 ? (
-          <p style={{ color: "var(--ink2)", fontSize: 12 }}>No organisms to compare — pick a syndrome or add drugs.</p>
+          /* W10 · larger empty state for the verbose coverage-delta table.
+             A clean italic-serif "—" anchors the void, with mono kicker
+             and italic-serif standfirst hinting at what to do. */
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              padding: "36px 18px 40px",
+              textAlign: "center",
+            }}
+          >
+            <div
+              aria-hidden
+              style={{
+                fontFamily: "var(--serif)",
+                fontStyle: "italic",
+                fontWeight: 700,
+                fontSize: 96,
+                lineHeight: 0.85,
+                color: "var(--ox-soft, var(--neon-cyan-soft))",
+                marginBottom: 6,
+              }}
+            >
+              —
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--mono)",
+                fontSize: 10.5,
+                fontWeight: 700,
+                letterSpacing: ".22em",
+                textTransform: "uppercase",
+                color: "var(--muted)",
+                marginBottom: 8,
+              }}
+            >
+              No organisms in scope
+            </div>
+            <p
+              style={{
+                fontFamily: "var(--serif)",
+                fontStyle: "italic",
+                fontSize: 14,
+                color: "var(--ink2)",
+                margin: "0 auto",
+                lineHeight: 1.55,
+                maxWidth: "46ch",
+              }}
+            >
+              Pick a syndrome or add a drug to either regimen to populate the
+              per-organism coverage delta.
+            </p>
+          </div>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
             <thead>

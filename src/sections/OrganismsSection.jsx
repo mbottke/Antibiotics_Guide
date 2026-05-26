@@ -726,7 +726,10 @@ function W8MechCell({ kicker, body, accent }) {
     <div style={{
       position: "relative",
       paddingLeft: 14,
-      fontFamily: "var(--serif)", fontSize: 13.5, lineHeight: 1.55,
+      /* W10 density audit: 13.5 → 13 to align with the rest of the
+         editorial body cascade (every other lede / standfirst on this
+         spread reads at 13/14/15; 13.5 was a half-step orphan). */
+      fontFamily: "var(--serif)", fontSize: 13, lineHeight: 1.55,
       color: "var(--ink2)",
     }}>
       <span aria-hidden="true" style={{
@@ -872,14 +875,113 @@ function OrganismsSection({
               );
             })}
             {filteredCards.length === 0 && (
-              <div style={{
-                padding: 18,
-                border: `1px dashed ${W7_GLASS_BORDER}`,
-                borderRadius: "14px 4px 14px 4px",
-                fontFamily: "var(--serif)", fontStyle: "italic",
-                color: "var(--ink2)",
-              }}>
-                No organisms in this supergroup. Switch the rail back to All.
+              /* W10 · upgraded from a dashed-border one-liner to a cinematic
+                 empty state matching the Syndromes / Agents pattern. A
+                 cyan-soft italic-serif "0" anchors the void, mono kicker
+                 + italic-serif headline + standfirst, cyan-gradient CTA
+                 to switch the rail back to All. */
+              <div
+                role="status"
+                aria-live="polite"
+                className="rx-fade-in-up"
+                style={{
+                  position: "relative",
+                  padding: "44px 22px 48px",
+                  textAlign: "center",
+                  background:
+                    "linear-gradient(135deg, var(--paper2) 0%, var(--ox-softer, var(--paper)) 100%)",
+                  border: `1px dashed ${W7_GLASS_BORDER}`,
+                  borderTopLeftRadius: 18,
+                  borderTopRightRadius: 4,
+                  borderBottomLeftRadius: 4,
+                  borderBottomRightRadius: 18,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  aria-hidden
+                  style={{
+                    fontFamily: "var(--serif)",
+                    fontStyle: "italic",
+                    fontWeight: 700,
+                    fontSize: 160,
+                    lineHeight: 0.95,
+                    color: "var(--ox-soft, var(--neon-cyan-soft))",
+                    marginBottom: 4,
+                    letterSpacing: "-.04em",
+                  }}
+                >
+                  0
+                </div>
+                <div
+                  style={{
+                    fontFamily: "var(--mono)",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: ".22em",
+                    textTransform: "uppercase",
+                    color: "var(--muted)",
+                    marginBottom: 10,
+                  }}
+                >
+                  Empty supergroup
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "var(--serif)",
+                    fontStyle: "italic",
+                    fontWeight: 700,
+                    fontSize: 24,
+                    letterSpacing: "-.02em",
+                    margin: "0 0 8px",
+                    color: "var(--ink)",
+                  }}
+                >
+                  No organisms in this supergroup
+                </h3>
+                <p
+                  style={{
+                    fontFamily: "var(--serif)",
+                    fontStyle: "italic",
+                    fontSize: 15,
+                    color: "var(--ink2)",
+                    margin: "0 auto 22px",
+                    lineHeight: 1.55,
+                    maxWidth: "46ch",
+                  }}
+                >
+                  Switch the rail back to All to see the full directed-therapy
+                  card grid.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveSg("all")}
+                  className="rx-lift"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "10px 22px",
+                    fontFamily: "var(--mono)",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: ".12em",
+                    textTransform: "uppercase",
+                    color: "#fff",
+                    background:
+                      "linear-gradient(135deg, var(--ox, var(--ink)) 0%, var(--neon-cyan, var(--ox)) 100%)",
+                    border: "1px solid var(--neon-cyan, var(--ox))",
+                    borderTopLeftRadius: 8,
+                    borderTopRightRadius: 2,
+                    borderBottomLeftRadius: 2,
+                    borderBottomRightRadius: 8,
+                    cursor: "pointer",
+                    boxShadow:
+                      "var(--shadow-e1), var(--neon-cyan-glow, 0 0 24px rgba(0,212,255,0.35))",
+                  }}
+                >
+                  Show all
+                </button>
               </div>
             )}
           </div>

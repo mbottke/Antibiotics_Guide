@@ -587,7 +587,60 @@ export default function InpatientAbxGuide() {
           <span className="rx-cmd-esc">ESC</span>
         </div>
         <div className="rx-cmd-list">
-          {cmdResults.length === 0 && <div className="rx-cmd-empty">No matches for “{cmdQ}”</div>}
+          {cmdResults.length === 0 && (
+            /* W10 · palette empty state — italic-serif headline +
+               hint with cyan-soft glyph; aria-live so the SR users
+               hear "no matches" without polling the empty list. */
+            <div
+              className="rx-cmd-empty"
+              role="status"
+              aria-live="polite"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                padding: "28px 16px 24px",
+                textAlign: "center",
+              }}
+            >
+              <div
+                aria-hidden
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontWeight: 700,
+                  fontSize: 64,
+                  lineHeight: 0.85,
+                  color: "var(--ox-soft, var(--neon-cyan-soft))",
+                  marginBottom: 4,
+                }}
+              >
+                ?
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontSize: 15,
+                  color: "var(--ink)",
+                  marginBottom: 2,
+                }}
+              >
+                No matches for “{cmdQ}”
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--mono)",
+                  fontSize: 10.5,
+                  letterSpacing: ".12em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                }}
+              >
+                Try a syndrome, drug, organism, or section
+              </div>
+            </div>
+          )}
           {cmdResults.map((r,i) => {
             const RI = r.icon || ChevronRight;
             return (
