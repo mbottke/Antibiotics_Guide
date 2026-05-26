@@ -13,7 +13,7 @@
        control, computes the stop date from the syndrome duration
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   AlertTriangle, ArrowRight, Bug, Calendar, Check, Clock, Crosshair,
   FlaskConical, Pill, Scissors, Stethoscope, TrendingDown,
@@ -24,6 +24,8 @@ import { renderRich } from "./rich-text.jsx";
 import { Section } from "./Section.jsx";
 import { NotchedBanner } from "./decor/NotchedBanner.jsx";
 import { GradientHairline } from "./decor/GradientHairline.jsx";
+import { Sparkle } from "./decor/Sparkle.jsx";
+import { useBedsideFlowCtx } from "./util/BedsideFlowContext.js";
 
 function _bugChips(empiric) {
   // Quick-pick organisms = the syndrome's empiric `bugs` list. We show
@@ -36,6 +38,23 @@ function _bugChips(empiric) {
 }
 
 function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, hasStructuredDuration = false }) {
+  const flow = useBedsideFlowCtx();
+  /* W12 F5 · signal the flow hook every time a reassessment input flips
+     (cultures organism, clinical chip). The flow hook bumps its
+     `findingApplied` counter and downstream visual cues (layer glow +
+     spine pulse + sparkle overlay on the trigger banner) paint briefly. */
+  const triggerSignature = JSON.stringify({
+    s: caseState?.cultures?.status,
+    o: caseState?.cultures?.organism,
+    c: caseState?.clinical || {},
+  });
+  const lastSigRef = useRef(triggerSignature);
+  useEffect(() => {
+    if(lastSigRef.current === triggerSignature) return;
+    lastSigRef.current = triggerSignature;
+    if(flow && flow.signalFinding) flow.signalFinding();
+  }, [triggerSignature, flow]);
+
   if(!empiric) return null;
 
   const cultures = caseState.cultures || { status: "pending", organism: null };
@@ -101,12 +120,22 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
           "REGIMEN CHANGED" semantic exactly — the visual gravity equals
           the clinical gravity. Zero triggers → no banner (no chrome). */}
       {r && r.activeTriggers.length > 0 && (
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 12, position: "relative" }}>
           <NotchedBanner
             severity="trigger"
             label={`Regimen has changed · ${r.activeTriggers.length} trigger${r.activeTriggers.length === 1 ? "" : "s"} active`}
             icon={<TrendingDown size={14} aria-hidden />}
           />
+          {/* W12 F5 · sparkle overlay on the active-trigger banner when a
+              fresh finding was just applied. Visual-only; no reduced-motion
+              guarding needed because the Sparkle itself is static. */}
+          {flow && flow.findingApplied > 0 && !flow.reducedMotion && (
+            <Sparkle
+              size={14}
+              style={{ position: "absolute", top: -4, right: -4 }}
+              data-testid="w12-finding-sparkle"
+            />
+          )}
         </div>
       )}
       <>
