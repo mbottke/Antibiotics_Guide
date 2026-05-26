@@ -173,7 +173,9 @@ const CSS2 = `
 .sx-fnwrap{margin:22px 0 0;}
 .sx-h3{font-family:var(--serif); font-size:18px; font-weight:600; margin:26px 0 12px; display:flex; align-items:center; gap:9px; letter-spacing:-.01em;}
 .sx-h3 .ic{color:var(--ox); display:flex;}
-.sx-fngrid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+/* W12 bughunt · align-items:start so footnote/explainer cards with
+   differing paragraph counts don't stretch to share the tallest height. */
+.sx-fngrid{display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start;}
 @media (max-width:820px){.sx-fngrid{grid-template-columns:1fr;}}
 .sx-fncard{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:13px 15px;}
 .sx-fncard h4{margin:0 0 7px; font-size:12.5px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:7px;}

@@ -371,7 +371,9 @@ const CSS2 = `
 .rx-stepb code{font-family:var(--mono); font-size:12px; background:var(--line2); padding:1px 5px; border-radius:4px; color:var(--ox);}
 
 /* trigger grid */
-.rx-trig{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:6px;}
+/* W12 bughunt · align-items:start so interaction/trigger cards with
+   different bullet counts don't stretch and leave empty card-bottoms. */
+.rx-trig{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:6px; align-items:start;}
 @media (max-width:720px){.rx-trig{grid-template-columns:1fr;}}
 .rx-trigcard h4{margin:0 0 9px; font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:7px;}
 .rx-trigcard h4 .ic{color:var(--ox); display:flex;}
@@ -426,7 +428,9 @@ const CSS2 = `
 .rx-rx{font-size:14px; margin:4px 0 0; font-weight:500; line-height:1.45;}
 .rx-rx b{font-weight:700;}
 .rx-rxnote{font-size:12.5px; color:var(--muted); margin:3px 0 0; line-height:1.5;}
-.rx-coverrow{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0 2px;}
+/* W12 bughunt · align-items:start so Cover / Don't pair boxes with
+   different copy lengths don't both stretch to the taller one's height. */
+.rx-coverrow{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0 2px; align-items:start;}
 @media (max-width:560px){.rx-coverrow{grid-template-columns:1fr;}}
 .rx-coverbox{background:var(--line3); border:1px solid var(--line2); border-radius:9px; padding:10px 12px;}
 .rx-coverbox .h{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ox); font-weight:600; margin-bottom:3px;}
@@ -580,7 +584,11 @@ const CSS3 = `
 .rx-durext{font-size:11px; color:var(--muted); margin-top:3px; line-height:1.4;}
 
 /* generic 2-col mini grid */
-.rx-2col{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+/* W12 bughunt · align-items:start prevents siblings of differing content
+   heights from stretching to the tallest cell. Visible whenever .rx-card
+   children carry differing list lengths (e.g. IV-PO criteria vs absorption
+   cards on the Course tab). Mirrors the W12 SyndromesSection grid fix. */
+.rx-2col{display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start;}
 @media (max-width:760px){.rx-2col{grid-template-columns:1fr;}}
 .rx-mini h4{margin:0 0 9px; font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px;}
 .rx-mini h4 .ic{color:var(--ox); display:flex;}
@@ -636,7 +644,10 @@ const CSS4 = `
 .tx-dot-txt{font-family:var(--mono); font-size:9px; color:var(--faint);}
 .rx-mtxleg{display:flex; flex-wrap:wrap; gap:10px 18px; font-size:12px; color:var(--ink2); margin:12px 0 0; align-items:center;}
 .rx-mtxleg .li{display:flex; align-items:center; gap:7px;}
-.rx-axis{display:grid; grid-template-columns:1fr 1fr 1fr; gap:13px; margin:14px 0;}
+/* W12 bughunt · align-items:start so PK/PD pattern cards with differing
+   bullet counts (concentration / time / AUC) don't stretch to a common
+   height with empty card-bottoms on the shorter ones. */
+.rx-axis{display:grid; grid-template-columns:1fr 1fr 1fr; gap:13px; margin:14px 0; align-items:start;}
 @media (max-width:820px){.rx-axis{grid-template-columns:1fr;}}
 .rx-axiscard{border:1px solid var(--line); border-radius:14px 4px 14px 4px; padding:14px 15px; background:var(--panel);}
 .rx-axiscard .ax-k{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ox); font-weight:600;}
@@ -655,7 +666,9 @@ const CSS4 = `
 .rx-catn{font-family:var(--mono); font-size:9.5px; font-weight:600; opacity:.75; margin-left:5px;}
 
 /* ---- "what's changing" evolving-evidence cards ---- */
-.rx-evolve{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 4px;}
+/* W12 bughunt · align-items:start so evolving-evidence cards with
+   differing body lengths don't stretch and leave amber empty bottoms. */
+.rx-evolve{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 4px; align-items:start;}
 @media (max-width:780px){.rx-evolve{grid-template-columns:1fr;}}
 .rx-evcard{border:1px solid var(--amber-line); background:var(--amber-soft); border-radius:14px 4px 14px 4px; padding:13px 15px;}
 .rx-evcard .evh{display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; color:var(--amber); margin:0 0 5px;}
@@ -980,7 +993,10 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-fmbar-note b{color:var(--ink);}
 
 /* ============================ v3 · PHASE C4-PKPD ============================ */
-.rx-pkpd-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;}
+/* W12 bughunt · align-items:start so the three PK/PD target cards
+   (peak / time>MIC / AUC) stay at their natural heights when their
+   per-card copy differs in length. */
+.rx-pkpd-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; align-items:start;}
 .rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:14px 15px;}
 .rx-pkpd-h{display:flex; align-items:center; gap:7px; font-family:var(--sans); font-size:13px; font-weight:700; color:var(--ink); margin-bottom:7px;}
 .rx-pkpd-h svg{color:var(--ox); flex:0 0 auto;}
