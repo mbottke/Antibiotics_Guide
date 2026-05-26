@@ -14,7 +14,7 @@ import { renderGloss, renderRich } from "./rich-text.jsx";
 import { CMP_LVL, CMP_ORGS, MRSA_CELL, ORG_BY_ID } from "../data/organisms.js";
 import { GUIDELINES, TRIAL_DETAIL } from "../data/evidence.js";
 import { getSyndromesForTrial } from "../data/evidenceMap.js";
-import { IVPO_CRITERIA, PO_AGENTS, RAPID_DX, TIMEOUT_ITEMS } from "../data/content.js";
+import { IVPO_CRITERIA, PO_AGENTS, IV_PO_STEPDOWN, RAPID_DX, TIMEOUT_ITEMS } from "../data/content.js";
 import { RDX_ICON } from "../data/ui-maps.js";
 import { _cmpActive } from "../lib/util.js";
 
@@ -613,6 +613,64 @@ function IVtoPO({ onDrug }){
             </button>
           ))}
         </div>
+      </div>
+
+      {/* IV-only → PO step-down map. The chips above answer "which oral
+          agents are bioavailable enough to replace IV." This second table
+          answers the inverse — for IV agents that have no direct oral
+          analog, what's the optimal PO landing zone? Each row is one IV
+          agent with its indication, the ranked oral alternatives (each
+          opening the monograph drawer), and a caveat or "no PO" verdict. */}
+      <div className="rx-ivpo-stepdown" role="region" aria-label="IV-only to PO step-down map">
+        <div className="rx-ivpo-stepdown-head">
+          <span className="rx-ivpo-alab">IV-only → PO step-down</span>
+          <span className="rx-ivpo-stepdown-hint">
+            For IV agents without a direct oral analog — the optimal PO
+            landing zone by indication.
+          </span>
+        </div>
+        <ul className="rx-ivpo-stepdown-list">
+          {IV_PO_STEPDOWN.map((row, i) => (
+            <li key={row.iv} className="rx-ivpo-stepdown-row" style={{ animationDelay: `${Math.min(i * 30, 300)}ms` }}>
+              <div className="rx-ivpo-stepdown-iv">
+                <button
+                  type="button"
+                  className="rx-ivpo-stepdown-ivname"
+                  onClick={() => onDrug && onDrug(row.iv.split(" / ")[0].split(" (")[0])}
+                  title={"Open " + row.iv + " monograph"}
+                >
+                  {row.iv}
+                </button>
+                <span className="rx-ivpo-stepdown-ind">{row.indication}</span>
+              </div>
+              <div className="rx-ivpo-stepdown-po">
+                {row.none ? (
+                  <span className="rx-ivpo-stepdown-none">No oral equivalent</span>
+                ) : (
+                  row.po.map((p, j) => (
+                    <span key={p.n} className="rx-ivpo-stepdown-poitem">
+                      <button
+                        type="button"
+                        className="rx-tag t-green clk rx-ivpo-stepdown-pobtn"
+                        onClick={() => onDrug && onDrug(p.n.split(" / ")[0])}
+                        title={"Open " + p.n}
+                      >
+                        {j === 0 && <span className="rx-ivpo-stepdown-bestmark" aria-label="best choice" title="best PO step-down for this indication">★</span>}
+                        {p.n}
+                      </button>
+                      <span className="rx-ivpo-stepdown-ponote">{p.note}</span>
+                    </span>
+                  ))
+                )}
+                {row.note && (
+                  <span className="rx-ivpo-stepdown-caveat">
+                    <AlertTriangle size={10} aria-hidden /> {row.note}
+                  </span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

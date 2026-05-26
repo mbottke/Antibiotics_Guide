@@ -273,4 +273,146 @@ const PO_AGENTS = [
   { n:"Doxycycline / minocycline", f:">90%" }, { n:"Clindamycin", f:"~90%" }, { n:"Ciprofloxacin", f:"~70%" },
 ];
 
-export { ALLERGY_INTRO, ALLERGY, SPECIAL_POP, PROPHYLAXIS, OPAT, SEPSIS_FLOW, TREES, RAPID_DX, TIMEOUT_ITEMS, IVPO_CRITERIA, PO_AGENTS, GLOSSARY, GLOSS_KEYS, GLOSS_TOKEN };
+/* IV-only → PO step-down map.
+   The PO_AGENTS list answers "which oral agents are bioavailable enough to
+   replace IV." This second table answers the inverse question that a
+   clinician actually asks at the bedside: "my patient is on IV X — what's
+   the optimal PO landing zone when they hit IV→PO criteria?" The mapping
+   is per IV agent because the right oral choice depends on what the IV
+   agent was covering (organism + site), not on a generic bioavailability
+   threshold. Each PO option carries a short clinical note so the
+   substitution context is visible inline.
+
+   Convention:
+     · `iv`         — IV agent (matches a FORMULARY name when possible so
+                      the chip can open the monograph drawer)
+     · `indication` — terse clinical context (organism / setting)
+     · `po`         — ranked oral alternatives (best first)
+     · `note`       — caveat or organism-susceptibility prerequisite
+     · `none`       — true when no PO equivalent exists; the indication
+                      then names the alternative IV agent or "stop on
+                      culture data" path */
+const IV_PO_STEPDOWN = [
+  { iv:"Vancomycin", indication:"MRSA · streptococci · enterococci",
+    po:[
+      { n:"Linezolid",                   note:"MRSA + VRE (E. faecium); ≤ 28 d to limit marrow toxicity" },
+      { n:"TMP-SMX",                     note:"MRSA SSTI / UTI / bacteremia step-down if susceptible" },
+      { n:"Doxycycline",                 note:"Community MRSA SSTI; avoid in bacteremia" },
+      { n:"Clindamycin",                 note:"D-test first — inducible resistance in ~15% MRSA" },
+      { n:"Amoxicillin",                 note:"For susceptible streptococci or E. faecalis" },
+    ],
+    note:"Enteral vancomycin is NOT absorbed — only used for C. difficile, never systemic disease.",
+  },
+  { iv:"Daptomycin", indication:"MRSA bacteremia · VRE",
+    po:[
+      { n:"Linezolid",                   note:"MRSA + VRE (E. faecium); cross-coverage" },
+      { n:"Tedizolid",                   note:"MRSA SSTI; less marrow toxicity than linezolid ≥14 d" },
+      { n:"TMP-SMX",                     note:"MRSA bacteremia step-down if susceptible" },
+    ],
+    note:"No oral lipopeptide exists. Confirm VRE susceptibility before assuming linezolid covers — emerging linezolid resistance via cfr.",
+  },
+  { iv:"Ceftriaxone", indication:"CAP · pyelonephritis · SBP · meningitis",
+    po:[
+      { n:"Cefpodoxime",                 note:"3rd-gen oral; closest spectrum match" },
+      { n:"Cefdinir",                    note:"3rd-gen oral; better palatability" },
+      { n:"Amoxicillin-clavulanate",     note:"CAP, sinusitis, abscess; broader than ceftriaxone for anaerobes" },
+      { n:"Levofloxacin",                note:"CAP, pyelonephritis; avoid as default for cellulitis" },
+      { n:"TMP-SMX",                     note:"Pyelonephritis or UTI if E. coli susceptible" },
+    ],
+  },
+  { iv:"Cefepime", indication:"Pseudomonas · serious GNR · febrile neutropenia",
+    po:[
+      { n:"Ciprofloxacin",               note:"Only oral antipseudomonal; confirm susceptibility" },
+      { n:"Levofloxacin",                note:"Antipseudomonal at 750 mg PO daily if susceptible" },
+    ],
+    note:"No oral β-lactam covers Pseudomonas. FQ resistance climbing — never empiric, only directed.",
+  },
+  { iv:"Piperacillin-tazobactam", indication:"Polymicrobial · Pseudomonas · ESBL (avoid for serious)",
+    po:[
+      { n:"Amoxicillin-clavulanate",     note:"Mirrors anaerobe + GNR cover (no Pseudomonas)" },
+      { n:"Ciprofloxacin + metronidazole", note:"Intra-abdominal / Pseudomonas + anaerobe step-down" },
+      { n:"Levofloxacin + metronidazole",  note:"Alternative FQ + anaerobe pairing" },
+    ],
+  },
+  { iv:"Meropenem / Imipenem / Ertapenem", indication:"ESBL · severe complicated GNR",
+    po:[
+      { n:"Ciprofloxacin",               note:"ESBL UTI / pyelo if susceptible (IDSA 2024 preferred)" },
+      { n:"Levofloxacin",                note:"Alternative FQ if cipro-resistant but levo-S" },
+      { n:"TMP-SMX",                     note:"ESBL UTI step-down if susceptible" },
+      { n:"Fosfomycin",                  note:"Cystitis ONLY — no tissue penetration" },
+    ],
+    note:"For non-UTI ESBL bacteremia, oral step-down is controversial; many centers complete IV course.",
+  },
+  { iv:"Nafcillin / Oxacillin / Cefazolin", indication:"MSSA bacteremia · endocarditis · SSTI",
+    po:[
+      { n:"Cephalexin",                  note:"MSSA SSTI step-down at 500 mg PO q6h" },
+      { n:"Dicloxacillin",               note:"MSSA SSTI alternative; QID dosing" },
+      { n:"Linezolid",                   note:"OVIVA-style step-down for bone/joint MSSA" },
+      { n:"TMP-SMX",                     note:"MSSA SSTI alternative" },
+    ],
+    note:"MSSA bacteremia → 2 weeks IV minimum before considering PO. OVIVA supports oral after early IV for bone/joint.",
+  },
+  { iv:"Penicillin G", indication:"Streptococci · syphilis · susceptible enterococci",
+    po:[
+      { n:"Amoxicillin",                 note:"Same target spectrum, better absorption than penicillin VK" },
+      { n:"Penicillin VK",               note:"If amoxicillin unavailable" },
+    ],
+    note:"Neurosyphilis still requires the full IV penicillin course — no PO step-down.",
+  },
+  { iv:"Ampicillin", indication:"Enterococcus (faecalis) · Listeria",
+    po:[
+      { n:"Amoxicillin",                 note:"~80% bioavailable; same spectrum, BID-TID" },
+    ],
+    note:"Listeria meningitis → no PO step-down; complete IV course.",
+  },
+  { iv:"Ampicillin-sulbactam", indication:"Polymicrobial · anaerobes · Acinetobacter",
+    po:[
+      { n:"Amoxicillin-clavulanate",     note:"Direct oral analog; same β-lactamase-inhibitor pairing" },
+    ],
+    note:"High-dose IV for CRAB has no PO equivalent — directed therapy needed.",
+  },
+  { iv:"Aztreonam", indication:"Gram-negatives in severe β-lactam allergy",
+    po:[
+      { n:"Ciprofloxacin",               note:"Antipseudomonal PO if susceptible" },
+      { n:"Levofloxacin",                note:"Alternative FQ if susceptible" },
+      { n:"TMP-SMX",                     note:"UTI / GNR step-down if susceptible" },
+    ],
+    note:"No oral monobactam exists.",
+  },
+  { iv:"Aminoglycosides (gentamicin / tobramycin / amikacin)", indication:"Synergy · severe GNR · CRBSI",
+    po:[
+      { n:"Ciprofloxacin",               note:"Replaces aminoglycoside for directed GNR therapy" },
+      { n:"TMP-SMX",                     note:"GNR step-down if susceptible" },
+    ],
+    note:"No clinically useful oral aminoglycoside. Synergy role usually ends at culture / source control — most patients don't need ongoing GNR coverage.",
+  },
+  { iv:"Tigecycline", indication:"MDR Acinetobacter · complicated intra-abdominal",
+    po:[
+      { n:"Doxycycline / minocycline",   note:"Similar spectrum if susceptible; better tolerated" },
+      { n:"Eravacycline",                note:"Oral tetracycline; emerging data for MDR" },
+    ],
+    note:"FDA black-box for higher mortality — avoid in bacteremia / VAP.",
+  },
+  { iv:"Colistin / Polymyxin B", indication:"CR Acinetobacter · CR Pseudomonas · CR Enterobacterales",
+    po:[],
+    none:true,
+    note:"No oral polymyxin. Step-down driven by culture: ceftolozane-tazobactam, ceftazidime-avibactam, cefiderocol all IV-only. Reassess source control + duration.",
+  },
+  { iv:"Ceftazidime-avibactam / Ceftolozane-tazobactam / Meropenem-vaborbactam / Imipenem-relebactam", indication:"CRE · KPC · DTR-Pseudomonas",
+    po:[
+      { n:"Ciprofloxacin",               note:"If susceptibility unexpectedly preserved" },
+      { n:"TMP-SMX",                     note:"Same caveat — rarely available against true CRE" },
+    ],
+    note:"For most CRE / DTR cases there is no oral step-down — complete IV course or accept ongoing OPAT.",
+  },
+  { iv:"Cefiderocol", indication:"Stenotrophomonas · CRAB · last-line GNR",
+    po:[
+      { n:"TMP-SMX",                     note:"S. maltophilia step-down if susceptible (combination preferred)" },
+      { n:"Levofloxacin",                note:"S. maltophilia alternative" },
+      { n:"Minocycline",                 note:"S. maltophilia adjunct" },
+    ],
+    note:"Last-line agent — step-down rare; usually completed as full IV course.",
+  },
+];
+
+export { ALLERGY_INTRO, ALLERGY, SPECIAL_POP, PROPHYLAXIS, OPAT, SEPSIS_FLOW, TREES, RAPID_DX, TIMEOUT_ITEMS, IVPO_CRITERIA, PO_AGENTS, IV_PO_STEPDOWN, GLOSSARY, GLOSS_KEYS, GLOSS_TOKEN };

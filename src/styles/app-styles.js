@@ -944,6 +944,37 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-ivpo-alab{display:block; font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:7px;}
 .rx-ivpo-f{font-family:var(--mono); font-size:9px; opacity:.8; margin-left:3px;}
 
+/* IV-only → PO step-down map.
+   A magazine-style two-column table where each row pairs an IV-only agent
+   (left column) with a ranked list of oral landing options + caveats
+   (right column). Built on the same .rx-tag t-green clk chip primitive
+   as the PO_AGENTS chips above so the visual grammar reads as a
+   continuation, not a separate widget. */
+.rx-ivpo-stepdown{margin-top:18px; padding-top:14px; border-top:1px dashed var(--ox-line, var(--line));}
+.rx-ivpo-stepdown-head{display:flex; flex-direction:column; gap:4px; margin-bottom:10px;}
+.rx-ivpo-stepdown-hint{font-family:var(--serif); font-style:italic; font-size:12.5px; color:var(--ink2); line-height:1.45; max-width:62ch;}
+.rx-ivpo-stepdown-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px;}
+.rx-ivpo-stepdown-row{display:grid; grid-template-columns:minmax(200px, 26%) minmax(0, 1fr); gap:14px; align-items:start; padding:10px 12px; border-radius:8px 2px 8px 2px; background:linear-gradient(180deg, var(--paper2) 0%, transparent 100%); border:1px solid var(--line2); transition:background var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);
+  /* gentle fade-in cascade on first paint matches the rest of the bedside surface */
+  animation: rxFadeInUp var(--duration-base, 180ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) both;}
+.rx-ivpo-stepdown-row:hover{background:linear-gradient(180deg, color-mix(in srgb, var(--ox-soft) 40%, var(--paper2)) 0%, transparent 100%); border-color:color-mix(in srgb, var(--line) 60%, var(--ox-bright) 40%);}
+.rx-ivpo-stepdown-iv{display:flex; flex-direction:column; gap:4px; min-width:0;}
+.rx-ivpo-stepdown-ivname{font-family:var(--serif); font-weight:600; font-size:13.5px; color:var(--ox-deep); background:none; border:none; padding:0; text-align:left; cursor:pointer; line-height:1.3; letter-spacing:-.004em; text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--ox-bright) 35%, transparent); text-decoration-thickness:1px; text-underline-offset:3px; transition:color var(--duration-fast) var(--ease-out), text-decoration-color var(--duration-fast) var(--ease-out);}
+.rx-ivpo-stepdown-ivname:hover{color:var(--ox-bright); text-decoration-color:var(--ox-bright);}
+.rx-ivpo-stepdown-ind{font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600;}
+.rx-ivpo-stepdown-po{display:flex; flex-direction:column; gap:6px; min-width:0;}
+.rx-ivpo-stepdown-poitem{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; min-width:0;}
+.rx-ivpo-stepdown-pobtn{flex:0 0 auto; position:relative;}
+.rx-ivpo-stepdown-bestmark{display:inline-block; color:var(--ox-bright); margin-right:3px; font-size:10px; line-height:1; vertical-align:1px; filter:drop-shadow(0 0 4px color-mix(in srgb, var(--ox-bright) 45%, transparent));}
+.rx-ivpo-stepdown-ponote{flex:1 1 0; min-width:0; font-size:12px; color:var(--ink2); line-height:1.45; font-style:italic; font-family:var(--serif);}
+.rx-ivpo-stepdown-none{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:700; padding:4px 9px; border-radius:8px 2px 8px 2px; background:var(--paper2); border:1px dashed var(--line);}
+.rx-ivpo-stepdown-caveat{display:flex; align-items:flex-start; gap:6px; margin-top:4px; font-size:11.5px; line-height:1.45; color:var(--ink2); padding:5px 9px; border-radius:8px 2px 8px 2px; background:color-mix(in srgb, var(--amber-soft) 70%, var(--paper2)); border-left:2px solid var(--amber);}
+.rx-ivpo-stepdown-caveat svg{color:var(--amber); flex:0 0 auto; margin-top:2px;}
+@media (max-width:780px){
+  .rx-ivpo-stepdown-row{grid-template-columns:minmax(0, 1fr); gap:8px;}
+  .rx-ivpo-stepdown-iv{padding-bottom:6px; border-bottom:1px solid var(--line2);}
+}
+
 /* ============================ v3 · PHASE D2 ============================ */
 /* MRSA agent-by-site matrix */
 .rx-mxtable{width:100%; border-collapse:separate; border-spacing:0; font-size:12.5px; min-width:560px;}
