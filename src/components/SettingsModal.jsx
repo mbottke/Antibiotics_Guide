@@ -110,19 +110,58 @@ function ShortcutRow({ keys, label }) {
 
 /* Switch-style toggle — cyan when on, paper when off. Wraps the
    underlying checkbox so RTL tests can still find the labeled
-   input. The checkbox itself is visually hidden but accessible. */
+   input. The checkbox itself is visually hidden but accessible.
+
+   W10 forms/inputs polish: stronger cyan halo when ON (two-layer
+   glow matching the .rx-focus-halo aesthetic), plus a click-feedback
+   pulse keyframe that fires whenever the checked state flips. The
+   pulse is gated by prefers-reduced-motion. */
+function _ensureW10SwitchStyles() {
+  if(typeof document === "undefined") return;
+  if(document.querySelector("style[data-w10-switch]")) return;
+  const tag = document.createElement("style");
+  tag.setAttribute("data-w10-switch", "");
+  tag.textContent = `
+    @keyframes rxW10SwitchPulse {
+      0%   { transform: scale(1); }
+      45%  { transform: scale(1.10); }
+      100% { transform: scale(1); }
+    }
+    [data-w10-switch-host] {
+      position: relative;
+      display: inline-block;
+      width: 36px; height: 20px;
+      flex: 0 0 auto;
+    }
+    [data-w10-switch-host][data-w10-pulse="1"] [data-w10-switch-knob] {
+      animation: rxW10SwitchPulse 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      [data-w10-switch-host][data-w10-pulse="1"] [data-w10-switch-knob] {
+        animation: none !important;
+      }
+    }
+  `;
+  document.head.appendChild(tag);
+}
 function SwitchToggle({ checked, onChange, ariaLabel }) {
+  _ensureW10SwitchStyles();
+  const [pulse, setPulse] = useState(0);
+  const onChangeWithPulse = (e) => {
+    setPulse(p => p + 1);
+    if(onChange) onChange(e);
+    // Reset the data-attr after the animation completes so re-checks
+    // re-trigger the keyframe.
+    if(typeof window !== "undefined") {
+      window.setTimeout(() => setPulse(0), 320);
+    }
+  };
   return (
-    <span style={{
-      position: "relative",
-      display: "inline-block",
-      width: 36, height: 20,
-      flex: "0 0 auto",
-    }}>
+    <span data-w10-switch-host data-w10-pulse={pulse ? "1" : "0"}>
       <input
         type="checkbox"
         checked={checked}
-        onChange={onChange}
+        onChange={onChangeWithPulse}
         aria-label={ariaLabel}
         style={{
           position: "absolute",
@@ -145,10 +184,13 @@ function SwitchToggle({ checked, onChange, ariaLabel }) {
           border: "1px solid " + (checked ? "var(--neon-cyan, var(--ox))" : "var(--line)"),
           borderRadius: 999,
           transition: "background .22s, border-color .22s, box-shadow .22s",
-          boxShadow: checked ? "0 0 14px rgba(0, 212, 255, 0.45)" : "none",
+          boxShadow: checked
+            ? "0 0 0 1px rgba(0, 212, 255, 0.40), 0 0 16px rgba(0, 212, 255, 0.55), 0 0 28px 4px rgba(0, 212, 255, 0.22)"
+            : "none",
         }}
       />
       <span
+        data-w10-switch-knob
         aria-hidden="true"
         style={{
           position: "absolute",
@@ -157,11 +199,47 @@ function SwitchToggle({ checked, onChange, ariaLabel }) {
           width: 16, height: 16,
           background: "#fff",
           borderRadius: "50%",
-          boxShadow: "0 1px 2px rgba(0,0,0,.15)",
-          transition: "left .22s var(--ease-out, ease-out)",
+          boxShadow: checked
+            ? "0 1px 2px rgba(0,0,0,.15), 0 0 6px rgba(0, 212, 255, 0.55)"
+            : "0 1px 2px rgba(0,0,0,.15)",
+          transition: "left .22s var(--ease-out, ease-out), box-shadow .22s",
         }}
       />
     </span>
+  );
+}
+
+/* W10 · Open-antibiogram-manager — chrome-CTA-ghost variant with magnetic
+   pointer pull, sheen sweep, and pointer-down ripple. */
+function OpenAntibiogramButton({ onClick }) {
+  const ref = useRef(null);
+  useRipple(ref);
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={onClick}
+      className="rx-magnetic rx-shine-sweep rx-ripple"
+      style={{
+        background: "rgba(0, 212, 255, 0.08)",
+        border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+        borderRadius: "10px 3px 10px 3px",
+        padding: "8px 14px",
+        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+        letterSpacing: ".08em", textTransform: "uppercase",
+        color: "var(--ink)", cursor: "pointer",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,.4), 0 0 12px -4px rgba(0,212,255,.35)",
+        transition: "background .18s, border-color .18s, box-shadow .18s",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,.5), 0 0 22px -2px rgba(0,212,255,.55)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,.4), 0 0 12px -4px rgba(0,212,255,.35)";
+      }}
+    >
+      Open antibiogram manager
+    </button>
   );
 }
 
@@ -358,23 +436,9 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
             once per site to drive every regimen panel against your unit's data.
           </p>
           {onOpenAntibiogramManager && (
-            <button
-              type="button"
+            <OpenAntibiogramButton
               onClick={() => { onOpenAntibiogramManager(); if(onClose) onClose(); }}
-              className="rx-magnetic rx-shine-sweep"
-              style={{
-                background: "rgba(0, 212, 255, 0.08)",
-                border: "1px solid var(--neon-cyan-line, var(--ox-line))",
-                borderRadius: "8px 3px 8px 3px",
-                padding: "6px 12px",
-                fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-                letterSpacing: ".08em", textTransform: "uppercase",
-                color: "var(--ink)", cursor: "pointer",
-                transition: "background .18s, border-color .18s",
-              }}
-            >
-              Open antibiogram manager
-            </button>
+            />
           )}
         </SettingsSection>
 

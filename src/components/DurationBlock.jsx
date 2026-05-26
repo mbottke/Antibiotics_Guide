@@ -227,11 +227,27 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
               type="date"
               value={startDate || ""}
               onChange={(e) => onStartDateChange(e.target.value || null)}
+              /* W10 · cyan focus halo + asymmetric 8/2 corners + soft
+                  glass tint — matches the wider input chrome system. */
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "var(--neon-cyan, var(--ox-bright))";
+                e.currentTarget.style.boxShadow = "0 0 0 2px var(--neon-cyan, var(--ox-bright)), 0 0 14px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 30%, transparent)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "var(--line)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
               style={{
                 fontFamily:"var(--mono)", fontSize:12,
-                padding:"3px 6px", borderRadius:4,
-                border:"1px solid var(--line)", background:"var(--panel)",
+                padding:"5px 9px",
+                borderRadius:"8px 2px 8px 2px",
+                border:"1px solid var(--line)",
+                background:"linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%)",
+                backdropFilter:"blur(10px) saturate(160%)",
+                WebkitBackdropFilter:"blur(10px) saturate(160%)",
                 color:"var(--ink)",
+                outline:"none",
+                transition:"border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
               }} />
           </label>
           <div style={{ fontSize: 12, color: "var(--ink2)", textAlign: "right" }}>

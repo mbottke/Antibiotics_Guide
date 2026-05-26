@@ -142,10 +142,32 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
                   value={cultures.organism || ""}
                   onChange={e => setOrganism(e.target.value || null)}
                   aria-label="Pick a cultures-back organism"
+                  /* W10 · asymmetric 10/3 corners + glass tint + cyan caret +
+                      cyan focus halo. Inline style so we don't need to inject
+                      a component-scoped stylesheet for a single dropdown. */
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "var(--neon-cyan, var(--ox-bright))";
+                    e.currentTarget.style.boxShadow = "0 0 0 2px var(--neon-cyan, var(--ox-bright)), 0 0 14px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 30%, transparent)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "var(--line)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
                   style={{
                     flex:"0 1 auto", fontFamily:"var(--sans)", fontSize:12, color:"var(--ink)",
-                    background:"var(--paper)", border:"1px solid var(--line)", borderRadius:7,
-                    padding:"5px 9px", cursor:"pointer",
+                    background:`linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%2300D4FF' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/></svg>")`,
+                    backgroundRepeat:"no-repeat, no-repeat",
+                    backgroundPosition:"0 0, right 9px center",
+                    backgroundSize:"cover, 12px 8px",
+                    border:"1px solid var(--line)",
+                    borderRadius:"10px 3px 10px 3px",
+                    padding:"7px 28px 7px 10px",
+                    cursor:"pointer",
+                    appearance:"none",
+                    WebkitAppearance:"none",
+                    MozAppearance:"none",
+                    outline:"none",
+                    transition:"border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
                   }}>
                   <option value="">— pick —</option>
                   {remaining.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}

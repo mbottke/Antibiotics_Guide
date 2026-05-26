@@ -153,10 +153,34 @@ const CSS = `
 .rx-title{font-family:var(--serif); font-weight:600; font-size:20px; letter-spacing:-.01em; margin:0; line-height:1.08;}
 .rx-sub{color:var(--muted); font-size:11.5px; margin:1px 0 0;}
 .rx-searchwrap{position:relative; display:flex; align-items:center; flex:0 0 auto;}
-.rx-search{font-family:var(--sans); font-size:13.5px; border:1px solid var(--line); background:var(--panel);
-  border-radius:999px; padding:8px 32px 8px 34px; width:210px; color:var(--ink); transition:border-color .15s, width .2s, box-shadow .15s;}
-.rx-search:focus{border-color:var(--ox-bright); width:264px; outline:none; box-shadow:0 0 0 4px color-mix(in srgb, var(--ox-bright) 22%, transparent), 0 0 18px -4px var(--ox-bright);}
-.rx-search::placeholder{color:var(--faint);}
+/* W10 · global header search input chrome.
+   - Glass-diffuse background for the closed state (frosted-light).
+   - iOS-app-icon top sheen via inset highlight (the wrapper is a single
+     <input>, so the sheen is faked through inset 0 1px 0 white).
+   - On focus: iridescent border ring (2px conic-gradient ghost via
+     box-shadow stack) + the existing cyan halo (kept), and the width
+     bump to 264px so the cursor has more landing room.
+   - Asymmetric ends are deliberately avoided here — the search lives
+     in the header where the global pill grammar is round; the W10
+     vocabulary upgrade is texture, not geometry. */
+.rx-search{font-family:var(--sans); font-size:13.5px;
+  border:1px solid var(--line);
+  background:linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%);
+  -webkit-backdrop-filter:blur(12px) saturate(170%);
+  backdrop-filter:blur(12px) saturate(170%);
+  border-radius:999px; padding:8px 32px 8px 34px; width:210px; color:var(--ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55), 0 1px 2px rgba(11,15,20,.06);
+  transition:border-color .15s, width .2s, box-shadow .18s, background .18s;}
+.rx-search::placeholder{font-family:var(--serif); font-style:italic; color:var(--faint); opacity:.8;}
+.rx-search:hover{border-color:color-mix(in srgb, var(--ox-bright) 38%, var(--line));}
+.rx-search:focus{border-color:var(--ox-bright); width:264px; outline:none;
+  background:linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(245,250,253,0.65) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.65),
+    0 0 0 2px var(--ox-bright),
+    0 0 0 4px color-mix(in srgb, var(--ox-bright) 22%, transparent),
+    0 0 22px -4px var(--ox-bright),
+    0 0 36px 6px color-mix(in srgb, var(--hot-magenta, var(--ox-bright)) 12%, transparent);}
 .rx-search-i{position:absolute; left:11px; color:var(--muted); pointer-events:none; display:flex;}
 .rx-search-x{position:absolute; right:8px; background:none; border:none; cursor:pointer; color:var(--muted); padding:3px; display:flex;}
 .rx-nav{display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; padding-bottom:1px;}

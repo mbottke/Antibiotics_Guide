@@ -924,6 +924,15 @@ function RegimensComparePanel() {
             onChange={(e) => setRegAText(e.target.value)}
             placeholder="Cefepime, Vancomycin (IV)"
             aria-label="Regimen A — comma-separated drug names"
+            /* W10 · glass-diffuse fill + cyan focus halo. */
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "var(--neon-cyan, var(--ox-bright))";
+              e.currentTarget.style.boxShadow = "0 0 0 2px var(--neon-cyan, var(--ox-bright)), 0 0 18px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 32%, transparent)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "var(--line)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
             style={{
               width: "100%",
               marginTop: 8,
@@ -933,9 +942,12 @@ function RegimensComparePanel() {
               fontWeight: 600,
               border: "1px solid var(--line)",
               borderRadius: "10px 3px 10px 3px",
-              background: "var(--paper)",
+              background: "linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%)",
+              backdropFilter: "blur(10px) saturate(160%)",
+              WebkitBackdropFilter: "blur(10px) saturate(160%)",
               color: "var(--ink)",
               outline: "none",
+              transition: "border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
             }}
           />
           <div style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink2)" }}>
@@ -995,6 +1007,16 @@ function RegimensComparePanel() {
             onChange={(e) => setRegBText(e.target.value)}
             placeholder="Meropenem"
             aria-label="Regimen B — comma-separated drug names"
+            /* W10 · matching magenta-tinted focus halo (mirrors the
+                Regimen-B magenta accent already in the card border). */
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "var(--hot-magenta, var(--ox-bright))";
+              e.currentTarget.style.boxShadow = "0 0 0 2px var(--hot-magenta, var(--ox-bright)), 0 0 18px color-mix(in srgb, var(--hot-magenta, var(--ox-bright)) 32%, transparent)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "var(--line)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
             style={{
               width: "100%",
               marginTop: 8,
@@ -1004,9 +1026,12 @@ function RegimensComparePanel() {
               fontWeight: 600,
               border: "1px solid var(--line)",
               borderRadius: "3px 10px 3px 10px",
-              background: "var(--paper)",
+              background: "linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%)",
+              backdropFilter: "blur(10px) saturate(160%)",
+              WebkitBackdropFilter: "blur(10px) saturate(160%)",
               color: "var(--ink)",
               outline: "none",
+              transition: "border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
             }}
           />
           <div style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink2)" }}>
@@ -1035,14 +1060,34 @@ function RegimensComparePanel() {
             value={synId}
             onChange={(e) => setSynId(e.target.value)}
             aria-label="Syndrome context"
+            /* W10 · asymmetric 10/3 + cyan caret + glass tint + cyan halo. */
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "var(--neon-cyan, var(--ox-bright))";
+              e.currentTarget.style.boxShadow = "0 0 0 2px var(--neon-cyan, var(--ox-bright)), 0 0 14px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 28%, transparent)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "var(--line)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
             style={{
-              padding: "6px 10px",
+              padding: "8px 30px 8px 12px",
               fontSize: 12,
               fontFamily: "var(--mono)",
               border: "1px solid var(--line)",
-              borderRadius: 6,
-              background: "var(--paper)",
+              borderRadius: "10px 3px 10px 3px",
+              background: `linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(245,250,253,0.55) 100%), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%2300D4FF' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/></svg>")`,
+              backgroundRepeat: "no-repeat, no-repeat",
+              backgroundPosition: "0 0, right 10px center",
+              backgroundSize: "cover, 12px 8px",
+              backdropFilter: "blur(10px) saturate(160%)",
+              WebkitBackdropFilter: "blur(10px) saturate(160%)",
+              appearance: "none",
+              WebkitAppearance: "none",
+              MozAppearance: "none",
+              outline: "none",
+              cursor: "pointer",
               minWidth: 240,
+              transition: "border-color .15s var(--ease-out, ease), box-shadow .18s var(--ease-out, ease)",
             }}
           >
             <option value="">— none (use full organism set) —</option>
