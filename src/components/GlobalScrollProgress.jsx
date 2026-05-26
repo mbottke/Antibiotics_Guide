@@ -22,6 +22,7 @@
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
 import { useScrollProgress } from "./util/useScrollProgress.js";
+import { useReducedMotion } from "./util/useReducedMotion.js";
 
 /* The gradient matches every other chrome accent: cyan → electric-blue →
    hot-magenta. A graceful fallback to var(--ox) keeps the strip visible
@@ -34,6 +35,13 @@ const STRIP_GRADIENT =
 
 function GlobalScrollProgress({ zIndex = 9999, height = 2 }) {
   const { progress } = useScrollProgress(0);
+  /* Bug fix · the strip is mounted outside .rx-root in the outpatient
+     surface (App.jsx returns the strip as a sibling to OutpatientShell)
+     so the global .rx-root * { transition-duration: 0.01ms } reduced-
+     motion clamp does NOT collapse the inline 60ms width transition.
+     Honor the preference at the component level so the strip snaps
+     instantly under reduced-motion regardless of mount context. */
+  const reducedMotion = useReducedMotion();
 
   /* Hide the strip when there is nothing to scroll. Otherwise a
      full-width strip would paint at 0% and just look like a dead
@@ -55,7 +63,9 @@ function GlobalScrollProgress({ zIndex = 9999, height = 2 }) {
         opacity,
         zIndex,
         pointerEvents: "none",
-        transition: "width 60ms linear, opacity 200ms var(--ease-out, ease-out)",
+        transition: reducedMotion
+          ? "none"
+          : "width 60ms linear, opacity 200ms var(--ease-out, ease-out)",
         /* The strip itself carries a subtle outer glow so it reads as a
            "live" element rather than a static border. Tuned low enough
            that it never competes with editorial type below. */
