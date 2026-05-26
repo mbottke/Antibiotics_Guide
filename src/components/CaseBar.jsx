@@ -240,7 +240,7 @@ function Chip({ kind, label, onRemove }) {
           aria-label={`Remove ${label}`}
           style={{ display:"inline-flex", alignItems:"center", justifyContent:"center",
             background:"none", border:"none", padding:0, marginLeft:1, cursor:"pointer", color:"inherit", opacity:.7 }}>
-          <X size={10} />
+          <X size={10} aria-hidden />
         </button>
       )}
     </span>
@@ -270,7 +270,7 @@ function LockBadge({ visible }) {
         textTransform:"uppercase", fontWeight:700,
         color:"var(--ox)",
       }}>
-      <Lock size={9} aria-hidden /> Set
+      <Lock size={10} aria-hidden /> Set
     </span>
   );
 }
@@ -518,7 +518,7 @@ function CaseBar({ caseState, onApply, onSkip }) {
               background:"none", border:"none", padding:"3px 6px", cursor:"pointer",
               alignSelf:"center",
             }}>
-            <X size={10} />
+            <X size={10} aria-hidden />
           </button>
         </div>
       )}
@@ -537,7 +537,7 @@ function CaseBar({ caseState, onApply, onSkip }) {
           <button type="button" onClick={() => setText("")} title="Clear input" aria-label="Clear input"
             className="rx-w10-ghost"
             style={{ padding: "0 12px" }}>
-            <X size={14} />
+            <X size={14} aria-hidden />
           </button>
         )}
       </div>

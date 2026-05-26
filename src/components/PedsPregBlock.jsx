@@ -60,7 +60,7 @@ function DosingCard({ entry }) {
           padding: "2px 6px", borderRadius: 3,
           letterSpacing: ".06em", whiteSpace: "nowrap",
         }}>
-          <Heart size={9} aria-hidden /> PREG {sty.label}
+          <Heart size={10} aria-hidden /> PREG {sty.label}
         </span>
       </div>
 

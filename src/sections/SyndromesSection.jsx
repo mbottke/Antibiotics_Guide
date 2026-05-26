@@ -1168,7 +1168,7 @@ function SyndromesSection({
                                 color: "var(--electric-blue, var(--ox))",
                               }}
                             >
-                              <SI size={17} />
+                              <SI size={18} />
                             </span>
                             <span className="rx-accmain syn-card-main" style={{ minWidth: 0 }}>
                               {/* italic-serif category kicker — 16px */}

@@ -38,7 +38,7 @@ export const depthLayer = {
             display: "flex", alignItems: "center", gap: 8,
           }}
         >
-          <ChevronRight size={12} /> More depth · evidence + reference
+          <ChevronRight size={12} aria-hidden /> More depth · evidence + reference
         </summary>
         <div style={{ padding: "0 14px 14px" }}>
           <ResearchBlock research={_research} />

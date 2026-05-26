@@ -44,7 +44,7 @@ export const deescLayer = {
               letterSpacing: ".14em", textTransform: "uppercase",
               color: "var(--muted)", fontWeight: 600, marginBottom: 9,
             }}>
-              <Crosshair size={11} style={{ verticalAlign: "-1px", marginRight: 5 }} />
+              <Crosshair size={11} aria-hidden style={{ verticalAlign: "-1px", marginRight: 5, color: "var(--ox-bright, var(--ox))" }} />
               Narrow by organism
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -71,7 +71,7 @@ export const deescLayer = {
                         cursor: "pointer", whiteSpace: "nowrap",
                       }}
                     >
-                      <Bug size={10} /> {row.label}
+                      <Bug size={10} aria-hidden /> {row.label}
                     </button>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       {row.targets.length > 0
@@ -80,13 +80,13 @@ export const deescLayer = {
                               {t.sub && row.targets.length > 1 && (
                                 <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--muted)", marginRight: 6 }}>{t.sub}</span>
                               )}
-                              <ArrowRight size={10} style={{ verticalAlign: "-1px", color: "var(--muted)", margin: "0 4px" }} />
+                              <ArrowRight size={10} aria-hidden style={{ verticalAlign: "-1px", color: "var(--muted)", margin: "0 4px" }} />
                               {renderRich(t.first, onDrug)}
                             </div>
                           ))
                         : row.docFallback.length > 0 && (
                             <span>
-                              <ArrowRight size={10} style={{ verticalAlign: "-1px", color: "var(--muted)", marginRight: 4 }} />
+                              <ArrowRight size={10} aria-hidden style={{ verticalAlign: "-1px", color: "var(--muted)", marginRight: 4 }} />
                               {row.docFallback.map((n, j) => (
                                 <React.Fragment key={n}>
                                   {j ? ", " : ""}
@@ -108,7 +108,7 @@ export const deescLayer = {
                           )}
                       {row.stop.length > 0 && (
                         <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
-                          <Scissors size={10} style={{ verticalAlign: "-1px", marginRight: 4 }} />
+                          <Scissors size={10} aria-hidden style={{ verticalAlign: "-1px", marginRight: 4 }} />
                           Lets you stop: {row.stop.join(", ")}
                         </div>
                       )}

@@ -81,7 +81,7 @@ function FlagChip({ flag, size = "md" }) {
       whiteSpace: "nowrap",
       boxShadow: halo,
     }}>
-      <Icon size={size === "sm" ? 8 : 9} aria-hidden /> {sty.label}
+      <Icon size={size === "sm" ? 10 : 11} aria-hidden /> {sty.label}
     </span>
   );
 }

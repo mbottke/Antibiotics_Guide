@@ -201,7 +201,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
               background: "transparent",
               borderRadius: 999,
             })}>
-            <ArrowLeft size={12} /> Reference
+            <ArrowLeft size={12} aria-hidden /> Reference
           </button>
           <div style={{ display:"flex", alignItems:"center", gap: 10 }}>
             {onOpenPalette && (
@@ -213,7 +213,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
                 style={chromeBtnStyle({
                   background: "var(--card, rgba(255,255,255,0.6))",
                 })}>
-                <Search size={12} />
+                <Search size={12} aria-hidden />
                 <span>Search</span>
                 <span style={{
                   marginLeft: 4, padding: "1px 6px", borderRadius: 4,

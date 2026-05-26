@@ -17,11 +17,28 @@ function _planCard({ Icon, kicker, head, body }) {
       padding:18,
     }}>
       <div style={{
-        fontFamily:"var(--mono)", fontSize:10, letterSpacing:".14em",
-        textTransform:"uppercase", color:"var(--ox)", fontWeight:700, marginBottom:8,
-        display:"inline-flex", alignItems:"center", gap:6,
+        display:"flex", alignItems:"center", gap:8, marginBottom:8,
       }}>
-        <Icon size={12} aria-hidden /> {kicker}
+        {/* W11 · small gradient icon tile (28x28, 8/3 asymmetric radius)
+            so the kicker icon matches the Wave 9 vocabulary that the
+            Section primitive uses for full-size 40px tiles. */}
+        <span aria-hidden="true" style={{
+          flex:"0 0 auto",
+          display:"inline-flex", alignItems:"center", justifyContent:"center",
+          width:28, height:28,
+          borderRadius:"8px 3px 8px 3px",
+          background:"linear-gradient(135deg, var(--ox-deep, var(--ox)) 0%, var(--ox) 60%, var(--ox-bright, var(--ox)) 240%)",
+          color:"#fff",
+          boxShadow:"0 4px 14px -4px var(--ox-bright, var(--ox)), 0 1px 0 rgba(255,255,255,.08) inset",
+        }}>
+          <Icon size={14} aria-hidden />
+        </span>
+        <span style={{
+          fontFamily:"var(--mono)", fontSize:10, letterSpacing:".14em",
+          textTransform:"uppercase", color:"var(--ox)", fontWeight:700,
+        }}>
+          {kicker}
+        </span>
       </div>
       <div style={{ fontFamily:"var(--serif)", fontSize:16, fontWeight:600, color:"var(--ink)", marginBottom:6, letterSpacing:"-.005em" }}>
         {head}
@@ -40,7 +57,7 @@ function OutpatientShell({ onSwitchInpatient }) {
           textTransform:"uppercase", color:"var(--muted)", fontWeight:600,
           marginBottom: 8,
         }}>
-          <Stethoscope size={11} style={{ verticalAlign:"-1px", marginRight:5, color:"var(--ox)" }}/>
+          <Stethoscope size={11} aria-hidden style={{ verticalAlign:"-1px", marginRight:5, color:"var(--ox-bright, var(--ox))" }}/>
           Outpatient surface · planned
         </div>
         <h1 style={{
@@ -81,7 +98,7 @@ function OutpatientShell({ onSwitchInpatient }) {
           background:"var(--ox-softer)", border:"1px solid var(--ox-line)", borderRadius: 10,
           fontSize: 13, color:"var(--ink2)", lineHeight: 1.55,
         }}>
-          <Hospital size={13} style={{ verticalAlign:"-2px", marginRight:6, color:"var(--ox)" }}/>
+          <Hospital size={13} aria-hidden style={{ verticalAlign:"-2px", marginRight:6, color:"var(--ox-bright, var(--ox))" }}/>
           For now the Inpatient surface is the functional tool. Switch back using the bar
           above, or with the button below.
         </div>

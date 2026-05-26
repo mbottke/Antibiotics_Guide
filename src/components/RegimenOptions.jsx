@@ -187,7 +187,7 @@ function RouteBadge({ route }) {
             border:"1px solid " + (r === "iv" ? "var(--ox-line)" : "var(--line)"),
             borderRadius:4, padding:"1px 5px",
           }}>
-            <Icon size={9} aria-hidden /> {r}
+            <Icon size={10} aria-hidden /> {r}
           </span>
         );
       })}
@@ -485,7 +485,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
               {/* Wave 10 — Sparkle glyph on the "Recommended" chip so the
                   badge carries the same "considered / curated" mark the
                   drug-of-choice gloss uses elsewhere in the answer-canvas. */}
-              <Sparkle size={9} color="#fff" />
+              <Sparkle size={10} color="#fff" />
               Recommended
             </span>
           )}
