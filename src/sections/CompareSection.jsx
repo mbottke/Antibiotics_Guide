@@ -35,6 +35,7 @@ import { Sparkle } from "../components/decor/Sparkle";
 import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { GradientHairline } from "../components/decor/GradientHairline";
 import { Stripes } from "../components/decor/Stripes";
+import { MeshWash } from "../components/decor/MeshWash";
 import { SpectrumChartFull } from "../spectrum/Spectrum";
 import { PEN, PEN_SITES } from "../data/drugs";
 import { MECH, ORGS } from "../data/organisms";
@@ -59,12 +60,20 @@ function CinematicHead({ kicker, headline, standfirst, watermark, icon = null })
       style={{
         position: "relative",
         marginBottom: 36,
-        paddingTop: 8,
+        padding: "28px 24px 20px",
+        borderRadius: "18px 4px 18px 4px",
+        background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.18))",
+        border: "1px solid color-mix(in srgb, var(--ox-bright) 18%, var(--line))",
+        boxShadow: "var(--shadow-e1)",
         overflow: "hidden",
       }}
     >
+      {/* Wave 9 W9 · pearlescent mesh wash for parity with the other
+          reference hero blocks. Per-panel palette varies via the parent. */}
+      <MeshWash variant="full" intensity="soft" palette="cyan-magenta-lime" />
       <div
         style={{
+          position: "relative",
           display: "flex",
           alignItems: "center",
           gap: 10,
@@ -76,6 +85,7 @@ function CinematicHead({ kicker, headline, standfirst, watermark, icon = null })
       </div>
       <h1
         style={{
+          position: "relative",
           fontFamily: "var(--serif)",
           fontStyle: "italic",
           fontSize: 96,
@@ -115,6 +125,7 @@ function CinematicHead({ kicker, headline, standfirst, watermark, icon = null })
       </h1>
       <p
         style={{
+          position: "relative",
           fontFamily: "var(--serif)",
           fontStyle: "italic",
           fontSize: 19,
@@ -128,7 +139,7 @@ function CinematicHead({ kicker, headline, standfirst, watermark, icon = null })
       </p>
       <GradientHairline
         variant="cyan-blue"
-        style={{ marginTop: 28, opacity: 0.6 }}
+        style={{ position: "relative", marginTop: 28, opacity: 0.6 }}
       />
     </header>
   );

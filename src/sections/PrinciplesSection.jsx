@@ -68,6 +68,7 @@ import { Sparkle } from "../components/decor/Sparkle";
 import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { DottedGrid } from "../components/decor/DottedGrid";
 import { Stripes } from "../components/decor/Stripes";
+import { MeshWash } from "../components/decor/MeshWash";
 import { StickySubTOC } from "../components/decor/StickySubTOC";
 import { NotchedBanner } from "../components/decor/NotchedBanner";
 
@@ -124,6 +125,11 @@ function W8MagazineHero({ kicker, title, standfirst, watermark = "P", counter })
         boxShadow: W7_GLASS_SHADOW,
       }}
     >
+      {/* Wave 9 W9 · pearlescent / liquid-metal wash behind the Principles
+          hero. cyan-only palette so it reads as cool-chrome rather than
+          the saturated chord on Syndromes. Matches the editorial weight
+          of the other reference heroes. */}
+      <MeshWash variant="full" intensity="soft" palette="cyan-only" />
       <DottedGrid size={28} opacity={0.35} />
 
       <div style={{ position: "relative" }}>
