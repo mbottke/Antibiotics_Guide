@@ -1099,6 +1099,16 @@ function SyndromesSection({
                       display: "grid",
                       gap: 24,
                       gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                      /* W12 fix · prevent CSS Grid from stretching closed
+                         siblings to the height of an open card in the same
+                         row. Without this, opening one card made every
+                         other card in its row grow to ~1250px tall — the
+                         content stayed at the top but the cyan hover
+                         border + lift painted across the entire empty
+                         stretched container, reading as a "tall, empty,
+                         invisible syndrome" on hover. `align-items: start`
+                         pins each card to its natural height. */
+                      alignItems: "start",
                     }}
                   >
                     {items.map((s, sIdx) => {
