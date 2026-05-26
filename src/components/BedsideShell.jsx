@@ -23,6 +23,7 @@ import { BrandMark } from "./BrandMark.jsx";
 import { DensityToggle } from "./DensityToggle.jsx";
 import { ScrollHeader } from "./ScrollHeader.jsx";
 import { GlobalScrollProgress } from "./GlobalScrollProgress.jsx";
+import { MeshWash } from "./decor/MeshWash.jsx";
 import { useDensity } from "./util/useDensity.js";
 import { useScrollProgress } from "./util/useScrollProgress.js";
 import { SYNDROMES } from "../data/syndromes.js";
@@ -169,6 +170,17 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
         maxWidth: "min(96vw, 1480px)",
         margin: "0 auto",
       }}>
+        {/* Wave 9 W9 · molten-chrome ambient backdrop. Replaces the
+            earlier dot-grid radial-gradient with a faint cyan MeshWash
+            anchored to the bedside container. Drift is OFF here to
+            keep the GPU budget reserved for the spine bar wash that
+            scrolls; this ambient layer is static atmosphere. */}
+        <MeshWash
+          variant="ambient"
+          intensity="soft"
+          palette="cyan-only"
+          drift={false}
+        />
         <ChromeBand condensed={scrolled}>
         <div style={{
           display: "flex",

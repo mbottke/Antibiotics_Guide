@@ -33,6 +33,7 @@ import { Num, ToxDot, ChildPughScorer } from "../components/primitives";
 import { Sparkle } from "../components/decor/Sparkle";
 import { WatermarkLetter } from "../components/decor/WatermarkLetter";
 import { GradientHairline } from "../components/decor/GradientHairline";
+import { MeshWash } from "../components/decor/MeshWash";
 import { drugCoversOrg, drugRoute } from "../engines/lookup";
 import {
   FORMULARY, FORM_FLAT, RENAL_TRIGGERS, TDM, TOX_COLS, SAFE, INTERACTIONS,
@@ -71,6 +72,10 @@ function SpecSheetHero({ kicker, headline, standfirst, watermark }) {
         overflow: "hidden",
       }}
     >
+      {/* Wave 9 W9 · molten chrome behind the Agents hero. cyan-blue is
+          the quieter "business-friendly" chord — the formulary spread is
+          a working surface, not a launch surface, so the wash is softer. */}
+      <MeshWash variant="full" intensity="soft" palette="cyan-blue" />
       {watermark && (
         <WatermarkLetter
           letter={watermark}

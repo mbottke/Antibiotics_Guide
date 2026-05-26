@@ -20,6 +20,13 @@ import {
 } from "lucide-react";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 import { useRipple } from "./util/useRipple.js";
+import { MeshWash } from "./decor/MeshWash.jsx";
+
+/* Wave 9 W9 · per-step MeshWash palette. Each onboarding step gets a
+   distinct molten chrome so the three screens feel like three separate
+   surfaces rather than three views of the same canvas. The palette
+   sequence matches the section palette taxonomy used elsewhere. */
+const STEP_PALETTES = ["cyan-magenta-lime", "cyan-blue", "lime-amber"];
 
 const DISMISS_KEY = "ab_onboarding_dismissed_v1";
 
@@ -210,6 +217,17 @@ function OnboardingModal({ forceOpen = false, onClose }) {
             borderTopLeftRadius: 24,
             pointerEvents: "none",
           }}
+        />
+
+        {/* Wave 9 W9 · per-step molten-chrome MeshWash. Each onboarding
+            step picks a distinct palette so the step transitions feel
+            like distinct surfaces. Intensity stays at `normal` so the
+            wash carries presence without competing with the 240px
+            watermark numeral. */}
+        <MeshWash
+          variant="full"
+          intensity="normal"
+          palette={STEP_PALETTES[idx % STEP_PALETTES.length]}
         />
 
         {/* 240px italic decorative numeral painted behind the step body.

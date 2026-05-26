@@ -26,6 +26,7 @@ import { getMechanism } from "../data/mechanisms.js";
 import { RichText } from "./util/richText.jsx";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 import { useRipple } from "./util/useRipple.js";
+import { MeshWash } from "./decor/MeshWash.jsx";
 
 /* Cyan-gradient strip painted along the top of every W8 drawer panel.
    Reads as a 4px "tab" of the chrome accent. */
@@ -166,6 +167,15 @@ function MechanismDrawer({ mechanismKey, open, onClose }) {
             pointerEvents: "none",
           }}
         />
+        {/* Wave 9 W9 · molten-chrome band behind the drawer header. The
+            wash sits in the top 80px of the panel; the header content
+            below (mono kicker + italic title) rides on z-index 1 so it
+            sits cleanly above the band. */}
+        <MeshWash
+          variant="band"
+          intensity="normal"
+          palette="cyan-magenta-lime"
+        />
         {/* Header — mono kicker on top, italic-serif drawer title beneath. */}
         <div style={{
           display: "flex",
@@ -175,6 +185,7 @@ function MechanismDrawer({ mechanismKey, open, onClose }) {
           marginBottom: 18,
           paddingBottom: 14,
           position: "relative",
+          zIndex: 1,
         }}>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
