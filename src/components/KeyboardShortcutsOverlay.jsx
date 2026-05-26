@@ -8,6 +8,16 @@
        serif italic
      • 64px italic-display "Shortcuts" title
 
+   Wave 10 W10 atomized internals pass — shortcuts now ride in named
+   groups (Navigation / Selection / Drawers / Search). Each group
+   wears a mono kicker followed by a 32px GradientHairline; each row
+   ships the key combo as a `.rx-chrome-cta`-styled mini-pill (steel
+   vertical gradient + cyan glow + white mono uppercase glyph), and
+   the description sits in italic-serif 14px on the right. Hover
+   lifts the row + a soft cyan tint sweeps in. Overlay scrim swapped
+   to `.rx-mercury-backdrop`; panel entrance is a soft `.rx-glow-trail`
+   + `.rx-fade-in-up` (reduced-motion gated).
+
    `?` opens a printable cheat-sheet of the global keybindings. Settings-
    modal already documents these, but this is the discoverability path —
    the overlay teaches users WITHOUT requiring they discover the gear icon
@@ -24,6 +34,8 @@ import { createPortal } from "react-dom";
 import { Keyboard, X } from "lucide-react";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 import { useRipple } from "./util/useRipple.js";
+import { useReducedMotion } from "./util/useReducedMotion.js";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
 
 const TOP_STRIP_BG =
   "linear-gradient(90deg," +
@@ -39,14 +51,37 @@ const HAIRLINE_BG =
   " rgba(255, 61, 188, 0.30) 82%," +
   " transparent 100%)";
 
-const SHORTCUTS = [
-  { keys: "⌘ K", what: "Open the search palette — jump to any syndrome, agent, organism, or trial." },
-  { keys: "?", what: "Toggle this keyboard cheat-sheet." },
-  { keys: "Esc", what: "Close the active drawer, modal, or palette." },
-  { keys: "Enter / Space", what: "Activate the focused chip, button, or option card." },
-  { keys: "Tab", what: "Cycle focus inside an open drawer (focus-trapped). Shift+Tab reverses." },
-  { keys: "Click chip", what: "Open the inline popover; for class / resistance terms, the popover footer offers a 'Read the mechanism' drawer." },
-  { keys: "Click footnote", what: "Open the Decision Attribution drawer — see the rule, evidence, and mechanism behind a refinement." },
+/* W10 · shortcut groups. Each group wears a mono kicker + 32px
+   gradient hairline beneath. Order: Search → Navigation → Selection
+   → Drawers — broad to narrow / outer to inner. */
+const SHORTCUT_GROUPS = [
+  {
+    label: "Search",
+    rows: [
+      { keys: "⌘ K", what: "Open the search palette — jump to any syndrome, agent, organism, or trial." },
+      { keys: "?", what: "Toggle this keyboard cheat-sheet." },
+    ],
+  },
+  {
+    label: "Navigation",
+    rows: [
+      { keys: "Tab", what: "Cycle focus inside an open drawer (focus-trapped). Shift+Tab reverses." },
+      { keys: "Esc", what: "Close the active drawer, modal, or palette." },
+    ],
+  },
+  {
+    label: "Selection",
+    rows: [
+      { keys: "Enter / Space", what: "Activate the focused chip, button, or option card." },
+      { keys: "Click chip", what: "Open the inline popover; for class / resistance terms, the popover footer offers a 'Read the mechanism' drawer." },
+    ],
+  },
+  {
+    label: "Drawers",
+    rows: [
+      { keys: "Click footnote", what: "Open the Decision Attribution drawer — see the rule, evidence, and mechanism behind a refinement." },
+    ],
+  },
 ];
 
 function CloseButton({ onClose, label }) {
@@ -58,7 +93,7 @@ function CloseButton({ onClose, label }) {
       type="button"
       onClick={onClose}
       aria-label={label}
-      className="rx-magnetic rx-shine-sweep rx-ripple"
+      className="rx-magnetic rx-shine-sweep rx-ripple rx-focus-halo"
       style={{
         display: "inline-flex", alignItems: "center", gap: 5,
         background: "rgba(0, 212, 255, 0.06)",
@@ -76,9 +111,88 @@ function CloseButton({ onClose, label }) {
   );
 }
 
+/* Chrome key-combo mini-pill. Uses the rx-chrome-cta style (steel
+   vertical gradient + sheen) but in a tighter mini footprint —
+   12px mono uppercase glyph, white text, cyan glow halo. */
+function KeyPill({ keys }) {
+  return (
+    <kbd
+      className="rx-chrome-cta"
+      style={{
+        fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
+        letterSpacing: ".08em", textTransform: "uppercase",
+        color: "#fff",
+        padding: "4px 10px",
+        borderRadius: "8px 2px 8px 2px",
+        minWidth: 78,
+        textAlign: "center",
+        whiteSpace: "nowrap",
+        cursor: "default",
+        lineHeight: 1.3,
+        gap: 0,
+      }}
+    >
+      {keys}
+    </kbd>
+  );
+}
+
+/* Hover-lift row — pure CSS via inline style + class trick. We pin
+   the hover behaviour to a `rx-shortcut-row` class so the overlay's
+   one inline <style> block can carry the cyan tint background. */
+function ShortcutRow({ keys, what }) {
+  return (
+    <li
+      className="rx-shortcut-row"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "auto 1fr",
+        gap: 14,
+        alignItems: "center",
+        padding: "8px 12px",
+        background: "rgba(255, 255, 255, 0.42)",
+        border: "1px solid var(--line)",
+        borderLeft: "2px solid var(--neon-cyan, var(--ox))",
+        borderRadius: "10px 3px 10px 3px",
+        transition: "background .18s ease-out, transform .18s ease-out, box-shadow .18s ease-out",
+      }}
+    >
+      <KeyPill keys={keys} />
+      <span style={{
+        fontFamily: "var(--serif)",
+        fontStyle: "italic",
+        fontSize: 14,
+        lineHeight: 1.5,
+        color: "var(--ink2)",
+      }}>
+        {what}
+      </span>
+    </li>
+  );
+}
+
+function GroupHeading({ label }) {
+  return (
+    <div style={{ marginTop: 4 }}>
+      <div style={{
+        fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700,
+        color: "var(--ink2)", letterSpacing: ".14em",
+        textTransform: "uppercase",
+      }}>
+        {label}
+      </div>
+      <GradientHairline
+        variant="cyan-blue"
+        style={{ width: 32, margin: "6px 0 12px", height: 2 }}
+      />
+    </div>
+  );
+}
+
 function KeyboardShortcutsOverlay() {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef(null);
+  const reducedMotion = useReducedMotion();
 
   /* Global ? listener — only fires when the focus isn't inside an input. */
   useEffect(() => {
@@ -123,11 +237,9 @@ function KeyboardShortcutsOverlay() {
       aria-label="Keyboard shortcuts"
       aria-modal="true"
       onClick={(e) => { e.stopPropagation(); setOpen(false); }}
+      className="rx-mercury-backdrop"
       style={{
         position: "fixed", inset: 0, zIndex: 1100,
-        background: "rgba(15, 23, 42, 0.42)",
-        backdropFilter: "blur(20px) saturate(140%)",
-        WebkitBackdropFilter: "blur(20px) saturate(140%)",
         display: "flex", alignItems: "center", justifyContent: "center",
         padding: "5vh 16px",
       }}
@@ -137,8 +249,18 @@ function KeyboardShortcutsOverlay() {
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         data-testid="keyboard-shortcuts-overlay"
+        className={reducedMotion ? "" : "rx-glow-trail rx-fade-in-up"}
         style={panelStyle}
       >
+        {/* Scoped hover style for the shortcut rows. Keeping this inline
+            keeps the global stylesheet untouched per the W10 constraint. */}
+        <style>{`
+          .rx-shortcut-row:hover {
+            background: rgba(0, 212, 255, 0.10);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px -8px rgba(0, 212, 255, 0.32);
+          }
+        `}</style>
         {/* 4px cyan-gradient top strip. */}
         <span
           aria-hidden="true"
@@ -190,62 +312,35 @@ function KeyboardShortcutsOverlay() {
             display: "block",
             height: 1,
             background: HAIRLINE_BG,
-            margin: "8px 0 18px",
+            margin: "8px 0 22px",
           }}
         />
 
-        {/* Two-column grid of shortcut chips. On narrow viewports the
-            grid collapses to a single column. */}
-        <ul style={{
-          listStyle: "none",
-          padding: 0,
-          margin: 0,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: 10,
-        }}>
-          {SHORTCUTS.map((s, i) => (
-            <li key={i} style={{
-              display: "grid",
-              gridTemplateColumns: "auto 1fr",
-              gap: 12,
-              alignItems: "start",
-              padding: "10px 13px",
-              background: "rgba(255, 255, 255, 0.55)",
-              border: "1px solid var(--line)",
-              borderLeft: "2px solid var(--neon-cyan, var(--ox))",
-              borderRadius: "10px 3px 10px 3px",
-            }}>
-              <kbd style={{
-                fontFamily: "var(--mono)",
-                fontSize: 11,
-                fontWeight: 700,
-                background: "rgba(0, 212, 255, 0.08)",
-                border: "1px solid var(--neon-cyan-line, var(--ox-line))",
-                /* The keys chip — cyan-bordered, mono, tight padding so
-                    the key glyph is the visual anchor. */
-                borderRadius: 6,
-                padding: "3px 9px",
-                color: "var(--ink)",
-                whiteSpace: "nowrap",
-                minWidth: 70,
-                textAlign: "center",
-                boxShadow: "inset 0 -1px 0 rgba(0, 212, 255, 0.18)",
-              }}>{s.keys}</kbd>
-              <span style={{
-                fontFamily: "var(--serif)",
-                fontStyle: "italic",
-                fontSize: 13,
-                lineHeight: 1.5,
-                color: "var(--ink2)",
-              }}>{s.what}</span>
-            </li>
+        {/* Grouped shortcuts — each group ships a mono kicker + 32px
+            gradient hairline, then a 2-column grid of chrome-pill rows. */}
+        <div style={{ display: "grid", gap: 22 }}>
+          {SHORTCUT_GROUPS.map((group, gi) => (
+            <div key={gi}>
+              <GroupHeading label={group.label} />
+              <ul style={{
+                listStyle: "none",
+                padding: 0,
+                margin: 0,
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: 10,
+              }}>
+                {group.rows.map((s, i) => (
+                  <ShortcutRow key={i} keys={s.keys} what={s.what} />
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
 
         <p style={{
           fontSize: 11.5, lineHeight: 1.55, color: "var(--muted)",
-          marginTop: 16, marginBottom: 0,
+          marginTop: 22, marginBottom: 0,
           fontFamily: "var(--serif)",
           fontStyle: "italic",
         }}>

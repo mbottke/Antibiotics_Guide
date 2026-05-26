@@ -7,6 +7,8 @@ import { ORG_BY_ID } from "../data/organisms.js";
 import { SRC_CONTROL } from "../data/syndromes.js";
 import { childPugh, childPughComponentPoints, doseAdjustments } from "../engines/dosing.js";
 import { CP_COMPONENTS, _ADJ_META } from "../data/dosing.js";
+import { useReducedMotion } from "./util/useReducedMotion.js";
+import { useRipple } from "./util/useRipple.js";
 
 /* DoseAdjustBar — renders the triggered adjustments for one rx line beneath the
    verbatim prose. Silent when nothing is triggered. Agent names open monographs. */
@@ -91,10 +93,27 @@ function Num({ children, className }){
    selector output, and trial cards. role=dialog + aria-modal, focus-trap,
    Esc-to-close (capture phase so it pre-empts the ⌘K handler), return-focus to
    the trigger on close. Slide animation is auto-disabled under reduced-motion
-   by the global root rule. */
+   by the global root rule.
+
+   Wave 10 W10 · the legacy reference drawer adopts the shared chrome
+   vocabulary via additive inline styles + class names — the global
+   .rx-drawer- CSS stays untouched (W10 constraint). The overlay gets
+   .rx-mercury-backdrop; the panel paints .rx-glass-diffuse with 22/4
+   asymmetric outer corners, a 4px cyan top strip, and (motion-permitting)
+   a soft .rx-glow-trail entrance. The close button becomes a chrome pill
+   with a ripple. */
+const _DRAWER_TOP_STRIP_BG =
+  "linear-gradient(90deg," +
+  " var(--neon-cyan, var(--ox))," +
+  " var(--electric-blue, var(--ox))," +
+  " var(--hot-magenta, var(--ox)))";
+
 function Drawer({ open, onClose, title, kicker, icon:Icon, children, width }){
   const panelRef = useRef(null);
   const lastFocus = useRef(null);
+  const closeBtnRef = useRef(null);
+  const reducedMotion = useReducedMotion();
+  useRipple(closeBtnRef);
   useEffect(() => {
     if(!open) return;
     lastFocus.current = (typeof document !== "undefined") ? document.activeElement : null;
@@ -120,17 +139,49 @@ function Drawer({ open, onClose, title, kicker, icon:Icon, children, width }){
     };
   }, [open, onClose]);
   if(!open) return null;
+  const panelClass = "rx-drawer rx-glass-diffuse" + (reducedMotion ? "" : " rx-glow-trail");
+  const panelExtra = {
+    /* W10 chrome — 22/4 asymmetric outer corners (rounded on the leading
+        edge where the panel meets the viewport, sharp on the inboard
+        seam). The 4px cyan top strip is painted via an absolute span
+        below — we leave the panel border-top alone so the strip lays
+        cleanly across the full top edge. */
+    borderRadius: "22px 4px 22px 4px",
+    overflow: "hidden",
+    position: "relative",
+  };
+  const panelStyle = width
+    ? { width: `min(${width}px, 96vw)`, ...panelExtra }
+    : panelExtra;
   return (
-    <div className="rx-drawer-overlay" onClick={onClose}>
-      <div className="rx-drawer" role="dialog" aria-modal="true" aria-label={title}
+    <div className="rx-drawer-overlay rx-mercury-backdrop" onClick={onClose}>
+      <div className={panelClass} role="dialog" aria-modal="true" aria-label={title}
         ref={panelRef} tabIndex={-1} onClick={e => e.stopPropagation()}
-        style={width ? { width:`min(${width}px, 96vw)` } : undefined}>
-        <div className="rx-drawer-head">
+        style={panelStyle}>
+        {/* 4px cyan top strip — chrome family signature. */}
+        <span aria-hidden="true" style={{
+          position: "absolute", left: 0, right: 0, top: 0,
+          height: 4, background: _DRAWER_TOP_STRIP_BG,
+          borderTopLeftRadius: 22, pointerEvents: "none",
+          zIndex: 2,
+        }} />
+        <div className="rx-drawer-head rx-glass-bleed" style={{ position: "relative" }}>
           <div className="rx-drawer-titles">
             {kicker && <div className="rx-drawer-kicker">{kicker}</div>}
             <div className="rx-drawer-title">{Icon ? <Icon size={18} /> : null}<span>{title}</span></div>
           </div>
-          <button className="rx-drawer-x" onClick={onClose} aria-label="Close panel"><X size={18} /></button>
+          <button
+            ref={closeBtnRef}
+            className="rx-drawer-x rx-magnetic rx-shine-sweep rx-ripple rx-focus-halo"
+            onClick={onClose}
+            aria-label="Close panel"
+            style={{
+              borderRadius: 999,
+              background: "rgba(0, 212, 255, 0.08)",
+              borderColor: "var(--neon-cyan-line, var(--ox-line))",
+              color: "var(--ink)",
+            }}
+          ><X size={16} /></button>
         </div>
         <div className="rx-drawer-body">{children}</div>
       </div>

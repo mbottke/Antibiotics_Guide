@@ -3,6 +3,17 @@
    asymmetric 24/4 radius, large italic-serif title, glassmorphic
    backdrop blur, and a pill close button with ripple.
 
+   Wave 10 W10 atomized internals pass — the body now reads as a
+   step-card stack: the "Why this fired" reason becomes a
+   .rx-glass-diffuse stepped card with a 64px italic-serif outline
+   numeral, mono small-caps rule/ctx predicate, and a 2px gradient
+   cyan→transparent rail running down the left edge; the citation
+   chip wears the chrome year-chip treatment; the mechanism link
+   gets a <Sparkle> + cyan accent; the final summary line is a
+   <NotchedBanner severity="info"> so the closing read sits as a
+   distinct editorial coda. Overlay scrim swapped to mercury-backdrop
+   + soft cyan glow-trail entrance (reduced-motion gated).
+
    "Trace this decision" drawer that opens from every refinement-step
    FootMark in the Answer Canvas. The user clicks the small numbered
    superscript next to a refined agent and gets the full attribution:
@@ -30,7 +41,11 @@ import { AlertTriangle, BookOpen, CheckCircle2, Crosshair, Info, X } from "lucid
 import { RichText as _RichText } from "./util/richText.jsx";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 import { useRipple } from "./util/useRipple.js";
+import { useReducedMotion } from "./util/useReducedMotion.js";
 import { MeshWash } from "./decor/MeshWash.jsx";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
+import { NotchedBanner } from "./decor/NotchedBanner.jsx";
+import { Sparkle } from "./decor/Sparkle.jsx";
 
 /* Cyan-gradient top strip — same gradient as MechanismDrawer so the
    two drawers feel like part of one chrome system. */
@@ -67,6 +82,14 @@ const CITE_LABEL = {
   trial: "Clinical trial",
 };
 
+/* Map citation source to a pseudo-year label for the chrome year-chip
+   treatment — the bibliography flair the W10 vocabulary calls for. */
+const CITE_YEAR_HINT = {
+  mono: "REF",
+  stew: "PRIN",
+  trial: "RCT",
+};
+
 function CloseButton({ onClose, label }) {
   const ref = useRef(null);
   useRipple(ref);
@@ -76,7 +99,7 @@ function CloseButton({ onClose, label }) {
       type="button"
       onClick={onClose}
       aria-label={label}
-      className="rx-magnetic rx-shine-sweep rx-ripple"
+      className="rx-magnetic rx-shine-sweep rx-ripple rx-focus-halo"
       style={{
         display: "inline-flex", alignItems: "center", gap: 5,
         background: "rgba(0, 212, 255, 0.06)",
@@ -94,8 +117,132 @@ function CloseButton({ onClose, label }) {
   );
 }
 
+/* The "stepped" reason card — a glass-diffuse panel with a 64px italic
+   outline numeral painted in the top-left, the rule label in mono small
+   caps, and the reason text in editorial body. A 2px gradient rail
+   runs the full vertical height on the left, suggesting "this is one
+   step in a chain" even though the drawer surfaces a single step. */
+function ReasonStepCard({ rule, reason, ctx }) {
+  return (
+    <div
+      className="rx-glass-diffuse"
+      style={{
+        position: "relative",
+        borderRadius: "14px 4px 14px 4px",
+        padding: "16px 18px 18px 28px",
+        marginBottom: 16,
+        overflow: "hidden",
+      }}
+    >
+      {/* 2px gradient rail running floor-to-ceiling on the left. */}
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: 0, top: 0, bottom: 0, width: 2,
+          background:
+            "linear-gradient(180deg," +
+            " var(--neon-cyan, var(--ox))," +
+            " var(--electric-blue, var(--ox)) 35%," +
+            " transparent 100%)",
+        }}
+      />
+      {/* 64px outline numeral — cyan-toned via -webkit-text-stroke. */}
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          right: 14, top: -6,
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
+          fontSize: 64,
+          fontWeight: 500,
+          lineHeight: 1,
+          letterSpacing: "-0.04em",
+          color: "transparent",
+          WebkitTextStroke: "1px var(--neon-cyan, var(--ox))",
+          opacity: 0.42,
+          pointerEvents: "none",
+          userSelect: "none",
+        }}
+      >
+        1
+      </span>
+      <div style={{
+        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+        color: rule.color, letterSpacing: ".14em",
+        textTransform: "uppercase", marginBottom: 10,
+        display: "inline-flex", alignItems: "center", gap: 6,
+      }}>
+        <rule.Icon size={11} color={rule.color} aria-hidden />
+        {rule.label} · Why this fired
+      </div>
+      <div style={{ fontSize: 14, lineHeight: 1.6, color: "var(--ink)" }}>
+        <_RichText text={reason || ""} accentColor={rule.color} />
+      </div>
+      {ctx && (
+        <div style={{
+          marginTop: 10,
+          fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 600,
+          color: "var(--ink2)", letterSpacing: ".06em",
+          textTransform: "uppercase",
+          background: "rgba(255, 255, 255, 0.45)",
+          border: "1px solid var(--line)",
+          borderRadius: "8px 2px 8px 2px",
+          padding: "6px 9px",
+        }}>
+          <span style={{ opacity: 0.62 }}>ctx ▸ </span>{ctx}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Chrome citation chip — italic-serif cyan year-style label on the
+   left, mono uppercase source label on the right. */
+function CitationChip({ cite }) {
+  return (
+    <div style={{
+      display: "inline-flex",
+      alignItems: "stretch",
+      gap: 0,
+      border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+      borderRadius: "10px 3px 10px 3px",
+      overflow: "hidden",
+      background: "rgba(0, 212, 255, 0.04)",
+    }}>
+      <span style={{
+        display: "inline-flex", alignItems: "center",
+        padding: "6px 10px",
+        fontFamily: "var(--serif)",
+        fontStyle: "italic",
+        fontSize: 16,
+        fontWeight: 500,
+        color: "var(--neon-cyan, var(--ox))",
+        letterSpacing: "-0.02em",
+        background: "rgba(0, 212, 255, 0.10)",
+        borderRight: "1px solid var(--neon-cyan-line, var(--ox-line))",
+        textShadow: "0 0 10px rgba(0,212,255,.25)",
+      }}>
+        {CITE_YEAR_HINT[cite] || "·"}
+      </span>
+      <span style={{
+        display: "inline-flex", alignItems: "center", gap: 6,
+        padding: "6px 12px",
+        fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700,
+        letterSpacing: ".10em", textTransform: "uppercase",
+        color: "var(--ink)",
+      }}>
+        <CheckCircle2 size={12} color="var(--neon-cyan, var(--ox))" aria-hidden />
+        {CITE_LABEL[cite] || cite}
+      </span>
+    </div>
+  );
+}
+
 function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
   const dialogRef = useRef(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     if(!open) return;
@@ -145,11 +292,9 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
       aria-label={`Decision attribution · ${rule.label}`}
       aria-modal="true"
       onClick={(e) => { e.stopPropagation(); if(onClose) onClose(); }}
+      className="rx-mercury-backdrop"
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(15, 23, 42, 0.42)",
-        backdropFilter: "blur(20px) saturate(140%)",
-        WebkitBackdropFilter: "blur(20px) saturate(140%)",
         display: "flex", alignItems: "flex-start", justifyContent: "center",
         padding: "6vh 16px",
       }}
@@ -159,6 +304,7 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         data-testid="decision-attribution-drawer"
+        className={reducedMotion ? "" : "rx-glow-trail rx-fade-in-up"}
         style={panelStyle}
       >
         {/* 4px cyan-gradient top strip. */}
@@ -264,24 +410,9 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
           }}
         />
 
-        {/* Reason */}
-        <div style={{
-          background: rule.bg,
-          border: "1px solid " + rule.line,
-          borderRadius: "12px 3px 12px 3px",
-          padding: "12px 14px", marginBottom: 16,
-        }}>
-          <div style={{
-            fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-            color: "var(--ink2)", letterSpacing: ".12em",
-            textTransform: "uppercase", marginBottom: 6,
-          }}>
-            Why this fired
-          </div>
-          <div style={{ fontSize: 14, lineHeight: 1.6, color: "var(--ink)" }}>
-            <_RichText text={step.reason || ""} accentColor={rule.color} />
-          </div>
-        </div>
+        {/* Reason · stepped glass-diffuse card with the outline numeral +
+            left rail. The reason is the editorial centerpiece of the drawer. */}
+        <ReasonStepCard rule={rule} reason={step.reason} ctx={step.ctx} />
 
         {/* Citation chip — when the rule was tagged with one */}
         {step.cite && (
@@ -289,49 +420,54 @@ function DecisionAttributionDrawer({ step, open, onClose, onOpenMechanism }) {
             <div style={{
               fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
               color: "var(--ink2)", letterSpacing: ".12em",
-              textTransform: "uppercase", marginBottom: 6,
+              textTransform: "uppercase", marginBottom: 8,
             }}>
               Evidence anchor
             </div>
-            <span style={{
-              display: "inline-flex", alignItems: "center", gap: 6,
-              fontSize: 12.5, lineHeight: 1.45, color: "var(--ink)",
-              padding: "5px 10px",
-              background: "var(--paper2)",
-              border: "1px solid var(--line)",
-              borderRadius: "8px 3px 8px 3px",
-            }}>
-              <CheckCircle2 size={12} color="var(--neon-cyan, var(--ox))" aria-hidden />
-              {CITE_LABEL[step.cite] || step.cite}
-            </span>
+            <CitationChip cite={step.cite} />
           </div>
         )}
 
-        {/* Mechanism link — when the reason text mentions a known mechanism */}
+        {/* Mechanism link — when the reason text mentions a known mechanism.
+            Sparkle leads the label so the cross-link reads as "considered /
+            curated", not as a generic button. */}
         {mechMatch && onOpenMechanism && (
-          <div style={{ marginBottom: 6 }}>
+          <div style={{ marginBottom: 16 }}>
             <button
               type="button"
               onClick={() => { onOpenMechanism(mechMatch); }}
-              className="rx-magnetic rx-shine-sweep"
+              className="rx-magnetic rx-shine-sweep rx-focus-halo"
               style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
+                display: "inline-flex", alignItems: "center", gap: 8,
                 fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700,
                 letterSpacing: ".08em", textTransform: "uppercase",
                 color: "var(--ink)",
                 background: "rgba(0, 212, 255, 0.08)",
                 border: "1px solid var(--neon-cyan-line, var(--ox-line))",
-                padding: "6px 12px",
-                borderRadius: "8px 3px 8px 3px",
+                padding: "7px 13px",
+                borderRadius: "10px 3px 10px 3px",
                 cursor: "pointer",
                 transition: "background .18s, border-color .18s",
               }}
             >
+              <Sparkle size={12} color="var(--neon-cyan, var(--ox))" />
               <BookOpen size={12} aria-hidden />
-              Read the mechanism · {mechMatch}
+              Read the mechanism · <span style={{ color: "var(--neon-cyan, var(--ox))" }}>{mechMatch}</span>
             </button>
           </div>
         )}
+
+        {/* Inter-section hairline before the closing coda. */}
+        <GradientHairline variant="cyan-blue" style={{ margin: "18px 0 14px" }} />
+
+        {/* Closing editorial coda — surfaces the rule label + severity
+            as a NotchedBanner so the drawer reads as "you traced a
+            decision; here is the takeaway in one industrial label". */}
+        <NotchedBanner
+          severity="info"
+          label={`${rule.label} · ${sev.label}`}
+          secondary="Decision trace · captured in your case"
+        />
       </div>
     </div>
   );

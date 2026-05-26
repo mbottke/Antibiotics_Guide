@@ -20,7 +20,9 @@ import {
 } from "lucide-react";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 import { useRipple } from "./util/useRipple.js";
+import { useReducedMotion } from "./util/useReducedMotion.js";
 import { MeshWash } from "./decor/MeshWash.jsx";
+import { SpotlightCard } from "./decor/SpotlightCard.jsx";
 
 /* Wave 9 W9 · per-step MeshWash palette. Each onboarding step gets a
    distinct molten chrome so the three screens feel like three separate
@@ -44,12 +46,10 @@ const HAIRLINE_BG =
   " rgba(255, 61, 188, 0.30) 82%," +
   " transparent 100%)";
 
-/* Cyan-gradient pill — the primary CTA style for the onboarding flow. */
-const CTA_PILL_BG =
-  "linear-gradient(135deg," +
-  " var(--ox-deep, #0B0F14) 0%," +
-  " var(--ox, #1F2937) 50%," +
-  " var(--neon-cyan, #00D4FF) 240%)";
+/* Wave 10 W10 · the primary CTA now ships as `.rx-chrome-cta` (steel
+   vertical gradient + sheen + hover shimmer) — the inline CTA_PILL_BG
+   constant has been retired. Secondary CTAs remain as ghost outlined
+   pills (see CtaPill below). */
 
 function _readDismissed() {
   try {
@@ -106,26 +106,51 @@ function CtaPill({ onClick, label, ariaLabel, leadingIcon, trailingIcon, variant
   const Leading = leadingIcon;
   const Trailing = trailingIcon;
 
+  /* Primary → rx-chrome-cta (steel-vertical gradient, sheen, hover shimmer)
+     plus magnetic + shine-sweep + ripple + focus-halo. Secondary → ghost
+     outlined pill that stays visually subordinate to the primary CTA. */
+  if (primary) {
+    return (
+      <button
+        ref={ref}
+        type="button"
+        onClick={onClick}
+        aria-label={ariaLabel || label}
+        className="rx-chrome-cta rx-magnetic rx-shine-sweep rx-ripple rx-focus-halo"
+        style={{
+          fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700,
+          letterSpacing: ".10em", textTransform: "uppercase",
+          padding: "8px 16px",
+          borderRadius: "12px 3px 12px 3px",
+          gap: 7,
+        }}
+      >
+        {Leading && <Leading size={11} aria-hidden />}
+        <span>{label}</span>
+        {Trailing && <Trailing size={11} aria-hidden />}
+      </button>
+    );
+  }
+
+  /* Secondary — ghost outlined pill. */
   return (
     <button
       ref={ref}
       type="button"
       onClick={onClick}
       aria-label={ariaLabel || label}
-      className="rx-magnetic rx-shine-sweep rx-ripple"
+      className="rx-magnetic rx-shine-sweep rx-ripple rx-focus-halo"
       style={{
-        background: primary ? CTA_PILL_BG : "rgba(255, 255, 255, 0.6)",
-        border: "1px solid " + (primary ? "var(--neon-cyan, var(--ox))" : "var(--line)"),
+        background: "rgba(255, 255, 255, 0.6)",
+        border: "1px solid var(--line)",
         borderRadius: 999,
         padding: "7px 16px",
         cursor: "pointer",
         fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700,
         letterSpacing: ".08em", textTransform: "uppercase",
-        color: primary ? "#fff" : "var(--ink2)",
+        color: "var(--ink2)",
         display: "inline-flex", alignItems: "center", gap: 6,
-        boxShadow: primary
-          ? "0 6px 18px -4px rgba(0, 212, 255, 0.55), 0 1px 0 rgba(255,255,255,.12) inset"
-          : "none",
+        boxShadow: "none",
         transition: "background .18s, color .18s, border-color .18s, box-shadow .18s, transform .18s",
       }}
     >
@@ -140,6 +165,7 @@ function OnboardingModal({ forceOpen = false, onClose }) {
   const [open, setOpen] = useState(forceOpen || !_readDismissed());
   const [idx, setIdx] = useState(0);
   const dialogRef = useRef(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     if(forceOpen) setOpen(true);
@@ -190,11 +216,9 @@ function OnboardingModal({ forceOpen = false, onClose }) {
       aria-label="Welcome to the Inpatient Antibiotic Guide"
       aria-modal="true"
       onClick={(e) => { e.stopPropagation(); _dismiss(); }}
+      className="rx-mercury-backdrop"
       style={{
         position: "fixed", inset: 0, zIndex: 1100,
-        background: "rgba(15, 23, 42, 0.42)",
-        backdropFilter: "blur(22px) saturate(140%)",
-        WebkitBackdropFilter: "blur(22px) saturate(140%)",
         display: "flex", alignItems: "center", justifyContent: "center",
         padding: "5vh 16px",
       }}
@@ -204,6 +228,7 @@ function OnboardingModal({ forceOpen = false, onClose }) {
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         data-testid="onboarding-modal"
+        className={reducedMotion ? "" : "rx-glow-trail rx-fade-in-up"}
         style={panelStyle}
       >
         {/* 4px cyan-gradient top strip. */}
@@ -291,28 +316,48 @@ function OnboardingModal({ forceOpen = false, onClose }) {
           }}
         />
 
-        {/* Body */}
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <h2 style={{
-            fontFamily: "var(--serif)",
-            fontStyle: "italic",
-            fontSize: "clamp(26px, 3.4vw, 36px)",
-            fontWeight: 500,
-            color: "var(--ink)",
-            margin: "0 0 14px",
-            letterSpacing: "-.014em",
-            lineHeight: 1.15,
-          }}>
+        {/* Body — wrapped in a SpotlightCard so the editorial body sits
+            inside the chrome with cursor-tracked spotlight + subtle 3D
+            tilt for parallax depth. Tilt + spotlight are reduced-motion
+            gated inside the SpotlightCard hooks themselves. */}
+        <SpotlightCard
+          variant="cyan"
+          tilt={true}
+          intensity={4}
+          style={{
+            position: "relative",
+            zIndex: 1,
+            borderRadius: "14px 4px 14px 4px",
+            padding: "18px 20px",
+            background: "rgba(255, 255, 255, 0.42)",
+            border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+            boxShadow: "0 8px 22px -8px rgba(0,212,255,.24)",
+          }}
+        >
+          <h2
+            className="rx-display-l"
+            style={{
+              /* Spec: headline uses .rx-display-l (sans 48px bold). Override
+                  the size with a fluid clamp so the modal stays comfortable
+                  on small viewports. */
+              fontSize: "clamp(26px, 3.4vw, 40px)",
+              margin: "0 0 14px",
+              lineHeight: 1.06,
+              color: "var(--ink)",
+            }}
+          >
             {screen.title}
           </h2>
+          {/* Body — italic-serif standfirst. */}
           <p style={{
             fontSize: 15, lineHeight: 1.65, color: "var(--ink2)",
             margin: 0, maxWidth: "58ch",
             fontFamily: "var(--serif)",
+            fontStyle: "italic",
           }}>
             {screen.body}
           </p>
-        </div>
+        </SpotlightCard>
 
         {/* Footer · progress dots + nav */}
         <div style={{
@@ -332,17 +377,24 @@ function OnboardingModal({ forceOpen = false, onClose }) {
               pointerEvents: "none",
             }}
           />
-          <div role="presentation" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div role="presentation" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {SCREENS.map((_, i) => (
-              <span key={i} aria-hidden style={{
-                width: i === idx ? 22 : 6, height: 6,
-                background: i === idx
-                  ? "linear-gradient(90deg, var(--neon-cyan, var(--ox)), var(--electric-blue, var(--ox)))"
-                  : "var(--line)",
-                borderRadius: 999,
-                boxShadow: i === idx ? "0 0 10px rgba(0, 212, 255, 0.55)" : "none",
-                transition: "width .22s var(--ease-out, ease-out), background .22s var(--ease-out, ease-out)",
-              }} />
+              i === idx ? (
+                /* Active dot — full neon light-ring (10px) so the
+                    "you are here" beat reads as a chrome indicator. */
+                <span key={i} aria-hidden className="rx-light-ring-cyan" style={{
+                  width: 12, height: 12,
+                }} />
+              ) : (
+                /* Muted dot — 6px paper-toned token, no glow. */
+                <span key={i} aria-hidden style={{
+                  width: 6, height: 6,
+                  background: "var(--line)",
+                  borderRadius: 999,
+                  display: "inline-block",
+                  transition: "background .22s var(--ease-out, ease-out)",
+                }} />
+              )
             ))}
             <span style={{
               fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600,

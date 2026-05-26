@@ -26,7 +26,9 @@ import {
 } from "lucide-react";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 import { useRipple } from "./util/useRipple.js";
+import { useReducedMotion } from "./util/useReducedMotion.js";
 import { MeshWash } from "./decor/MeshWash.jsx";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
 
 const MICROBIOME_KEY = "ab_microbiome_sort_default";
 
@@ -60,31 +62,63 @@ function _writeBool(key, val) {
 }
 
 /* W8 chrome · settings section — small glass card with asymmetric
-   corners (10/3) and a 2px cyan accent rail along the left edge. */
-function SettingsSection({ icon: Icon, title, children }) {
+   corners (10/3) and a 2px cyan accent rail along the left edge.
+   Wave 10 W10 atomized pass — gains .rx-glass-bleed for the inner-edge
+   cyan glow + outer halo (the "frosted card under a cyan light bar"
+   feel), and the leading icon now rides in a 22×22 gradient tile so
+   the visual reads as "icon tile + heading" rather than "icon next
+   to heading". */
+function SettingsSection({ icon: Icon, title, children, active }) {
   return (
     <section style={{ marginBottom: 16 }}>
       <header style={{
-        display: "flex", alignItems: "center", gap: 8,
+        display: "flex", alignItems: "center", gap: 9,
         marginBottom: 8,
       }}>
-        {Icon && <Icon size={14} aria-hidden color="var(--neon-cyan, var(--ox))" />}
+        {Icon && (
+          <span
+            aria-hidden
+            style={{
+              flex: "0 0 auto",
+              width: 22, height: 22,
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              borderRadius: "6px 2px 6px 2px",
+              background:
+                "linear-gradient(135deg," +
+                " var(--ox-deep, #0B0F14) 0%," +
+                " var(--electric-blue, var(--ox)) 50%," +
+                " var(--neon-cyan, #00D4FF) 100%)",
+              color: "#fff",
+              boxShadow: "0 2px 6px -2px rgba(0,212,255,.45), inset 0 1px 0 rgba(255,255,255,.32)",
+            }}
+          >
+            <Icon size={11} aria-hidden />
+          </span>
+        )}
         <h3 style={{
           fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0,
           fontFamily: "var(--sans)", letterSpacing: "-.005em",
         }}>{title}</h3>
       </header>
-      <div style={{
-        position: "relative",
-        background: "rgba(255, 255, 255, 0.55)",
-        border: "1px solid var(--line)",
-        borderLeft: "2px solid var(--neon-cyan, var(--ox))",
-        /* Asymmetric 10/3 pair — slightly tighter than the panel itself
-            (22/4), so the visual hierarchy reads (card ⊂ panel). */
-        borderRadius: "10px 3px 10px 3px",
-        padding: "11px 13px",
-        fontSize: 12.5, lineHeight: 1.55, color: "var(--ink2)",
-      }}>
+      <div
+        className="rx-glass-bleed"
+        style={{
+          position: "relative",
+          background: active
+            ? "linear-gradient(135deg, rgba(0,212,255,0.10) 0%, rgba(255,255,255,0.55) 100%)"
+            : "rgba(255, 255, 255, 0.55)",
+          border: "1px solid var(--line)",
+          borderLeft: "2px solid var(--neon-cyan, var(--ox))",
+          /* Asymmetric 10/3 pair — slightly tighter than the panel itself
+              (22/4), so the visual hierarchy reads (card ⊂ panel). */
+          borderRadius: "10px 3px 10px 3px",
+          padding: "12px 13px",
+          fontSize: 12.5, lineHeight: 1.55, color: "var(--ink2)",
+          boxShadow: active
+            ? "inset 0 0 0 1px var(--neon-cyan-line, var(--ox-line)), inset 0 0 24px -6px rgba(0,212,255,0.32)"
+            : undefined,
+        }}
+      >
         {children}
       </div>
     </section>
@@ -95,13 +129,18 @@ function ShortcutRow({ keys, label }) {
   return (
     <div style={{
       display: "grid", gridTemplateColumns: "auto 1fr",
-      gap: 12, alignItems: "center", padding: "3px 0",
+      gap: 12, alignItems: "center", padding: "4px 0",
     }}>
       <kbd style={{
-        fontFamily: "var(--mono)", fontSize: 10,
-        background: "var(--panel)", border: "1px solid var(--line)",
-        borderRadius: 4, padding: "2px 6px", color: "var(--ink)",
+        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+        background: "rgba(0, 212, 255, 0.08)",
+        border: "1px solid var(--neon-cyan-line, var(--ox-line))",
+        borderRadius: 5, padding: "2px 7px",
+        color: "var(--ink)",
         whiteSpace: "nowrap",
+        boxShadow: "inset 0 -1px 0 rgba(0, 212, 255, 0.18)",
+        letterSpacing: ".06em",
+        textTransform: "uppercase",
       }}>{keys}</kbd>
       <span style={{ color: "var(--ink2)" }}>{label}</span>
     </div>
@@ -110,14 +149,18 @@ function ShortcutRow({ keys, label }) {
 
 /* Switch-style toggle — cyan when on, paper when off. Wraps the
    underlying checkbox so RTL tests can still find the labeled
-   input. The checkbox itself is visually hidden but accessible. */
+   input. The checkbox itself is visually hidden but accessible.
+   Wave 10 W10 — gains .rx-shine-sweep so the toggle catches a
+   diagonal light band on hover, reinforcing the chrome vocabulary. */
 function SwitchToggle({ checked, onChange, ariaLabel }) {
   return (
-    <span style={{
+    <span className="rx-shine-sweep" style={{
       position: "relative",
       display: "inline-block",
       width: 36, height: 20,
       flex: "0 0 auto",
+      borderRadius: 999,
+      overflow: "hidden",
     }}>
       <input
         type="checkbox"
@@ -174,7 +217,7 @@ function CloseButton({ onClose, label }) {
       type="button"
       onClick={onClose}
       aria-label={label}
-      className="rx-magnetic rx-shine-sweep rx-ripple"
+      className="rx-magnetic rx-shine-sweep rx-ripple rx-focus-halo"
       style={{
         display: "inline-flex", alignItems: "center", gap: 5,
         background: "rgba(0, 212, 255, 0.06)",
@@ -194,6 +237,7 @@ function CloseButton({ onClose, label }) {
 
 function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
   const dialogRef = useRef(null);
+  const reducedMotion = useReducedMotion();
   const [microbiomeSort, setMicrobiomeSort] = useState(() => _readBool(MICROBIOME_KEY));
 
   useEffect(() => {
@@ -244,11 +288,9 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
       aria-label="Settings"
       aria-modal="true"
       onClick={(e) => { e.stopPropagation(); if(onClose) onClose(); }}
+      className="rx-mercury-backdrop"
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(15, 23, 42, 0.42)",
-        backdropFilter: "blur(24px) saturate(140%)",
-        WebkitBackdropFilter: "blur(24px) saturate(140%)",
         display: "flex", alignItems: "flex-start", justifyContent: "center",
         padding: "8vh 16px",
       }}
@@ -258,6 +300,7 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         data-testid="settings-modal"
+        className={reducedMotion ? "" : "rx-glow-trail rx-fade-in-up"}
         style={panelStyle}
       >
         {/* 4px cyan-gradient top strip. */}
@@ -326,8 +369,9 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
           dedicated typography control there for live A+/A− steps. The same scale
           persists across sessions.
         </SettingsSection>
+        <GradientHairline variant="cyan-blue" style={{ margin: "12px 0 16px", opacity: 0.65 }} />
 
-        <SettingsSection icon={Activity} title="Microbiome ranking">
+        <SettingsSection icon={Activity} title="Microbiome ranking" active={microbiomeSort}>
           <label style={{
             display: "flex",
             alignItems: "flex-start",
@@ -340,10 +384,16 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
               ariaLabel="Rank empiric options by collateral damage"
             />
             <span style={{ minWidth: 0 }}>
-              <span style={{ display: "block", fontWeight: 600, color: "var(--ink)" }}>
+              <span style={{
+                display: "flex", alignItems: "center", gap: 6,
+                fontWeight: 600, color: "var(--ink)",
+              }}>
                 Rank by collateral damage
+                {microbiomeSort && (
+                  <span aria-hidden className="rx-light-ring-cyan" style={{ marginLeft: 4 }} />
+                )}
               </span>
-              <span style={{ fontSize: 11.5, color: "var(--ink2)" }}>
+              <span style={{ display: "block", fontSize: 11.5, color: "var(--ink2)", marginTop: 2 }}>
                 Sort multi-option empiric tiers by ascending worst-case C. difficile risk
                 so the gentler microbiome choice surfaces first. Per-card score chips
                 always render; this only flips the default order. Stewardship-forward.
@@ -351,9 +401,10 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
             </span>
           </label>
         </SettingsSection>
+        <GradientHairline variant="cyan-blue" style={{ margin: "12px 0 16px", opacity: 0.65 }} />
 
         <SettingsSection icon={ShieldAlert} title="Antibiogram overlays">
-          <p style={{ margin: "0 0 10px" }}>
+          <p style={{ margin: "0 0 12px" }}>
             Local-resistance overlays live in the Antibiogram manager — upload a CSV
             once per site to drive every regimen panel against your unit's data.
           </p>
@@ -361,22 +412,19 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
             <button
               type="button"
               onClick={() => { onOpenAntibiogramManager(); if(onClose) onClose(); }}
-              className="rx-magnetic rx-shine-sweep"
+              className="rx-chrome-cta rx-magnetic rx-ripple"
               style={{
-                background: "rgba(0, 212, 255, 0.08)",
-                border: "1px solid var(--neon-cyan-line, var(--ox-line))",
-                borderRadius: "8px 3px 8px 3px",
-                padding: "6px 12px",
-                fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-                letterSpacing: ".08em", textTransform: "uppercase",
-                color: "var(--ink)", cursor: "pointer",
-                transition: "background .18s, border-color .18s",
+                fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700,
+                letterSpacing: ".10em", textTransform: "uppercase",
+                padding: "8px 14px",
+                borderRadius: "10px 3px 10px 3px",
               }}
             >
               Open antibiogram manager
             </button>
           )}
         </SettingsSection>
+        <GradientHairline variant="cyan-blue" style={{ margin: "12px 0 16px", opacity: 0.65 }} />
 
         <SettingsSection icon={Keyboard} title="Keyboard shortcuts">
           <div style={{ display: "grid", gap: 4 }}>
