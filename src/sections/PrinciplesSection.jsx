@@ -259,7 +259,7 @@ function W8SubTabRail({ activeTab }) {
    36px italic-serif sub-headline · italic-serif lede beneath.
    Replaces the previous W7SubHead in editorial weight.
    ============================================================ */
-function W8SubHead({ kicker, title, lede, icon, id }) {
+function W8SubHead({ kicker, title, lede, icon, id, important = false }) {
   return (
     <div id={id} className="rx-fade-in-up" style={{ margin: "40px 0 18px", position: "relative", scrollMarginTop: "100px" }}>
       <div style={{
@@ -289,13 +289,17 @@ function W8SubHead({ kicker, title, lede, icon, id }) {
       }}>
         {icon && <span style={{ color: CYAN_BRIGHT, display: "inline-flex" }}>{icon}</span>}
         {title}
+        {important && <Sparkle size={13} color={CYAN_BRIGHT} style={{ marginLeft: 6, opacity: 0.95 }} />}
       </h3>
       {lede && (
-        <p style={{
-          fontFamily: "var(--serif)", fontStyle: "italic",
-          fontSize: 16, lineHeight: 1.55, color: "var(--ink2)",
-          margin: "10px 0 0", maxWidth: "70ch",
-        }}>{lede}</p>
+        <p
+          className="rx-dropcap-cyan"
+          style={{
+            fontFamily: "var(--serif)", fontStyle: "italic",
+            fontSize: 16, lineHeight: 1.6, color: "var(--ink2)",
+            margin: "12px 0 0", maxWidth: "70ch",
+          }}
+        >{lede}</p>
       )}
     </div>
   );
@@ -334,7 +338,7 @@ function W8StepCard({ index, heading, body, delay = 0 }) {
   const [hover, setHover] = React.useState(false);
   return (
     <article
-      className="rx-step rx-fade-in-up"
+      className="rx-step rx-fade-in-up rx-card-interactive"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
@@ -434,6 +438,7 @@ function W8SepsisFlowDeck() {
           return (
             <article
               key={i}
+              className={isStart ? "rx-glass-bleed rx-iridescent-border rx-glow-lift" : "rx-glass-bleed rx-glow-lift"}
               style={{
                 position: "relative",
                 flex: "0 0 280px",
@@ -553,7 +558,7 @@ function W8CitationCard({ id, year, body, title, journal, onOpen, delay = 0 }) {
       onClick={() => onOpen(id)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className="rx-fade-in-up"
+      className="rx-fade-in-up rx-glass-diffuse"
       style={{
         textAlign: "left",
         display: "grid",
@@ -659,6 +664,7 @@ function PrinciplesSection({
         icon={<ListChecks size={20}/>}
         title="The empiric reasoning sequence"
         lede="Seven questions, addressed in order. Each constrains the next: the anatomic source predicts the flora, the flora and host define the spectrum, and the spectrum and site determine the agent and its dose."
+        important
       />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {[
@@ -842,6 +848,7 @@ function PrinciplesSection({
         icon={<Clock size={20}/>}
         title="Evidence-based durations"
         lede="Most courses are set by randomized trial — the bar charts read against a common 42-day ceiling so the contrast is immediate."
+        important
       />
       <div className="rx-card rx-fade-in-up" style={{padding: 0, overflow: "hidden"}}>
         <table className="rx-durtable">
@@ -1035,6 +1042,7 @@ function PrinciplesSection({
         icon={<Scissors size={20}/>}
         title="Surgical antimicrobial prophylaxis"
         lede={PROPHYLAXIS.intro}
+        important
       />
       <div className="rx-2col rx-fade-in-up" style={{marginBottom: 16}}>
         <div className="rx-card rx-mini">
@@ -1088,7 +1096,7 @@ function PrinciplesSection({
       />
       <div className="rx-evolve rx-fade-in-up">
         {EVOLVING.map((e, i) => (
-          <div className="rx-evcard" key={i} style={{ animationDelay: `${i * 40}ms` }}>
+          <div className="rx-evcard rx-glow-lift" key={i} style={{ animationDelay: `${i * 40}ms` }}>
             <div className="evh">{e.h}{e.ref && <Cite id={e.ref} onClick={(cid)=>openTrial(cid)} />}</div>
             <p className="evb">{e.b}</p>
             <span className="evdir">{e.dir}</span>

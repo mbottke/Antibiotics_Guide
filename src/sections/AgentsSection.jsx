@@ -830,11 +830,12 @@ function AgentsSection({
                             return (
                               <tr
                                 key={dr.name}
-                                className="rx-fade-in-up"
+                                className="rx-fade-in-up rx-drugrow"
+                                data-prototype={drIdx === 0 ? "true" : undefined}
                                 style={{
                                   animationDelay: `${100 + idx * 50 + drIdx * 30}ms`,
                                   borderRadius: "10px 3px 10px 3px",
-                                  transition: "transform .14s ease, box-shadow .14s ease",
+                                  transition: "transform .14s ease, box-shadow .14s ease, border-color .14s ease",
                                 }}
                               >
                                 <td className="tdname" data-l="Agent">
@@ -904,8 +905,9 @@ function AgentsSection({
                         >
                           PROTOTYPE AGENT
                         </div>
-                        <div style={{ color: "var(--ink)", fontWeight: 600 }}>
+                        <div style={{ color: "var(--ink)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6 }}>
                           {proto ? proto.name : "—"}
+                          {proto && <Sparkle size={11} color="var(--neon-cyan, var(--ox))" />}
                         </div>
                         {proto && proto.spec && (
                           <div style={{ fontSize: 11.5, color: "var(--ink2)", marginTop: 2 }}>
@@ -1017,6 +1019,19 @@ function AgentsSection({
       </div>
       <div className="rx-callout"><Info size={15}/><span>Practical defaults: a documented penicillin allergy almost never precludes <b>cefazolin</b> (surgical prophylaxis, MSSA) or an unrelated-side-chain cephalosporin/carbapenem; <b>aztreonam</b> is safe in severe penicillin allergy (but shares a side chain with ceftazidime). Delabeling the low-risk majority is one of the highest-yield stewardship acts on the wards.</span></div>
 
+      <style>{`
+        .rx-drugrow{ box-shadow: inset 2px 0 0 transparent; }
+        .rx-drugrow:hover{
+          box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)), 0 6px 20px -10px rgba(0,212,255,0.25);
+          background: linear-gradient(90deg, color-mix(in srgb, var(--neon-cyan, var(--ox)) 4%, transparent), transparent 60%);
+        }
+        .rx-drugrow[data-prototype="true"]{ box-shadow: inset 3px 0 0 color-mix(in srgb, var(--neon-cyan, var(--ox)) 55%, transparent); }
+        .rx-drugrow[data-prototype="true"]:hover{ box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)), 0 6px 20px -10px rgba(0,212,255,0.3); }
+        @media (prefers-reduced-motion: reduce){
+          .rx-drugrow:hover{ background: transparent; box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)); }
+        }
+      `}</style>
+
       </>
     );
   };
@@ -1025,7 +1040,7 @@ function AgentsSection({
   const renderDose = () => (
     <>
       <h2 className="rx-h2">Dosing, renal adjustment & monitoring</h2>
-      <p className="rx-lede">Correct dosing is as consequential as correct drug selection. Estimate clearance, identify which agents track renal function, and apply the rules that override the calculator: the loading dose, the site of infection, and body habitus.</p>
+      <p className="rx-lede rx-dropcap-cyan">Correct dosing is as consequential as correct drug selection. Estimate clearance, identify which agents track renal function, and apply the rules that override the calculator: the loading dose, the site of infection, and body habitus.</p>
 
       <div className="rx-calc">
         <div className="rx-card">
@@ -1168,10 +1183,10 @@ function AgentsSection({
       <h3 className="rx-h3"><span className="ic"><FlaskConical size={18}/></span>Therapeutic drug monitoring</h3>
       <div className="rx-2col">
         {TDM.map((t,i)=>(
-          <div className="rx-card" key={i}>
+          <div className="rx-card rx-glow-lift" key={i}>
             <div style={{fontWeight:700,fontSize:14}}>{t.d}</div>
             <div className="rx-mono" style={{fontSize:12,color:"var(--ox)",margin:"3px 0 7px"}}>{t.t}</div>
-            <div style={{fontSize:13,color:"var(--ink2)",lineHeight:1.5}}>{t.note}</div>
+            <div style={{fontSize:13,color:"var(--ink2)",lineHeight:1.6}}>{t.note}</div>
           </div>
         ))}
       </div>
@@ -1192,7 +1207,7 @@ function AgentsSection({
   const renderSafety = () => (
     <div>
       <h2 className="rx-h2">Adverse effects, monitoring &amp; interactions</h2>
-      <p className="rx-lede">
+      <p className="rx-lede rx-dropcap-cyan">
         Toxicity decides as many regimens as spectrum does. The matrix maps the dominant organ-system harms by class;
         the cards below give the monitoring that catches them and the high-yield interactions that change a regimen
         before it starts. A filled square is a notable or boxed-warning concern, amber is moderate / dose- or
@@ -1256,12 +1271,12 @@ function AgentsSection({
         </div>
       </div>
 
-      <h3 className="rx-h3"><span className="ic"><AlertTriangle size={18} /></span>High-yield interactions</h3>
+      <h3 className="rx-h3"><span className="ic"><AlertTriangle size={18} /></span>High-yield interactions <Sparkle size={11} color="var(--neon-cyan, var(--ox))" style={{ marginLeft: 4 }} /></h3>
       <div className="rx-trig">
         {INTERACTIONS.map((it,i) => { const IC = ICMAP_INT[it.ic] || Info; return (
-          <div key={i} className="rx-trigcard rx-card">
+          <div key={i} className="rx-trigcard rx-card rx-glow-lift">
             <h4><span className="ic"><IC size={15} /></span>{it.h}</h4>
-            <p style={{margin:"2px 0 0",fontSize:"12.5px",color:"var(--ink2)",lineHeight:1.55}}>{it.b}</p>
+            <p style={{margin:"2px 0 0",fontSize:"12.5px",color:"var(--ink2)",lineHeight:1.6}}>{it.b}</p>
           </div>
         ); })}
       </div>
