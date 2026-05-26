@@ -113,7 +113,7 @@ function DiagnosticsBlock({ diagnostics, ctx }) {
     sum + s.items.filter(i => itemMatchesCtx(i, ctx)).length, 0);
 
   return (
-    <Section kicker="Workup · What to order first" icon={FlaskConical} testId="diagnostics-block">
+    <Section kicker="Workup · What to order first" icon={FlaskConical} glyph="core" testId="diagnostics-block">
       {matchedTotal > 0 && (
         <div style={{ marginBottom: 10, display: "flex", justifyContent: "flex-end" }}>
           <span style={{

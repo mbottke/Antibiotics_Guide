@@ -29,6 +29,7 @@ import {
 } from "../data/syndromeDecision.js";
 import { LAYERS } from "./answer-layers/_index.js";
 import { MechanismDrawer } from "./MechanismDrawer.jsx";
+import { EditorialHero } from "./EditorialHero.jsx";
 
 /* ---------- the canvas itself ---------- */
 function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite, antibiogram, onOpenAntibiogramManager }) {
@@ -307,59 +308,48 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
     el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  /* Wave 6 W6-B integration · build the patient-context chip array
+     for the EditorialHero. Each chip carries a tone hint so the
+     hero can render it with the right semantic color. */
+  const patientChips = [];
+  if(ans.ctx.on) {
+    patientChips.push({ label: `${ans.ctx.age}${ans.ctx.sex}`, tone: "neutral" });
+    if(ans.d.crcl != null) {
+      patientChips.push({ label: `CrCl ${ans.d.crcl}`, tone: ans.d.crcl < 30 ? "amber" : "ox" });
+    }
+    riskLabels.forEach((r) => patientChips.push({ label: r, tone: "amber" }));
+    if(ans.ctx.blAllergy && ans.ctx.blAllergy !== "none") {
+      patientChips.push({
+        label: ans.ctx.blAllergy === "severe" ? "severe β-lactam allergy" : "low-risk β-lactam allergy",
+        tone: ans.ctx.blAllergy === "severe" ? "red" : "amber",
+      });
+    }
+  }
+
   return (
     <div style={{ marginTop: 6 }}>
-      {/* Header strip — syndrome name, risks, edit-case affordance */}
-      <div data-bedside-header-strip="true" style={{
-        display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12,
-        padding:"14px 18px", background:"var(--ox-softer)", border:"1px solid var(--ox-line)",
-        borderRadius:12, marginBottom: 16,
-      }}>
-        <div style={{ minWidth:0, flex:1 }}>
-          <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".14em", textTransform:"uppercase", color:"var(--ox)", fontWeight:700, marginBottom:3 }}>
-            <Crosshair size={11} style={{ verticalAlign:"-1px", marginRight:5 }}/>The answer
-          </div>
-          <div style={{ fontFamily:"var(--serif)", fontSize:21, fontWeight:600, color:"var(--ink)", letterSpacing:"-.01em", lineHeight:1.2 }}>
-            {s.name}
-          </div>
-          <div style={{ fontSize:12.5, color:"var(--ink2)", marginTop:5, lineHeight:1.5 }}>
-            {s.line}
-            {ans.ctx.on && (
-              <>
-                {" · "}<b>{ans.ctx.age}{ans.ctx.sex}</b>
-                {ans.d.crcl != null && <>, CrCl <b>{ans.d.crcl}</b></>}
-                {riskLabels.length > 0 && <>, risks <b>{riskLabels.join(", ")}</b></>}
-                {ans.ctx.blAllergy && ans.ctx.blAllergy !== "none" && <>, {ans.ctx.blAllergy === "severe" ? "severe" : "low-risk"} β-lactam allergy</>}
-              </>
-            )}
-          </div>
-          {_depthCount >= 6 && (
-            <div style={{ marginTop: 8 }}>
-              <span style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
-                fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600,
-                color: "var(--ox)", background: "rgba(15, 76, 129, 0.08)",
-                padding: "3px 8px", borderRadius: 4,
-                border: "1px solid var(--ox-line)",
-                letterSpacing: ".06em", textTransform: "uppercase",
-              }}>
-                <BookOpen size={10} aria-hidden /> {_depthCount} depth layers · scroll + expand for full detail
-              </span>
-            </div>
-          )}
+      <EditorialHero
+        syndromeName={s.name}
+        syndromeLine={s.line}
+        patientChips={patientChips}
+        riskLabels={riskLabels}
+        onEditCase={onEditCase}
+      />
+
+      {_depthCount >= 6 && (
+        <div style={{ marginBottom: 14 }}>
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 5,
+            fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600,
+            color: "var(--ox)", background: "var(--ox-soft)",
+            padding: "3px 8px", borderRadius: 4,
+            border: "1px solid var(--ox-line)",
+            letterSpacing: ".06em", textTransform: "uppercase",
+          }}>
+            <BookOpen size={10} aria-hidden /> {_depthCount} depth layers · scroll + expand for full detail
+          </span>
         </div>
-        {onEditCase && (
-          <button type="button" onClick={onEditCase} title="Edit the case"
-            style={{
-              display:"inline-flex", alignItems:"center", gap:5, flex:"0 0 auto",
-              fontFamily:"var(--mono)", fontSize:11, letterSpacing:".08em", textTransform:"uppercase",
-              color:"var(--ox)", background:"var(--panel)", border:"1px solid var(--ox-line)", borderRadius:999,
-              padding:"5px 11px", cursor:"pointer",
-            }}>
-            <Pencil size={11}/> Edit
-          </button>
-        )}
-      </div>
+      )}
 
       {/* Canvas spine — sticky table-of-contents chip strip. The list
           mirrors the visible sections below and lets users jump straight
@@ -371,13 +361,18 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           aria-label="Answer sections"
           data-bedside-spine="true"
           style={{
+            /* Wave 6 W6-B aesthetic · frosted-glass sticky spine.
+               Properly saturated + blurred so the bar feels like a
+               materialized surface rather than translucent paper. */
             position: "sticky", top: 0, zIndex: 5,
-            margin: "-2px -2px 12px",
-            padding: "6px 6px",
-            background: "color-mix(in srgb, var(--paper) 88%, transparent)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            borderBottom: "1px solid var(--line)",
+            margin: "-2px -2px 14px",
+            padding: "9px 10px",
+            background: "color-mix(in srgb, var(--paper) 72%, transparent)",
+            backdropFilter: "saturate(170%) blur(16px)",
+            WebkitBackdropFilter: "saturate(170%) blur(16px)",
+            border: "1px solid var(--line)",
+            borderRadius: 12,
+            boxShadow: "0 1px 0 rgba(255,255,255,.7) inset, var(--shadow-e1)",
           }}>
           <div style={{
             display: "flex", gap: 6, overflowX: "auto",
@@ -387,13 +382,20 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               <button
                 key={item.id}
                 type="button"
+                /* .rx-lift handles hover/focus elevation entirely via
+                   the stylesheet. NO inline box-shadow on the resting
+                   state — that would override the cascading rules
+                   (Codex finding on #135). The 1px border on var(--panel)
+                   is sufficient resting contrast on the frosted-glass
+                   surface above. */
+                className="rx-lift rx-cta-glow"
                 onClick={() => _onSpineClick(item.id)}
                 style={{
                   flex: "0 0 auto",
                   fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".04em",
                   color: "var(--ink2)",
                   background: "var(--panel)", border: "1px solid var(--line)",
-                  borderRadius: 999, padding: "4px 10px", cursor: "pointer",
+                  borderRadius: 999, padding: "4px 12px", cursor: "pointer",
                   whiteSpace: "nowrap",
                 }}>
                 {item.label}
@@ -409,9 +411,15 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           canvas — the full picture stays one click away. Active tab
           persists per-site to localStorage. */}
       <div role="tablist" aria-label="Answer-canvas groups" style={{
-        display: "flex", gap: 4, overflowX: "auto", flexWrap: "wrap",
-        marginBottom: 14, paddingBottom: 6,
-        borderBottom: "1px solid var(--line2)",
+        /* Wave 6 W6-B · framed tab tray. Tabs sit on a paper2
+           container with a hairline border + e0 shadow so they
+           feel held rather than painted into the page. */
+        display: "flex", gap: 6, overflowX: "auto", flexWrap: "wrap",
+        marginBottom: 18, padding: "8px 10px",
+        background: "var(--paper2)",
+        border: "1px solid var(--line)",
+        borderRadius: 12,
+        boxShadow: "var(--shadow-e0)",
       }}>
         {[
           { id: "core",     label: "Core" },
@@ -430,6 +438,11 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               role="tab"
               aria-selected={active}
               aria-controls={`layer-panel-${t.id}`}
+              /* .rx-lift + .rx-cta-glow handle hover lift + oxblood
+                 focus glow via the stylesheet. No inline box-shadow
+                 on resting; the active state's deeper background +
+                 oxblood border is the active emphasis. */
+              className="rx-lift rx-cta-glow"
               onClick={() => _selectLayerTab(t.id)}
               style={{
                 flex: "0 0 auto",
@@ -439,8 +452,8 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                 background: active ? "var(--ox)" : "var(--panel)",
                 border: `1px solid ${active ? "var(--ox)" : "var(--line)"}`,
                 borderRadius: 999,
-                padding: "5px 12px", cursor: "pointer",
-                transition: "background .12s, color .12s",
+                padding: "5px 13px", cursor: "pointer",
+                transition: "background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out)",
               }}
             >
               {t.label}
@@ -462,11 +475,25 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
           other than "all" is active; "all" preserves the full
           single-scroll canvas. */}
       <div role="tabpanel" id={`layer-panel-${layerTab}`} aria-label={`Answer canvas — ${layerTab}`}>
-        {LAYERS.map((L, i) => {
-          if (!L.when(_shared)) return null;
-          if (layerTab !== "all" && L.group !== layerTab) return null;
-          return <React.Fragment key={i}>{L.render(_shared)}</React.Fragment>;
-        })}
+        {(() => {
+          /* Wave 6 W6-B · staggered first-paint reveal. Each visible
+             layer cascades in via .rx-reveal-fast with a 60ms ladder
+             (clamped at 480ms total) so the page arrives orchestrated
+             rather than snapping. Reduced-motion users get no-op via
+             the global @media rule. */
+          const visible = LAYERS.filter((L) =>
+            L.when(_shared) && (layerTab === "all" || L.group === layerTab),
+          );
+          return visible.map((L, i) => (
+            <div
+              key={L.id + "-" + i}
+              className="rx-reveal-fast"
+              style={{ animationDelay: `${Math.min(i * 60, 480)}ms` }}
+            >
+              {L.render(_shared)}
+            </div>
+          ));
+        })()}
       </div>
 
       {/* ACTIONS */}

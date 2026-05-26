@@ -13,32 +13,37 @@
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
+import { SectionGlyph } from "./SectionGlyph.jsx";
 
-function Section({ kicker, title, icon: Icon, children, sticky, testId, id }) {
+function Section({ kicker, title, icon: Icon, glyph, children, sticky, testId, id }) {
   return (
-    <section data-testid={testId} id={id} style={{ marginBottom: 18, scrollMarginTop: 96 }}>
-      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom: 10 }}>
+    <section data-testid={testId} id={id} style={{ marginBottom: 22, scrollMarginTop: 96 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom: 12 }}>
+        {/* Wave 6 W6-B integration · SectionGlyph fleuron sits to the
+            left of the kicker text when a group is provided. Decorative,
+            aria-hidden — adds editorial-magazine character without
+            crowding the label. */}
+        {glyph && <SectionGlyph group={glyph} size={14} />}
         {kicker && (
-          <span style={{
-            fontFamily: "var(--mono)", fontSize: 10, letterSpacing: ".14em",
-            textTransform: "uppercase", color: "var(--ox)", fontWeight: 700,
-            display:"inline-flex", alignItems:"center", gap:6,
+          <span className="rx-eyebrow" style={{
+            display:"inline-flex", alignItems:"center", gap:6, margin: 0,
           }}>
             {Icon && <Icon size={12} />} {kicker}
           </span>
         )}
         {title && (
-          <h3 style={{ fontFamily:"var(--serif)", fontSize:17, fontWeight:600, margin:0, color:"var(--ink)" }}>
+          <h3 style={{ fontFamily:"var(--serif)", fontSize:18, fontWeight:600, margin:0, color:"var(--ink)", letterSpacing:"-.012em" }}>
             {title}
           </h3>
         )}
       </div>
       <div style={{
-        background:"var(--panel)", border:"1px solid var(--line)", borderRadius:12,
-        padding: sticky ? "18px 18px 16px" : 16,
+        background:"var(--panel)", border:"1px solid var(--line)", borderRadius:14,
+        padding: sticky ? "20px 20px 18px" : 18,
+        boxShadow: sticky ? "var(--shadow-e2)" : "var(--shadow-e1)",
+        transition: "box-shadow var(--duration-base) var(--ease-out)",
         ...(sticky ? {
           borderTop:"3px solid var(--ox)",
-          boxShadow: "0 1px 0 var(--line2), 0 2px 12px -8px rgba(15,76,129,0.18)",
         } : {}),
       }}>
         {children}

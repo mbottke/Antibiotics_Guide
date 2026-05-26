@@ -129,7 +129,7 @@ function MonitoringBlock({ monitoring, pickedAgents = [], pickedBranch, ctx }) {
      selection" chip lives in the kicker row (right of the label)
      as the only section-level adornment. */
   return (
-    <Section kicker="Monitoring · What to check" icon={Activity} testId="monitoring-block">
+    <Section kicker="Monitoring · What to check" icon={Activity} glyph="core" testId="monitoring-block">
       {matchedCount > 0 && (
         <div style={{ marginBottom: headline || items.length ? 10 : 0, display:"flex", justifyContent:"flex-end" }}>
           <span style={{

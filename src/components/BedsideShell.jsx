@@ -12,6 +12,8 @@ import { AnswerCanvas } from "./AnswerCanvas.jsx";
 import { FontSizeControl } from "./FontSizeControl.jsx";
 import { SettingsModal } from "./SettingsModal.jsx";
 import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay.jsx";
+import { OnboardingModal } from "./OnboardingModal.jsx";
+import { BrandMark } from "./BrandMark.jsx";
 import { SYNDROMES } from "../data/syndromes.js";
 
 function _synName(id) {
@@ -120,9 +122,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
             >
               <SettingsIcon size={13} aria-hidden />
             </button>
-            <div style={{ fontFamily:"var(--mono)", fontSize:10, letterSpacing:".18em", textTransform:"uppercase", color:"var(--ox)", fontWeight:600 }}>
-              Bedside — Phase A
-            </div>
+            <BrandMark size="small" subtitle="Bedside · Decision support" />
           </div>
         </div>
 
@@ -209,6 +209,12 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
           own open state via a global keydown listener so it can surface
           from anywhere in the bedside surface without prop drilling. */}
       <KeyboardShortcutsOverlay />
+
+      {/* Wave 6 W6-D · first-visit onboarding overlay. Auto-shows
+          the first time a user lands on the bedside surface; persists
+          dismissal to localStorage so it never interrupts the
+          workflow path again. */}
+      <OnboardingModal />
     </div>
   );
 }

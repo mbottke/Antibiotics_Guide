@@ -113,7 +113,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
   const indefinite = activeBranch && /indefinite/i.test(activeBranch.days);
 
   return (
-    <Section kicker="Duration · When to stop" icon={Clock} testId="duration-block">
+    <Section kicker="Duration · When to stop" icon={Clock} glyph="duration" testId="duration-block">
       {/* Headline + evidence */}
       {headline && (
         <div style={{
