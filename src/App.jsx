@@ -440,11 +440,13 @@ export default function InpatientAbxGuide() {
     if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
     if(window.matchMedia("(pointer: coarse)").matches) return undefined;
     let dimmedSet = [];
+    let lastHovered = null;
     const clearAll = () => {
       for(let i = 0; i < dimmedSet.length; i++){
         dimmedSet[i].removeAttribute("data-focus-dim");
       }
       dimmedSet = [];
+      lastHovered = null;
     };
     const onOver = (e) => {
       const t = e.target;
@@ -454,20 +456,18 @@ export default function InpatientAbxGuide() {
         clearAll();
         return;
       }
+      // Bug fix · the previous early-exit used `dimmedSet.length` parity
+      // with the new cohort's sibling count, which falsely matched when
+      // two cohorts of equal size existed (cohort A's siblings stayed
+      // dimmed, cohort B's siblings never got dimmed). Track the last
+      // hovered card directly and recompute on every change.
+      if(card === lastHovered) return;
       const parent = card.parentElement;
       if(!parent){ clearAll(); return; }
       // Collect same-tier interactive siblings only.
       const siblings = parent.querySelectorAll(":scope > .rx-card-interactive");
-      // If the hovered card matches an already-active set, no churn.
-      let needsUpdate = false;
-      if(dimmedSet.length !== siblings.length - 1) needsUpdate = true;
-      else {
-        for(let i = 0; i < dimmedSet.length; i++){
-          if(dimmedSet[i] === card){ needsUpdate = true; break; }
-        }
-      }
-      if(!needsUpdate) return;
       clearAll();
+      lastHovered = card;
       for(let i = 0; i < siblings.length; i++){
         const s = siblings[i];
         if(s === card) continue;
