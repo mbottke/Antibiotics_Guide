@@ -27,6 +27,7 @@ import {
 } from "./engines/antibiogramStore.js";
 import { SurfaceBar } from "./components/SurfaceBar";
 import { SectionNav } from "./components/SectionNav";
+import { useSectionTransitions, SectionTransitionStyles } from "./components/SectionTransitions";
 import { OutpatientShell } from "./components/OutpatientShell";
 import { GlobalScrollProgress } from "./components/GlobalScrollProgress";
 import { SECTIONS, SECTION_BY_ID, sectionForTab, firstTabOfSection } from "./data/sections";
@@ -479,6 +480,36 @@ export default function InpatientAbxGuide() {
     if(expected !== section) setSection(expected);
   }, [tab]);
 
+  /* W12 — section transition layer. The hook owns the chip-pulse,
+     ink-trail, view-transition wrapper, and visited-set state; the
+     ref points at the SectionNav container so the trail can compute
+     chip-to-chip anchor coordinates. Calls into `setSection` flow
+     through `navigate()` so every transition gets the same chrome —
+     the data-layer + tab-sync logic stay untouched. */
+  const sectionNavRef = React.useRef(null);
+  const { navigate: navigateSection, pulseId: w12Pulse, trail: w12Trail, isReturning: w12Returning } =
+    useSectionTransitions({
+      section,
+      onSectionChange: (s) => {
+        setSection(s);
+        const sec = SECTION_BY_ID[s];
+        if(sec && !sec.tabs.includes(tab)) setTab(firstTabOfSection(s));
+      },
+      sectionNavRef,
+    });
+  /* Visited-set snapshot for the SectionNav chip "returning" border —
+     read from sessionStorage on first paint and refreshed by the hook
+     above. Memoised per section so re-renders within a section don't
+     thrash. */
+  const w12Visited = React.useMemo(() => {
+    try {
+      if(typeof sessionStorage === "undefined") return new Set();
+      const raw = sessionStorage.getItem("rx-w12-visited-sections");
+      return new Set(raw ? JSON.parse(raw) : []);
+    } catch(_) { return new Set(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section, w12Returning]);
+
   /* dose(name): renally-adjusted dose for THIS patient, or null when context is
      off / agent has no structured rule → caller renders the static string. */
   const dose = (name) => computeDose(name, { on: ctx.on, crcl: d.crcl });
@@ -855,14 +886,22 @@ export default function InpatientAbxGuide() {
       <GlobalScrollProgress />
       {bar}
 
-      <SectionNav section={section} onSection={(s) => {
-        setSection(s);
-        // Auto-switch to the section's first tab when the current tab
-        // doesn't belong to the picked section. Preserves the active tab
-        // when the user re-selects their current section.
-        const sec = SECTION_BY_ID[s];
-        if(sec && !sec.tabs.includes(tab)) setTab(firstTabOfSection(s));
-      }} />
+      <SectionTransitionStyles />
+      <SectionNav
+        ref={sectionNavRef}
+        section={section}
+        pulseId={w12Pulse}
+        trail={w12Trail}
+        isReturning={w12Returning}
+        visited={w12Visited}
+        onSection={(s) => {
+          /* W12 — every section click flows through navigate() so the
+             chrome (ink trail, chip pulse, View Transitions API cross-
+             fade) fires uniformly. The actual state update lives in
+             the hook's `onSectionChange` callback above so the tab
+             auto-switch + section-set still happens atomically. */
+          navigateSection(s);
+        }} />
 
       <header className="rx-header">
         <div className="rx-wrap">
@@ -907,7 +946,12 @@ export default function InpatientAbxGuide() {
       {drawerEl}
 
       <main className="rx-main">
-        <div className="rx-wrap">
+        {/* W12 · keyed wrapper — re-mounts the section's content tree
+            on every section change so the global `.rx-fade-in-up`
+            `:nth-child` cascade fires on every transition, not just
+            first paint. The `key` value is the active section id so
+            same-section tab swaps don't trigger a remount. */}
+        <div className="rx-wrap" key={section}>
           {(TABRENDER[tab] || TABRENDER.approach)()}
           <div className="rx-foot">
             <b>Inpatient Antibacterial Reference & Selection Engine.</b> Built for adult hospital medicine and board preparation. Decision support only — not a substitute for the local antibiogram, current primary guidelines, clinical pharmacy, or infectious-diseases consultation. Antibacterials only; antifungal and antiviral therapy are out of scope. Doses assume normal organ function and serious infection — verify every order. Clinical content reflects sources current to the build date and will drift; reconfirm against the live guidelines.
