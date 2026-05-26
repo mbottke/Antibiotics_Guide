@@ -137,7 +137,7 @@ const CSS = `
   .rx-reveal,.rx-reveal-fast,.rx-fade{ animation: none!important; }
   .rx-lift:hover,.rx-lift:focus-visible{ transform: none!important; }
 }
-.rx-wrap{max-width:1180px; margin:0 auto; padding:0 22px;}
+.rx-wrap{max-width:1180px; margin:0 auto; padding:0 22px; overflow-x:clip;}
 
 /* ----------------------------- HEADER + NAV ----------------------------- */
 .rx-header{position:sticky; top:0; z-index:50; background:rgba(251,250,248,.94);
