@@ -76,14 +76,6 @@ function SpecSheetHero({ kicker, headline, standfirst, watermark }) {
           the quieter "business-friendly" chord — the formulary spread is
           a working surface, not a launch surface, so the wash is softer. */}
       <MeshWash variant="full" intensity="soft" palette="cyan-blue" />
-      {watermark && (
-        <WatermarkLetter
-          letter={watermark}
-          size={240}
-          opacity={0.07}
-          position="top-right"
-        />
-      )}
       <div
         style={{
           display: "flex",

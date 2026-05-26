@@ -170,13 +170,6 @@ function SyndromesSection({
         {/* Wave 9 W9 · molten chrome behind the Syndromes hero. cyan-magenta-lime
             palette anchors this surface in the brand's most saturated chord. */}
         <MeshWash variant="full" intensity="soft" palette="cyan-magenta-lime" />
-        <WatermarkLetter
-          letter="S"
-          size={240}
-          position="top-right"
-          opacity={0.07}
-          color="var(--neon-cyan, var(--ox))"
-        />
         <div
           style={{
             display: "flex",

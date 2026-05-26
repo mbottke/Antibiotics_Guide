@@ -125,7 +125,6 @@ function W8MagazineHero({ kicker, title, standfirst, watermark = "P", counter })
       }}
     >
       <DottedGrid size={28} opacity={0.35} />
-      <WatermarkLetter letter={watermark} size={240} color={CYAN_BRIGHT} opacity={0.06} position="top-right" />
 
       <div style={{ position: "relative" }}>
         <div style={{

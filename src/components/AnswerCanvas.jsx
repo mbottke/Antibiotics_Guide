@@ -668,14 +668,6 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               opacity={0.18}
               style={{ borderRadius: 24, zIndex: 0 }}
             />
-            <WatermarkLetter
-              letter={heroWatermarkLetter}
-              size={240}
-              position="top-right"
-              opacity={0.08}
-              color="var(--neon-cyan, var(--ox))"
-              style={{ zIndex: 0 }}
-            />
             <div style={{ position: "relative", zIndex: 1 }}>
               <GradientMeshHero
                 kicker="Bedside / The Answer"
@@ -684,7 +676,6 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                 syndromeLine={s.line}
                 patientChips={patientChips}
                 onEditCase={onEditCase}
-                decorativeNumber="1"
               />
             </div>
           </div>

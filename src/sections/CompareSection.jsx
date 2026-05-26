@@ -63,14 +63,6 @@ function CinematicHead({ kicker, headline, standfirst, watermark, icon = null })
         overflow: "hidden",
       }}
     >
-      {watermark && (
-        <WatermarkLetter
-          letter={watermark}
-          size={240}
-          opacity={0.07}
-          position="top-right"
-        />
-      )}
       <div
         style={{
           display: "flex",

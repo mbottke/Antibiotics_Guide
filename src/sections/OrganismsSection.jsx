@@ -137,7 +137,6 @@ function W8FieldGuideHero({ kicker, title, standfirst, watermark = "O", counter 
           "natural history" than "lab report", so the wash leans warm. */}
       <MeshWash variant="full" intensity="soft" palette="lime-amber" />
       <DottedGrid size={28} opacity={0.35} />
-      <WatermarkLetter letter={watermark} size={240} color={CYAN_BRIGHT} opacity={0.06} position="top-right" />
       <div style={{ position: "relative" }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 10,
