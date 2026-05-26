@@ -474,7 +474,15 @@ function CompareSection({
           <table className="rx-mtx">
             <thead>
               <tr>
-                <th className="corner"><div className="cl">Agent &nbsp;&middot;&nbsp; site &rarr;</div></th>
+                <th className="corner">
+                  <div className="cl">Agent &nbsp;&middot;&nbsp; site &rarr;</div>
+                  {/* W10 · corner Σ count — agents × penetration sites */}
+                  <div aria-hidden="true" style={{
+                    fontFamily:"var(--mono)", fontSize:9, letterSpacing:".14em",
+                    textTransform:"uppercase", color:"var(--ox-bright)",
+                    fontWeight:700, padding:"0 12px 9px", opacity:.85,
+                  }}>{"Σ "}{PEN.filter(r=>!r.band).length}{"×"}{PEN_SITES.length}</div>
+                </th>
                 {PEN_SITES.map(s => (
                   <th key={s.k}><div className="rx-mtx-colh">{s.label}{s.sub?" · "+s.sub:""}</div></th>
                 ))}

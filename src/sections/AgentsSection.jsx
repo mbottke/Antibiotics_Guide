@@ -1095,7 +1095,15 @@ function AgentsSection({
         <table className="rx-mtx">
           <thead>
             <tr>
-              <th className="corner"><div className="cl">Agent &nbsp;&middot;&nbsp; toxicity &rarr;</div></th>
+              <th className="corner">
+                <div className="cl">Agent &nbsp;&middot;&nbsp; toxicity &rarr;</div>
+                {/* W10 · corner Σ count — total agents × toxicity columns */}
+                <div aria-hidden="true" style={{
+                  fontFamily:"var(--mono)", fontSize:9, letterSpacing:".14em",
+                  textTransform:"uppercase", color:"var(--ox-bright)",
+                  fontWeight:700, padding:"0 12px 9px", opacity:.85,
+                }}>{"Σ "}{SAFE.filter(r=>!r.band).length}{"×"}{TOX_COLS.length}</div>
+              </th>
               {TOX_COLS.map(c => <th key={c.k}><div className="rx-mtx-colh">{c.label}</div></th>)}
             </tr>
           </thead>

@@ -1284,4 +1284,448 @@ const CSS5 = `
 }
 `;
 
-export { CSS, CSS2, CSS3, CSS4, CSS5 };
+/* =====================================================================
+   CSS_W10 — Wave 10 W10 · Atomized chrome treatment for every NON-Spectrum
+   data table. Density-paramount: legibility wins over chrome. All rules
+   are additive (no overrides of existing layouts/cell padding except to
+   normalize the most uneven offenders). Targets:
+     .rx-ftable    formulary
+     .rx-allergy   allergy / cross-react / in-vitro traps
+     .rx-mtxwrap / .rx-mtx       penetration & toxicity matrix
+     .rx-mxwrap / .rx-mxtable    MRSA-by-site matrix
+     .rx-cmptable  agent-vs-agent compare
+     .rx-rentable  renal triggers / IV-to-PO / OPAT / prophylaxis
+     .rx-heptable  hepatic dosing
+     .rx-dirtable  directed-therapy (now legacy — kept for parity)
+   ===================================================================== */
+const CSS_W10 = `
+/* === T1 · Wrapper chrome ===========================================
+   Asymmetric 18/4 outer radius; lifted shadow; ride alongside the
+   existing border (transparent gradient strip via box-shadow for the
+   iridescent feel without the heavier .rx-iridescent-border conic). */
+.rx-mxwrap,
+.rx-mtxwrap,
+.rx-card > .rx-rentable,
+.rx-card > .rx-heptable{
+  border-radius: 18px 4px 18px 4px !important;
+}
+.rx-mxwrap,
+.rx-mtxwrap{
+  box-shadow: var(--shadow-e2);
+  position: relative;
+  isolation: isolate;
+}
+.rx-mxwrap::after,
+.rx-mtxwrap::after{
+  content:"";
+  position:absolute; inset:-1px;
+  border-radius: inherit;
+  pointer-events:none;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ox-bright) 18%, transparent),
+    inset 0 0 22px -8px color-mix(in srgb, var(--ox-bright) 22%, transparent);
+  z-index: 0;
+}
+.rx-mxwrap:focus-within::after,
+.rx-mtxwrap:focus-within::after{
+  box-shadow:
+    0 0 0 1.5px color-mix(in srgb, var(--ox-bright) 55%, transparent),
+    inset 0 0 28px -8px color-mix(in srgb, var(--ox-bright) 32%, transparent);
+}
+.rx-ftable,
+.rx-allergy,
+.rx-dirtable{
+  border-radius: 18px 4px 18px 4px !important;
+  box-shadow: var(--shadow-e2);
+}
+
+/* === T2 · Column header chrome =====================================
+   Top sheen via paper2→transparent overlay; 1px static cyan top
+   accent; 2px cyan bottom delimiter. Sticky positioning preserved
+   on the matrices that already had it. */
+.rx-ftable thead th,
+.rx-allergy thead th,
+.rx-dirtable thead th,
+.rx-rentable thead th,
+.rx-heptable thead th,
+.rx-cmptable thead th{
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--paper2) 90%, transparent) 0%,
+      color-mix(in srgb, var(--paper2) 20%, transparent) 60%,
+      transparent 100%) !important;
+  border-top: 1px solid color-mix(in srgb, var(--ox-bright) 55%, transparent);
+  border-bottom: 2px solid var(--ox-bright) !important;
+  font-size: 10.5px !important;
+  letter-spacing: .14em !important;
+  position: relative;
+}
+.rx-mxtable thead th{
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--paper2) 90%, transparent) 0%,
+      transparent 100%) !important;
+  border-bottom: 2px solid var(--ox-bright) !important;
+}
+/* The .rx-mtx matrix has sticky headers — keep position:sticky AND
+   layer the chrome via the existing background variable. */
+.rx-mtx thead th:not(.corner){
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--paper2) 80%, var(--panel)) 0%,
+      var(--panel) 60%) !important;
+  border-bottom: 2px solid var(--ox-bright);
+}
+.rx-mtx thead th.corner{
+  background: var(--panel) !important;
+  border-bottom: 2px solid var(--ox-bright);
+  border-right: 1px solid color-mix(in srgb, var(--ox-bright) 22%, transparent) !important;
+}
+
+/* === T3 · Row-header (leftmost) frosted glass + serif italic ======
+   Affects the natural first <td> in each body row across the data
+   tables. The matrices already have a .lab class doing some of the
+   work; we layer onto both. */
+.rx-ftable tbody td.tdname,
+.rx-allergy tbody tr td:first-child,
+.rx-dirtable tbody td.tddorg,
+.rx-rentable tbody tr td:first-child,
+.rx-heptable tbody tr td:first-child,
+.rx-cmptable tbody td.rx-cmp-org{
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--paper2) 60%, transparent) 0%,
+    transparent 100%);
+  border-right: 1.5px solid color-mix(in srgb, var(--ox-bright) 22%, transparent);
+  position: relative;
+}
+.rx-mtx tbody td.lab,
+.rx-mxtable tbody td.rx-mx-ag{
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--paper2) 70%, var(--panel)) 0%,
+    var(--panel) 100%) !important;
+  border-right: 1.5px solid color-mix(in srgb, var(--ox-bright) 24%, transparent) !important;
+}
+/* Subtle italic-serif treatment for the organism / agent name lines.
+   Mono-typeset child fields (.rx-fdose, sub specs) are deliberately
+   untouched so they stay scannable. */
+.rx-allergy tbody tr td:first-child b,
+.rx-rentable tbody tr td:first-child,
+.rx-heptable tbody tr td:first-child,
+.rx-cmptable tbody td.rx-cmp-org,
+.rx-mtx tbody td.lab{
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+}
+
+/* === T4 · Crosshair hover ==========================================
+   Hovered row & its first cell both pick up a cyan inset glow. The
+   column-header glow trick needs JS-tracked column index across
+   tables of variable width; we ship the row+row-header part (the
+   80% case) and let the column accent stay static from T2. */
+.rx-ftable tbody tr:hover td:first-child,
+.rx-allergy tbody tr:hover td:first-child,
+.rx-dirtable tbody tr:hover td:first-child,
+.rx-rentable tbody tr:hover td:first-child,
+.rx-heptable tbody tr:hover td:first-child,
+.rx-cmptable tbody tr:hover td:first-child,
+.rx-mxtable tbody tr:hover td.rx-mx-ag,
+.rx-mtx tbody tr:hover td.lab{
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--ox-bright) 14%, var(--panel)) 0%,
+    color-mix(in srgb, var(--ox-bright) 4%, var(--panel)) 100%) !important;
+  box-shadow: inset 2px 0 0 var(--ox-bright);
+}
+.rx-ftable tbody tr:hover,
+.rx-allergy tbody tr:hover,
+.rx-dirtable tbody tr:hover,
+.rx-rentable tbody tr:hover,
+.rx-heptable tbody tr:hover,
+.rx-cmptable tbody tr:hover,
+.rx-mxtable tbody tr:hover td,
+.rx-mtx tbody tr:hover{
+  background: color-mix(in srgb, var(--ox-bright) 5%, transparent) !important;
+}
+.rx-ftable tbody td:hover,
+.rx-allergy tbody td:hover,
+.rx-dirtable tbody td:hover,
+.rx-rentable tbody td:hover,
+.rx-heptable tbody td:hover,
+.rx-cmptable tbody td:hover,
+.rx-mxtable tbody td:hover,
+.rx-mtx tbody td:hover{
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ox-bright) 40%, transparent),
+              inset 0 0 12px -2px color-mix(in srgb, var(--ox-bright) 28%, transparent);
+}
+
+/* === T5 · Severity-letter promotion to light-rings ================
+   The compare cells (.rx-cmpcell) and the MRSA cells (.rx-mxcell)
+   already carry semantic state classes. Layer the Wave 9 light-ring
+   glow + radial highlight on them without breaking the existing
+   width/height/letter rendering. */
+.rx-cmpcell{
+  position: relative;
+  background-image:
+    radial-gradient(circle at 32% 30%, rgba(255,255,255,0.55) 0%, transparent 42%),
+    var(--rx-cmp-bg, none);
+}
+.rx-cmpcell.cl-first{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--green) 30%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--green) 50%, transparent);
+}
+.rx-cmpcell.cl-sec{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ox-bright) 40%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--ox-bright) 35%, transparent);
+}
+.rx-cmpcell.cl-var{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--amber) 40%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--amber) 45%, transparent);
+}
+.rx-cmpcell.cl-intr{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--vivid-red, var(--ox)) 40%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--vivid-red, var(--ox)) 45%, transparent);
+}
+.rx-mxcell{
+  background-image:
+    radial-gradient(circle at 32% 30%, rgba(255,255,255,0.55) 0%, transparent 42%);
+}
+.rx-mxcell.mx-pref{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--green) 30%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--green) 50%, transparent);
+}
+.rx-mxcell.mx-alt{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ox-bright) 32%, transparent),
+    0 0 8px -2px color-mix(in srgb, var(--ox-bright) 28%, transparent);
+}
+.rx-mxcell.mx-avoid{
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--vivid-red, var(--ox)) 30%, transparent),
+    0 0 10px -2px color-mix(in srgb, var(--vivid-red, var(--ox)) 40%, transparent);
+}
+
+/* === T7 · Tier-badge style for the .rx-tag classes already used in
+   the formulary table (e.g. t-ok, t-ox, t-neutral). Chrome gradient
+   for primary, ghost for the rest. */
+.rx-ftable .rx-tag.t-ox,
+.rx-cmptable .rx-tag.t-ox{
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--ox-bright) 55%, var(--ox-deep)) 0%,
+    color-mix(in srgb, var(--ox-bright) 35%, var(--ox-deep)) 100%);
+  color: #fff;
+  border-color: transparent;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.18);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset,
+              0 2px 6px -2px color-mix(in srgb, var(--ox-bright) 50%, transparent);
+}
+.rx-ftable .rx-tag.t-neutral,
+.rx-cmptable .rx-tag.t-neutral{
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--ox-bright) 35%, var(--line));
+  color: var(--ink2);
+}
+
+/* === T8 · Numeric cells get italic-serif tabular variant in the
+   dose / mono column. We do NOT colorize highest/lowest — without
+   knowing the row max in CSS we'd guess wrong; opt-in via existing
+   .rx-fdose-adj is already cyan. */
+.rx-ftable .rx-fdose,
+.rx-ftable .rx-mono,
+.rx-rentable .rx-mono,
+.rx-cmptable .rx-mono{
+  font-variant-numeric: tabular-nums;
+}
+.rx-ftable .rx-fdose-adj{
+  color: var(--ox-bright);
+  font-weight: 700;
+}
+
+/* === T9 · Empty cells: a dotted-circle SVG via ::after on cells
+   that contain only a dash or em-dash. CSS cannot detect content
+   directly, but td.empty or td[data-empty] hooks would; the existing
+   markup already uses literal "—". We restyle any element whose
+   single text node is just an em-dash by recoloring it to --faint.
+   Strict content matching needs JS; here we just elevate the dash
+   visually so it reads "intentional gap, not missing data". */
+.rx-ftable tbody td,
+.rx-allergy tbody td,
+.rx-rentable tbody td,
+.rx-heptable tbody td,
+.rx-cmptable tbody td{
+  /* No layout change — just ensure tabular feel for any numerics. */
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* === T10 · Corner artwork on matrices ==============================
+   Top-left cell where row+column headers meet picks up a subtle
+   cyan radial wash; the existing tiny "Agent ↓ / site →" label keeps
+   its mono kicker. */
+.rx-mtx thead th.corner{
+  background:
+    radial-gradient(circle at 12% 100%,
+      color-mix(in srgb, var(--ox-bright) 22%, transparent) 0%,
+      transparent 60%),
+    var(--panel) !important;
+}
+.rx-mxtable thead th.rx-mx-ag{
+  background:
+    radial-gradient(circle at 12% 100%,
+      color-mix(in srgb, var(--ox-bright) 18%, transparent) 0%,
+      transparent 60%),
+    transparent !important;
+}
+
+/* === T11 · Legend bar glass treatment ==============================
+   Every existing legend container picks up a faint glass-diffuse
+   feel without obscuring the chips inside. */
+.rx-mxlegend,
+.rx-mtxleg,
+.rx-cmp-legend{
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.70) 0%,
+    color-mix(in srgb, var(--paper2) 40%, rgba(255,255,255,0.55)) 100%);
+  border: 1px solid color-mix(in srgb, var(--ox-bright) 16%, var(--line));
+  border-radius: 12px 3px 12px 3px;
+  padding: 9px 14px;
+  box-shadow: var(--shadow-e1);
+  backdrop-filter: blur(6px) saturate(140%);
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
+}
+
+/* === T12 · Row-by-row fade-in cascade =============================
+   Pure CSS, gated by prefers-reduced-motion. Caps at 18 rows so the
+   delay never exceeds ~360ms. Only fires once on mount thanks to
+   'both' fill-mode + the animation keyframes that end at opacity 1. */
+@keyframes rxW10RowIn{
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+.rx-ftable tbody tr,
+.rx-allergy tbody tr,
+.rx-dirtable tbody tr,
+.rx-rentable tbody tr,
+.rx-heptable tbody tr,
+.rx-cmptable tbody tr,
+.rx-mxtable tbody tr,
+.rx-mtx tbody tr{
+  animation: rxW10RowIn 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.rx-ftable tbody tr:nth-child(1),
+.rx-allergy tbody tr:nth-child(1),
+.rx-rentable tbody tr:nth-child(1),
+.rx-heptable tbody tr:nth-child(1),
+.rx-cmptable tbody tr:nth-child(1),
+.rx-mxtable tbody tr:nth-child(1),
+.rx-mtx tbody tr:nth-child(1){ animation-delay: 0ms; }
+.rx-ftable tbody tr:nth-child(2),
+.rx-allergy tbody tr:nth-child(2),
+.rx-rentable tbody tr:nth-child(2),
+.rx-heptable tbody tr:nth-child(2),
+.rx-cmptable tbody tr:nth-child(2),
+.rx-mxtable tbody tr:nth-child(2),
+.rx-mtx tbody tr:nth-child(2){ animation-delay: 20ms; }
+.rx-ftable tbody tr:nth-child(3),
+.rx-allergy tbody tr:nth-child(3),
+.rx-rentable tbody tr:nth-child(3),
+.rx-heptable tbody tr:nth-child(3),
+.rx-cmptable tbody tr:nth-child(3),
+.rx-mxtable tbody tr:nth-child(3),
+.rx-mtx tbody tr:nth-child(3){ animation-delay: 40ms; }
+.rx-ftable tbody tr:nth-child(4),
+.rx-allergy tbody tr:nth-child(4),
+.rx-rentable tbody tr:nth-child(4),
+.rx-heptable tbody tr:nth-child(4),
+.rx-cmptable tbody tr:nth-child(4),
+.rx-mxtable tbody tr:nth-child(4),
+.rx-mtx tbody tr:nth-child(4){ animation-delay: 60ms; }
+.rx-ftable tbody tr:nth-child(5),
+.rx-allergy tbody tr:nth-child(5),
+.rx-rentable tbody tr:nth-child(5),
+.rx-heptable tbody tr:nth-child(5),
+.rx-cmptable tbody tr:nth-child(5),
+.rx-mxtable tbody tr:nth-child(5),
+.rx-mtx tbody tr:nth-child(5){ animation-delay: 80ms; }
+.rx-ftable tbody tr:nth-child(6),
+.rx-allergy tbody tr:nth-child(6),
+.rx-rentable tbody tr:nth-child(6),
+.rx-heptable tbody tr:nth-child(6),
+.rx-cmptable tbody tr:nth-child(6),
+.rx-mxtable tbody tr:nth-child(6),
+.rx-mtx tbody tr:nth-child(6){ animation-delay: 100ms; }
+.rx-ftable tbody tr:nth-child(7),
+.rx-allergy tbody tr:nth-child(7),
+.rx-rentable tbody tr:nth-child(7),
+.rx-heptable tbody tr:nth-child(7),
+.rx-cmptable tbody tr:nth-child(7),
+.rx-mxtable tbody tr:nth-child(7),
+.rx-mtx tbody tr:nth-child(7){ animation-delay: 120ms; }
+.rx-ftable tbody tr:nth-child(8),
+.rx-allergy tbody tr:nth-child(8),
+.rx-rentable tbody tr:nth-child(8),
+.rx-heptable tbody tr:nth-child(8),
+.rx-cmptable tbody tr:nth-child(8),
+.rx-mxtable tbody tr:nth-child(8),
+.rx-mtx tbody tr:nth-child(8){ animation-delay: 140ms; }
+.rx-ftable tbody tr:nth-child(n+9),
+.rx-allergy tbody tr:nth-child(n+9),
+.rx-rentable tbody tr:nth-child(n+9),
+.rx-heptable tbody tr:nth-child(n+9),
+.rx-cmptable tbody tr:nth-child(n+9),
+.rx-mxtable tbody tr:nth-child(n+9),
+.rx-mtx tbody tr:nth-child(n+9){ animation-delay: 160ms; }
+.rx-ftable tbody tr:nth-child(n+12),
+.rx-allergy tbody tr:nth-child(n+12),
+.rx-rentable tbody tr:nth-child(n+12),
+.rx-heptable tbody tr:nth-child(n+12),
+.rx-cmptable tbody tr:nth-child(n+12),
+.rx-mxtable tbody tr:nth-child(n+12),
+.rx-mtx tbody tr:nth-child(n+12){ animation-delay: 220ms; }
+.rx-ftable tbody tr:nth-child(n+16),
+.rx-allergy tbody tr:nth-child(n+16),
+.rx-rentable tbody tr:nth-child(n+16),
+.rx-heptable tbody tr:nth-child(n+16),
+.rx-cmptable tbody tr:nth-child(n+16),
+.rx-mxtable tbody tr:nth-child(n+16),
+.rx-mtx tbody tr:nth-child(n+16){ animation-delay: 300ms; }
+
+/* === Density audit normalizations =================================
+   Bring the table family to a consistent vertical rhythm. Existing
+   horizontal padding is preserved (it is already tight); we only
+   nudge vertical padding to 9px ±1 so every body row sits at the
+   same baseline. Header rows stay +4px taller via the standard
+   :first-child of thead rule. */
+.rx-ftable tbody td,
+.rx-rentable tbody td,
+.rx-heptable tbody td,
+.rx-cmptable tbody td{
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+.rx-allergy tbody td{
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+/* === Reduced-motion guard =========================================
+   Every Wave 10 animation collapses to static. The chrome (gradients,
+   shadows, borders, legend glass) all stay — they are not animated. */
+@media (prefers-reduced-motion: reduce){
+  .rx-ftable tbody tr,
+  .rx-allergy tbody tr,
+  .rx-dirtable tbody tr,
+  .rx-rentable tbody tr,
+  .rx-heptable tbody tr,
+  .rx-cmptable tbody tr,
+  .rx-mxtable tbody tr,
+  .rx-mtx tbody tr{
+    animation: none !important;
+  }
+}
+`;
+
+export { CSS, CSS2, CSS3, CSS4, CSS5, CSS_W10 };

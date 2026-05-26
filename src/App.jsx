@@ -11,7 +11,7 @@ import {
   Check, Plus, Zap, Soup, Flame,
   Filter, Eye, EyeOff, RotateCcw,
 } from "lucide-react";
-import { CSS, CSS2, CSS3, CSS4, CSS5 } from "./styles/app-styles";
+import { CSS, CSS2, CSS3, CSS4, CSS5, CSS_W10 } from "./styles/app-styles";
 import { KINETIC } from "./styles/kinetic-type";
 import { MICRO } from "./styles/microinteractions";
 import { GLASS } from "./styles/glass";
@@ -561,7 +561,7 @@ export default function InpatientAbxGuide() {
        inpatient + decide      → BedsideShell (Phase A/B)
        outpatient + anything   → OutpatientShell placeholder
        inpatient + reference   → the existing classic UI (falls through) */
-  const styleTag = <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS}</style>;
+  const styleTag = <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS + CSS_W10}</style>;
   const bar = (
     <SurfaceBar
       surface={surface}
@@ -700,7 +700,7 @@ export default function InpatientAbxGuide() {
   /* ============ RETURN — inpatient + reference (the classic 11-tab UI) === */
   return (
     <div className="rx-root">
-      <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS}</style>
+      <style>{CSS + CSS2 + CSS3 + CSS4 + CSS5 + KINETIC + MICRO + GLASS + CSS_W10}</style>
 
       <GlobalScrollProgress />
       {bar}
