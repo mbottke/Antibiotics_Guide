@@ -15,6 +15,7 @@ import { Section } from "../Section.jsx";
 import { RxLine } from "../RxLine.jsx";
 import { AsymmetricCard } from "../decor/AsymmetricCard.jsx";
 import { Sparkle } from "../decor/Sparkle.jsx";
+import { GradientHairline } from "../decor/GradientHairline.jsx";
 
 export const startLayer = {
   id: "ans-start",
@@ -125,6 +126,7 @@ export const startLayer = {
                 key={`${entry.kind}-${i}`}
                 pattern={pattern}
                 elevation="e0"
+                className={i === 0 ? "rx-glow-lift" : undefined}
                 style={{
                   padding: "10px 12px",
                   background: i === 0 ? "var(--ox-softer)" : "var(--paper2)",
@@ -164,19 +166,29 @@ export const startLayer = {
           })}
         </div>
         {allergy && (
-          <div style={{
-            display: "flex", gap: 9, alignItems: "flex-start",
-            padding: "10px 12px",
-            background: allergy.tone === "ox" ? "var(--ox-soft)" : "var(--amber-soft)",
-            border: `1px solid ${allergy.tone === "ox" ? "var(--ox-line)" : "var(--amber-line)"}`,
-            borderRadius: "10px 3px 10px 3px",
-            fontSize: 12,
-            color: allergy.tone === "ox" ? "var(--ox-deep)" : "var(--amber)",
-            lineHeight: 1.55, marginTop: 12,
-          }}>
-            <ShieldAlert size={14} style={{ flex: "0 0 auto", marginTop: 1 }} />
-            <div><b>{allergy.head}.</b> {allergy.body}</div>
-          </div>
+          <>
+            {/* Wave 10 — gradient hairline separates the regimen tiers from
+                the allergy callout. Without it the callout reads as another
+                tier card; the hairline tells the eye "this is metadata about
+                the regimen, not part of it." */}
+            <GradientHairline
+              variant={allergy.tone === "ox" ? "cyan-blue" : "magenta-lime"}
+              style={{ margin: "12px 0 10px" }}
+            />
+            <div style={{
+              display: "flex", gap: 9, alignItems: "flex-start",
+              padding: "10px 12px",
+              background: allergy.tone === "ox" ? "var(--ox-soft)" : "var(--amber-soft)",
+              border: `1px solid ${allergy.tone === "ox" ? "var(--ox-line)" : "var(--amber-line)"}`,
+              borderRadius: "10px 3px 10px 3px",
+              fontSize: 12,
+              color: allergy.tone === "ox" ? "var(--ox-deep)" : "var(--amber)",
+              lineHeight: 1.55,
+            }}>
+              <ShieldAlert size={14} style={{ flex: "0 0 auto", marginTop: 1 }} />
+              <div><b>{allergy.head}.</b> {allergy.body}</div>
+            </div>
+          </>
         )}
       </Section>
     );

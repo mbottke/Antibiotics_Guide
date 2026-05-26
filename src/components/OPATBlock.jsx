@@ -196,12 +196,16 @@ function OPATBlock({ opat, ctx }) {
       {matchedTotal > 0 && (
         <div style={{ marginBottom: 10, display: "flex", justifyContent: "flex-end" }}>
           <span style={{
-            display: "inline-flex", alignItems: "center", gap: 5,
+            display: "inline-flex", alignItems: "center", gap: 6,
             fontFamily: "var(--mono)", fontSize: 9, letterSpacing: ".08em",
             textTransform: "uppercase", fontWeight: 600, color: accent,
             background: accentBg, padding: "2px 7px", borderRadius: 4,
             border: "1px solid var(--ox-line)",
           }}>
+            {/* Wave 10 — cyan light-ring on the matches counter, matching
+                MonitoringBlock + DiagnosticsBlock so the entire "matched
+                for this patient" grammar speaks with one neon dot. */}
+            <span className="rx-light-ring-cyan" aria-hidden style={{ width: 8, height: 8 }} />
             {matchedTotal} {matchedTotal === 1 ? "match" : "matches"} for selection
           </span>
         </div>

@@ -416,6 +416,11 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
       aria-checked={selected}
       aria-describedby={showAllergyBanner ? `allergy-warn-${synId}-${option.text.slice(0,20).replace(/\W+/g,"-")}` : undefined}
       onClick={onSelect}
+      /* Wave 10 — rx-focus-halo lifts keyboard-focus ring to the same depth
+         cyan halo used by all interactive inputs across the canvas, plus
+         rx-glow-lift gives the selected card a subtle spring on hover.
+         Both classes are inert under reduced-motion / coarse-pointer. */
+      className={"rx-focus-halo" + (selected ? " rx-glow-lift" : "")}
       style={{
         textAlign:"left",
         background: selected
@@ -477,6 +482,9 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
               whiteSpace:"nowrap",
               boxShadow: "0 0 10px -3px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 45%, transparent)",
             }}>
+              {/* Wave 10 — Sparkle glyph on the "Recommended" chip so the
+                  badge carries the same "considered / curated" mark the
+                  drug-of-choice gloss uses elsewhere in the answer-canvas. */}
               <Sparkle size={9} color="#fff" />
               Recommended
             </span>

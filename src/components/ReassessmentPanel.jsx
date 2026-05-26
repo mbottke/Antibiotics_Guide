@@ -22,6 +22,8 @@ import { applyReassessment } from "../engines/regimen.js";
 import { ORGS, ORG_BY_ID } from "../data/organisms.js";
 import { renderRich } from "./rich-text.jsx";
 import { Section } from "./Section.jsx";
+import { NotchedBanner } from "./decor/NotchedBanner.jsx";
+import { GradientHairline } from "./decor/GradientHairline.jsx";
 
 function _bugChips(empiric) {
   // Quick-pick organisms = the syndrome's empiric `bugs` list. We show
@@ -93,9 +95,18 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
 
   return (
     <Section kicker="Current state" icon={Stethoscope} testId="reassessment-panel">
+      {/* Wave 10 — when ANY trigger has fired, the change-summary line is
+          promoted from flat italic to a NotchedBanner with the "trigger"
+          severity (amber). The notch + tile + uppercase label match the
+          "REGIMEN CHANGED" semantic exactly — the visual gravity equals
+          the clinical gravity. Zero triggers → no banner (no chrome). */}
       {r && r.activeTriggers.length > 0 && (
-        <div style={{ fontSize:11, color:"var(--ink2)", fontStyle:"italic", marginBottom: 10 }}>
-          {r.activeTriggers.length} trigger{r.activeTriggers.length === 1 ? "" : "s"} active — regimen has changed
+        <div style={{ marginBottom: 12 }}>
+          <NotchedBanner
+            severity="trigger"
+            label={`Regimen has changed · ${r.activeTriggers.length} trigger${r.activeTriggers.length === 1 ? "" : "s"} active`}
+            icon={<TrendingDown size={14} aria-hidden />}
+          />
         </div>
       )}
       <>
@@ -200,7 +211,13 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
 
         {/* ----- OUTPUT: structured delta from applyReassessment -------- */}
         {r && (
-          <div data-testid="reassessment-output" style={{ marginTop: 16, paddingTop: 14, borderTop: "1px dashed var(--line2)" }}>
+          <div data-testid="reassessment-output" style={{ marginTop: 16 }}>
+            {/* Wave 10 — gradient hairline replaces the flat dashed top
+                border. The cyan-blue gradient knot signals "below this
+                line, the system has computed what's different" — same
+                separator vocabulary the rest of the answer-canvas uses
+                between question and answer phases. */}
+            <GradientHairline variant="cyan-blue" withDot style={{ margin: "0 0 14px" }} />
             <div style={{
               fontFamily:"var(--mono)", fontSize:10, letterSpacing:".12em",
               textTransform:"uppercase", color:"var(--ox-deep)", fontWeight:700,
@@ -210,12 +227,16 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
               <span>What changes today</span>
             </div>
 
+            {/* Wave 10 — NARROW TO panel picks up the rx-glass-bleed inner
+                cyan glow + outer halo so the post-cultures "this is the
+                directed regimen" reads with the headline-panel chrome
+                used by Monitoring + Duration headlines elsewhere. */}
             {r.directed && (
-              <div style={{
+              <div className="rx-glass-bleed" style={{
                 padding:"10px 12px", background:"var(--ox-softer)", border:"1px solid var(--ox-line)",
-                borderRadius:8, marginBottom:8,
+                borderRadius:8, marginBottom:8, position: "relative",
               }}>
-                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5, position: "relative", zIndex: 2 }}>
                   <Crosshair size={12} color="var(--ox)"/>
                   <span style={{ fontSize:11.5, fontWeight:700, color:"var(--ox-deep)", letterSpacing:".02em" }}>NARROW TO</span>
                   <button type="button" onClick={() => onOrg && onOrg(r.cultures.organism)}
@@ -226,17 +247,17 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
                     <Bug size={10} style={{ verticalAlign:"-1px", marginRight:3 }}/> {r.cultures.label}
                   </button>
                 </div>
-                <div style={{ fontSize:13, color:"var(--ink)", lineHeight:1.55, fontWeight:600 }}>
+                <div style={{ fontSize:13, color:"var(--ink)", lineHeight:1.55, fontWeight:600, position: "relative", zIndex: 2 }}>
                   {renderRich(r.directed.first, onDrug)}
                 </div>
                 {r.directed.alt && (
-                  <div style={{ fontSize:12, color:"var(--ink2)", marginTop:4 }}>
+                  <div style={{ fontSize:12, color:"var(--ink2)", marginTop:4, position: "relative", zIndex: 2 }}>
                     <span style={{ fontFamily:"var(--mono)", fontSize:9.5, letterSpacing:".08em", textTransform:"uppercase", color:"var(--muted)", marginRight:6 }}>ALT</span>
                     {renderRich(r.directed.alt, onDrug)}
                   </div>
                 )}
                 {r.directed.cav && (
-                  <div style={{ fontSize:11.5, color:"var(--muted)", marginTop:5, lineHeight:1.5, fontStyle:"italic" }}>
+                  <div style={{ fontSize:11.5, color:"var(--muted)", marginTop:5, lineHeight:1.5, fontStyle:"italic", position: "relative", zIndex: 2 }}>
                     <AlertTriangle size={10} style={{ verticalAlign:"-1px", marginRight:4 }}/>
                     {r.directed.cav}
                   </div>

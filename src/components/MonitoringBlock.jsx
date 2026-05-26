@@ -142,27 +142,36 @@ function MonitoringBlock({ monitoring, pickedAgents = [], pickedBranch, ctx }) {
       {matchedCount > 0 && (
         <div style={{ marginBottom: headline || items.length ? 10 : 0, display:"flex", justifyContent:"flex-end" }}>
           <span style={{
-            display:"inline-flex", alignItems:"center", gap:5,
+            display:"inline-flex", alignItems:"center", gap:6,
             fontFamily:"var(--mono)", fontSize:9, letterSpacing:".08em",
             textTransform:"uppercase", fontWeight:600, color: accent,
             background: accentBg, padding:"2px 7px", borderRadius:4,
             border:"1px solid var(--ox-line)",
           }}>
+            {/* Wave 10 — cyan light-ring announces "live filter is active"
+                with the same neon-dot vocabulary the rest of the canvas
+                uses for severity tier dots. Reduced-motion drops the ring's
+                pulse; the dot stays visible. */}
+            <span className="rx-light-ring-cyan" aria-hidden style={{ width: 8, height: 8 }} />
             {matchedCount} {matchedCount === 1 ? "match" : "matches"} for selection
           </span>
         </div>
       )}
 
-      {/* Headline */}
+      {/* Headline — Wave 10: rx-glass-bleed adds the inner cyan edge-light
+          on the headline panel so the bottom-line monitoring directive
+          carries the same frosted-glass register as the rest of the
+          Wave 9 surfaces. The headline keeps its accent background; the
+          bleed is additive (only the inner edge picks up the cyan glow). */}
       {headline && (
-        <div style={{
+        <div className="rx-glass-bleed" style={{
           background: accentBg,
           border: "1px solid var(--ox-line)",
           borderRadius: 7,
           padding: "8px 11px",
           marginBottom: items.length ? 12 : 0,
         }}>
-          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600 }}>
+          <div style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink)", fontWeight: 600, position: "relative", zIndex: 2 }}>
             <RichText text={headline} accentColor={accent} />
           </div>
         </div>

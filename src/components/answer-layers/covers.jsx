@@ -80,15 +80,20 @@ export const coversLayer = {
             color: "var(--vivid-red, var(--red))", fontWeight: 700,
             display: "flex", flexDirection: "column", gap: 6,
           }}>
+            {/* Wave 10 — promote the flag glyph from a flat sparkle to the
+                neon light-ring severity dot. The pulsing red ring carries
+                the same hard-stop visual weight as a required-severity
+                row, which is the correct register for an MRSA / ESBL flag
+                (it CHANGES the regimen, it doesn't decorate it). */}
             {ans.ctx.mrsaRisk && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Sparkle size={11} color="var(--vivid-red, var(--red))" />
+                <span className="rx-light-ring-red" aria-hidden />
                 MRSA flag
               </span>
             )}
             {ans.ctx.esblRisk && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Sparkle size={11} color="var(--vivid-red, var(--red))" />
+                <span className="rx-light-ring-red" aria-hidden />
                 ESBL / R-GNR flag
               </span>
             )}
