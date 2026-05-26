@@ -25,6 +25,110 @@ import { TREE_ICON } from "../data/ui-maps";
 import { EVOLVING, REFS, DURATIONS, DUR_MAX, DUR_BY_DX, CLOCK } from "../data/evidence";
 import { SYNDROMES } from "../data/syndromes";
 
+/* ============================================================
+   Wave 7 W7-B · cinematic section header tokens (with fallbacks)
+   Shared design language across Syndromes / Agents / Compare /
+   Principles / Organisms reference sections. Tokens reference
+   var(--ox) and friends from styles/tokens.css; the explicit
+   fallbacks here keep the surface rendering correctly if a
+   future token rename lands ahead of this section.
+   ============================================================ */
+const W7_NEON   = "var(--w7-neon, var(--ox-bright, #9B2D2F))";
+const W7_KICKER = "var(--w7-kicker, var(--muted, #6E675E))";
+const W7_LINE   = "var(--w7-hairline, var(--ox-line, #E2C7C4))";
+const W7_GLASS_BG     = "var(--w7-glass-bg, rgba(255, 255, 255, 0.72))";
+const W7_GLASS_BORDER = "var(--w7-glass-border, var(--line, #E6E0D8))";
+const W7_GLASS_SHADOW = "var(--w7-glass-shadow, 0 2px 8px rgba(15, 23, 42, 0.04), 0 12px 32px -16px rgba(15, 23, 42, 0.10))";
+
+/* Cinematic kicker + display headline + italic byline + gradient hairline.
+   Used at the top of each sub-panel. */
+function W7SectionHead({ kicker, title, lede }) {
+  return (
+    <header style={{ margin: "0 0 28px", position: "relative" }}>
+      <div style={{
+        display: "inline-flex", alignItems: "center", gap: 10,
+        fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.18em",
+        textTransform: "uppercase", color: W7_KICKER, marginBottom: 14,
+      }}>
+        <span aria-hidden="true" style={{
+          display: "inline-block", width: 6, height: 6, borderRadius: 999,
+          background: W7_NEON,
+          boxShadow: `0 0 0 3px ${W7_NEON}22, 0 0 12px ${W7_NEON}55`,
+        }}/>
+        {kicker}
+        <span aria-hidden="true" style={{ opacity: 0.55, fontSize: 9 }}>✦</span>
+      </div>
+      <h2 className="rx-h2" style={{
+        fontFamily: "var(--serif)", fontSize: "clamp(32px, 4.4vw, 48px)",
+        lineHeight: 1.04, letterSpacing: "-0.015em", margin: "0 0 14px",
+        color: "var(--ink)",
+      }}>{title}</h2>
+      {lede && (
+        <p className="rx-lede" style={{
+          fontFamily: "var(--serif)", fontStyle: "italic",
+          fontSize: 17, lineHeight: 1.55, color: "var(--ink2)",
+          margin: "0 0 18px", maxWidth: "70ch",
+        }}>{lede}</p>
+      )}
+      <div aria-hidden="true" style={{
+        height: 1, width: "100%",
+        background: `linear-gradient(90deg, ${W7_NEON} 0%, ${W7_LINE} 38%, transparent 100%)`,
+        marginTop: 4,
+      }}/>
+    </header>
+  );
+}
+
+/* Sub-section heading: small kicker line + serif sub-headline.
+   The gradient hairline above echoes the section head. */
+function W7SubHead({ icon, kicker, title }) {
+  return (
+    <div style={{ margin: "32px 0 14px" }}>
+      <div aria-hidden="true" style={{
+        height: 1, width: "100%",
+        background: `linear-gradient(90deg, ${W7_NEON}, ${W7_LINE} 32%, transparent 70%)`,
+        marginBottom: 14,
+      }}/>
+      <div style={{
+        display: "inline-flex", alignItems: "center", gap: 8,
+        fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.16em",
+        textTransform: "uppercase", color: W7_KICKER, marginBottom: 6,
+      }}>
+        {kicker}
+      </div>
+      <h3 className="rx-h3" style={{
+        fontFamily: "var(--serif)", fontSize: "clamp(22px, 2.4vw, 28px)",
+        lineHeight: 1.18, letterSpacing: "-0.01em", margin: 0,
+        display: "flex", alignItems: "center", gap: 10, color: "var(--ink)",
+      }}>
+        {icon && <span className="ic" style={{ color: W7_NEON }}>{icon}</span>}
+        {title}
+      </h3>
+    </div>
+  );
+}
+
+/* Glass-style container with asymmetric radii — a soft-elevation
+   panel used to host decision trees, sepsis flow, and similar
+   visually prominent blocks. */
+function W7Glass({ children, flip = false, style = {}, ...rest }) {
+  const radii = flip
+    ? { borderRadius: "4px 16px 4px 16px" }
+    : { borderRadius: "16px 4px 16px 4px" };
+  return (
+    <div style={{
+      background: W7_GLASS_BG,
+      backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
+      border: `1px solid ${W7_GLASS_BORDER}`,
+      boxShadow: W7_GLASS_SHADOW,
+      padding: 20,
+      ...radii,
+      ...style,
+    }} {...rest}>{children}</div>
+  );
+}
+
 function PrinciplesSection({
   activeTab,            // "approach" | "course" | "adjuncts" — controlled by App's sub-nav
   setTab,               // handler to switch sub-tab (kept for signature symmetry)
@@ -34,8 +138,11 @@ function PrinciplesSection({
   /* ============ PANEL: APPROACH ============ */
   const approachPanel = (
     <>
-      <h2 className="rx-h2">Principles of empiric antibacterial therapy</h2>
-      <p className="rx-lede">Empiric therapy is a structured wager under uncertainty: cover the plausible pathogens broadly enough to be safe, then narrow that breadth as rapidly as the data permit. The reasoning sequence proceeds from site and host to spectrum — never the reverse.</p>
+      <W7SectionHead
+        kicker="PRINCIPLES"
+        title="Empiric principles"
+        lede="The reasoning sequence behind every regimen on this page — from sepsis recognition to allergy delabeling, OPAT eligibility, and the iv-to-PO switch criteria."
+      />
       <SectionDisc />
 
       <div className="rx-quick">
@@ -44,8 +151,9 @@ function PrinciplesSection({
         <div className="rx-qc"><div className="k"><TrendingDown size={13}/> De-escalation is standard</div><div className="b">Narrowing to the single most targeted agent does <b>not</b> compromise outcomes; it reduces resistance selection, toxicity, and <i>C. difficile</i> risk.</div></div>
       </div>
 
-      <h3 className="rx-h3"><span className="ic"><ListChecks size={18}/></span>The empiric reasoning sequence</h3>
+      <W7SubHead kicker="SEQUENCE · 01" icon={<ListChecks size={18}/>} title="The empiric reasoning sequence" />
       <p className="rx-stepb" style={{margin:"0 0 16px"}}>Seven questions, addressed in order. Each constrains the next: the anatomic source predicts the flora, the flora and host define the spectrum, and the spectrum and site determine the agent and its dose.</p>
+      <W7Glass style={{ padding: 20, margin: "0 0 8px" }}>
       <div className="rx-spine">
         {[
           ["Is this infection, and is it severe?","Distinguish infection from colonization and from non-infectious inflammation. Establish whether sepsis or septic shock is present, as this sets both the urgency and the required breadth. Obtain cultures before antibiotics whenever doing so will not delay therapy in shock."],
@@ -63,8 +171,10 @@ function PrinciplesSection({
           </div>
         ))}
       </div>
+      </W7Glass>
 
-      <h3 className="rx-h3"><span className="ic"><Activity size={18}/></span>Sepsis and septic shock: the first-hour sequence</h3>
+      <W7SubHead kicker="SEQUENCE · 02" icon={<Activity size={18}/>} title="Sepsis and septic shock: the first-hour sequence" />
+      <W7Glass flip style={{ padding: 18, margin: "0 0 8px" }}>
       <div className="rx-tflow" tabIndex={0} role="group" aria-label="Sepsis first-hour sequence (scrollable)">
         {SEPSIS_FLOW.map((s,i) => (
           <div className="rx-tflow-step" key={i}>
@@ -76,8 +186,9 @@ function PrinciplesSection({
           </div>
         ))}
       </div>
+      </W7Glass>
 
-      <h3 className="rx-h3"><span className="ic"><GitBranch size={18}/></span>Indications to broaden or to withhold coverage</h3>
+      <W7SubHead kicker="DECISION" icon={<GitBranch size={18}/>} title="Indications to broaden or to withhold coverage" />
       <div className="rx-trig">
         <div className="rx-card rx-trigcard">
           <h4><span className="ic"><Plus size={15}/></span>Broaden coverage when</h4>
@@ -99,7 +210,7 @@ function PrinciplesSection({
         </div>
       </div>
 
-      <h3 className="rx-h3"><span className="ic"><Layers size={18}/></span>Core decision algorithms</h3>
+      <W7SubHead kicker="ALGORITHMS" icon={<Layers size={18}/>} title="Core decision algorithms" />
       <p className="rx-stepb" style={{margin:"0 0 12px"}}>Four high-frequency decisions, each reducible to a single pivotal branch. Use the summary below for rapid reference; the full algorithm follows.</p>
       <div className="rx-algindex">
         {TREES.map(tree => {
@@ -113,12 +224,13 @@ function PrinciplesSection({
           );
         })}
       </div>
-      {TREES.map(tree => {
+      {TREES.map((tree, idx) => {
         const TI = TREE_ICON[tree.icon] || GitBranch;
         return (
           <div key={tree.id} id={"alg-" + tree.id} style={{margin:"0 0 18px", scrollMarginTop:"16px"}}>
-            <h4 className="rx-h4"><span className="ic"><TI size={15}/></span>{tree.title}</h4>
+            <h4 className="rx-h4"><span className="ic" style={{ color: W7_NEON }}><TI size={15}/></span>{tree.title}</h4>
             <p className="rx-stepb" style={{margin:"0 0 10px"}}>{tree.intro}</p>
+            <W7Glass flip={idx % 2 === 1} style={{ padding: 16 }}>
             <div className="rx-tree">
               {tree.nodes.map((node,ni) => (
                 <div className="rx-tnode" key={ni}>
@@ -135,6 +247,7 @@ function PrinciplesSection({
                 </div>
               ))}
             </div>
+            </W7Glass>
           </div>
         );
       })}
@@ -146,10 +259,13 @@ function PrinciplesSection({
   /* ============ PANEL: COURSE ============ */
   const coursePanel = (
     <>
-      <h2 className="rx-h2">Duration, de-escalation, and step-down</h2>
-      <p className="rx-lede">Evidence-based courses are shorter than traditional practice, with most durations now defined by randomized trials. Fix the duration at the outset, start the clock at the appropriate moment, and convert to oral therapy once the criteria are met.</p>
+      <W7SectionHead
+        kicker="PRINCIPLES · COURSE"
+        title="Duration, de-escalation, and step-down"
+        lede="Evidence-based courses are shorter than traditional practice, with most durations now defined by randomized trials. Fix the duration at the outset, start the clock at the appropriate moment, and convert to oral therapy once the criteria are met."
+      />
 
-      <h3 className="rx-h3"><span className="ic"><Clock size={18}/></span>Evidence-based durations</h3>
+      <W7SubHead kicker="DURATION" icon={<Clock size={18}/>} title="Evidence-based durations" />
       <div className="rx-card" style={{padding:0,overflow:"hidden"}}>
         <table className="rx-durtable">
           <thead><tr><th>Indication</th><th style={{width:170}}>Course</th><th>Days</th><th>Evidence</th></tr></thead>
@@ -184,7 +300,7 @@ function PrinciplesSection({
         <IVtoPO onDrug={openDrug} />
       </div>
 
-      <h3 className="rx-h3"><span className="ic"><TrendingDown size={18}/></span>De-escalation discipline</h3>
+      <W7SubHead kicker="NARROW" icon={<TrendingDown size={18}/>} title="De-escalation discipline" />
       <div className="rx-card rx-mini">
         <ul>
           <li><b>Reassess at 48–72 h in every patient.</b> Cultures and clinical trajectory drive the narrowing decision at a scheduled review.</li>
@@ -195,7 +311,7 @@ function PrinciplesSection({
         </ul>
       </div>
 
-      <h3 className="rx-h3"><span className="ic"><Hospital size={18}/></span>Outpatient parenteral antimicrobial therapy</h3>
+      <W7SubHead kicker="OPAT" icon={<Hospital size={18}/>} title="Outpatient parenteral antimicrobial therapy" />
       <p className="rx-lede" style={{marginBottom:10}}>{OPAT.intro}</p>
       <div className="rx-2col">
         <div className="rx-card rx-mini">
@@ -211,7 +327,7 @@ function PrinciplesSection({
       </div>
       <div className="rx-callout"><Info size={15}/><span>{OPAT.oral}</span></div>
 
-      <h3 className="rx-h3"><span className="ic"><ArrowRight size={18}/></span>Intravenous-to-oral conversion: bioavailability as the determinant</h3>
+      <W7SubHead kicker="IV → PO" icon={<ArrowRight size={18}/>} title="Intravenous-to-oral conversion: bioavailability as the determinant" />
       <p className="rx-lede" style={{maxWidth:"82ch"}}>
         The instinct to keep a stable patient on IV antibiotics is rarely justified. Several oral agents achieve
         serum levels indistinguishable from IV; for these, switching once the patient is improving shortens length of
@@ -263,10 +379,13 @@ function PrinciplesSection({
   /* ============ PANEL: ADJUNCTS & EVIDENCE ============ */
   const adjunctsPanel = (
     <>
-      <h2 className="rx-h2">Adjuncts & evidence</h2>
-      <p className="rx-lede">Surgical prophylaxis (prevention, not treatment), the explicit scope boundary of this reference, and the primary sources behind every recommendation.</p>
+      <W7SectionHead
+        kicker="PRINCIPLES · ADJUNCTS"
+        title="Adjuncts & evidence"
+        lede="Surgical prophylaxis (prevention, not treatment), the explicit scope boundary of this reference, and the primary sources behind every recommendation."
+      />
 
-      <h3 className="rx-h3"><span className="ic"><Scissors size={18}/></span>Surgical antimicrobial prophylaxis</h3>
+      <W7SubHead kicker="PROPHYLAXIS" icon={<Scissors size={18}/>} title="Surgical antimicrobial prophylaxis" />
       <p className="rx-lede" style={{marginBottom:10}}>{PROPHYLAXIS.intro}</p>
       <div className="rx-2col" style={{marginBottom:16}}>
         <div className="rx-card rx-mini">
@@ -281,7 +400,7 @@ function PrinciplesSection({
         </div>
       </div>
 
-      <h3 className="rx-h3"><span className="ic"><Layers size={18}/></span>Scope of this reference</h3>
+      <W7SubHead kicker="SCOPE" icon={<Layers size={18}/>} title="Scope of this reference" />
       <div className="rx-2col">
         <div className="rx-card rx-mini">
           <h4><span className="ic"><Check size={15}/></span>In scope</h4>
@@ -304,7 +423,7 @@ function PrinciplesSection({
       </div>
       <div className="rx-callout"><Info size={15}/><span>Where a regimen above references an antifungal (empiric candidemia coverage in sepsis, neutropenic enterocolitis, persistent febrile neutropenia), the pointer is intentional — the agent and dose live in the antifungal reference.</span></div>
 
-      <h3 className="rx-h3"><span className="ic"><TrendingDown size={18}/></span>What&rsquo;s changing</h3>
+      <W7SubHead kicker="EVOLVING" icon={<TrendingDown size={18}/>} title="What's changing" />
       <p className="rx-lede" style={{marginBottom:10}}>Fronts where the evidence is actively moving — flagged so the guidance above is read with its half-life in mind.</p>
       <div className="rx-evolve">
         {EVOLVING.map((e,i)=>(
@@ -316,7 +435,7 @@ function PrinciplesSection({
         ))}
       </div>
 
-      <h3 className="rx-h3"><span className="ic"><BookOpen size={18}/></span>Primary sources</h3>
+      <W7SubHead kicker="REFERENCES" icon={<BookOpen size={18}/>} title="Primary sources" />
       <div className="rx-card" style={{padding:"4px 4px"}}>
         <table className="rx-reftable">
           <tbody>
@@ -334,7 +453,7 @@ function PrinciplesSection({
         </table>
       </div>
 
-      <h3 className="rx-h3"><span className="ic"><Plus size={18}/></span>Combination therapy: established synergy versus unsupported use</h3>
+      <W7SubHead kicker="COMBINATION" icon={<Plus size={18}/>} title="Combination therapy: established synergy versus unsupported use" />
       <p className="rx-lede" style={{maxWidth:"82ch"}}>
         Adding a second agent is justified by a specific mechanism &mdash; documented synergy, guaranteeing one active
         drug against a resistant organism before susceptibilities return, or toxin suppression. Continued reflexively
