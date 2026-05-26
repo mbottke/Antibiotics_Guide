@@ -29,7 +29,7 @@ import {
 } from "../data/syndromeDecision.js";
 import { LAYERS } from "./answer-layers/_index.js";
 import { MechanismDrawer } from "./MechanismDrawer.jsx";
-import { EditorialHero } from "./EditorialHero.jsx";
+import { GradientMeshHero } from "./GradientMeshHero.jsx";
 
 /* ---------- the canvas itself ---------- */
 function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCite, antibiogram, onOpenAntibiogramManager }) {
@@ -328,11 +328,11 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
 
   return (
     <div style={{ marginTop: 6 }}>
-      <EditorialHero
+      <GradientMeshHero
+        kicker="Bedside / The Answer"
         syndromeName={s.name}
         syndromeLine={s.line}
         patientChips={patientChips}
-        riskLabels={riskLabels}
         onEditCase={onEditCase}
       />
 

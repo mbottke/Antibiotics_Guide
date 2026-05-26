@@ -14,6 +14,9 @@ import { SettingsModal } from "./SettingsModal.jsx";
 import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay.jsx";
 import { OnboardingModal } from "./OnboardingModal.jsx";
 import { BrandMark } from "./BrandMark.jsx";
+import { DensityToggle } from "./DensityToggle.jsx";
+import { ScrollHeader } from "./ScrollHeader.jsx";
+import { useDensity } from "./util/useDensity.js";
 import { SYNDROMES } from "../data/syndromes.js";
 
 function _synName(id) {
@@ -56,6 +59,8 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
 
   const synName = _synName(caseState.syndrome);
 
+  useDensity();
+
   return (
     <div className="rx-root rx-bedside">
       {/* Phase D2 responsive container: stays narrow on mobile/tablet
@@ -69,7 +74,8 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
         maxWidth: "min(96vw, 1480px)",
         margin: "0 auto",
       }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18, gap: 12, flexWrap: "wrap" }}>
+        <ScrollHeader style={{ marginBottom: 18 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", gap: 12, flexWrap: "wrap" }}>
           <button
             type="button"
             onClick={onExit}
@@ -105,6 +111,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
               </button>
             )}
             <FontSizeControl />
+            <DensityToggle />
             <button
               type="button"
               onClick={() => setSettingsOpen(true)}
@@ -125,6 +132,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
             <BrandMark size="small" subtitle="Bedside · Decision support" />
           </div>
         </div>
+        </ScrollHeader>
 
         {/* Three states:
             INITIAL — no syndrome yet → full-width "Build the case" intro
