@@ -18,9 +18,17 @@
 
      • `index` + `total`  — drive a "01 / 17" mono counter pinned
                             top-right of the section header, beside
-                            the kicker. Also feeds the giant italic-
-                            serif numeral decoration (rendered behind
-                            the panel, top-right, very low opacity).
+                            the kicker. (Wave 9 W9 removed the giant
+                            italic-serif numeral watermark that used
+                            to also derive from `index`; see `artwork`
+                            below for the new corner decoration.)
+     • `artwork`          — replaces the old giant numeral. One of
+                            "mesh" | "orb" | "chrome-curl" | "prism" |
+                            "blank" (default). When non-blank, renders
+                            a 140-160px SectionArtwork in the top-right
+                            corner that picks up the same molten-chrome
+                            / mesh / iridescent vocabulary as the
+                            bedside GradientMeshHero.
      • `rail`             — vertical 90deg-rotated mono-uppercase
                             label running up the left edge of the
                             section ("COVERAGE", "DURATION", ...).
@@ -61,6 +69,7 @@
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
 import { SectionGlyph } from "./SectionGlyph.jsx";
+import { SectionArtwork } from "./decor/SectionArtwork.jsx";
 
 /* Accent palette — one per `accent` prop value. The `glow` token is
    pulled from the Wave 6 / Wave 7 neon glow ramp with a soft fall-back
@@ -115,10 +124,14 @@ function Section({
   aside,
   decor,
   flatPanel = false,
+  // Wave 9 W9 · SectionArtwork slot — replaces the old giant italic
+  // numeral watermark. Default "blank" renders nothing so existing
+  // call sites stay visually unchanged. Consumers opt in with
+  // artwork="mesh" | "orb" | "chrome-curl" | "prism".
+  artwork = "blank",
 }) {
   const palette = ACCENT[accent] || ACCENT.cyan;
   const counterText = (pad2(index) && pad2(total)) ? `${pad2(index)} / ${pad2(total)}` : null;
-  const numeralText = pad2(index);
 
   /* The header strip: rail label sits on the absolute left margin;
      icon tile + kicker (or kinetic display) + glyph + counter sit
@@ -171,33 +184,13 @@ function Section({
         </span>
       )}
 
-      {/* Decorative section numeral — a giant italic-serif 01/02/03 anchored
-          top-right BEHIND the panel. Pure ornament; aria-hidden + pointer-
-          events:none keeps it out of the a11y tree. Only rendered when the
-          consumer passed `index` so unrelated calls are unchanged. */}
-      {numeralText && (
-        <span
-          aria-hidden="true"
-          data-section-numeral={numeralText}
-          style={{
-            position: "absolute",
-            top: -40,
-            right: -20,
-            fontFamily: "var(--serif)",
-            fontStyle: "italic",
-            fontWeight: 700,
-            fontSize: 240,
-            lineHeight: 0.85,
-            color: "var(--ox-soft)",
-            opacity: 0.5,
-            pointerEvents: "none",
-            userSelect: "none",
-            zIndex: 0,
-          }}
-        >
-          {numeralText}
-        </span>
-      )}
+      {/* Wave 9 W9 · SectionArtwork slot — replaces the old 240px italic-
+          serif numeral watermark that used to anchor top-right. The
+          new primitive carries the molten-chrome / mesh / iridescent
+          DNA of the bedside GradientMeshHero in a 140-160px corner
+          flourish. Pointer-events:none + aria-hidden + z-index:0 keep
+          it decorative. Default artwork="blank" renders nothing. */}
+      <SectionArtwork variant={artwork} accent={accent} />
 
       {/* HEADER STRIP --------------------------------------------------- */}
       <div style={{

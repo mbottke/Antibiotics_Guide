@@ -24,6 +24,7 @@ export const pearlsLayer = {
         id="ans-pearls"
         rail="PEARLS"
         accent="lime"
+        artwork="mesh"
         index={_layerIndex}
         total={_layerTotal}
       >

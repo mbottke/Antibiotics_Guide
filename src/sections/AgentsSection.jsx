@@ -647,26 +647,10 @@ function AgentsSection({
                     transition: "transform .18s ease, box-shadow .18s ease",
                   }}
                 >
-                  {/* W8-A7 — 200px italic numeral in the corner */}
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      right: -10,
-                      bottom: -50,
-                      fontFamily: "var(--serif)",
-                      fontStyle: "italic",
-                      fontSize: 200,
-                      fontWeight: 700,
-                      lineHeight: 1,
-                      color: "var(--neon-cyan, var(--ox))",
-                      opacity: 0.06,
-                      pointerEvents: "none",
-                      userSelect: "none",
-                    }}
-                  >
-                    {idxNum}
-                  </span>
+                  {/* Wave 9 W9 · removed the per-class 200px italic corner
+                      numeral. The page hero "A" watermark already
+                      carries the editorial signature; per-class
+                      numerals were magazine-cliche. */}
 
                   {/* W8-A4 · class header — mono kicker + italic-serif name + cyan accent bar */}
                   <div

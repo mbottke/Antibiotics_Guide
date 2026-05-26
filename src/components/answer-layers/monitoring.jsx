@@ -64,6 +64,7 @@ export const monitoringLayer = {
         id="ans-monitoring"
         rail="MONITORING"
         accent="cyan"
+        artwork="mesh"
         index={_layerIndex}
         total={_layerTotal}
         split={!!aside}

@@ -27,6 +27,7 @@ export const deescLayer = {
         id="ans-deesc"
         rail="DE-ESCALATION"
         accent="cyan"
+        artwork="mesh"
         index={_layerIndex}
         total={_layerTotal}
       >

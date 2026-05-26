@@ -77,6 +77,7 @@ export const durationLayer = {
         id="ans-duration"
         rail="DURATION"
         accent="cyan"
+        artwork="mesh"
         index={_layerIndex}
         total={_layerTotal}
         split

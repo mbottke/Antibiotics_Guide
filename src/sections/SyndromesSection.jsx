@@ -878,33 +878,15 @@ function SyndromesSection({
                     marginBottom: 56,
                   }}
                 >
-                  {/* ============================================
-                      BLOCK 7 · SECTION DECORATIVE NUMERAL
-                      A 200px italic numeral floats top-right of every
-                      category section at 0.4 opacity over an --ox-soft
-                      colour. Reads as section structure without
-                      competing with the syndrome cards below.
-                      ============================================ */}
-                  <span
-                    aria-hidden
-                    style={{
-                      position: "absolute",
-                      top: -16,
-                      right: -8,
-                      fontFamily: "var(--serif)",
-                      fontStyle: "italic",
-                      fontWeight: 700,
-                      fontSize: 200,
-                      lineHeight: 1,
-                      color: "var(--ox-soft, var(--neon-cyan-soft))",
-                      opacity: 0.4,
-                      pointerEvents: "none",
-                      userSelect: "none",
-                      zIndex: 0,
-                    }}
-                  >
-                    {pad2(catIdx + 1)}
-                  </span>
+                  {/* Wave 9 W9 · removed the per-category 200px italic
+                      numeral watermark. The page hero "S" watermark
+                      stays as the spread's editorial signature; the
+                      per-category numerals were magazine-cliche and
+                      muted the actual subhead beneath. If we want a
+                      corner flourish here later, drop in a
+                      <SectionArtwork variant="mesh" /> with position
+                      adjustments — but right now the kicker + lede
+                      carries the section structure clearly enough. */}
 
                   {richHead ? (
                     /* ====== BLOCK 5 · CATEGORY SECTION HEAD ======

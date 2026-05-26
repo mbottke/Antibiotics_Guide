@@ -106,6 +106,7 @@ export const coversLayer = {
         id="ans-covers"
         rail="COVERAGE"
         accent="cyan"
+        artwork="mesh"
         index={_layerIndex}
         total={_layerTotal}
         split

@@ -111,6 +111,7 @@ export const startLayer = {
         id="ans-start"
         rail="START NOW"
         accent="cyan"
+        artwork="mesh"
         index={_layerIndex}
         total={_layerTotal}
         split={!!aside}
