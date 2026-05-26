@@ -2,15 +2,20 @@
 
 Inpatient Antibacterial Reference & Selection Engine for adult hospital medicine —
 empiric regimen assembly, context-driven refinement, organism-directed
-de-escalation, the spectrum matrix, and patient-specific dosing.
+de-escalation, the 49×49 spectrum matrix, patient-specific dosing, and a bedside
+answer canvas with snapshot-only course updates.
 
 > **Decision support only.** Not a substitute for the local antibiogram, current
 > primary guidelines, clinical pharmacy, or infectious-diseases consultation.
 > Antibacterials only. Verify every order.
 
 This repository is the build-tooled home for what was previously a single ~7,500-line
-artifact. It is being migrated in phases (see [Roadmap](#roadmap)); **Phases 1–4 are
-complete. Wave 5 is in flight** — see [Wave 5 status](#wave-5--bedside-reframe-in-flight).
+artifact. Phases 1–4 (build / tokens / module split / CI) and Wave 5 (bedside
+reframe + content stewardship) are merged. Waves 6 → 10 layered a comprehensive
+visual + interaction overhaul on top — neon-cyan reframe, magazine typography,
+mesh-gradient heroes, chrome + frosted-glass utilities, cursor-driven 3D motion,
+asymmetric card geometry, and atomized polish across every surface. **Wave 11** is
+in flight on `claude/upbeat-maxwell-Zv3On` (PR #140).
 
 ---
 
@@ -22,7 +27,10 @@ npm run dev        # Vite dev server (regenerates tokens first)
 npm run build      # production build to dist/  (regenerates tokens first)
 npm run preview    # serve the production build
 npm run tokens     # regenerate src/styles/tokens.css from tokens/tokens.json
-npm run typecheck  # tsc --noEmit (checks .tsx/.ts; App.jsx is allowJs, unchecked)
+npm run typecheck  # tsc --noEmit (strict on .ts/.tsx; App.jsx is allowJs, unchecked)
+npm run test       # Vitest — unit + integrity + RTL (no browser, ~20s)
+npm run test:e2e   # Playwright — render + a11y vs production build
+npm run verify     # the full gate chain CI runs
 ```
 
 Requires Node 18+.
@@ -33,100 +41,266 @@ Requires Node 18+.
 
 ```
 inpatient-abx-guide/
-├── index.html                  # Vite entry; loads fonts via <link>
+├── index.html                      # Vite entry; loads Lora / DM Sans / IBM Plex Mono via <link>
 ├── vite.config.ts
-├── tsconfig.json               # allowJs:true, checkJs:false (incremental TS)
+├── tsconfig.json                   # allowJs:true, checkJs:false (incremental TS)
 ├── tsconfig.node.json
 ├── tokens/
-│   └── tokens.json             # ← SINGLE SOURCE OF TRUTH for the design system
+│   └── tokens.json                 # ← SINGLE SOURCE OF TRUTH for the design system
 ├── scripts/
-│   └── build-tokens.mjs        # tokens.json → src/styles/tokens.css
+│   └── build-tokens.mjs            # tokens.json → src/styles/tokens.css
 └── src/
-    ├── main.tsx                # imports tokens.css, mounts <App/>
-    ├── App.jsx                 # root — composes every layer, injects styles, owns app state
+    ├── main.tsx                    # imports tokens.css, mounts <App/>
+    ├── App.jsx                     # root — composes every layer, injects styles, owns app state
     ├── lib/
-    │   └── util.js             # pure string/token/route helpers — DAG layer 0
-    ├── data/                   # pure tables (import lib + lucide only)
-    │   ├── organisms.js        #   organisms, resistance, MRSA/GNR matrices, compare
-    │   ├── drugs.js            #   formulary, classes/aliases, penetration, tox, interactions
-    │   ├── dosing.js           #   renal/weight/hepatic/HD tables + adjustment metadata
-    │   ├── syndromes.js        #   syndrome defs, categories, source-control, directed therapy
-    │   ├── evidence.js         #   guidelines, refs, trials, durations, version
-    │   ├── content.js          #   allergy, special pops, prophylaxis, OPAT, trees, glossary
-    │   ├── risk-keywords.js    #   host/resistance risk patterns for the selector
-    │   └── ui-maps.js          #   icon maps + tab definitions
-    ├── engines/                # pure logic (import lib + data + spectrum) — browser-free testable
-    │   ├── dosing.js           #   dose computation + renal/hepatic/weight derivation
-    │   ├── lookup.js           #   knowledge-graph lookups (drug↔monograph, organism, spectrum)
-    │   ├── regimen.js          #   empiric assembly, refinement, organism-directed de-escalation
-    │   ├── clinical.js         #   penetration, allergy, interactions, evidence, class/glossary
-    │   └── integrity.js        #   referential self-check — shared by App (console) + CI (gate)
-    ├── components/             # JSX (import lib + data + engines + react/lucide)
-    │   ├── primitives.jsx      #   Num, Cite, Drawer, dose-adjust bar, Child-Pugh scorer, …
-    │   ├── rich-text.jsx       #   drug-class + glossary inline popover renderers
-    │   └── cards.jsx           #   regimen, drug, organism, trial, IV→PO, compare cards
+    │   └── util.js                 # pure string/token/route helpers — DAG layer 0
+    ├── data/                       # pure tables (import lib + lucide only)
+    │   ├── organisms.js            #   organisms, resistance, MRSA/GNR matrices, compare
+    │   ├── drugs.js                #   formulary, classes/aliases, penetration, tox, interactions
+    │   ├── dosing.js               #   renal/weight/hepatic/HD tables + adjustment metadata
+    │   ├── syndromes/              #   per-syndrome content modules + _index aggregator (Wave 5 PR-1/2)
+    │   ├── syndromeDecision.js     #   decision content (duration, monitoring, rationale, objections)
+    │   ├── regimenContent.js       #   empiric prose + tiers per syndrome
+    │   ├── diagnostics.js          #   diagnostic stewardship per syndrome (Wave 5 PR-6)
+    │   ├── mechanisms.js           #   class + resistance mechanism content (Wave 5 PR-7)
+    │   ├── opatDecision.js         #   OPAT eligibility / access / agents per syndrome (Wave 5 PR-8)
+    │   ├── evidence.js             #   guidelines, refs, trials, durations, version
+    │   ├── content.js              #   allergy, special pops, prophylaxis, OPAT (legacy), trees, glossary
+    │   ├── risk-keywords.js        #   host/resistance risk patterns for the selector
+    │   ├── combinedRisks.js        #   risk synthesis for the answer canvas
+    │   ├── regionalResistance.js / novelAgents.js / surgeProtocols.js / sitePenetration.js / pedsPregDosing.js
+    │   ├── sections.js             #   5-section IA registry (Syndromes / Agents / Organisms / Compare / Principles)
+    │   └── ui-maps.js              #   icon maps + tab definitions
+    ├── engines/                    # pure logic (import lib + data + spectrum) — browser-free testable
+    │   ├── dosing.js               #   dose computation + renal/hepatic/weight derivation
+    │   ├── lookup.js               #   knowledge-graph lookups (drug↔monograph, organism, spectrum)
+    │   ├── regimen.js              #   empiric assembly, refineOnNewFinding, organism-directed de-escalation
+    │   ├── regimenCompare.js       #   four-dimensional symmetric regimen vs regimen diff (Wave 5 PR-5b)
+    │   ├── regimenOptions.js       #   multi-option presentation + microbiome sort
+    │   ├── case-parser.js          #   free-text → caseState parser w/ DRUG_RX_UNION (Wave 5 PR-5c)
+    │   ├── ctxMatch.js             #   matchCtx predicate evaluator (every "matched X" elevation)
+    │   ├── clinical.js             #   penetration, allergy, interactions, evidence, class/glossary
+    │   ├── integrity.js            #   referential self-check — shared by App (console) + CI (gate)
+    │   └── antibiogramStore.js     #   localStorage CRUD for BYO antibiograms (Wave 4)
+    ├── sections/                   # the 5-section reference IA (each is a magazine spread)
+    │   ├── SyndromesSection.jsx    #   editorial gallery — 3-up grid, sticky filter rail, KPI tiles
+    │   ├── AgentsSection.jsx       #   Apple-style spec sheet — formulary / dose / safety
+    │   ├── OrganismsSection.jsx    #   field-guide — taxonomic rail + directed therapy + MRSA/GNR
+    │   ├── CompareSection.jsx      #   spectrum / penetration / mechanisms / regimens compare
+    │   └── PrinciplesSection.jsx   #   magazine essay — approach / course / adjuncts
+    ├── components/                 # JSX (import lib + data + engines + react/lucide)
+    │   ├── AnswerCanvas.jsx        #   bedside answer surface — Wave 5 PR-3 layer registry + Wave 8 W8-A reframe
+    │   ├── answer-layers/          #   18+ layer modules (covers / start / deesc / duration / monitoring / opat / pkpd / diagnostics / pearls / reasoning / research / objections / novel / surge / peds-preg / regional / microbiome / antibiogram / mechanism)
+    │   ├── BedsideShell.jsx        #   bedside surface — ChromeBand wrapper, density toggle, settings
+    │   ├── OutpatientShell.jsx     #   placeholder (Wave 11)
+    │   ├── SurfaceBar.jsx          #   inpatient ↔ outpatient × reference ↔ decide
+    │   ├── SectionNav.jsx          #   5-section nav chip rail (cyan progress strip)
+    │   ├── ScrollHeader.jsx        #   sticky chrome band — frosts on scroll + 2px gradient progress
+    │   ├── GlobalScrollProgress.jsx #  viewport-fixed scroll progress bar
+    │   ├── BrandMark.jsx           #   gradient compass + cyan halo + pixel-grid backdrop
+    │   ├── DensityToggle.jsx       #   compact / comfortable / spacious chrome pill
+    │   ├── FontSizeControl.jsx     #   glass track + italic-serif % display
+    │   ├── CaseBar.jsx             #   structured + free-text case input (chrome shell)
+    │   ├── PatientContextStrip.jsx #   horizontal patient-context chip rail
+    │   ├── ReassessmentPanel.jsx   #   "Current state" snapshot — what changed today
+    │   ├── RegimenOptions.jsx      #   multi-option presentation w/ microbiome chips + tilt
+    │   ├── AntibiogramBlock.jsx    #   per-syndrome %S overlay
+    │   ├── AntibiogramManager.jsx  #   chrome shell editor for BYO antibiograms
+    │   ├── DiagnosticsBlock.jsx / OPATBlock / PkPdBlock / MonitoringBlock / DurationBlock / ReasoningTraceBlock / ResearchBlock / RegionalResistanceBlock / NovelAgentsBlock / SurgeProtocolsBlock / PedsPregBlock / CombinedRisksBlock / ObjectionsBlock / MechanismBlock / EmptySection
+    │   ├── MechanismDrawer.jsx     #   drawer w/ glass-card body — summary / keypoints / bedside / foundational / papers
+    │   ├── DecisionAttributionDrawer.jsx # stepped numeral cards — trace the refinement chain
+    │   ├── SettingsModal.jsx       #   glass modal — typography / microbiome sort / shortcuts
+    │   ├── KeyboardShortcutsOverlay.jsx # `?` glass overlay — grouped chrome key chips
+    │   ├── OnboardingModal.jsx     #   first-visit 3-step welcome (SpotlightCard tilt)
+    │   ├── Section.jsx             #   shared section chrome (kicker / icon tile / counter / rail / artwork / split aside / decorative numeral)
+    │   ├── SectionGlyph.jsx        #   SVG fleurons (decorative editorial marks)
+    │   ├── FootMark.jsx            #   refinement footnote marker (opens DecisionAttributionDrawer)
+    │   ├── RxLine.jsx              #   regimen line w/ dose chips + chrome FootMark
+    │   ├── decor/                  #   decorative primitives
+    │   │   ├── GradientHairline.jsx   #   1px cyan→magenta→lime divider, 4 variants
+    │   │   ├── AsymmetricCard.jsx     #   18/4 vs 4/18 alternating corner pattern
+    │   │   ├── DottedGrid.jsx         #   ambient dot grid backdrop
+    │   │   ├── Stripes.jsx            #   diagonal accent stripe overlay (cyan / magenta / lime / neutral)
+    │   │   ├── Sparkle.jsx            #   4-point sparkle SVG — drug-of-choice / special markers
+    │   │   ├── WatermarkLetter.jsx    #   oversized italic-serif letter (decorative; removed from heroes in W9)
+    │   │   ├── GradientMeshHero.jsx   #   5-blob drifting mesh gradient + glass-fog scrim
+    │   │   ├── MeshWash.jsx           #   reusable mesh-wash backdrop (full / band / corner / ambient) × 4 palettes
+    │   │   ├── SectionArtwork.jsx     #   140-160px corner decoration (mesh / orb / chrome-curl / prism / blank)
+    │   │   ├── NotchedBanner.jsx      #   clipped-corner severity banner (required / trigger / consider / stable / info)
+    │   │   ├── StickySubTOC.jsx       #   sticky sub-table-of-contents (pill row or vertical rail)
+    │   │   ├── SpotlightCard.jsx      #   wrapper — cursor highlight + tilt
+    │   │   └── MiniTOC.jsx            #   right-rail mini TOC (IntersectionObserver-tracked, future page-rail)
+    │   ├── util/                   #   small composable hooks
+    │   │   ├── useDensity.js          #   data-density attr on documentElement (localStorage)
+    │   │   ├── useScrollProgress.js   #   rAF-coalesced scroll listener (returns {scrolled, progress})
+    │   │   ├── useCursorHighlight.js  #   cursor-following CSS-var spotlight (--cursor-x/y/-active)
+    │   │   ├── useMagnetic.js         #   gentle cursor pull on element
+    │   │   ├── useRipple.js           #   pointer-down expand effect
+    │   │   ├── useTilt.js             #   cursor-driven 3D perspective tilt
+    │   │   ├── useParallaxScroll.js   #   z-axis parallax on scroll
+    │   │   ├── useReducedMotion.js    #   prefers-reduced-motion media-query hook
+    │   │   ├── useFocusTrap.js        #   WCAG 2.4.3 focus trap for drawers/modals
+    │   │   ├── richText.jsx           #   parseBold + RichText shared primitives
+    │   │   └── severityStyle.js       #   shared severity → token mapping
+    │   ├── primitives.jsx          #   Num, Cite, Ev, BugTag, PDot, ToxDot, CardCopyButton, Drawer (legacy), DoseAdjustBar, ChildPughScorer, SectionDisc
+    │   ├── rich-text.jsx           #   ClassChip + TermChip popovers (drug class + resistance terms → mechanism drawer)
+    │   └── cards.jsx               #   regimen, drug, organism, trial, IV→PO, MrsaCell, CmpCell, SpectrumCompare
     ├── spectrum/
-    │   └── Spectrum.jsx        # self-contained antibiogram matrix (data + chart + styles, IIFE)
+    │   └── Spectrum.jsx            #   49×49 antibiogram matrix (self-contained IIFE — data + chart + chrome)
     └── styles/
-        ├── tokens.css          # GENERATED — do not hand-edit
-        └── app-styles.js       # app CSS strings injected by the root (.rx-root scope)
+        ├── tokens.css              # GENERATED — do not hand-edit
+        ├── app-styles.js           # CSS / CSS2 / CSS3 / CSS4 / CSS5 / CSS_W10 — base app stylesheet
+        ├── kinetic-type.js         # KINETIC — display / counter / numeric-mega / weight-shift / mixed-pair / letter-reveal / dropcap-cyan
+        ├── microinteractions.js    # MICRO — rx-magnetic / rx-gradient-border / rx-shine-sweep / rx-ripple / rx-glow-trail / rx-fade-in-up
+        └── glass.js                # GLASS (W9) — rx-glass-bleed / rx-iridescent-border / rx-chrome-cta / rx-mercury-backdrop / rx-glass-diffuse / rx-light-ring-* / rx-glow-lift / rx-gloss / rx-focus-halo
 
-tests/                         # Vitest — pure engine + integrity suites (no browser)
-e2e/                           # Playwright — render + a11y gates (vs the production build)
-.github/workflows/ci.yml       # CI: typecheck + unit/integrity, then render + a11y
-vitest.config.ts               # node environment
-playwright.config.ts           # builds + previews dist, single chromium project
+tests/                              # Vitest — unit + integrity + audit + RTL (61 files, 4829 tests, ~20s)
+e2e/                                # Playwright — render + a11y vs production build (desktop Chromium)
+.github/workflows/ci.yml            # CI: typecheck + unit/integrity + build + e2e
+vitest.config.ts                    # node environment; jsdom opt-in per-file via docblock
+playwright.config.ts                # builds + previews dist, single chromium project (mobile pruned in #139)
 ```
 
-### The module graph (Phase 3)
+### The module graph
 
-What was a single 7,469-line `App.jsx` is now 19 modules on a strict dependency DAG —
-`lib → data → engines → components → root`. **`lib`** depends on nothing; **`data`**
-imports only `lib` (+ `lucide`); **`engines`** import `lib`+`data`+`spectrum` and contain
-**no JSX** (the clinical logic — dose math, lookups, assembly, de-escalation — now
-unit/snapshot-testable without a browser); **`components`** import everything below them;
-**`App.jsx`** composes the graph. `spectrum/Spectrum.jsx` was already a self-contained
-IIFE and was lifted out whole. The split used an AST-driven extractor (TypeScript
-compiler API) that moved exact symbol spans and auto-wired imports/exports, re-running the
-full integrity + render gate after every module.
+`lib → data → engines → components/sections → root`. **`lib`** depends on nothing;
+**`data`** imports only `lib` (+ `lucide`); **`engines`** import `lib`+`data`+`spectrum`
+and contain **no JSX** (the clinical logic — dose math, lookups, assembly,
+refinement, regimen compare, case parsing — is unit/snapshot-testable without a
+browser); **`components` + `sections`** import everything below them;
+**`App.jsx`** composes the graph. `spectrum/Spectrum.jsx` is a self-contained IIFE.
 
-### The design-token system (Phase 2)
+`decor/` and `util/` are leaf modules under `components/`: they import React /
+lucide / `tokens` only, no business logic. Every animation hook respects
+`prefers-reduced-motion`; every cursor-driven hook also no-ops on `pointer: coarse`.
 
-The Bottke Clinical Design System (Brand Kit B — oxblood) was previously defined
-**twice** as inline CSS custom properties: once on `.rx-root` (main app) and once on
-`.sx-root` (the spectrum module, which additionally carried `--star-soft` and the
-seven `--sg-*` supergroup tints). Two copies meant silent-drift risk.
+The split used an AST-driven extractor (TypeScript compiler API) that moved exact
+symbol spans and auto-wired imports/exports, re-running the full integrity +
+render gate after every module.
 
-Now there is one source — [`tokens/tokens.json`](tokens/tokens.json) — and a build
-step that emits every token onto `:root`:
+---
 
-```
-tokens/tokens.json  ──(scripts/build-tokens.mjs)──▶  src/styles/tokens.css  ──(import)──▶  :root
-```
+## Design system — the aesthetic vocabulary
 
-- The CSS variable name is each token's **leaf key verbatim** (`ox-deep` → `--ox-deep`),
-  so the existing variable contract is preserved exactly. Group nesting in the JSON is
-  for human organisation only.
-- The build **errors** on a missing `$value` or any duplicate variable name — the guard
-  that makes a single source enforceable.
-- `.rx-root` / `.sx-root` keep their *applied* base styles (font-family, colour,
-  background); they no longer declare tokens. Both inherit from `:root`.
+The original Brand Kit B (oxblood maroon) was repainted at the token layer in
+Wave 7 W7-B. Variable names were preserved — every component consuming `var(--ox)`
+keeps working — but values now resolve to a modern editorial graphite + neon-cyan
+palette. The contract holds; the brand reads differently.
 
-To change a colour or font: edit `tokens.json`, run `npm run tokens` (or any `npm run
-dev`/`build`, which do it for you), commit both files.
+### Color tokens (138 total — see `tokens/tokens.json`)
 
-> **Migration was verified** by diffing the computed value of all 44 variables on both
-> `.rx-root` and `.sx-root` against the pre-migration build: **zero regressions** across
-> 26 colours × 2 scopes, the 15 spectrum extras, and the 3 font stacks. (The `.sx-root`
-> serif/mono fallback stacks were intentionally unified to match `.rx-root` — a no-op
-> unless the primary webfont fails to load.)
+**Neutral cascade** (cool slate, replaces warm-cream):
+- `--paper` `#FAFAFC` · `--paper2` `#F2F3F7` · `--panel` `#FFFFFF`
+- `--ink` `#0B0F14` · `--ink2` `#2E3440` · `--muted` `#5F6473` · `--faint` `#9499A8`
+- `--line` `#E2E5EC` · `--line2` `#EDEFF4` · `--line3` `#F6F7FA`
 
-### Incremental TypeScript
+**Primary accent (`--ox*` — repainted in W7-B)**:
+- `--ox` `#1F2937` (deep graphite/slate, 12:1 on paper)
+- `--ox-deep` `#0B0F14` (near-black for emphasis)
+- `--ox-bright` `#00D4FF` (true neon cyan — decorative role)
+- `--ox-soft` `#E5F8FC` (cyan wash) · `--ox-softer` `#F4FBFD` · `--ox-line` `#B8E2EE`
 
-`App.jsx` is admitted via `allowJs` and **not** type-checked yet (`checkJs: false`).
-New files (`main.tsx`, and everything extracted in Phase 3) are fully checked under
-`strict`. The build itself uses esbuild (via Vite) and does not gate on types; run
-`npm run typecheck` to check explicitly.
+**Neon family** (W7-A — the everywhere "look-here" palette):
+- `--neon-cyan` `#00D4FF` + `-soft` / `-line` / `-glow`
+- `--electric-blue` `#3D7AFF` + `-soft` / `-line` (evidence / trials)
+- `--hot-magenta` `#FF3DBC` + `-soft` / `-line` (special / edge-case)
+- `--electric-lime` `#86CC1F` + `-soft` / `-line` (stable / IV→PO eligible)
+- `--neon-amber` `#FFB627` + `-soft` / `-line` (trigger / caution)
+- `--vivid-red` `#FF3358` + `-soft` / `-line` / `-glow` (required / hard-stop)
+
+**Mesh anchors** (W7-A — radial-gradient stops for `GradientMeshHero` + `MeshWash`):
+- `--mesh-cyan-anchor` · `--mesh-blue-anchor` · `--mesh-magenta-anchor` · `--mesh-lime-anchor`
+
+**Chrome / steel** (W9 — for chrome-CTA gradients):
+- `--steel-light` `#D6DBE3` · `--steel-mid` `#8D95A3` · `--steel-dark` `#3B4252`
+- `--gloss-top` (iOS-icon top wash) · `--mercury-ripple-a/-b/-c` (drifting modal layers)
+
+**Semantic** (preserved for clinical content channels):
+- `--decision-{start,adjusted,avoid,pending}` · `--evidence-blue` · `--consider-ochre` · `--stable-sage`
+- `--amber` `#D97706` (crisp) · `--green` `#10B981` (emerald) · `--blue` `#3B82F6` (electric) · `--red` `#B91C1C` (hard-stop)
+- `--sg-*` supergroup tints (gram-positive / Enterobacterales / non-fermenters / fastidious / anaerobes / atypicals / spirochetes)
+
+**Shadows + glows**:
+- `--shadow-e0` (hairline) → `--shadow-e7` (deepest, with cyan-tinted halo)
+- `--shadow-drawer` · `--shadow-glow-ox` (cyan focus ring + outer halo)
+
+**Motion**:
+- `--duration-fast` (120ms) · `--duration-base` (180ms) · `--duration-slow` (320ms)
+- `--ease-out` (cubic-bezier(0.16, 1, 0.3, 1)) · `--ease-in-out`
+
+**Spacing** (W6-B density grid):
+- `--block-pad` (14px 16px) · `--block-pad-tight` (9px 11px)
+- `--block-gap` (12px) · `--block-gap-tight` (6px)
+
+**Fonts**:
+- `--serif` Lora (display + italic standfirsts)
+- `--sans` DM Sans (body)
+- `--mono` IBM Plex Mono (numerals + uppercase labels)
+
+### Stylesheet modules
+
+Five inline-CSS blocks (`CSS` / `CSS2` / `CSS3` / `CSS4` / `CSS5` / `CSS_W10` in
+`app-styles.js`) carry the base app stylesheet — typography ramp (`.rx-display` /
+`.rx-h1`–`.rx-h4` / `.rx-lede` / `.rx-eyebrow`), card primitives (`.rx-card` with
+18/4 asymmetric corners + auto cyan accent strip + hover lift), accordions,
+decision-tree nodes, data tables, decision-tag tiles, etc. Every primitive picks
+up a fade-in-up cascade with `:nth-child` stagger.
+
+Three companion modules layer on top:
+
+- **`KINETIC`** (`kinetic-type.js`) — magazine type vocabulary: `.rx-display-mega`
+  (84px), `.rx-display-xl` (64px), `.rx-display-l` (48px), `.rx-numeric-mega`
+  (italic-serif tabular-numerics, cyan), `.rx-counter` / `.rx-counter-strong`,
+  `.rx-mixed-pair`, `.rx-weight-shift`, `.rx-letter-reveal`, `.rx-underline-accent`,
+  `.rx-dropcap-cyan`.
+- **`MICRO`** (`microinteractions.js`) — motion primitives: `.rx-magnetic`,
+  `.rx-gradient-border`, `.rx-shine-sweep`, `.rx-ripple` (+ `.rx-ripple-fx`),
+  `.rx-glow-trail`, `.rx-fade-in-up`.
+- **`GLASS`** (`glass.js` — W9) — chrome physics: `.rx-glass-bleed` (inner edge cyan
+  glow on frosted panels), `.rx-iridescent-border` (hue-rotating gradient ring),
+  `.rx-chrome-cta` (metallic gradient pill with shimmer sweep + ripple),
+  `.rx-mercury-backdrop` (drifting modal scrim), `.rx-glass-diffuse` (heavy frosted
+  panel), `.rx-light-ring-{red,amber,cyan}` (neon severity dots), `.rx-glow-lift`
+  (spring-overshoot hover with cyan glow trail), `.rx-gloss` (iOS-icon top sheen),
+  `.rx-focus-halo` (cyan focus + 24px halo + 36px outer ring).
+
+All animations respect `prefers-reduced-motion: reduce` via global `@media` rules.
+
+### Decor primitives (`src/components/decor/`)
+
+Composable visual pieces that consume the design system without owning state:
+
+- **`GradientHairline`** — 1px cyan-magenta-lime divider; 4 variants; replaces flat 1px borders
+- **`Sparkle`** — 4-point neon star; canonical drug-of-choice / "considered" marker
+- **`DottedGrid`** — 1px @ low-alpha radial-gradient backdrop
+- **`Stripes`** — diagonal `repeating-linear-gradient` accent (cyan / magenta / lime / neutral)
+- **`AsymmetricCard`** — wrapper with `tl-br` / `tr-bl` / `all-soft` radius patterns
+- **`GradientMeshHero`** — 5-blob drifting mesh + glass-fog scrim + glassmorphic chips (bedside hero)
+- **`MeshWash`** — reusable mesh backdrop (full / band / corner / ambient × cyan-magenta-lime / cyan-blue / lime-amber / cyan-only)
+- **`SectionArtwork`** — 140-160px corner decoration (mesh / orb / chrome-curl / prism / blank); replaced the giant italic numerals removed in W9
+- **`NotchedBanner`** — clipped-corner severity banner with iridescent border + cyan glow (required / trigger / consider / stable / info)
+- **`SpotlightCard`** — wraps `useCursorHighlight` + `useTilt` for cursor-driven 3D lift
+- **`StickySubTOC`** — IntersectionObserver-tracked sub-section TOC (pill row or rotated rail)
+- **`MiniTOC`** — sticky right-rail TOC; primitive shipped, future page-rail integration
+
+### Interaction physics
+
+The bedside surface (and every `.rx-card-interactive`) auto-picks-up:
+
+- **Cursor spotlight** — a single global delegated `mousemove` listener in `App.jsx`
+  walks `closest('.rx-card-interactive')` and writes `--cursor-x/y/-active` CSS vars.
+  CSS `::after` radial-gradient on each card renders the spotlight. Gated by
+  reduced-motion + coarse-pointer.
+- **Magnetic CTAs** — rAF-coalesced `mousemove` applies up to 8px pull to every
+  `.rx-cta-glow` within an 80px radius.
+- **Tilt** — `useTilt` hook on `GradientMeshHero` + `RegimenOptions` cards; cursor
+  position drives `perspective(1000px) rotate3d(...)` with `transform-style:
+  preserve-3d`. Pointer-driven mesh-blob shift on the hero (blobs move ±6%
+  opposite the cursor).
+- **Parallax** — `useParallaxScroll` on `WatermarkLetter` for editorial drop-caps
+  that drift on scroll.
+- **Scroll progress** — viewport-top 2px cyan→blue→magenta gradient strip; the
+  bedside spine bar's frosted-glass intensifies as the user scrolls past it.
 
 ---
 
@@ -138,222 +312,148 @@ New files (`main.tsx`, and everything extracted in Phase 3) are fully checked un
 | **2 — Tokens** | Consolidate the duplicated token blocks into `tokens.json` → `build-tokens.mjs` → `tokens.css` | ✅ done |
 | **3 — Split** | Extract `lib/` + `data/` → `engines/` → `components/` (strict DAG) | ✅ done |
 | **4 — CI** | `integrity` · `render` · `a11y` gates on every push/PR | ✅ done |
-| **Wave 5 — Bedside reframe** | Snapshot consult, layered depth, content stewardship, multi-agent authoring | 🟦 in flight |
+| **Wave 5 — Bedside reframe** | Per-syndrome modules · Answer Canvas layer registry · refinement engine · diagnostics / OPAT / mechanisms / pkpd / microbiome / regimen compare · RTL harness · closeout | ✅ merged |
+| **Wave 6 W6-D — First-impression** | Onboarding modal · keyboard-shortcuts overlay · settings modal | ✅ merged |
+| **Wave 6 W6-B — Visual leap** | Typography ramp · semantic palette · paper-texture · cursor-highlight · section glyphs · brand-mark · editorial hero · context strip · 7-agent aesthetic integration | ✅ merged |
+| **Wave 7 W7-A — Neon reframe** | 11-agent deployment · kinetic typography · gradient mesh hero · scroll header · density toggle · mini-TOC · decor primitives · motion microinteractions · all section refreshes | ✅ merged (#138) |
+| **Wave 7 W7-B — Token repaint** | `--ox*` → graphite + cyan · paper/ink/line cool-neutral · amber/green/blue electric · shadow ramp + cyan glow | ✅ merged (#140 foundation) |
+| **Wave 8 — Magazine rewrites** | 5-agent · Answer Canvas reframe (vertical rail + KINETIC + 65/35 splits) · Syndromes editorial gallery · Agents spec-sheet · Compare VS layout · Principles + Organisms magazine · chrome / drawers / modals | 🟦 PR #140 |
+| **Wave 9 — Chrome physics + cursor 3D** | 5-agent · SectionArtwork primitive (removes literal numeral watermarks) · GLASS module (edge-bleed / iridescent borders / chrome CTAs / mercury backdrops / light-rings) · cursor-spotlight + tilt + parallax · MeshWash adoption · NotchedBanner + StickySubTOC + spectrum overhaul · hero watermark cleanup | 🟦 PR #140 |
+| **Wave 10 — Atomized polish** | 7-agent · answer-layer adoption · chips + tags + badges · forms + inputs · data tables · drawer / modal internals · empty states + density audit · section internals | 🟦 PR #140 |
+| **Wave 11 — Polish continuation** | Typography + spacing rationalization · neglected surfaces · interaction-state consistency · iconography sweep | 🟦 in flight |
 
-**Phase 3** is complete: the monolith is now 19 modules on the `lib → data → engines →
-components → root` DAG. Each layer was extracted and verified green independently. The
-highest-leverage win is realised — `engines/` is pure and JSX-free, so the
-regimen-refinement, de-escalation, and dosing outputs are now **snapshot-testable without
-a browser**, and a data edit that changes a clinical recommendation will surface as a
-reviewable diff in the PR.
-
-**Phase 4** is complete: the three checks used by hand during development now run in CI
-(`.github/workflows/ci.yml`) and locally via `npm run verify`. See [Testing](#testing).
+The Wave 5 PR ledger (~30 individual PRs covering per-syndrome modules + content
+tranches + RTL + closeout) is preserved verbatim in the git history; this README
+summarizes by phase.
 
 ---
 
-## Wave 5 — bedside reframe (in flight)
+## What "Wave 7 → Wave 10" actually changed
 
-Wave 5 closes the qualitative gaps that the prior phases could not: a **snapshot
-consult** (no saved state, no longitudinal chart), **depth on demand** (drill from a
-chip into the mechanism / trial / regional resistance behind it), **graded evidence**,
-**ad-hoc course updates** that merge ephemerally into the Answer Canvas, and tighter
-cross-section navigation. The cardinal constraint is **snapshot-only**: refinement
-patches live in component state, never `caseState`, never the URL hash, never
-localStorage.
+The user-facing surface looks fundamentally different from the Phase 4 baseline:
 
-### Status snapshot
+**Color** — every place that used oxblood maroon now reads as deep graphite slate
+with neon-cyan accents. The literal token names didn't change (`--ox*` are still
+the universal accent contract) so 59 components × 196 occurrences flipped with a
+single token-layer repaint. Paper / ink / line went from warm-cream to
+cool-neutral. Amber (`#8A5A12` → `#D97706`), green (`#2F5D3A` → `#10B981`), blue
+(`#2B4C66` → `#3B82F6`) all moved to crisp electric variants.
 
-| PR | Title | State |
-|----|-------|-------|
-| #92 | PR-1 · per-syndrome content sentinels (cystitis / cap / sepsis) | ✅ merged |
-| #93 | PR-2 · mass migration of remaining 103 syndromes to per-file modules | ✅ merged |
-| #94 | PR-3 · `AnswerCanvas` layer registry (Stage 0 → 1 → 2; 18 layer modules) | ✅ merged |
-| #95 | PR-4 · `FORMULARY` pkpd / timeToEffect / cdiffScore / mdrPressure / kinetics | ✅ merged |
-| #96 | PR-5a · `composeAnswer(currentRegimen)` + `refineOnNewFinding` engine | ✅ merged |
-| #97 | PR-5b · `regimenCompare` four-dimensional symmetric diff | ✅ merged |
-| #98 | PR-5c · `case-parser` `DRUG_RX_UNION` + `currentRegimen` / `findings` + 50-utterance corpus | ✅ merged |
-| #99 | PR-6a · diagnostics-stewardship foundation + 10 sentinel syndromes | ✅ merged |
-| #100 | PR-6b · diagnostics aggregator refactor (multi-author scaffold) | ✅ merged |
-| #101–105 | PR-6c–f · diagnostics tranches B + C + D + E (~98 syndromes) | ✅ merged |
-| #103 | PR-7a · mechanisms foundation + `MechanismDrawer` + 7 sentinels | ✅ merged |
-| #106 | PR-8a · OPAT foundation + `OPATBlock` + 8 sentinel profiles | ✅ merged |
-| #107 | PR-9 · `PkPdBlock` visualization layer | ✅ merged |
-| #108 | PR-10 · microbiome chips + opt-in collateral-damage sort | ✅ merged |
-| #110 | PR-13 · Regimens compare sub-tab (cross-cutting paths) | ✅ merged |
-| #111 | PR-13c · Agent filter bar (spectrum + microbiome chips) | ✅ merged |
-| #109 | PR-14 · `DecisionAttributionDrawer` — trace this decision | ✅ merged |
-| #112 | PR-11 · React Testing Library harness (RTL + jsdom) | ✅ merged |
-| #114 | R3 · sentinel refresh + audit-gate strengthening + new tests | ✅ merged |
-| #115 | R2 expanded · shared utils + WCAG focus trap across 6 components | ✅ merged |
-| #116 | R4 · OPAT RTL tests + mechanism alias audit + OPAT route audit | ✅ merged |
-| #117 | R5 · README refresh + MechanismDrawer + PkPdBlock RTL | ✅ merged |
-| #118 | CL-1 · CSS tokens (`--red*`/`--scrim`/`--shadow-drawer`) + parseBold sweep + 4 RTL sentinels | ✅ merged |
-| #119 | CL-2 · legacy OPAT demotion + integrity gate | ✅ merged |
-| #120 | CL-3 · `MechanismDrawer` wiring (ClassChip + TermChip → drawer) | ✅ merged |
-| #121 | CL-4 · `SettingsModal` + microbiome-sort UI toggle | ✅ merged |
-| #122 | CL-5 · PR-12 layer-group tab strip (Core/Risks/Duration/Local/Special/Evidence) | ✅ merged |
-| #123 | CL-6 M-3 · 10 resistance-mechanism entries (OXA-48/23/58, CTX-M-15, PBP2x, mosaic PBP, vanB/D, lipid II, transpeptidation) | ✅ merged |
-| #124 | CL-7 O-1 · 3 endovascular OPAT profiles (mycotic-aneurysm, device-vascular, persistent-mrsa) | ✅ merged |
-| #125 | CL-6 M-1 · 9 β-lactam family drug-class mechanisms | ✅ merged |
-| #126 | CL-7 O-2 · 5 musculoskeletal OPAT profiles (septic-arthritis, dfi, pyomyositis, bursitis, mediastinitis) | ✅ merged |
-| —   | CL-6 M-2 + M-4 · non-β-lactam classes + resistance pumps/porins (22 entries) | 🟦 in flight |
-| —   | CL-7 O-3 · 12 OPAT profiles for existing IV-eligible syndromes | 🟦 in flight |
-| —   | Wave 6 W6-D · onboarding + keyboard-shortcut overlay + first-impression scaffolding | ⏳ planned |
-| —   | Wave 6 W6-A · per-syndrome Deep Dive surface + evidence-grade chip + completeness audit | ⏳ planned |
-| —   | Wave 6 W6-B · visual leap (typography hierarchy, motion, density grid, color discipline) | ⏳ planned |
-| —   | Wave 6 W6-C · allergy delabeling flow + "What's next?" panel + decision-trace export | ⏳ planned |
+**Shape** — every card primitive (`.rx-card`, `.rx-acc`, `.rx-tnode`, `.rx-qc`)
+adopted 14-18px / 3-4px asymmetric corners with auto-painted cyan top-left
+accent strips. Tables (formulary, allergy, MRSA, GNR, penetration, toxicity,
+49×49 spectrum) followed.
 
-**Coverage at this snapshot:** 108/108 syndromes (100%) for diagnostics; 117 syndromes
-catalogued at apex authoring across regimen + duration + monitoring + rationale +
-objections; 32/32 FORMULARY drugs (100%) for the PR-4 pkpd/timeToEffect/cdiffScore/
-mdrPressure/kinetics schema; **26/~37** mechanisms (Wave 5 CL-6 — M-1 + M-3 merged,
-M-2 + M-4 in flight); **16/~60** OPAT profiles (Wave 5 CL-7 — O-1 + O-2 merged, O-3
-in flight).
+**Motion** — every primitive fades-in-up with `:nth-child` stagger on first
+paint. Cursor follows cards with a CSS-driven spotlight. Primary CTAs are
+magnetic. Hero mesh blobs drift on their own cadences and respond to cursor
+position. Tilts on regimen options. Scroll-driven blur intensification on the
+spine bar. Reduced-motion gated end-to-end.
 
-### Test surface
+**Chrome** — frosted-glass condensing top bar. Drawer panels with backdrop-blur
+20px overlays, 4px cyan top strips, 24/4 asymmetric corners. Modal scrims
+animate slow mercury ripples. Every focus state carries a cyan halo.
 
-`npm run test` covers **~30 files, ~4,290 unit + integrity + audit + RTL tests** as
-of the latest Wave 5 closeout merge (CL-5 + M-1 + M-3 + O-1 + O-2). Notable Wave 5
-additions:
+**Typography** — `.rx-h1` / `.rx-h2` / `.rx-h3` clamp(min, vw, max) for
+responsive editorial display. Section heroes use 96px italic-serif. `.rx-lede`
+collapsed to italic-serif standfirst at 17-19px. `.rx-dropcap-cyan` on first
+paragraphs of long sections. `.rx-numeric-mega` on every clinical metric (CrCl,
+MIC, dose, %S).
 
-- `tests/answerCanvas-layers.test.js` — LAYERS registry shape contract.
-- `tests/layers-invariants.test.js` — layer-group enum, id-order snapshot,
-  minimal-bag predicate short-circuit.
-- `tests/refineOnNewFinding.test.js` + `tests/refineCompose-roundtrip.test.js` —
-  snapshot-refine engine determinism, purity, and end-to-end `composeAnswer →
-  refineOnNewFinding` integration round-trip.
-- `tests/regimenCompare.test.js` + `tests/regimenCompare-toxicity.test.js` —
-  four-dimensional symmetry + winner contracts + toxicity tally semantics.
-- `tests/case-parser-corpus.test.js` — 50-utterance parser-coverage corpus.
-- `tests/content-audit.test.js` — apex schema gates for every authored surface
-  (regimenContent, syndromeDecision, combinedRisks, FORMULARY pkpd/microbiome,
-  diagnostics, mechanisms, OPAT) plus R3 typo-resistance probes (matchAgent regex
-  round-trip, pkpd.target anchor regex, timeToEffect bounds, mechanism alias
-  uniqueness, OPAT route shape).
-- `tests/rtl/` — `// @vitest-environment jsdom` component sentinels for
-  `MonitoringBlock`, `DurationBlock`, `DiagnosticsBlock`, `OPATBlock`, `MechanismDrawer`,
-  `PkPdBlock`, `DecisionAttributionDrawer`, `RegimensComparePanel`, `AgentsFilterBar`,
-  `MicrobiomeChips`, `SettingsModal`, and the `ClassChip → MechanismDrawer` wiring path.
+**Hierarchy** — `Section.jsx` carries optional `index` / `total` for a "01 / 17"
+counter, `rail` for a 90°-rotated mono left-rail label, `kineticKicker` for big
+type kickers, `accent` (cyan / magenta / lime / amber) for palette switching,
+`split` + `aside` for 65/35 metadata grids, `artwork` for corner decoration
+(mesh / orb / chrome-curl / prism / blank). The bedside vertical spine docks to
+the left edge on viewports ≥ 1280px.
 
-### Architectural traps locked in by the audit
-
-The Wave 5 PRs explicitly closed three drift risks the prior structure invited:
-
-1. **DRUG_KEYWORDS derives from `AGENT_RX`** (case-parser.js, PR-5c) — the parser and
-   the regimen engine see the same canonical drug names by construction; a new agent
-   added to one is automatically visible to the other.
-2. **`LAYERS` predicates + render functions are colocated** (answer-layers/, PR-3) —
-   `when(shared)` and `render(shared)` consume the same bag, so the spine chip and the
-   rendered block can never disagree about visibility.
-3. **`matchCtx` only elevates, never hides** (ctxMatch.js + every authored layer) —
-   hiding important monitoring / diagnostics based on partial information would lose
-   orders that matter; matching items get a left-border accent + chip and float to the
-   top within their severity bucket.
-
-Detailed plan in `/root/.claude/plans/create-a-plan-for-gleaming-locket.md` (durable
-through compactions). PRs are merged via a hybrid workflow — architectural changes
-through draft → AI review → human review → merge; mechanical content tranches direct
-to main after `npm run verify` + AI review.
+**Information density** — Wave 10 ran a cross-surface audit; 6 empty states
+became editorial moments, font-size half-step orphans collapsed, line-heights
+unified to 1.55-1.65 on body and 1.04-1.2 on display, sibling-card gaps
+standardized, padding ranges enforced. Larger rebalances flagged as TODOs
+rather than rewritten.
 
 ---
 
 ## Testing
 
 `npm run verify` runs the full gate chain — exactly what CI runs:
-`typecheck → unit (+ integrity) → build → e2e (render + a11y)`.
+`typecheck → unit (+ integrity + RTL) → build → e2e (render + a11y)`.
 
 ```bash
 npm run typecheck   # tsc --noEmit (strict on .ts/.tsx; App.jsx is allowJs)
-npm run test        # Vitest — pure engine + integrity suites (no browser)
-npm run test:e2e    # Playwright — render + a11y gates against the production build
+npm run test        # Vitest — 4829 tests across 61 files (no browser, ~20s)
+npm run test:e2e    # Playwright — render + a11y vs production build (desktop Chromium)
 npm run verify      # all of the above, in CI order
 ```
 
-**Unit + integrity (Vitest, `tests/`, ~0.5 s).** The split made the clinical logic
-pure, so it is now tested directly with no DOM:
+**Unit + integrity + RTL (Vitest, `tests/`).**
 
-- `integrity.test.js` — the **single source of truth** for content integrity. The same
-  `checkIntegrity()` that logs the on-mount console line in `App.jsx` is asserted here
-  as a hard gate: every syndrome category, organism bug-id, duration/guideline id,
-  org/drug cross-walk entry, dose-table agent (must resolve to a non-empty monograph via
-  `drugLookup`), interaction-layer agent, and source-control key must resolve, and
-  syndrome ids must be unique. A content edit that dangles a reference fails the build
-  with a precise message instead of opening an empty drawer at the bedside.
-- `dosing.test.js` — Cockcroft–Gault bands and the 0.85 female coefficient, CKD-EPI
-  monotonicity, augmented-clearance flagging, vancomycin loading-vs-maintenance and
-  HD level-guided routing, Child–Pugh A/C classing.
-- `lookup.test.js` — the coverage truth table the de-escalation logic rests on
-  (`Vancomycin` covers MRSA, `Ceftriaxone` does not; antipseudomonals cover *P.
-  aeruginosa*, metronidazole does not), with route/case tolerance.
-- `regimen.test.js` — risk-driven empiric assembly (right flags add the right tiers,
-  monotonically, each with a reason), and the de-escalation suggester's "lets you stop"
-  set (an empiric agent is stoppable iff it has no activity against the confirmed organism).
+- `integrity.test.js` — the **single source of truth** for content integrity.
+  Every syndrome category, organism bug-id, duration/guideline id, org/drug
+  cross-walk entry, dose-table agent, interaction-layer agent, and
+  source-control key must resolve; syndrome ids unique.
+- `dosing.test.js` — Cockcroft-Gault bands + 0.85 female coefficient, CKD-EPI
+  monotonicity, augmented-clearance flagging, vancomycin loading-vs-maintenance,
+  HD level-guided routing, Child-Pugh classing.
+- `lookup.test.js` — coverage truth table (vancomycin covers MRSA, ceftriaxone
+  doesn't; antipseudomonals cover *P. aeruginosa*, metronidazole doesn't).
+- `regimen.test.js` — risk-driven empiric assembly + de-escalation.
+- `regimenCompare.test.js` — four-dimensional symmetric diff.
+- `case-parser-corpus.test.js` — 50-utterance parser-coverage corpus.
+- `content-audit.test.js` — apex schema gates for every authored surface
+  (regimenContent, syndromeDecision, combinedRisks, FORMULARY
+  pkpd/microbiome, diagnostics, mechanisms, OPAT) + R3 typo-resistance probes.
+- `answerCanvas-layers.test.js` + `layers-invariants.test.js` — LAYERS registry
+  shape, group enum, id-order snapshot, predicate behavior.
+- `tests/rtl/` — `// @vitest-environment jsdom` component sentinels for every
+  major bedside block + new Wave 7-10 primitives:
+  `gradientMeshHero`, `meshWash`, `sectionArtwork`, `notchedBanner`,
+  `stickySubTOC`, `spotlightCard`, `densityToggle`, `miniTOC`, `scrollHeader`,
+  `useScrollProgress`, `useTilt`, `useParallaxScroll`, `useMagnetic`,
+  `useRipple`, `dottedGrid`, `sparkle`, `stripes`, `watermarkLetter`,
+  `gradientHairline`, `glassUtilities`, `brandMark`, `editorialHero`,
+  `paperTexture`, `sectionGlyph`, `patientContextStrip`, `cursorHighlight`,
+  every Wave 5 block + drawer.
 
-**Render + a11y (Playwright, `e2e/`).** `playwright.config.ts` builds the app and serves
-the **production** `dist` via `vite preview`, and runs every spec against **two projects —
-desktop Chrome and mobile (Pixel 5, 393 px)** — so the responsive layout is tested, not
-just asserted to exist:
+**Render + a11y (Playwright, `e2e/`).** Builds the app and serves the
+**production** `dist` via `vite preview`, runs against **desktop Chromium**
+(mobile pruned in #139 — every check is viewport-agnostic). CI budget ~6-8
+min. Asserts:
 
-- `render.spec.ts` — opens the assembled-regimen drawer for a representative syndrome
-  from every category (plus de-escalation), asserting the drawer renders real content
-  with **zero console errors / uncaught exceptions**; that the clean integrity line logs
-  on load; and that **no primary surface overflows its viewport horizontally** (the
-  high-value mobile check — axe and error-listening don't catch layout overflow).
-- `a11y.spec.ts` — `@axe-core/playwright` (WCAG 2.1 A/AA) on the approach, empiric,
-  spectrum, and open-drawer surfaces, plus a keyboard-focus assertion.
-
-Standing these gates up surfaced and fixed real defects that were shipping:
-
-- **a11y (six AA defects):** four sub-threshold contrast cases (`--faint`/opacity on body
-  text), an unlabeled comparison `<select>`, and a non-keyboard-scrollable region.
-- **mobile (two overflow defects):** the rapid-diagnostics grid (`repeat(3,1fr)`) never
-  collapsed below its 680 px breakpoint, and the empiric builder's syndrome/allergy
-  `<select>`s set an intrinsic min-width from their long option text that blew the
-  two-column grid past the viewport. Both fixed by following the existing breakpoint
-  convention (collapse to one column) plus `minmax(0,1fr)` tracks and `min-width:0` /
-  `width:100%` on the controls so they shrink to their container.
+- The assembled-regimen drawer renders for every category fixture with **zero
+  console errors / uncaught exceptions**.
+- The clean integrity line logs on load.
+- **No primary surface overflows its viewport horizontally** (catches layout
+  bugs axe + error-listening miss).
+- `@axe-core/playwright` (WCAG 2.1 A/AA) on approach / empiric / spectrum /
+  open-drawer surfaces + keyboard-focus assertion.
 
 ---
 
 ## Deployment (GitHub Pages)
 
-The app is a pure client-side bundle with **relative asset paths** (`vite base: "./"`)
-and **hash-based navigation**, so it deploys to a Pages project site
+The app is a pure client-side bundle with **relative asset paths** (`vite base:
+"./"`) and **hash-based navigation**, so it deploys to a Pages project site
 (`https://<user>.github.io/<repo>/`) with no `base` edit and no SPA 404-fallback.
 
-`.github/workflows/deploy.yml` builds and publishes on every push to `main`; `dist/` is
-never committed. One-time setup:
+`.github/workflows/deploy.yml` builds and publishes on every push to `main`;
+`dist/` is never committed. One-time setup:
 
 1. Push the repo to GitHub (the `deploy.yml` workflow ships in `.github/workflows/`).
 2. In the repo: **Settings → Pages → Build and deployment → Source = GitHub Actions**.
-3. Push to `main` (or run the workflow manually from the **Actions** tab). The deploy job
-   prints the live URL; thereafter every push to `main` redeploys.
+3. Push to `main` (or run the workflow manually from the **Actions** tab). The deploy
+   job prints the live URL; thereafter every push to `main` redeploys.
 
-To keep the link physician-only, share the URL directly rather than advertising it — a
-project-site URL is public but unguessable, and the repo can stay private (Pages still
-serves). For true access control, host behind an authenticated provider instead (see
-below).
-
-### Why Pages here, and when another host is better
-
-GitHub Pages is the right default for this project: it's free, the repo is already there,
-and a static client-only app is exactly what Pages serves well. Other hosts add value only
-for specific needs:
-
-| Host | Advantage over Pages | Relevant here? |
-|---|---|---|
-| **Netlify / Vercel** | Per-PR **deploy previews** (every pull request gets its own URL); password protection without auth code; instant rollbacks; drag-and-drop deploy of a `dist/` folder | Useful if you want reviewers to see a branch before merge, or want a password gate. Not required for a single shared review URL. |
-| **Vercel** | First-class if you later add any server-side piece (API routes, auth) | Only if the app stops being purely static. |
-| **Cloudflare Pages** | Fastest global edge; generous free tier | Marginal for a small reviewer group. |
-
-For "deploy what's on `main`, share one link with colleagues," Pages is sufficient and
-lowest-friction. The clearest reason to reach for Netlify/Vercel would be **deploy
-previews** (review a change before it lands) or a **password gate** without building auth.
+To keep the link physician-only, share the URL directly rather than advertising
+it — a project-site URL is public but unguessable, and the repo can stay private
+(Pages still serves). For true access control, host behind an authenticated
+provider instead.
 
 ---
 
 ## License / provenance
 
-Internal clinical-education tooling. Clinical content reflects sources current to the
-build date and will drift — reconfirm against live guidelines before any bedside use.
+Internal clinical-education tooling. Clinical content reflects sources current
+to the build date and will drift — reconfirm against live guidelines before any
+bedside use.
