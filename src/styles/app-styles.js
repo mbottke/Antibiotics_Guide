@@ -233,6 +233,19 @@ const CSS = `
 .rx-card.rx-card-interactive:hover{box-shadow:var(--shadow-e2), 0 0 0 1px color-mix(in srgb, var(--ox-bright) 28%, transparent); transform:translateY(-3px); border-color:color-mix(in srgb, var(--line) 40%, var(--ox-bright) 60%);}
 .rx-card.rx-card-interactive:hover::before{opacity:1; width:72px;}
 .rx-card.rx-card-interactive:focus-within{box-shadow:var(--shadow-e3), 0 0 0 2px color-mix(in srgb, var(--ox-bright) 30%, transparent);}
+/* Wave 9 · auto-spotlight on every interactive card. The ::after pseudo
+   reads --cursor-x / --cursor-y / --cursor-active that the global
+   App.jsx delegated mousemove handler writes onto each .rx-card-interactive
+   host as the pointer moves. Reduced-motion + coarse-pointer both kill
+   the overlay below. */
+.rx-card.rx-card-interactive::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:radial-gradient(220px circle at var(--cursor-x, 50%) var(--cursor-y, 50%), color-mix(in srgb, var(--ox-bright) 14%, transparent) 0%, transparent 60%); opacity:var(--cursor-active, 0); transition:opacity var(--duration-base) var(--ease-out); z-index:0;}
+.rx-card.rx-card-interactive > *{position:relative; z-index:1;}
+@media (prefers-reduced-motion: reduce){
+  .rx-card.rx-card-interactive::after{opacity:0 !important; transition:none !important;}
+}
+@media (pointer: coarse){
+  .rx-card.rx-card-interactive::after{display:none;}
+}
 .rx-callout{background:linear-gradient(135deg, var(--blue-soft) 0%, color-mix(in srgb, var(--blue-soft) 70%, var(--paper) 30%) 100%); border:1px solid var(--blue-line); border-left:3px solid var(--blue); border-radius:14px 4px 14px 4px; padding:14px 16px; font-size:12.5px; color:var(--blue); display:flex; gap:12px; align-items:flex-start; line-height:1.55; margin:18px 0; box-shadow:var(--shadow-e1);}
 .rx-callout svg{flex:0 0 auto; margin-top:1px;}
 

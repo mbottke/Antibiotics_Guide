@@ -24,7 +24,8 @@
    no markdown library — the content layer is plain JS strings.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useTilt } from "./util/useTilt.js";
 import { AlertTriangle, Check, Info, Pill, Syringe, XCircle, Zap } from "lucide-react";
 import { splitRegimenOptions } from "../engines/regimenOptions.js";
 import { lookupOptionContent } from "../data/regimenContent.js";
@@ -374,6 +375,12 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
   const accentSoft  = accent === "add" ? "var(--amber-soft)" : "var(--ox-soft)";
   const accentLine  = accent === "add" ? "var(--amber-line)" : "var(--ox-line)";
 
+  // Wave 9 · subtle 3D tilt on the regimen option card. Intensity 4
+  // keeps the lean delicate so dense bedside content never reads as
+  // skewed; the hook no-ops on reduced-motion + coarse-pointer.
+  const cardRef = useRef(null);
+  useTilt(cardRef, { intensity: 4 });
+
   /* Phase D3.3 allergy-driven card deprecation. When the patient has
      documented β-lactam anaphylaxis AND this card contains a β-lactam
      agent (penicillin, cephalosporin, or carbapenem — not aztreonam),
@@ -388,6 +395,7 @@ function OptionCard({ option, selected, primary, onSelect, renderText, accent, c
 
   return (
     <button
+      ref={cardRef}
       type="button"
       role="radio"
       aria-checked={selected}
