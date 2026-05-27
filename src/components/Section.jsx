@@ -67,10 +67,26 @@
    to work unchanged. The kicker-outside-the-box rhythm holds.
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect, useId } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { SectionGlyph } from "./SectionGlyph.jsx";
 import { SectionArtwork } from "./decor/SectionArtwork.jsx";
 import { useRevealOnScroll } from "./util/useRevealOnScroll.js";
+
+/* Read the persisted collapsed flag from sessionStorage. Returns false
+   when sessionStorage is unavailable (SSR / privacy-mode) or the key
+   is absent / not "1". Snapshot contract: per-syndrome state lives in
+   sessionStorage ONLY — NOT localStorage, NOT URL hash — so the
+   shareable URL stays decoupled from session-scoped panel state. */
+function _readCollapsed(persistKey) {
+  if (!persistKey) return false;
+  try {
+    if (typeof window === "undefined" || !window.sessionStorage) return false;
+    return window.sessionStorage.getItem(persistKey) === "1";
+  } catch (_e) {
+    return false;
+  }
+}
 
 /* Accent palette — one per `accent` prop value. The `glow` token is
    pulled from the Wave 6 / Wave 7 neon glow ramp with a soft fall-back
@@ -130,9 +146,47 @@ function Section({
   // call sites stay visually unchanged. Consumers opt in with
   // artwork="mesh" | "orb" | "chrome-curl" | "prism".
   artwork = "blank",
+  // Wave 14 · per-panel minimize / expand chevron. When `collapsible`
+  // is true a small chevron button renders just LEFT of the top-right
+  // counter pin. State persists to `sessionStorage[persistKey]` ONLY
+  // (NOT localStorage, NOT URL hash — snapshot contract). When
+  // collapsed, the panel body is hidden via the `hidden` attribute
+  // and an optional `collapsedSummary` slot renders beside the kicker.
+  collapsible = false,
+  collapsedSummary,
+  persistKey,
 }) {
   const palette = ACCENT[accent] || ACCENT.cyan;
   const counterText = (pad2(index) && pad2(total)) ? `${pad2(index)} / ${pad2(total)}` : null;
+
+  /* Wave 14 · collapsed state. Source of truth = sessionStorage. The
+     initializer reads the key once; an effect re-syncs when the key
+     itself changes (e.g. when switching syndromes mid-session) so the
+     panel reflects whatever the new key currently says. */
+  const [collapsed, setCollapsed] = useState(() => _readCollapsed(persistKey));
+  useEffect(() => {
+    if (!collapsible) return;
+    setCollapsed(_readCollapsed(persistKey));
+  }, [persistKey, collapsible]);
+
+  const _bodyId = useId();
+  const bodyId = id ? `${id}-body` : `rx-section-body-${_bodyId}`;
+
+  const _toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        if (persistKey && typeof window !== "undefined" && window.sessionStorage) {
+          if (next) window.sessionStorage.setItem(persistKey, "1");
+          else window.sessionStorage.removeItem(persistKey);
+        }
+      } catch (_e) { /* ignore quota / privacy-mode errors */ }
+      return next;
+    });
+  };
+
+  const _showChevron = collapsible === true;
+  const _isCollapsed = _showChevron && collapsed;
 
   /* Wave 12 · CH2 — scroll-into-view reveal cascade. The hook attaches
      an IntersectionObserver to the section root; the first time the
@@ -270,7 +324,57 @@ function Section({
               {title}
             </h3>
           )}
+          {/* Wave 14 · collapsed-state inline summary. Only renders when
+              the panel is currently collapsed AND a `collapsedSummary`
+              prop was supplied. Italic ink2 12px keeps it as quiet
+              metadata next to the kicker. */}
+          {_isCollapsed && collapsedSummary != null && (
+            <span
+              data-section-collapsed-summary
+              style={{
+                fontStyle: "italic",
+                color: "var(--ink2)",
+                fontSize: 12,
+                lineHeight: 1.45,
+              }}
+            >
+              {collapsedSummary}
+            </span>
+          )}
         </div>
+
+        {/* Wave 14 · minimize / expand chevron. Sits just LEFT of the
+            counter pin when both render. 24x24 hit area, 6/2/6/2
+            asymmetric radius, .rx-focus-halo for the focus ring. */}
+        {_showChevron && (
+          <button
+            type="button"
+            onClick={_toggleCollapsed}
+            aria-expanded={!_isCollapsed}
+            aria-controls={bodyId}
+            aria-label={_isCollapsed ? "Expand section" : "Collapse section"}
+            data-section-collapse-toggle
+            className="rx-focus-halo"
+            style={{
+              flex: "0 0 auto",
+              alignSelf: "flex-start",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 24,
+              height: 24,
+              padding: 0,
+              borderRadius: "6px 2px 6px 2px",
+              background: "var(--panel)",
+              border: "1px solid var(--line)",
+              color: "var(--ink2)",
+              cursor: "pointer",
+              transition: "background var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out)",
+            }}
+          >
+            {_isCollapsed ? <ChevronDown size={14} aria-hidden /> : <ChevronUp size={14} aria-hidden />}
+          </button>
+        )}
 
         {/* Top-right counter — "01 / 17" style mono uppercase pin. Only
             renders when index + total are both supplied. */}
@@ -314,6 +418,8 @@ function Section({
       {flatPanel ? (
         split && aside ? (
           <div
+            id={bodyId}
+            hidden={_isCollapsed}
             data-section-body
             data-section-split-grid
             className="rx-section-split"
@@ -342,12 +448,14 @@ function Section({
             </aside>
           </div>
         ) : (
-          <div style={{ position: "relative", zIndex: 2 }}>
+          <div id={bodyId} hidden={_isCollapsed} style={{ position: "relative", zIndex: 2 }}>
             {children}
           </div>
         )
       ) : (
         <div
+          id={bodyId}
+          hidden={_isCollapsed}
           data-section-body
           style={{
             position: "relative",

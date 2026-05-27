@@ -986,7 +986,21 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                     style={{ ..._stagger(), borderRadius: 12 }}
                     data-w12-finding-glow={glowClass ? glowKey : 0}
                   >
-                    {L.render(layerShared)}
+                    {(() => {
+                      /* Wave 14 · thread `collapsible` + `persistKey` into
+                         every Section the layer renders. We cloneElement
+                         the layer's root JSX so individual layer modules
+                         don't each need to import sessionStorage logic.
+                         Layers whose root passes `flatPanel` opt out —
+                         MonitoringBlock + DurationBlock host their own
+                         chrome and have a specific Section contract that
+                         collapse would disrupt. */
+                      const el = L.render(layerShared);
+                      if (!el || !React.isValidElement(el)) return el;
+                      if (el.props && el.props.flatPanel) return el;
+                      const persistKey = `ab_collapsed_${s.id}_${L.id}`;
+                      return React.cloneElement(el, { collapsible: true, persistKey });
+                    })()}
                   </div>
                   {!isLast && !W12_SCENE_BREAKS[visibleLayers[i + 1]?.id] && (
                     <GradientHairline
