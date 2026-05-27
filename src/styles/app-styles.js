@@ -170,6 +170,44 @@ const CSS = `
      row fits comfortably above the (now full-width) search input. */
   .rx-sub{margin-top:2px;}
 }
+/* Mobile bughunt follow-up · Organisms § directed-therapy layout.
+   The desktop layout pins a 220 px sticky taxonomic rail to the left
+   and lets a column-grid of cards take the remainder. At 393 px that
+   leaves only ~107 px for the cards, so every <h4> wraps one word per
+   line. At ≤720 px we collapse the rail to a full-width strip that
+   sits above the cards (still scrollable as the user picks a group)
+   and let the card area span the full content width. The rail's
+   inline width:220 + flex:0 0 220px need !important to lose to
+   stylesheet rules. */
+@media (max-width: 720px){
+  .rx-orgs-rail{
+    position: static !important;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 10px 12px !important;
+  }
+  .rx-orgs-rail > button{padding: 6px 9px !important;}
+  .rx-orgs-cards{flex: 1 1 100% !important; width: 100% !important;}
+  /* The card grid was column-count:2 on wide screens — at 393 px a
+     single column of full-width cards reads better than two squashed
+     columns. The columnCount:1 path already triggers when there are
+     ≤6 cards; force it for all card counts on mobile. */
+  .rx-orgs-cards > div{column-count: 1 !important;}
+}
+/* Mobile bughunt follow-up · the β-lactam allergy table at narrow
+   viewports. The third column's long phrases (e.g. "side-chain
+   similarity") plus 11 px of horizontal padding push the auto-layout
+   table ~4 px past the viewport. Tighten padding and let words break
+   at ≤720 px so the table fits the row. */
+@media (max-width: 720px){
+  .rx-allergy{font-size: 11.5px;}
+  .rx-allergy th, .rx-allergy td{padding: 8px 7px;}
+  .rx-allergy td{overflow-wrap: anywhere; word-break: break-word;}
+}
 /* Wave 7 W7-B · the brand block becomes a gradient compass.
    Diagonal cyan-deep → cyan-bright gradient + cyan halo + a tiny
    inner highlight to read as a backlit chip. */

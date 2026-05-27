@@ -243,6 +243,7 @@ function W8TaxonomicRail({ counts, activeId, onSelect, totalOrgs }) {
   return (
     <aside
       aria-label="Taxonomic rail"
+      className="rx-orgs-rail"
       style={{
         position: "sticky",
         /* W12 bughunt · global .rx-header is sticky at top:0 with z:50 and
@@ -870,7 +871,7 @@ function OrganismsSection({
         lede="Each card is one pathogen with its first-line agent, alternatives, the caveat that matters, and the syndromes it appears in."
         important
       />
-      <div style={{
+      <div className="rx-orgs-layout" style={{
         display: "flex",
         gap: 22,
         alignItems: "flex-start",
@@ -882,7 +883,7 @@ function OrganismsSection({
           onSelect={setActiveSg}
           totalOrgs={totalOrgs}
         />
-        <div style={{ flex: "1 1 520px", minWidth: 0 }}>
+        <div className="rx-orgs-cards" style={{ flex: "1 1 520px", minWidth: 0 }}>
           <div style={{
             columnCount: filteredCards.length > 6 ? 2 : 1,
             columnGap: 16,
