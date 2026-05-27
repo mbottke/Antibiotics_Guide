@@ -435,9 +435,9 @@ function SyndromesSection({
                   borderBottomRightRadius: 8,
                   cursor: "pointer",
                   boxShadow: on
-                    ? "var(--shadow-e1), var(--neon-cyan-glow, 0 0 24px rgba(0,212,255,0.35))"
+                    ? "var(--shadow-e2), var(--neon-cyan-glow, 0 0 24px rgba(0,212,255,0.35))"
                     : "var(--shadow-e0)",
-                  transition: "transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out)",
+                  transition: "transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out)",
                 }}
               >
                 {on ? <Check size={11}/> : <Plus size={11}/>} {lab}
@@ -517,12 +517,12 @@ function SyndromesSection({
                   borderBottomLeftRadius: 2,
                   borderBottomRightRadius: 8,
                   cursor: "pointer",
-                  transform: active ? "translateY(-2px)" : "translateY(0)",
+                  transform: active ? "translateY(-1px)" : "translateY(0)",
                   boxShadow: active
-                    ? "var(--shadow-e1), var(--neon-cyan-glow, 0 0 24px rgba(0,212,255,0.35))"
-                    : "none",
+                    ? "var(--shadow-e2), var(--neon-cyan-glow, 0 0 24px rgba(0,212,255,0.35))"
+                    : "var(--shadow-e0)",
                   opacity: active ? 1 : 0.86,
-                  transition: "all var(--duration-fast) var(--ease-out)",
+                  transition: "transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out)",
                 }}
               >
                 {c.label}
@@ -737,8 +737,10 @@ function SyndromesSection({
                       borderBottomLeftRadius: 2,
                       borderBottomRightRadius: 8,
                       cursor: "pointer",
-                      boxShadow: on ? "var(--neon-cyan-glow, none)" : "none",
-                      transition: "all var(--duration-fast) var(--ease-out)",
+                      boxShadow: on
+                        ? "var(--shadow-e2), var(--neon-cyan-glow, 0 0 24px rgba(0,212,255,0.35))"
+                        : "var(--shadow-e0)",
+                      transition: "transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out)",
                     }}
                   >
                     {rf.label}
@@ -1147,7 +1149,7 @@ function SyndromesSection({
                             borderTopRightRadius: 4,
                             borderBottomLeftRadius: 4,
                             borderBottomRightRadius: 18,
-                            boxShadow: open ? "var(--shadow-e3)" : "var(--shadow-e1)",
+                            boxShadow: open ? "var(--shadow-e2)" : "var(--shadow-e1)",
                             minWidth: 0,
                             animationDelay: `${delay}ms`,
                           }}
@@ -1471,13 +1473,16 @@ function SyndromesSection({
           slide-in.
           ============================================================ */}
       <style>{`
+        /* Calm-motion hover (PR #151). The lift is now a single 1 px
+           translateY paired with shadow-e2 and a cyan-tinted border
+           hairline — matches the global card-interactive register and
+           drops the e3 + 3 px overshoot that fought rx-card-interactive. */
         .syn-card:hover {
-          transform: translateY(-3px);
-          box-shadow: var(--shadow-e3),
-                      inset 0 0 0 1px color-mix(in srgb, var(--neon-cyan, var(--ox)) 32%, transparent);
+          transform: translateY(-1px);
+          box-shadow: var(--shadow-e2);
+          border-color: color-mix(in srgb, var(--line) 40%, var(--neon-cyan) 60%);
         }
         .syn-card:hover .syn-card-kicker {
-          transform: translateX(3px);
           color: var(--ox);
         }
         .syn-card:hover .syn-card-view {
@@ -1486,7 +1491,6 @@ function SyndromesSection({
         }
         @media (prefers-reduced-motion: reduce) {
           .syn-card:hover { transform: none; }
-          .syn-card:hover .syn-card-kicker { transform: none; }
           .syn-card:hover .syn-card-view { opacity: 1 !important; transform: none !important; }
         }
       `}</style>
