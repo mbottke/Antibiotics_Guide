@@ -262,7 +262,7 @@ function ChromeBand({ children, condensed }) {
   );
 }
 
-function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, onOpenPalette, antibiogram, onOpenAntibiogramManager }) {
+function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, onOpenPalette, antibiogram, onOpenAntibiogramManager, surface, mode, onSurface, onMode }) {
   _ensureW12Styles();
   /* Edit / view mode. Once a syndrome is set, default to view; the user can
      re-open the Case Bar by clicking Edit. While the Case Bar is open, the
@@ -549,6 +549,10 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         onOpenAntibiogramManager={onOpenAntibiogramManager}
+        surface={surface}
+        mode={mode}
+        onSurface={onSurface}
+        onMode={onMode}
       />
 
       {/* Wave 6 W6-D · keyboard-shortcut overlay — `?` toggles. Owns its

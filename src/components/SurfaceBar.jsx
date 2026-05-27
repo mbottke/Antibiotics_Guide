@@ -91,6 +91,7 @@ function SurfaceBar({ surface, mode, onSurface, onMode }) {
       role="region"
       aria-label="Surface and mode"
       data-testid="surface-bar"
+      className="rx-surface-bar"
       style={{
         /* Frosted strip — soft white wash with cyan tint and a slight
             blur. The hairline below is painted as a separate absolute
