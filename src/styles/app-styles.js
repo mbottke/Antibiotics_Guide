@@ -1466,6 +1466,34 @@ const CSS_W10 = `
       transparent 100%) !important;
   border-bottom: 2px solid var(--ox-bright) !important;
 }
+
+/* W12 fix · the MRSA-by-site matrix uses .rx-mxtable-w12 to render its
+   cyan-gradient site tiles INSIDE the table's own <thead> so column
+   widths come from one layout system (the table itself) and the
+   circles below align with their column titles by construction. The
+   default .rx-mxtable thead chrome (mono caps + paper gradient + cyan
+   underline) would clobber the inline-styled tile div, so suppress it
+   for this variant — each <th> here owns its own visual chrome. */
+.rx-mxtable.rx-mxtable-w12 thead th{
+  background: transparent !important;
+  border-bottom: 0 !important;
+  padding: 0 4px 12px 4px !important;
+  vertical-align: bottom !important;
+  text-align: left !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  color: inherit !important;
+  font-weight: normal !important;
+  line-height: normal !important;
+}
+.rx-mxtable.rx-mxtable-w12 thead th.rx-mx-ag-w12{
+  padding-left: 13px !important;
+  padding-bottom: 16px !important;
+  vertical-align: bottom !important;
+}
+.rx-mxtable.rx-mxtable-w12 td.rx-mx-c{text-align:center;}
 /* The .rx-mtx matrix has sticky headers — keep position:sticky AND
    layer the chrome via the existing background variable. */
 .rx-mtx thead th:not(.corner){

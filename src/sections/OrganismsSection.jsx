@@ -600,6 +600,16 @@ function W8TierChip({ label, tone = "primary" }) {
    ============================================================ */
 function W8MrsaMatrix({ openDrug }) {
   const SITE_ICON = [Heart, Wind, Activity, Bug, Hospital];
+  const cols = MRSA_MATRIX.cols;
+  /* Bug fix · the cyan-gradient site tiles used to live in a separate
+     CSS Grid above the table, and the cells below used HTML <table>
+     auto-column widths. Two different layout engines = column
+     headers + circles never aligned. Now both header tiles and body
+     cells live in the SAME <table>; <colgroup> + table-layout:fixed
+     give each agent column exactly 1.4fr / N relative width and
+     guarantee circle ↔ column-title alignment by construction. */
+  const colWeights = `${(1.4 / (1.4 + cols.length)) * 100}%`;
+  const cellWeight = `${(1 / (1.4 + cols.length)) * 100}%`;
   return (
     <div className="rx-fade-in-up" style={{
       background: "rgba(255,255,255,0.7)",
@@ -611,49 +621,48 @@ function W8MrsaMatrix({ openDrug }) {
       padding: 18,
       overflow: "hidden",
     }}>
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: `minmax(140px, 1.4fr) repeat(${MRSA_MATRIX.cols.length}, minmax(0, 1fr))`,
-        gap: 8,
-        marginBottom: 12,
-      }}>
-        <div style={{
-          fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.22em",
-          textTransform: "uppercase", color: W7_KICKER,
-          alignSelf: "end", paddingBottom: 4,
-        }}>Agent ↓ / Site →</div>
-        {MRSA_MATRIX.cols.map((c, i) => {
-          const Icon = SITE_ICON[i] || Crosshair;
-          return (
-            <div key={c} style={{
-              padding: "10px 10px",
-              borderRadius: "10px 2px 10px 2px",
-              background: `linear-gradient(135deg, ${CYAN_DEEP}, ${CYAN_BRIGHT})`,
-              color: "#fff",
-              boxShadow: CYAN_GLOW,
-              display: "flex", flexDirection: "column", gap: 4,
-            }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Icon size={14} />
-                <span style={{
-                  fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.22em",
-                  textTransform: "uppercase", opacity: 0.9,
-                }}>SITE · {String(i + 1).padStart(2, "0")}</span>
-              </span>
-              <span style={{
-                fontFamily: "var(--serif)", fontStyle: "italic",
-                fontSize: 14, fontWeight: 700, lineHeight: 1.2,
-              }}>{c}</span>
-            </div>
-          );
-        })}
-      </div>
       <div style={{ overflowX: "auto" }}>
-        <table className="rx-mxtable">
-          <thead style={{ display: "none" }}>
+        <table className="rx-mxtable rx-mxtable-w12" style={{ tableLayout: "fixed" }}>
+          <colgroup>
+            <col style={{ width: colWeights }} />
+            {cols.map(c => <col key={c} style={{ width: cellWeight }} />)}
+          </colgroup>
+          <thead>
             <tr>
-              <th className="rx-mx-ag">Agent</th>
-              {MRSA_MATRIX.cols.map(c => <th key={c}>{c}</th>)}
+              <th className="rx-mx-ag rx-mx-ag-w12" scope="col">
+                <span style={{
+                  fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.22em",
+                  textTransform: "uppercase", color: W7_KICKER, fontWeight: 700,
+                }}>Agent ↓ / Site →</span>
+              </th>
+              {cols.map((c, i) => {
+                const Icon = SITE_ICON[i] || Crosshair;
+                return (
+                  <th key={c} scope="col" className="rx-mx-th-tile">
+                    <div style={{
+                      padding: "10px 10px",
+                      borderRadius: "10px 2px 10px 2px",
+                      background: `linear-gradient(135deg, ${CYAN_DEEP}, ${CYAN_BRIGHT})`,
+                      color: "#fff",
+                      boxShadow: CYAN_GLOW,
+                      display: "flex", flexDirection: "column", gap: 4,
+                      textAlign: "left",
+                    }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <Icon size={14} aria-hidden />
+                        <span style={{
+                          fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.22em",
+                          textTransform: "uppercase", opacity: 0.9,
+                        }}>SITE · {String(i + 1).padStart(2, "0")}</span>
+                      </span>
+                      <span style={{
+                        fontFamily: "var(--serif)", fontStyle: "italic",
+                        fontSize: 14, fontWeight: 700, lineHeight: 1.2,
+                      }}>{c}</span>
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
