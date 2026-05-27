@@ -104,7 +104,8 @@ function TraceRow({ Icon, label, text, accent, mutedTint, onCite, keyPrefix }) {
       background: mutedTint ? "var(--paper2)" : "var(--paper)",
       border: "1px solid var(--line)",
       borderLeft: "3px solid " + (mutedTint ? "var(--line2)" : accent),
-      borderRadius: 7,
+      /* Medium-surface 10/3 — shared rhythm with objections rows. */
+      borderRadius: "10px 3px 10px 3px",
     }}>
       <div style={{
         display:"flex", flexDirection:"column", alignItems:"center", gap: 3,

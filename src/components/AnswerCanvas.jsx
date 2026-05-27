@@ -233,7 +233,10 @@ const W8_STYLES = `
 }
 
 /* Horizontal spine — Wave 6 W6-B aesthetic preserved. Hidden when the
-   vertical rail engages at ≥1280px (see media query above). */
+   vertical rail engages at ≥1280px (see media query above). Asymmetric
+   14/4 corners place this sticky strip on the same panel-radius rung
+   as Section bodies + the layer-tab strip. The inset white highlight
+   stays as the frosted-glass tell; the e1 shadow joins the scale. */
 .rx-horizontal-spine{
   position: sticky;
   top: 0;
@@ -244,7 +247,7 @@ const W8_STYLES = `
   -webkit-backdrop-filter: saturate(170%) blur(16px);
   backdrop-filter: saturate(170%) blur(16px);
   border: 1px solid color-mix(in srgb, var(--line) 70%, var(--neon-cyan-line, var(--line)) 30%);
-  border-radius: 12px;
+  border-radius: 14px 4px 14px 4px;
   box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, var(--shadow-e1);
 }
 
@@ -861,29 +864,42 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                   display: "flex", gap: 6, overflowX: "auto",
                   scrollbarWidth: "thin",
                 }}>
-                {_spineItems.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className="rx-lift rx-cta-glow"
-                    onClick={() => _onSpineClick(item.id)}
-                    style={{
-                      flex: "0 0 auto",
-                      fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".04em",
-                      color: activeSpineId === item.id ? "var(--neon-cyan, var(--ox))" : "var(--ink2)",
-                      background: "var(--panel)",
-                      border: `1px solid ${activeSpineId === item.id ? "var(--neon-cyan, var(--ox))" : "var(--line)"}`,
-                      borderRadius: 999, padding: "4px 12px", cursor: "pointer",
-                      whiteSpace: "nowrap",
-                    }}>
-                    {item.label}
-                  </button>
-                ))}
+                {_spineItems.map((item) => {
+                  const isActive = activeSpineId === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="rx-lift rx-cta-glow"
+                      onClick={() => _onSpineClick(item.id)}
+                      aria-current={isActive ? "true" : undefined}
+                      style={{
+                        flex: "0 0 auto",
+                        fontFamily: "var(--mono)", fontSize: 11, letterSpacing: ".04em",
+                        fontWeight: isActive ? 700 : 500,
+                        color: isActive ? "var(--neon-cyan, var(--ox))" : "var(--ink2)",
+                        background: "var(--panel)",
+                        border: `1px solid ${isActive ? "var(--neon-cyan, var(--ox))" : "var(--line)"}`,
+                        borderRadius: 999, padding: "4px 12px", cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        /* Spine chips join the shadow scale: e0 flat,
+                           e2 when active. The active state was previously
+                           shadowless; the small e2 lift makes the picked
+                           chip read as picked, not just hue-shifted. */
+                        boxShadow: isActive ? "var(--shadow-e2)" : "var(--shadow-e0)",
+                        transition: "background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out)",
+                      }}>
+                      {item.label}
+                    </button>
+                  );
+                })}
               </div>
             </nav>
           )}
 
-          {/* Wave 5 CL-5 · layer-group tab strip (PR-12) — staggered in. */}
+          {/* Wave 5 CL-5 · layer-group tab strip (PR-12) — staggered in.
+              Container picks up the asymmetric 14/4 panel-radius motif so
+              the tab strip reads as a Section sibling, not a stock pill bar. */}
           <div
             role="tablist"
             aria-label="Answer-canvas groups"
@@ -894,7 +910,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
               marginBottom: 18, padding: "8px 10px",
               background: "var(--paper2)",
               border: "1px solid var(--line)",
-              borderRadius: 12,
+              borderRadius: "14px 4px 14px 4px",
               boxShadow: "var(--shadow-e0)",
             }}>
             {[

@@ -151,7 +151,9 @@ function PedsPregBlock({ entries }) {
       <div className="rx-glass-bleed" style={{
         background: accentBg,
         border: "1px solid var(--ox-line)",
-        borderRadius: 7,
+        /* Medium-surface 10/3 — shared headline-panel rhythm with the
+           rest of the answer-canvas blocks. */
+        borderRadius: "10px 3px 10px 3px",
         padding: "8px 11px",
         marginBottom: 10,
         position: "relative",

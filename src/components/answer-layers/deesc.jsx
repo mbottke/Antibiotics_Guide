@@ -2,14 +2,15 @@
 
    Wave 5 PR-3 Stage 2. Module shape documented in _index.js.
    Wave 8 W8-A — adopts the rail/numeral/counter editorial chrome, and
-   the prose lede gets a kinetic display kicker. Rows wrap in
-   AsymmetricCards with alternating tl-br / tr-bl patterns. */
+   the prose lede gets a kinetic display kicker. Rows render as flat
+   tinted tiles with asymmetric 10/3 corners — matches the start.jsx
+   tier-card register adopted in #151 (no inner card shadow; outer
+   Section supplies the panel chrome). */
 
 import React from "react";
 import { TrendingDown, Crosshair, Bug, ArrowRight, Scissors } from "lucide-react";
 import { Section } from "../Section.jsx";
 import { renderGloss, renderRich } from "../rich-text.jsx";
-import { AsymmetricCard } from "../decor/AsymmetricCard.jsx";
 
 export const deescLayer = {
   id: "ans-deesc",
@@ -49,13 +50,13 @@ export const deescLayer = {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {ans.deesc.slice(0, 6).map((row, i) => (
-                <AsymmetricCard
+                <div
                   key={row.id}
-                  pattern={i % 2 === 0 ? "tl-br" : "tr-bl"}
-                  elevation="e0"
                   style={{
                     padding: "8px 10px",
                     background: "var(--paper2)",
+                    border: "1px solid var(--line)",
+                    borderRadius: i % 2 === 0 ? "10px 3px 10px 3px" : "3px 10px 3px 10px",
                   }}
                 >
                   <div style={{ display: "flex", gap: 9, alignItems: "flex-start", fontSize: 12, lineHeight: 1.5 }}>
@@ -114,7 +115,7 @@ export const deescLayer = {
                       )}
                     </div>
                   </div>
-                </AsymmetricCard>
+                </div>
               ))}
             </div>
           </div>

@@ -168,7 +168,9 @@ function MonitoringBlock({ monitoring, pickedAgents = [], pickedBranch, ctx }) {
         <div className="rx-glass-bleed" style={{
           background: accentBg,
           border: "1px solid var(--ox-line)",
-          borderRadius: 7,
+          /* Medium-surface 10/3 — shared with DurationBlock headline +
+             Reasoning trace + ResearchBlock headline. */
+          borderRadius: "10px 3px 10px 3px",
           padding: "8px 11px",
           marginBottom: items.length ? 12 : 0,
         }}>

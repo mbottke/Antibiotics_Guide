@@ -86,7 +86,10 @@ function FootMark({ idx, step, interactive = true }) {
     background: interactive
       ? `radial-gradient(circle at 32% 30%, color-mix(in srgb, ${baseColor} 60%, var(--neon-cyan, var(--ox-bright))) 0%, ${baseColor} 80%)`
       : baseColor,
-    borderRadius:7, verticalAlign:"super",
+    /* Chip radius = 6 per the canvas radius motif (chips 6px, medium
+       surfaces 10/3, hero panels 14/4). FootMark is the smallest chip
+       primitive on the page; landing on 6 keeps the chip family aligned. */
+    borderRadius:6, verticalAlign:"super",
     lineHeight:1, border:"none",
   };
   if(!interactive) {
@@ -111,10 +114,15 @@ function FootMark({ idx, step, interactive = true }) {
         onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(true); }}
         title={`Trace decision — ${tone.label}: ${step.reason}`}
         aria-label={`Trace decision · ${tone.label} on ${step.agent}`}
-        className="rx-glow-lift rx-magnetic"
+        /* Calm-motion register (PR #151): rx-glow-lift gives the 1 px
+           translateY + e2 shadow; the old rx-magnetic class was a no-op
+           in practice (useMagnetic hook was never attached) and only
+           added a transform-transition that fought with rx-glow-lift's
+           own transition. Dropped to keep the floor: no magnetic pulls. */
+        className="rx-glow-lift"
         style={{
           ...supStyle, cursor:"pointer", appearance:"none",
-          boxShadow: "0 0 8px -2px color-mix(in srgb, var(--neon-cyan, var(--ox-bright)) 40%, transparent)",
+          boxShadow: "var(--shadow-e0)",
         }}
       >
         {idx}
@@ -227,7 +235,7 @@ function RxLine({ tier, kind, refinements, onDrug, onOpenMechanism, ctx, d, synI
         <span style={{
           fontFamily:"var(--mono)", fontSize:10, letterSpacing:".1em",
           textTransform:"uppercase", fontWeight:700, color: tierColor,
-          background: tierBg, border:`1px solid ${tierLine}`, borderRadius:5,
+          background: tierBg, border:`1px solid ${tierLine}`, borderRadius:6,
           padding:"3px 9px",
         }}>
           {kind === "add" ? <><Plus size={10} aria-hidden style={{verticalAlign:"-1px", marginRight:3}}/>{tierLabel}</> : tierLabel}
@@ -284,13 +292,14 @@ function RefinementRow({ idx, step, onDrug, onOpenMechanism }) {
       padding:"6px 10px",
       background: step.sev === "high" ? "var(--ox-softer)" : "var(--paper2)",
       border:`1px solid ${step.sev === "high" ? "var(--ox-line)" : "var(--line)"}`,
-      borderRadius:7, marginBottom:5,
+      /* Asymmetric 10/3 — medium-surface rung of the radius motif. */
+      borderRadius:"10px 3px 10px 3px", marginBottom:5,
     }}>
       <sup style={{
         display:"inline-flex", alignItems:"center", justifyContent:"center",
         minWidth:16, height:16, padding:"0 5px",
         fontSize:9.5, fontFamily:"var(--mono)", fontWeight:700,
-        color:"#fff", background: stateColor, borderRadius:8, flex:"0 0 auto",
+        color:"#fff", background: stateColor, borderRadius:6, flex:"0 0 auto",
         marginTop:1,
       }}>{idx}</sup>
       <div style={{ flex:1, minWidth:0 }}>

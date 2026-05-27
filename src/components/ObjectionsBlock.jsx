@@ -93,7 +93,9 @@ function ObjectionRow({ q, a, accent, onCite, keyPrefix }) {
       background: "var(--paper)",
       border: "1px solid var(--line)",
       borderLeft: "3px solid " + accent,
-      borderRadius: 7,
+      /* Medium-surface 10/3 — matches the reasoning-trace rows + the
+         duration branch tiles + the deesc rows. */
+      borderRadius: "10px 3px 10px 3px",
     }}>
       <div style={{ display:"flex", gap: 7, alignItems: "flex-start" }}>
         <MessageCircleQuestion size={12} color={accent} aria-hidden

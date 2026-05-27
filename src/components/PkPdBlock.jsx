@@ -211,7 +211,8 @@ function PkPdBlock({ agents }) {
       <div className="rx-glass-bleed" style={{
         background: "var(--paper2)",
         border: "1px solid var(--line)",
-        borderRadius: 7,
+        /* Medium-surface 10/3 — shared headline-panel rhythm. */
+        borderRadius: "10px 3px 10px 3px",
         padding: "8px 11px",
         marginBottom: 10,
         fontSize: 11.5, lineHeight: 1.5, color: "var(--ink2)",
