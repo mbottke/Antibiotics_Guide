@@ -10,6 +10,7 @@ import {
   Layers, Network, ShieldAlert, Hospital, Scissors, CornerDownRight,
   Check, Plus, Zap, Soup, Flame,
   Filter, Eye, EyeOff, RotateCcw,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import { CSS, CSS2, CSS3, CSS4, CSS5, CSS_W10 } from "./styles/app-styles";
 import { KINETIC } from "./styles/kinetic-type";
@@ -21,6 +22,7 @@ import { ClassChip, TermChip, renderRx, renderGloss, renderRich } from "./compon
 import { Num, Cite, Ev, BugTag, SectionDisc, Drawer, PDot, ToxDot, CardCopyButton, DoseAdjustBar, ChildPughScorer } from "./components/primitives";
 import { BedsideShell } from "./components/BedsideShell";
 import { AntibiogramManager } from "./components/AntibiogramManager";
+import { SettingsModal } from "./components/SettingsModal";
 import {
   getAllAntibiograms, getActiveAntibiogram,
   saveUserAntibiogram, deleteUserAntibiogram,
@@ -155,6 +157,7 @@ export default function InpatientAbxGuide() {
     return active ? active.id : null;
   });
   const [antibiogramManagerOpen, setAntibiogramManagerOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const activeAntibiogram = antibiograms.find(a => a.id === activeAntibiogramId) || null;
   // Persist active id whenever it changes so refresh restores it.
   useEffect(() => { saveActiveId(activeAntibiogramId); }, [activeAntibiogramId]);
@@ -1311,17 +1314,35 @@ export default function InpatientAbxGuide() {
 
       <header className="rx-header">
         <div className="rx-wrap">
+          {/* Header consolidation · Wave 13.
+              Desktop ≥720px: one row → [mark · compact wordmark · section chip] [search] [gear].
+              Mobile <720px: two rows → row1 [mark · wordmark · gear], row2 [search full-width].
+              The long italic-serif title + subtitle are gone; the section name now lives
+              in a small mono uppercase chip beside the wordmark, and the gear opens
+              SettingsModal which houses the font-size control. */}
           <div className="rx-headrow">
-            <div className="rx-mark"><Microscope size={20} /></div>
+            <div className="rx-mark"><Microscope size={16} /></div>
             <div className="rx-brand">
-              <div className="rx-kicker">Inpatient · Antibacterial · {(SECTION_BY_ID[section] || {}).label}</div>
-              <h1 className="rx-title">Antibacterial Reference & Selection Engine</h1>
-              <p className="rx-sub">Adult hospital medicine · empiric → directed → reference · generic agents only</p>
+              <h1 className="rx-title">Antibacterial Reference</h1>
+              {SECTION_BY_ID[section] && (
+                <span className="rx-section-chip" aria-label={`Current section: ${SECTION_BY_ID[section].label}`}>
+                  {SECTION_BY_ID[section].label}
+                </span>
+              )}
             </div>
             <div className="rx-searchwrap">
               <span className="rx-search-i"><Search size={15} /></span>
               <input className="rx-search" placeholder="Search  ⌘K" onFocus={_openCmd} readOnly />
             </div>
+            <button
+              type="button"
+              className="rx-headerbtn"
+              aria-label="Settings"
+              title="Settings"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <SettingsIcon size={16} aria-hidden />
+            </button>
           </div>
           {/* Section-scoped tab sub-nav. Phase B1: filters the 11-tab bar
               to only the tabs that belong to the active section. Click a
@@ -1350,6 +1371,33 @@ export default function InpatientAbxGuide() {
       {cmdPaletteEl}
 
       {drawerEl}
+
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onOpenAntibiogramManager={() => setAntibiogramManagerOpen(true)}
+      />
+
+      <AntibiogramManager
+        open={antibiogramManagerOpen}
+        onClose={() => setAntibiogramManagerOpen(false)}
+        antibiograms={antibiograms}
+        activeId={activeAntibiogramId}
+        onSelect={(id) => setActiveAntibiogramId(id)}
+        onSave={(ab) => {
+          saveUserAntibiogram(ab);
+          setAntibiograms(getAllAntibiograms());
+          setActiveAntibiogramId(ab.id);
+        }}
+        onDelete={(id) => {
+          deleteUserAntibiogram(id);
+          const nextList = getAllAntibiograms();
+          setAntibiograms(nextList);
+          if(activeAntibiogramId === id) {
+            setActiveAntibiogramId(nextList.length ? nextList[0].id : null);
+          }
+        }}
+      />
 
       <main className="rx-main">
         {/* W12 · keyed wrapper — re-mounts the section's content tree

@@ -142,16 +142,15 @@ const CSS = `
 /* ----------------------------- HEADER + NAV ----------------------------- */
 .rx-header{position:sticky; top:0; z-index:50; background:rgba(251,250,248,.94);
   backdrop-filter:saturate(140%) blur(9px); -webkit-backdrop-filter:saturate(140%) blur(9px); border-bottom:1px solid var(--line);}
-.rx-headrow{display:flex; align-items:center; gap:14px; padding:12px 0 10px;}
+.rx-headrow{display:flex; align-items:center; gap:14px; padding:10px 0 9px;}
 
-/* W12 narrow-viewport fix · the reference-mode header used to crush
-   on mobile: the brand block was forced to ~113px between the 40px
-   mark + 14px gap + 210px search, so each title word like "Anti-
-   bacterial" wrapped onto its own line, the search collided with
-   the title text, and the mark drifted vertically because the row
-   couldn't reflow. At ≤720px we wrap the row, demote the search to
-   its own row at full width, clamp the title down to a single
-   readable size, and let the brand block take the rest naturally. */
+/* Wave 13 header consolidation · mobile collapse rules (originally from
+   PR #149 + #150). At ≤720px we wrap the row, demote the search to its
+   own row at full width, and let the [mark · wordmark · gear] block
+   occupy row 1. The wordmark stays compact, the section chip is hidden
+   below 720px to save space, and the gear stays inline at the right
+   edge of row 1 (order is implicit by source order: mark, brand, search,
+   gear — only the search is bumped to order:99 to drop to row 2). */
 @media (max-width: 720px){
   .rx-headrow{flex-wrap:wrap; gap:10px;}
   .rx-headrow > .rx-mark{flex:0 0 auto;}
@@ -159,16 +158,13 @@ const CSS = `
   .rx-headrow > .rx-searchwrap{flex:1 0 100%; order:99;}
   .rx-headrow > .rx-searchwrap > .rx-search{width:100%;}
   .rx-headrow > .rx-searchwrap > .rx-search:focus{width:100%;}
-  .rx-title{font-size:clamp(15px, 4.4vw, 18px); line-height:1.18;}
-  .rx-kicker{font-size:9.5px; letter-spacing:.18em;}
-  .rx-sub{font-size:11px;}
+  .rx-headrow > .rx-headerbtn{flex:0 0 auto;}
+  .rx-title{font-size:14px; line-height:1.18;}
+  .rx-section-chip{display:none;}
 }
 @media (max-width: 480px){
   .rx-headrow{gap:8px;}
-  .rx-title{font-size:16px;}
-  /* Re-tuck the subtitle a touch tighter so the brand block + mark
-     row fits comfortably above the (now full-width) search input. */
-  .rx-sub{margin-top:2px;}
+  .rx-title{font-size:13.5px;}
 }
 /* Mobile bughunt follow-up · Organisms § directed-therapy layout.
    The desktop layout pins a 220 px sticky taxonomic rail to the left
@@ -211,12 +207,25 @@ const CSS = `
 /* Wave 7 W7-B · the brand block becomes a gradient compass.
    Diagonal cyan-deep → cyan-bright gradient + cyan halo + a tiny
    inner highlight to read as a backlit chip. */
-.rx-mark{width:40px;height:40px;border-radius:12px 3px 12px 3px;background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 50%, var(--ox-bright) 240%);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 0 0 1px var(--ox-deep), 0 0 28px -8px var(--ox-bright);position:relative;overflow:hidden;}
+.rx-mark{width:32px;height:32px;border-radius:10px 3px 10px 3px;background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 50%, var(--ox-bright) 240%);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 0 0 1px var(--ox-deep), 0 0 22px -8px var(--ox-bright);position:relative;overflow:hidden;}
 .rx-mark::after{content:""; position:absolute; inset:0; background:radial-gradient(circle at 75% 110%, color-mix(in srgb, var(--ox-bright) 55%, transparent) 0%, transparent 55%); pointer-events:none;}
-.rx-brand{min-width:0; flex:1;}
+/* Wave 13 header consolidation — .rx-brand is now an inline row of
+   [wordmark · section chip] rather than a stacked block of
+   [kicker / title / subtitle]. The flex:1 reservation keeps it
+   absorbing the remaining width between mark and search. */
+.rx-brand{min-width:0; flex:1; display:flex; align-items:baseline; gap:10px;}
 .rx-kicker{font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--ox); font-weight:600;}
-.rx-title{font-family:var(--serif); font-weight:600; font-size:20px; letter-spacing:-.01em; margin:0; line-height:1.08;}
+.rx-title{font-family:var(--sans); font-weight:600; font-size:14.5px; letter-spacing:-.005em; margin:0; line-height:1.2; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .rx-sub{color:var(--muted); font-size:11.5px; margin:1px 0 0;}
+/* Section-name chip — small mono uppercase token sitting next to the
+   wordmark on desktop. Picks up the existing --ox accent so it reads
+   as a quiet badge, not a button. Hidden on ≤720px (mobile rules). */
+.rx-section-chip{font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--ox); background:var(--ox-soft); border:1px solid var(--ox-line); border-radius:999px; padding:2px 8px; white-space:nowrap; flex:0 0 auto;}
+/* Gear icon button — 28×28 hit area, 16px lucide glyph. Matches the
+   global pill grammar (round) and pulls cyan on hover. */
+.rx-headerbtn{display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; flex:0 0 auto; background:rgba(255,255,255,.55); border:1px solid var(--line); border-radius:999px; color:var(--ink2); cursor:pointer; padding:0; transition:color .15s, border-color .15s, background .15s, box-shadow .15s;}
+.rx-headerbtn:hover{color:var(--ox); border-color:color-mix(in srgb, var(--ox-bright) 38%, var(--line));}
+.rx-headerbtn:focus-visible{outline:2px solid var(--ox); outline-offset:2px;}
 .rx-searchwrap{position:relative; display:flex; align-items:center; flex:0 0 auto;}
 /* W10 · global header search input chrome.
    - Glass-diffuse background for the closed state (frosted-light).

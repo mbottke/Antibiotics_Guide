@@ -29,6 +29,7 @@ import { useRipple } from "./util/useRipple.js";
 import { useReducedMotion } from "./util/useReducedMotion.js";
 import { MeshWash } from "./decor/MeshWash.jsx";
 import { GradientHairline } from "./decor/GradientHairline.jsx";
+import { FontSizeControl } from "./FontSizeControl.jsx";
 
 const MICROBIOME_KEY = "ab_microbiome_sort_default";
 
@@ -440,9 +441,17 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
         />
 
         <SettingsSection icon={Type} title="Typography">
-          Text-size adjustment is the gear icon's twin in the global header — use the
-          dedicated typography control there for live A+/A− steps. The same scale
-          persists across sessions.
+          {/* Wave 13 header consolidation — FontSizeControl now lives inside
+              Settings rather than as a separate chip in the global chrome.
+              The reference shell's gear icon opens this modal; the bedside
+              shell still mounts its own copy of the modal. Scale persists
+              via localStorage. */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <FontSizeControl />
+            <span style={{ fontSize: 11.5, color: "var(--ink2)", flex: "1 1 180px", minWidth: 0, lineHeight: 1.45 }}>
+              Scales the whole canvas — text, padding, icons. 5% steps from 80% to 150%; persists across sessions.
+            </span>
+          </div>
         </SettingsSection>
         <GradientHairline variant="cyan-blue" style={{ margin: "12px 0 16px", opacity: 0.65 }} />
 
