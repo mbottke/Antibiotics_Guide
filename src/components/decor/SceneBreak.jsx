@@ -214,6 +214,20 @@ const W12_CSS = `
 @keyframes rx-scene-break-in {
   to { opacity: 1; transform: translateY(0); }
 }
+/* Mobile trim — at <=720px the 28-36px vertical padding (top + bottom
+   = 56-72px) per scene break consumes a full mobile fold across the
+   canvas's 4 epochs. Halve the rhythm; the editorial pause still
+   reads, just shorter. */
+@media (max-width: 720px) {
+  [data-scene-break][data-variant="numeral"]  { padding: 16px 0 !important; }
+  [data-scene-break][data-variant="phrase"]   { padding: 14px 0 !important; }
+  [data-scene-break][data-variant="ornament"] { padding: 12px 0 !important; }
+  [data-scene-break][data-variant="minimal"]  { padding: 14px 0 !important; }
+  [data-scene-break] [data-testid="scene-break-mark-numeral"] {
+    font-size: clamp(48px, 14vw, 80px) !important;
+    padding: 0 10px !important;
+  }
+}
 `;
 function _ensureSceneBreakStyles() {
   if (typeof document === "undefined") return;
