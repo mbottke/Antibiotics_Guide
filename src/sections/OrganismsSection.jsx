@@ -104,10 +104,18 @@ const W7_GLASS_SHADOW = "var(--w7-glass-shadow, 0 2px 8px rgba(15, 23, 42, 0.04)
    coherent — supergroups are tonally distinguished but visually unified.
    ============================================================ */
 const SUPERGROUPS = [
-  { id: "gp",      label: "Gram-positive",         match: ["Gram-positive cocci"],                       tint: "#00D4FF", icon: Heart        },
-  { id: "entero",  label: "Enterobacterales",      match: ["Enterobacterales (Gram-negative)"],          tint: "#2D7EF7", icon: Dna          },
-  { id: "nonferm", label: "Non-fermenters",        match: ["Carbapenem-resistant & non-fermenters"],     tint: "#9B5CFF", icon: Microscope   },
-  { id: "anaero",  label: "Anaerobes · atypicals", match: ["Anaerobes & atypicals"],                     tint: "#1FD49A", icon: Wind         },
+  { id: "gp",      label: "Gram-positive",         match: ["Gram-positive cocci"],                                                          tint: "#00D4FF", icon: Heart        },
+  { id: "entero",  label: "Enterobacterales",      match: ["Enterobacterales (Gram-negative)"],                                             tint: "#2D7EF7", icon: Dna          },
+  /* Pseudomonas aeruginosa is a non-fermenting Gram-negative, NOT an
+     Enterobacterales — when the data carried it under the Enterobacterales
+     group, the Non-fermenters filter rendered an empty Pseudomonas card
+     (user-reported: "Pseudomonas card is invisible"). The data file now
+     groups Pseudomonas + DTR Pseudomonas alongside the carbapenem-resistant
+     non-fermenters under "Non-fermenters & resistant Gram-negatives". The
+     historical "Carbapenem-resistant & non-fermenters" label is matched
+     here too so any legacy authored data continues to map cleanly. */
+  { id: "nonferm", label: "Non-fermenters",        match: ["Non-fermenters & resistant Gram-negatives", "Carbapenem-resistant & non-fermenters"], tint: "#9B5CFF", icon: Microscope   },
+  { id: "anaero",  label: "Anaerobes · atypicals", match: ["Anaerobes & atypicals"],                                                        tint: "#1FD49A", icon: Wind         },
 ];
 
 /* Map a DIRECTED group label to its supergroup descriptor (or null). */
