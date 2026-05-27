@@ -90,6 +90,7 @@ function FontSizeControl() {
         disabled={atMin}
         aria-label="Decrease text size"
         title="Decrease text size"
+        className="rx-focus-halo"
         style={btnStyle(atMin)}
         onMouseEnter={(e) => { if(!atMin) e.currentTarget.style.color = "var(--neon-cyan, var(--ox))"; }}
         onMouseLeave={(e) => { e.currentTarget.style.color = atMin ? "var(--faint, var(--muted))" : "var(--ink2)"; }}>
@@ -100,6 +101,7 @@ function FontSizeControl() {
         disabled={atDefault}
         aria-label={`Reset text size (currently ${Math.round(scale*100)} percent)`}
         title="Reset to 100%"
+        className="rx-focus-halo"
         style={{
           minWidth: 38, height: 24,
           /* W10 · italic-serif tabular-numeric display, cyan when off-default. */
@@ -122,6 +124,7 @@ function FontSizeControl() {
         disabled={atMax}
         aria-label="Increase text size"
         title="Increase text size"
+        className="rx-focus-halo"
         style={btnStyle(atMax)}
         onMouseEnter={(e) => { if(!atMax) e.currentTarget.style.color = "var(--neon-cyan, var(--ox))"; }}
         onMouseLeave={(e) => { e.currentTarget.style.color = atMax ? "var(--faint, var(--muted))" : "var(--ink2)"; }}>

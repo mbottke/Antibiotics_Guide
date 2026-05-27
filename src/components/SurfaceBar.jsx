@@ -53,7 +53,7 @@ function _btn({ active, disabled, showSoon, label, hint, Icon, onClick, leading 
       aria-pressed={active}
       aria-disabled={disabled || undefined}
       title={hint}
-      className={"rx-magnetic rx-shine-sweep" + (disabled ? "" : " rx-ripple")}
+      className={"rx-magnetic rx-focus-halo" + (disabled ? "" : " rx-ripple")}
       style={{
         display:"inline-flex", alignItems:"center", gap:6,
         fontFamily:"var(--sans)", fontSize:12.5, fontWeight: active ? 700 : 500,

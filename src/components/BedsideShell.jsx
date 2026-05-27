@@ -399,7 +399,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
           <button
             type="button"
             onClick={onExit}
-            className="rx-magnetic rx-shine-sweep rx-ripple"
+            className="rx-magnetic rx-ripple rx-focus-halo"
             style={chromeBtnStyle({
               textTransform: "uppercase",
               color: "var(--muted)",
@@ -414,16 +414,26 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
                 type="button"
                 onClick={onOpenPalette}
                 aria-label="Search the catalog — drugs, organisms, syndromes (⌘K)"
-                className="rx-magnetic rx-shine-sweep rx-ripple"
+                className="rx-magnetic rx-ripple rx-focus-halo"
                 style={chromeBtnStyle({
                   background: "var(--card, rgba(255,255,255,0.6))",
                 })}>
                 <Search size={12} aria-hidden />
                 <span>Search</span>
+                {/* Inline shortcut hint — uses the same asymmetric
+                    6/2/6/2 corner vocabulary + mono kicker treatment as
+                    the close affordance and the KeyboardShortcutsOverlay
+                    key pills, so the ⌘K cue reads as the same chrome
+                    grammar in every surface. */}
                 <span style={{
-                  marginLeft: 4, padding: "1px 6px", borderRadius: 4,
-                  background: "var(--surface, var(--paper2))", border: "1px solid var(--line)",
-                  fontSize: 10, color: "var(--ink2)",
+                  marginLeft: 4, padding: "1px 6px",
+                  borderRadius: "6px 2px 6px 2px",
+                  background: "var(--surface, var(--paper2))",
+                  border: "1px solid var(--line)",
+                  fontFamily: "var(--mono)",
+                  fontSize: 10, fontWeight: 700,
+                  letterSpacing: ".06em", textTransform: "uppercase",
+                  color: "var(--ink2)",
                 }}>⌘K</span>
               </button>
             )}
@@ -434,7 +444,7 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
               onClick={() => setSettingsOpen(true)}
               aria-label="Open settings"
               title="Settings"
-              className="rx-magnetic rx-shine-sweep rx-ripple"
+              className="rx-magnetic rx-ripple rx-focus-halo"
               style={{
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
                 width: scrolled ? 24 : 28, height: scrolled ? 24 : 28,
