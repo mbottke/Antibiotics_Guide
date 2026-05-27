@@ -143,6 +143,33 @@ const CSS = `
 .rx-header{position:sticky; top:0; z-index:50; background:rgba(251,250,248,.94);
   backdrop-filter:saturate(140%) blur(9px); -webkit-backdrop-filter:saturate(140%) blur(9px); border-bottom:1px solid var(--line);}
 .rx-headrow{display:flex; align-items:center; gap:14px; padding:12px 0 10px;}
+
+/* W12 narrow-viewport fix · the reference-mode header used to crush
+   on mobile: the brand block was forced to ~113px between the 40px
+   mark + 14px gap + 210px search, so each title word like "Anti-
+   bacterial" wrapped onto its own line, the search collided with
+   the title text, and the mark drifted vertically because the row
+   couldn't reflow. At ≤720px we wrap the row, demote the search to
+   its own row at full width, clamp the title down to a single
+   readable size, and let the brand block take the rest naturally. */
+@media (max-width: 720px){
+  .rx-headrow{flex-wrap:wrap; gap:10px;}
+  .rx-headrow > .rx-mark{flex:0 0 auto;}
+  .rx-headrow > .rx-brand{flex:1 1 0; min-width:0;}
+  .rx-headrow > .rx-searchwrap{flex:1 0 100%; order:99;}
+  .rx-headrow > .rx-searchwrap > .rx-search{width:100%;}
+  .rx-headrow > .rx-searchwrap > .rx-search:focus{width:100%;}
+  .rx-title{font-size:clamp(15px, 4.4vw, 18px); line-height:1.18;}
+  .rx-kicker{font-size:9.5px; letter-spacing:.18em;}
+  .rx-sub{font-size:11px;}
+}
+@media (max-width: 480px){
+  .rx-headrow{gap:8px;}
+  .rx-title{font-size:16px;}
+  /* Re-tuck the subtitle a touch tighter so the brand block + mark
+     row fits comfortably above the (now full-width) search input. */
+  .rx-sub{margin-top:2px;}
+}
 /* Wave 7 W7-B · the brand block becomes a gradient compass.
    Diagonal cyan-deep → cyan-bright gradient + cyan halo + a tiny
    inner highlight to read as a backlit chip. */
