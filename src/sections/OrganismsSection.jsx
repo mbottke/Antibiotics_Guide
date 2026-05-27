@@ -92,7 +92,10 @@ const W7_KICKER = "var(--w7-kicker, var(--muted, #6E675E))";
 const W7_LINE   = "var(--w7-hairline, var(--ox-line, #E2C7C4))";
 const W7_GLASS_BG     = "var(--w7-glass-bg, rgba(255, 255, 255, 0.72))";
 const W7_GLASS_BORDER = "var(--w7-glass-border, var(--line, #E6E0D8))";
-const W7_GLASS_SHADOW = "var(--w7-glass-shadow, 0 2px 8px rgba(15, 23, 42, 0.04), 0 12px 32px -16px rgba(15, 23, 42, 0.10))";
+/* Repointed off the legacy hardcoded "0 2px 8px / 0 12px 32px" fallback
+   onto the documented shadow scale so every Organisms surface lifts off
+   the same token cascade as Syndromes + Agents. */
+const W7_GLASS_SHADOW = "var(--shadow-e1)";
 
 /* ============================================================
    W8 · TAXONOMIC SUPERGROUPS
@@ -301,11 +304,11 @@ function W8TaxonomicRail({ counts, activeId, onSelect, totalOrgs }) {
               borderRadius: "10px 2px 10px 2px",
               background: active ? "rgba(255,255,255,0.92)" : "transparent",
               border: `1px solid ${active ? CYAN_LINE : "transparent"}`,
-              boxShadow: active ? `${W7_GLASS_SHADOW}, ${CYAN_GLOW}` : "none",
+              boxShadow: active ? `var(--shadow-e2), ${CYAN_GLOW}` : "var(--shadow-e0)",
               transform: active ? "translateY(-1px)" : "translateY(0)",
               cursor: "pointer",
               textAlign: "left",
-              transition: "all var(--duration-base, 180ms) var(--ease-out, ease)",
+              transition: "transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out)",
               fontFamily: "inherit",
               color: "inherit",
               appearance: "none",
@@ -416,10 +419,10 @@ function W8DirectedCard({ org, supergroup, openDrug, highlight, anchorId, delay,
         border: `1px solid ${ringColor}`,
         borderRadius: "14px 4px 14px 4px",
         boxShadow: lifted
-          ? `${W7_GLASS_SHADOW}, ${CYAN_GLOW}`
-          : W7_GLASS_SHADOW,
-        transform: lifted ? "translateY(-3px)" : "translateY(0)",
-        transition: "transform 220ms var(--ease-out, ease), box-shadow 220ms var(--ease-out, ease), border-color 220ms var(--ease-out, ease)",
+          ? `var(--shadow-e2), ${CYAN_GLOW}`
+          : "var(--shadow-e1)",
+        transform: lifted ? "translateY(-1px)" : "translateY(0)",
+        transition: "transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out)",
         overflow: "hidden",
         scrollMarginTop: 24,
         animationDelay: `${delay}ms`,
@@ -546,7 +549,7 @@ function W8DirectedCard({ org, supergroup, openDrug, highlight, anchorId, delay,
                   borderRadius: "8px 2px 8px 2px",
                   cursor: onSynClick ? "pointer" : "default",
                   appearance: "none", WebkitAppearance: "none",
-                  transition: "background 160ms var(--ease-out, ease), color 160ms var(--ease-out, ease)",
+                  transition: "background var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out)",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = `${CYAN_BRIGHT}`;
