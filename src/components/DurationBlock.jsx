@@ -121,12 +121,14 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
           cyan edge-light + 1px outer halo so the bottom-line duration
           directive carries the same frosted-glass register as the
           monitoring + diagnostics headlines. The accent background
-          stays underneath; the bleed is purely additive. */}
+          stays underneath; the bleed is purely additive. Asymmetric
+          10/3 corners place this headline on the medium-surface rung
+          of the canvas radius motif. */}
       {headline && (
         <div className="rx-glass-bleed" style={{
           background: accentBg,
           border: "1px solid var(--ox-line)",
-          borderRadius: 7,
+          borderRadius: "10px 3px 10px 3px",
           padding: "8px 11px",
           marginBottom: 12,
           position: "relative",
@@ -183,7 +185,11 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                     background: active ? accentBg : "var(--paper2)",
                     border: "1px solid " + (active ? "var(--ox-line)" : "var(--line)"),
                     borderLeft: "3px solid " + (active ? accent : "transparent"),
-                    borderRadius: 7,
+                    /* Medium-surface 10/3 corners — branch tiles share the
+                       canvas-wide radius motif with the headline panel + the
+                       deesc rows. The 3 px sits at top-right by design so
+                       the left-border accent stripe still reads cleanly. */
+                    borderRadius: "10px 3px 10px 3px",
                     padding: "8px 10px 8px 9px",
                     display:"flex", flexDirection:"column", gap:4,
                     cursor: interactive ? "pointer" : "default",
@@ -197,7 +203,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                     <span style={{
                       fontFamily:"var(--mono)", fontSize:14, fontWeight:700,
                       color: accent, background: accentBg,
-                      padding: "1px 7px", borderRadius: 5, whiteSpace:"nowrap",
+                      padding: "1px 7px", borderRadius: 6, whiteSpace:"nowrap",
                       border: "1px solid var(--ox-line)",
                       flex: "0 0 auto",
                     }}>
@@ -228,7 +234,9 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
           padding: "8px 10px",
           background: "var(--paper2)",
           border: "1px solid var(--line)",
-          borderRadius: 7,
+          /* Medium-surface 10/3 — start-date strip joins the branch tiles
+             + duration headline on the same radius rung. */
+          borderRadius: "10px 3px 10px 3px",
           marginBottom: stopWhen.length || extendIf.length ? 12 : 0,
         }}>
           <label style={{ display:"flex", alignItems:"center", gap:8, fontSize:11.5, color:"var(--ink2)" }}>
@@ -346,7 +354,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                       background: ctxFires ? "var(--amber-soft)" : "transparent",
                       border: ctxFires ? "1px solid var(--amber-line)" : "none",
                       borderLeft: ctxFires ? "3px solid var(--amber)" : "none",
-                      borderRadius: ctxFires ? 5 : 0,
+                      borderRadius: ctxFires ? 6 : 0,
                       transition: "background var(--duration-fast, .12s) var(--ease-out, ease), border-color var(--duration-fast, .12s) var(--ease-out, ease)",
                     }}>
                       <AlertTriangle size={11} aria-hidden style={{ color:"var(--amber)", flexShrink: 0, marginTop: 3 }} />
@@ -358,7 +366,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                           flex: "0 0 auto",
                           fontFamily:"var(--mono)", fontSize:8, fontWeight:700,
                           color:"#fff", background: "var(--amber)",
-                          padding: "2px 5px", borderRadius: 3,
+                          padding: "2px 5px", borderRadius: 4,
                           letterSpacing:".06em", textTransform:"uppercase",
                           whiteSpace:"nowrap",
                         }}>Fires now</span>
