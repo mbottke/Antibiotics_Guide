@@ -33,6 +33,35 @@ const POS = {
   "bottom-left": { bottom: -32, left: -16 },
 };
 
+/* Mobile shrink — on viewports <=720px the watermark reads as decorative
+   crowding rather than print confidence. Drop to ~96px and pull the
+   anchor in 12px so it never bleeds past the section gutter. Scoped via
+   a module-level <style> tag injected once so we don't need a global
+   CSS edit. The class is added to every watermark span. */
+const W_TRIM_CSS = `
+@media (max-width: 720px) {
+  [data-watermark-letter] {
+    font-size: 96px !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+  }
+  [data-watermark-letter][data-position="top-right"]    { top: -12px !important; right: -4px !important; }
+  [data-watermark-letter][data-position="top-left"]     { top: -12px !important; left: -4px !important; }
+  [data-watermark-letter][data-position="bottom-right"] { bottom: -12px !important; right: -4px !important; }
+  [data-watermark-letter][data-position="bottom-left"]  { bottom: -12px !important; left: -4px !important; }
+}
+`;
+function _ensureWatermarkStyles() {
+  if (typeof document === "undefined") return;
+  if (document.querySelector("style[data-watermark-letter-styles]")) return;
+  const tag = document.createElement("style");
+  tag.setAttribute("data-watermark-letter-styles", "");
+  tag.textContent = W_TRIM_CSS;
+  document.head.appendChild(tag);
+}
+
 export function WatermarkLetter({
   letter,
   size = 240,
@@ -43,6 +72,7 @@ export function WatermarkLetter({
   className,
   style,
 }) {
+  _ensureWatermarkStyles();
   const pos = POS[position] || POS["top-right"];
   const ref = useRef(null);
   /* Bad-prop tolerance — non-finite size/opacity/parallax fall back to
@@ -59,6 +89,7 @@ export function WatermarkLetter({
       ref={ref}
       aria-hidden="true"
       data-testid="watermark-letter"
+      data-watermark-letter
       data-position={position}
       className={className}
       style={{
