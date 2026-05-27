@@ -51,7 +51,7 @@ export const durationLayer = {
         </div>
         {effectiveBranch && (
           <div style={{
-            padding: "6px 10px", borderRadius: "8px 2px 8px 2px",
+            padding: "6px 10px", borderRadius: "10px 3px 10px 3px",
             background: "var(--ox-softer)", border: "1px solid var(--ox-line)",
             fontSize: 11, color: "var(--ox-deep)", lineHeight: 1.45,
           }}>
