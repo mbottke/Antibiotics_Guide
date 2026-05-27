@@ -497,7 +497,7 @@ const CSS2 = `
    different copy lengths don't both stretch to the taller one's height. */
 .rx-coverrow{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0 2px; align-items:start;}
 @media (max-width:560px){.rx-coverrow{grid-template-columns:1fr;}}
-.rx-coverbox{background:var(--line3); border:1px solid var(--line2); border-radius:9px; padding:10px 12px;}
+.rx-coverbox{background:var(--line3); border:1px solid var(--line2); border-radius:10px 3px 10px 3px; padding:10px 12px;}
 .rx-coverbox .h{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ox); font-weight:600; margin-bottom:3px;}
 .rx-coverbox .t{font-size:12.5px; color:var(--ink2); line-height:1.5;}
 .rx-metarow{display:flex; flex-wrap:wrap; gap:6px 16px; margin:14px 0 2px; font-size:12.5px; align-items:baseline;}
@@ -574,7 +574,7 @@ const CSS3 = `
 .rx-ladder{display:flex; flex-direction:column; gap:0; margin:14px 0;}
 .rx-rung{display:grid; grid-template-columns:46px 1fr; gap:0; position:relative;}
 .rx-rung-rail{position:relative; display:flex; flex-direction:column; align-items:center;}
-.rx-rung-dot{width:32px; height:32px; border-radius:10px 3px 10px 3px; background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 220%); color:#fff; font-family:var(--mono); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:1; margin-top:14px; flex:0 0 auto; box-shadow:0 4px 12px -3px var(--ox-bright);}
+.rx-rung-dot{width:32px; height:32px; border-radius:10px 3px 10px 3px; background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 220%); color:#fff; font-family:var(--mono); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:1; margin-top:14px; flex:0 0 auto; box-shadow:var(--shadow-e2);}
 .rx-rung-line{position:absolute; top:14px; bottom:-14px; width:2px; background:var(--ox-line); left:50%; transform:translateX(-50%);}
 .rx-rung:last-child .rx-rung-line{display:none;}
 .rx-rung-body{padding:12px 0 12px 14px;}
@@ -628,7 +628,7 @@ const CSS3 = `
 .rx-seg{display:flex; gap:6px;}
 .rx-seg button{flex:1; padding:8px; border:1px solid var(--line); background:var(--panel); border-radius:8px; cursor:pointer; font-family:var(--sans); font-size:13px; font-weight:600; color:var(--ink2);}
 .rx-seg button[aria-pressed="true"]{background:var(--ox); color:#fff; border-color:var(--ox);}
-.rx-result{background:var(--ox-soft); border:1px solid var(--ox-line); border-top:3px solid var(--ox); color:var(--ink); border-radius:12px; padding:22px 20px; text-align:center;}
+.rx-result{background:var(--ox-soft); border:1px solid var(--ox-line); border-top:3px solid var(--ox); color:var(--ink); border-radius:14px 4px 14px 4px; padding:22px 20px; text-align:center; box-shadow:var(--shadow-e1);}
 .rx-result .num{font-family:var(--mono); font-size:46px; font-weight:600; line-height:1; letter-spacing:-.02em; color:var(--ox-deep);}
 .rx-result .unit{font-family:var(--mono); font-size:13px; color:var(--muted); margin-top:4px;}
 .rx-result .band{display:inline-flex; align-items:center; gap:6px; margin-top:13px; font-size:13px; font-weight:600; padding:5px 13px; border-radius:999px; background:var(--panel); border:1px solid var(--ox-line); color:var(--ink) !important;}
@@ -864,7 +864,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-wt-cell .k{font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600;}
 .rx-wt-cell .v{font-size:15px; font-weight:600;}
 .rx-wt-rule{font-size:12px; color:var(--ink2); line-height:1.5; margin:10px 0 0;}
-.rx-wt-vanco{font-size:12px; color:var(--ox); background:var(--ox-softer); border:1px solid var(--ox-line); border-radius:8px; padding:8px 10px; margin-top:10px; line-height:1.45;}
+.rx-wt-vanco{font-size:12px; color:var(--ox); background:var(--ox-softer); border:1px solid var(--ox-line); border-radius:10px 3px 10px 3px; padding:8px 10px; margin-top:10px; line-height:1.45;}
 .rx-wt-vanco-note{font-size:10.5px; color:var(--muted); margin-top:6px; padding-top:6px; border-top:1px solid var(--ox-line); line-height:1.4;}
 
 /* ============================ v3 · PHASE B1 ============================ */
@@ -916,7 +916,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 
 /* ============================ v3 · PHASE B2 ============================ */
 /* regimen builder panel */
-.rx-builder{border:1px solid var(--ox-line); background:linear-gradient(180deg,var(--ox-softer),var(--paper)); border-radius:13px; padding:16px 18px; margin-bottom:20px;}
+.rx-builder{border:1px solid var(--ox-line); background:linear-gradient(180deg,var(--ox-softer),var(--paper)); border-radius:14px 4px 14px 4px; padding:16px 18px; margin-bottom:20px; box-shadow:var(--shadow-e1);}
 .rx-builder-h{display:flex; align-items:center; gap:8px; font-family:var(--serif); font-size:16px; font-weight:600; color:var(--ink); margin-bottom:4px;}
 .rx-builder-h svg{color:var(--ox);}
 .rx-builder-sub{font-size:12px; color:var(--ink2); line-height:1.5; margin:0 0 13px;}
@@ -1197,7 +1197,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 
 /* ===================== v3 · SOURCE-CONTROL BANNER ===================== */
 .rx-srcctrl{ display:flex; align-items:flex-start; gap:10px; margin:0 0 14px; padding:11px 13px;
-  background:var(--ox-soft); border:1px solid var(--ox-line); border-left:3px solid var(--ox); border-radius:9px;
+  background:var(--ox-soft); border:1px solid var(--ox-line); border-left:3px solid var(--ox); border-radius:10px 3px 10px 3px;
   font-size:12.5px; line-height:1.5; color:var(--ink); }
 .rx-srcctrl svg{ flex:0 0 auto; color:var(--ox); margin-top:1px; }
 .rx-srcctrl b{ color:var(--ox-deep); }
