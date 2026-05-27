@@ -714,7 +714,9 @@ const CSS4 = `
    height with empty card-bottoms on the shorter ones. */
 .rx-axis{display:grid; grid-template-columns:1fr 1fr 1fr; gap:13px; margin:14px 0; align-items:start;}
 @media (max-width:820px){.rx-axis{grid-template-columns:1fr;}}
-.rx-axiscard{border:1px solid var(--line); border-radius:14px 4px 14px 4px; padding:14px 15px; background:var(--panel);}
+/* Polish · token shadow at rest; the surrounding .rx-glow-lift utility
+   (see glass.js) supplies the calm hover lift (translateY -1px + e2). */
+.rx-axiscard{border:1px solid var(--line); border-radius:14px 4px 14px 4px; padding:14px 15px; background:var(--panel); box-shadow:var(--shadow-e1);}
 .rx-axiscard .ax-k{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ox); font-weight:600;}
 .rx-axiscard .ax-t{font-weight:700; font-size:14px; margin:4px 0 2px;}
 .rx-axiscard .ax-pd{font-family:var(--mono); font-size:11px; color:var(--ink2); margin:2px 0 8px;}
@@ -1093,7 +1095,9 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
    (peak / time>MIC / AUC) stay at their natural heights when their
    per-card copy differs in length. */
 .rx-pkpd-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; align-items:start;}
-.rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:14px 15px;}
+/* Polish · token shadow at rest; .rx-glow-lift on the host supplies the
+   calm hover register from PR #151. */
+.rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:14px 15px; box-shadow:var(--shadow-e1);}
 .rx-pkpd-h{display:flex; align-items:center; gap:7px; font-family:var(--sans); font-size:13px; font-weight:700; color:var(--ink); margin-bottom:7px;}
 .rx-pkpd-h svg{color:var(--ox); flex:0 0 auto;}
 .rx-pkpd-tgt{font-family:var(--mono); font-size:12px; color:var(--ox); margin-bottom:7px;}
@@ -1101,16 +1105,21 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-pkpd-do{font-size:12px; color:var(--ink2); line-height:1.5;}
 
 /* ============================ v3 · PHASE D1 ============================ */
-.rx-cmp{border:1px solid var(--line); border-radius:13px; background:var(--panel); padding:15px 16px; margin:0 0 18px;}
+/* Polish · Compare-surface SpectrumCompare card. Aligns to the guide-wide
+   scale used by every other Compare card: 14/4/14/4 asymmetric radius,
+   18px section padding, --shadow-e1 at rest. Inner selects / buttons land
+   on 10/3/10/3 (medium card scale). */
+.rx-cmp{border:1px solid var(--line); border-radius:14px 4px 14px 4px; background:var(--panel); padding:18px; margin:0 0 18px; box-shadow:var(--shadow-e1);}
 .rx-cmp-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px;}
 .rx-cmp-h{display:flex; align-items:center; gap:8px; font-family:var(--serif); font-size:16px; font-weight:600; color:var(--ink);}
 .rx-cmp-h svg{color:var(--ox);}
 .rx-cmp-diff{font-family:var(--mono); font-size:11px; color:var(--ox); font-weight:600;}
 .rx-cmp-pickers{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
 .rx-cmp-pick{flex:1; min-width:0; display:flex; gap:6px;}
-.rx-cmp-sel{flex:1; min-width:0; font-family:var(--sans); font-size:12.5px; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:8px 10px; cursor:pointer;}
+.rx-cmp-sel{flex:1; min-width:0; font-family:var(--sans); font-size:12.5px; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:10px 3px 10px 3px; padding:8px 10px; cursor:pointer; transition:border-color var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out);}
+.rx-cmp-sel:hover{border-color:var(--ox-line); background:var(--ox-softer);}
 .rx-cmp-sel:focus-visible{outline:2px solid var(--ox); outline-offset:1px;}
-.rx-cmp-open{flex:0 0 auto; width:34px; border:1px solid var(--line); background:var(--paper); color:var(--ink2); border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .14s,color .14s;}
+.rx-cmp-open{flex:0 0 auto; width:34px; border:1px solid var(--line); background:var(--paper); color:var(--ink2); border-radius:10px 3px 10px 3px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);}
 .rx-cmp-open:hover{background:var(--ox-soft); color:var(--ox); border-color:var(--ox-line);}
 .rx-cmp-vs{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; flex:0 0 auto;}
 .rx-cmptable{width:100%; border-collapse:collapse; font-size:12.5px;}
