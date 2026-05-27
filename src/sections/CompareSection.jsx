@@ -58,7 +58,7 @@ function CinematicHead({ kicker, headline, standfirst, watermark, icon = null })
 
   return (
     <header
-      className="rx-fade-in-up"
+      className="rx-fade-in-up rx-magazine-hero"
       style={{
         position: "relative",
         marginBottom: 36,

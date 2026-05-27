@@ -75,7 +75,7 @@ function SpecSheetHero({ kicker, headline, standfirst, watermark }) {
 
   return (
     <header
-      className="rx-fade-in-up"
+      className="rx-fade-in-up rx-magazine-hero"
       style={{
         position: "relative",
         marginBottom: 36,
