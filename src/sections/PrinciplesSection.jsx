@@ -656,7 +656,7 @@ function PrinciplesSection({
         watermark="P"
         counter="01 / 03"
       />
-      <W8SubTabRail activeTab="approach" />
+      {/* W12 · removed redundant W8SubTabRail — duplicated App.jsx sub-tab strip */}
       <SectionDisc />
 
       {/* W9 · Sticky sub-TOC for in-section navigation across the
@@ -853,7 +853,7 @@ function PrinciplesSection({
         watermark="C"
         counter="02 / 03"
       />
-      <W8SubTabRail activeTab="course" />
+      {/* W12 · removed redundant W8SubTabRail — duplicated App.jsx sub-tab strip */}
 
       {/* W9 · Sticky sub-TOC across the four long sub-sections of the
           course panel. */}
@@ -1051,7 +1051,7 @@ function PrinciplesSection({
         watermark="A"
         counter="03 / 03"
       />
-      <W8SubTabRail activeTab="adjuncts" />
+      {/* W12 · removed redundant W8SubTabRail — duplicated App.jsx sub-tab strip */}
 
       {/* W9 · Sticky sub-TOC across the five long sub-sections of the
           adjuncts panel. */}
