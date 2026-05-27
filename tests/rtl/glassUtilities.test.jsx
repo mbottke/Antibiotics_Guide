@@ -56,6 +56,10 @@ describe("Wave 9 W9 · glass / chrome / iridescent utilities (RTL · jsdom)", ()
   });
 
   test("CSS string defines required keyframes", () => {
+    /* rxGlowOvershoot used to power the .rx-glow-lift spring; the
+       overshoot fought with sibling transitions and read as jagged,
+       so the keyframe was retired in favor of a calm single-easing
+       transition. The remaining keyframes stay required. */
     const keyframes = [
       "@keyframes rxIridescent",
       "@keyframes rxMercuryA",
@@ -63,7 +67,6 @@ describe("Wave 9 W9 · glass / chrome / iridescent utilities (RTL · jsdom)", ()
       "@keyframes rxMercuryC",
       "@keyframes rxMercuryD",
       "@keyframes rxRingPulse",
-      "@keyframes rxGlowOvershoot",
     ];
     for (const kf of keyframes) {
       expect(GLASS).toContain(kf);
@@ -74,10 +77,12 @@ describe("Wave 9 W9 · glass / chrome / iridescent utilities (RTL · jsdom)", ()
     expect(GLASS).toContain("@media (prefers-reduced-motion: reduce)");
   });
 
-  test("CSS string references the new chrome + mercury tokens", () => {
-    expect(GLASS).toContain("var(--steel-dark)");
-    expect(GLASS).toContain("var(--steel-mid)");
-    expect(GLASS).toContain("var(--steel-light)");
+  test("CSS string references the gloss + mercury tokens", () => {
+    /* The steel-dark / steel-mid / steel-light metallic-gradient
+       tokens used to back the .rx-chrome-cta pill; that style is now
+       a flat ink pill with no metallic gradient, so the steel tokens
+       are no longer referenced. The gloss + mercury tokens are still
+       in use across other glass utilities. */
     expect(GLASS).toContain("var(--gloss-top)");
     expect(GLASS).toContain("var(--mercury-ripple-a)");
     expect(GLASS).toContain("var(--mercury-ripple-b)");

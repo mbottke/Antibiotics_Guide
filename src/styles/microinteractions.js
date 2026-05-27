@@ -44,22 +44,13 @@ const MICRO = `
   opacity: 1;
 }
 
-/* .rx-shine-sweep — diagonal shine animation that sweeps across on hover. */
-.rx-shine-sweep{
-  position: relative;
-  overflow: hidden;
-}
-.rx-shine-sweep::after{
-  content: "";
-  position: absolute; top: 0; left: -100%;
-  width: 50%; height: 100%;
-  background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
-  transition: left 480ms cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
-}
-.rx-shine-sweep:hover::after{
-  left: 130%;
-}
+/* .rx-shine-sweep — historically a diagonal shine swept across the
+   element on hover. Removed because it added busy motion to every
+   primary button and read as "fancy effect" rather than "polished
+   product". The class remains as a no-op so consumer JSX keeps
+   compiling without churn. */
+.rx-shine-sweep{ position: relative; }
+.rx-shine-sweep::after{ display: none; }
 
 /* .rx-ripple — click ripple host; useRipple injects .rx-ripple-fx children. */
 .rx-ripple{

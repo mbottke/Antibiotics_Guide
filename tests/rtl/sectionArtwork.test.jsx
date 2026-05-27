@@ -24,21 +24,29 @@ describe("SectionArtwork (RTL · jsdom)", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  test("variant='mesh' renders the mesh corner decoration", () => {
+  test("variant='mesh' renders the corner sheen (no-shape gradient wash)", () => {
+    /* The historical 140 px iridescent orb is replaced by a no-shape
+       corner sheen — pure accent-tinted gradient that fades into
+       nothing. The variant key 'mesh' still routes through the same
+       renderer so existing layer props (artwork='mesh') keep working
+       and the inner element advertises itself as 'sheen'. */
     const { container } = render(<SectionArtwork variant="mesh" />);
     const root = container.querySelector("[data-section-artwork]");
     expect(root).toBeTruthy();
     expect(root.getAttribute("data-section-artwork-variant-root")).toBe("mesh");
-    // The mesh inner has its own marker plus 3 drift blobs.
-    expect(container.querySelector("[data-section-artwork-variant='mesh']")).toBeTruthy();
-    expect(container.querySelectorAll("[data-section-artwork-blob]").length).toBe(3);
+    expect(container.querySelector("[data-section-artwork-variant='sheen']")).toBeTruthy();
+    // No circular blobs / animated drift layers anymore.
+    expect(container.querySelectorAll("[data-section-artwork-blob]").length).toBe(0);
   });
 
-  test("variant='orb' renders the iridescent orb with highlight + aberration", () => {
+  test("variant='orb' aliases to the sheen renderer (sphere removed)", () => {
     const { container } = render(<SectionArtwork variant="orb" />);
-    expect(container.querySelector("[data-section-artwork-variant='orb']")).toBeTruthy();
-    expect(container.querySelector("[data-section-artwork-highlight]")).toBeTruthy();
-    expect(container.querySelector("[data-section-artwork-aberration]")).toBeTruthy();
+    // The previous iridescent sphere + highlight + aberration layers
+    // are gone. Orb now routes through the same sheen renderer as mesh
+    // so legacy callers keep working without authoring updates.
+    expect(container.querySelector("[data-section-artwork-variant='sheen']")).toBeTruthy();
+    expect(container.querySelector("[data-section-artwork-highlight]")).toBeNull();
+    expect(container.querySelector("[data-section-artwork-aberration]")).toBeNull();
   });
 
   test("variant='chrome-curl' renders an SVG with gradient + pulse animation", () => {
@@ -64,11 +72,11 @@ describe("SectionArtwork (RTL · jsdom)", () => {
     expect(container.querySelector("[data-section-artwork-variant-root='mesh']")).toBeTruthy();
   });
 
-  test("unknown variant falls back to mesh", () => {
+  test("unknown variant falls back to mesh (now rendered as sheen)", () => {
     const { container } = render(<SectionArtwork variant="totally-made-up" />);
-    // The root reflects the requested variant name, but the inner renderer
-    // falls through to mesh (no orb/prism/chrome-curl markers).
-    expect(container.querySelector("[data-section-artwork-variant='mesh']")).toBeTruthy();
+    // Root reflects the requested variant name, inner renderer falls
+    // through to mesh which now emits the sheen sub-variant marker.
+    expect(container.querySelector("[data-section-artwork-variant='sheen']")).toBeTruthy();
     expect(container.querySelector("[data-section-artwork-variant='orb']")).toBeNull();
   });
 

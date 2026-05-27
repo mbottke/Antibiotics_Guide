@@ -22,7 +22,6 @@
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React from "react";
 import { Clock, Check, AlertTriangle, ArrowUpRight, Calendar } from "lucide-react";
-import { Section } from "./Section.jsx";
 import { matchesCtx } from "../engines/ctxMatch.js";
 import { parseBold, RichText } from "./util/richText.jsx";
 
@@ -113,7 +112,11 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
   const indefinite = activeBranch && /indefinite/i.test(activeBranch.days);
 
   return (
-    <Section kicker="Duration · When to stop" icon={Clock} glyph="duration" testId="duration-block">
+    /* The outer Section wrapper used to live here, repeating the
+       "Duration" kicker that the answer-layer Section already prints.
+       Render plain — the parent Section owns the kicker / counter /
+       rail. */
+    <div data-testid="duration-block">
       {/* Headline + evidence — Wave 10: rx-glass-bleed adds the inner
           cyan edge-light + 1px outer halo so the bottom-line duration
           directive carries the same frosted-glass register as the
@@ -188,7 +191,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                     boxShadow: active ? "inset 0 0 0 1px var(--ox-line)" : "none",
                   }}>
                   <div style={{ display:"flex", alignItems:"baseline", gap:8, justifyContent:"space-between" }}>
-                    <span style={{ fontSize:11.5, fontWeight: active ? 700 : 600, color:"var(--ink)", lineHeight:1.35 }}>
+                    <span style={{ fontSize:11.5, fontWeight: active ? 700 : 600, color:"var(--ink)", lineHeight:1.35, minWidth:0, flex:"1 1 auto" }}>
                       {b.label}
                     </span>
                     <span style={{
@@ -196,6 +199,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
                       color: accent, background: accentBg,
                       padding: "1px 7px", borderRadius: 5, whiteSpace:"nowrap",
                       border: "1px solid var(--ox-line)",
+                      flex: "0 0 auto",
                     }}>
                       {b.days}
                     </span>
@@ -367,7 +371,7 @@ function DurationBlock({ duration, pickedAgents = [], pickedBranch, onBranchSele
           )}
         </div>
       )}
-    </Section>
+    </div>
   );
 }
 

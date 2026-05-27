@@ -101,58 +101,31 @@ const ARTWORK_KEYFRAMES = `
 `;
 
 /* ============================================================
-   VARIANT · mesh
-   A miniature GradientMeshHero — 3 small radial blobs (cyan,
-   magenta, lime) inside a 140x140 circular clip with a backdrop
-   blur. Slow drift animation per blob, gated by reduced-motion.
-   1px iridescent ring around the orb (gradient stroke via a
-   double-layered border + masked overlay).
+   VARIANT · sheen  (used to be "mesh" — multicolor sphere)
+   A non-shape corner wash. No circle, no border, no animation —
+   just a soft accent-tinted gradient that fades from the top-right
+   corner into nothing. Replaces the older 140 px iridescent orb
+   that read as "object floating on the page" and consumed real
+   visual real estate inside split-aside sections. The sheen is
+   pure color, never a shape; it gives the panel a quiet identity
+   without claiming bedside attention.
    ============================================================ */
 function MeshVariant({ palette }) {
-  // Blob colors honor the accent: dominant first, then supports.
-  const blobs = [
-    { color: palette.dominant, x: "30%", y: "30%", size: "70%", animation: "saMeshDriftA 32s ease-in-out infinite" },
-    { color: palette.support1, x: "75%", y: "30%", size: "65%", animation: "saMeshDriftB 38s ease-in-out infinite" },
-    { color: palette.support2, x: "50%", y: "75%", size: "60%", animation: "saMeshDriftC 44s ease-in-out infinite" },
-  ];
   return (
     <div
-      data-section-artwork-variant="mesh"
+      data-section-artwork-variant="sheen"
+      aria-hidden="true"
       style={{
         position: "relative",
-        width: 140,
-        height: 140,
-        borderRadius: "50%",
-        overflow: "hidden",
-        backdropFilter: "blur(40px)",
-        WebkitBackdropFilter: "blur(40px)",
-        // Subtle iridescent ring: gradient via a 1px border-image fallback.
-        // We layer a border on the inside and a faint outer gradient ring.
-        border: "1px solid transparent",
-        backgroundImage: `linear-gradient(rgba(255,255,255,0.02), rgba(255,255,255,0.02)),
-                          linear-gradient(135deg, ${palette.dominant}, ${palette.support1}, ${palette.support2})`,
-        backgroundOrigin: "border-box",
-        backgroundClip: "content-box, border-box",
-        boxShadow: `0 0 18px -4px ${palette.soft}`,
+        width: 220,
+        height: 80,
+        background: `radial-gradient(120% 100% at 100% 0%,
+                       ${palette.soft} 0%,
+                       transparent 65%)`,
+        opacity: 0.85,
+        pointerEvents: "none",
       }}
-    >
-      {blobs.map((blob, i) => (
-        <div
-          key={`mesh-blob-${i}`}
-          data-section-artwork-blob
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: `radial-gradient(circle at ${blob.x} ${blob.y}, ${blob.color} 0%, transparent ${blob.size})`,
-            filter: "blur(18px)",
-            opacity: 0.75,
-            animation: blob.animation,
-            willChange: "transform",
-          }}
-        />
-      ))}
-    </div>
+    />
   );
 }
 
@@ -163,64 +136,11 @@ function MeshVariant({ palette }) {
    1px gradient ring, an inner white highlight (top-left), a soft
    outer accent glow, and a subtle chromatic-aberration before-layer.
    ============================================================ */
+/* Orb variant aliased to the sheen — the iridescent sphere read as
+   an object competing with content; the sheen carries the accent
+   identity without the footprint. */
 function OrbVariant({ palette }) {
-  return (
-    <div
-      data-section-artwork-variant="orb"
-      style={{
-        position: "relative",
-        width: 130,
-        height: 130,
-        borderRadius: "50%",
-        background: `radial-gradient(circle at 35% 35%,
-                       ${palette.dominant} 0%,
-                       ${palette.support1} 30%,
-                       ${palette.support2} 60%,
-                       transparent 100%)`,
-        backdropFilter: "blur(24px) saturate(180%)",
-        WebkitBackdropFilter: "blur(24px) saturate(180%)",
-        border: "1px solid transparent",
-        backgroundOrigin: "border-box",
-        backgroundClip: "padding-box",
-        boxShadow: `0 0 24px -2px ${palette.soft},
-                    inset 0 0 0 1px ${palette.ring}`,
-        overflow: "visible",
-      }}
-    >
-      {/* Chromatic-aberration before-layer: 3 offset gradient layers
-          shifted by 1-2px. Sits on top of the body, low opacity. */}
-      <div
-        aria-hidden="true"
-        data-section-artwork-aberration
-        style={{
-          position: "absolute",
-          inset: 0,
-          borderRadius: "50%",
-          pointerEvents: "none",
-          background: `
-            radial-gradient(circle at 36% 36%, ${palette.dominant} 0%, transparent 55%),
-            radial-gradient(circle at 34% 34%, ${palette.support1} 0%, transparent 55%),
-            radial-gradient(circle at 35% 35%, ${palette.support2} 0%, transparent 55%)
-          `,
-          backgroundBlendMode: "screen",
-          opacity: 0.18,
-          mixBlendMode: "screen",
-        }}
-      />
-      {/* Inner highlight (top-left): white at 25%/25%, 20% opacity radial. */}
-      <div
-        aria-hidden="true"
-        data-section-artwork-highlight
-        style={{
-          position: "absolute",
-          inset: 0,
-          borderRadius: "50%",
-          pointerEvents: "none",
-          background: "radial-gradient(circle at 25% 25%, rgba(255,255,255,0.20) 0%, transparent 45%)",
-        }}
-      />
-    </div>
-  );
+  return MeshVariant({ palette });
 }
 
 /* ============================================================

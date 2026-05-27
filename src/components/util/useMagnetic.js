@@ -22,40 +22,19 @@
    the inline transform so React's later renders are not surprised. */
 import { useEffect } from "react";
 
-export function useMagnetic(ref, opts = {}) {
-  const strength = opts.strength ?? 0.25;
-  const range = opts.range ?? 80;
-
+export function useMagnetic(ref, _opts = {}) {
+  // Cursor-magnetic pull on buttons added a document-level mousemove
+  // listener per hook instance — N magnetic buttons = N listeners
+  // sharing the global pointer stream. With several primary buttons
+  // on the bedside surface the recompute storm caused jagged pop /
+  // settle behavior. The hook is preserved as a no-op so the `.rx-
+  // magnetic` className and ref pattern at call sites keep working;
+  // the `.rx-magnetic` CSS still applies a calm transform transition
+  // for any other inline transform changes (focus rings, etc.).
   useEffect(() => {
     const el = ref && ref.current;
-    if(!el) return undefined;
-    if(typeof window === "undefined") return undefined;
-    if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
-    if(window.matchMedia && window.matchMedia("(pointer: coarse)").matches) return undefined;
-
-    const onMove = (e) => {
-      const r = el.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      const dist = Math.hypot(dx, dy);
-      if(dist > range) {
-        el.style.transform = "translate3d(0, 0, 0)";
-        return;
-      }
-      el.style.transform = `translate3d(${dx * strength}px, ${dy * strength}px, 0)`;
-    };
-    const onLeave = () => {
-      el.style.transform = "translate3d(0, 0, 0)";
-    };
-
-    document.addEventListener("mousemove", onMove);
-    el.addEventListener("mouseleave", onLeave);
-    return () => {
-      document.removeEventListener("mousemove", onMove);
-      el.removeEventListener("mouseleave", onLeave);
-      el.style.transform = "";
-    };
-  }, [ref, strength, range]);
+    if (!el) return undefined;
+    el.style.transform = "";
+    return undefined;
+  }, [ref]);
 }
