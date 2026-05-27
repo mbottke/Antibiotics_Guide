@@ -354,7 +354,11 @@ function Section({
             zIndex: 2,
             background: "var(--panel)",
             border: "1px solid var(--line)",
-            borderRadius: 14,
+            /* Asymmetric 14/4/14/4 — the bedside-canvas radius motif.
+               Reads as designed, not default. Mirrors the AsymmetricCard
+               "tl-br" pattern at a larger surface scale so the section
+               panel itself participates in the canvas-wide rhythm. */
+            borderRadius: "14px 4px 14px 4px",
             padding: sticky ? "20px 20px 18px" : 18,
             boxShadow: sticky ? "var(--shadow-e2)" : "var(--shadow-e1)",
             transition: "box-shadow var(--duration-base) var(--ease-out)",
