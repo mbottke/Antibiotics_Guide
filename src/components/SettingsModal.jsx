@@ -283,6 +283,9 @@ function OpenAntibiogramButton({ onClick }) {
   );
 }
 
+/* Shared close-affordance — 28×28 icon button + 6/2/6/2 asymmetric
+   corners. Identical pattern across every drawer + modal in the chrome
+   family so the dismiss gesture is a single, recognizable affordance. */
 function CloseButton({ onClose, label }) {
   const ref = useRef(null);
   useRipple(ref);
@@ -292,20 +295,20 @@ function CloseButton({ onClose, label }) {
       type="button"
       onClick={onClose}
       aria-label={label}
-      className="rx-magnetic rx-shine-sweep rx-ripple rx-focus-halo"
+      className="rx-magnetic rx-ripple rx-focus-halo"
       style={{
-        display: "inline-flex", alignItems: "center", gap: 5,
+        flex: "0 0 auto",
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        width: 28, height: 28,
         background: "rgba(0, 212, 255, 0.06)",
         border: "1px solid var(--neon-cyan-line, var(--ox-line))",
-        borderRadius: 999,
-        padding: "5px 12px 5px 10px", cursor: "pointer",
-        color: "var(--ink)",
-        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-        letterSpacing: ".08em", textTransform: "uppercase",
+        borderRadius: "6px 2px 6px 2px",
+        cursor: "pointer",
+        color: "var(--ink2)",
         transition: "background var(--duration-base, .18s) var(--ease-out, ease), color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease)",
       }}
     >
-      <X size={12} aria-hidden /> Close
+      <X size={14} aria-hidden />
     </button>
   );
 }

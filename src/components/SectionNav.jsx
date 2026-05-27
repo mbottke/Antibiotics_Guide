@@ -57,7 +57,7 @@ function NavChip({ s, active, onClick, registerRef, pulse, returning }) {
       onMouseLeave={() => setHover(false)}
       onFocus={() => setHover(true)}
       onBlur={() => setHover(false)}
-      className="rx-magnetic rx-shine-sweep"
+      className="rx-magnetic rx-focus-halo"
       data-section-chip={s.id}
       data-w12-pulse={pulse ? "true" : undefined}
       data-w12-returning={returning ? "true" : undefined}
@@ -77,9 +77,9 @@ function NavChip({ s, active, onClick, registerRef, pulse, returning }) {
         padding: "7px 14px",
         cursor: "pointer",
         whiteSpace: "nowrap",
-        /* Hover lifts the chip -2px and casts a soft cyan halo; active
-            sits flat but carries a permanent cyan glow. */
-        transform: lifted ? "translateY(-2px)" : "translateY(0)",
+        /* Hover budget is translateY(-1px) (PR #151 calm-motion reset);
+            active sits flat but carries a permanent cyan glow. */
+        transform: lifted ? "translateY(-1px)" : "translateY(0)",
         boxShadow: active
           ? "0 6px 18px -4px rgba(0, 212, 255, 0.45), 0 1px 0 rgba(255,255,255,.10) inset"
           : (lifted ? "0 4px 14px -6px rgba(0, 212, 255, 0.30)" : "none"),
