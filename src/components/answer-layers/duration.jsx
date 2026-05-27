@@ -82,7 +82,6 @@ export const durationLayer = {
         total={_layerTotal}
         split
         aside={aside}
-        flatPanel
       >
         <DurationBlock
           duration={_duration}

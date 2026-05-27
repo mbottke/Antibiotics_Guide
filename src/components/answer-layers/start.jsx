@@ -13,8 +13,6 @@ import React from "react";
 import { Crosshair, Calculator, ShieldAlert } from "lucide-react";
 import { Section } from "../Section.jsx";
 import { RxLine } from "../RxLine.jsx";
-import { AsymmetricCard } from "../decor/AsymmetricCard.jsx";
-import { Sparkle } from "../decor/Sparkle.jsx";
 import { GradientHairline } from "../decor/GradientHairline.jsx";
 
 export const startLayer = {
@@ -118,52 +116,35 @@ export const startLayer = {
         split={!!aside}
         aside={aside}
       >
+        {/* Each tier is a flat tinted surface — no inner card shadow,
+            no decorative "+" badge. The outer Section already supplies
+            the panel chrome, and the RegimenOptions inside each tier
+            have their own option-card borders; stacking another
+            shadowed wrapper here read as a "window inside a window". */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {allTiers.map((entry, i) => {
-            const pattern = i % 2 === 0 ? "tl-br" : "tr-bl";
-            return (
-              <AsymmetricCard
-                key={`${entry.kind}-${i}`}
-                pattern={pattern}
-                elevation="e0"
-                className={i === 0 ? "rx-glow-lift" : undefined}
-                style={{
-                  padding: "10px 12px",
-                  background: i === 0 ? "var(--ox-softer)" : "var(--paper2)",
-                  borderColor: i === 0 ? "var(--ox-line)" : "var(--line)",
-                  position: "relative",
-                }}
-              >
-                {i === 0 && (
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      top: -8, left: -8,
-                      width: 22, height: 22,
-                      display: "inline-flex", alignItems: "center", justifyContent: "center",
-                      background: "var(--ox)",
-                      borderRadius: "50%",
-                      boxShadow: "var(--neon-cyan-glow, 0 0 0 transparent)",
-                    }}
-                  >
-                    <Sparkle size={14} color="#fff" />
-                  </span>
-                )}
-                <RxLine
-                  kind={entry.kind}
-                  tier={entry.tier}
-                  refinements={entry.refinements}
-                  onDrug={onDrug}
-                  onOpenMechanism={onOpenMechanism}
-                  ctx={ans.ctx}
-                  d={ans.d}
-                  synId={s.id}
-                  onAgentSelect={setTierPick(entry.tier.k)}
-                />
-              </AsymmetricCard>
-            );
-          })}
+          {allTiers.map((entry, i) => (
+            <div
+              key={`${entry.kind}-${i}`}
+              style={{
+                padding: "10px 12px",
+                background: i === 0 ? "var(--ox-softer)" : "var(--paper2)",
+                border: `1px solid ${i === 0 ? "var(--ox-line)" : "var(--line)"}`,
+                borderRadius: 10,
+              }}
+            >
+              <RxLine
+                kind={entry.kind}
+                tier={entry.tier}
+                refinements={entry.refinements}
+                onDrug={onDrug}
+                onOpenMechanism={onOpenMechanism}
+                ctx={ans.ctx}
+                d={ans.d}
+                synId={s.id}
+                onAgentSelect={setTierPick(entry.tier.k)}
+              />
+            </div>
+          ))}
         </div>
         {allergy && (
           <>

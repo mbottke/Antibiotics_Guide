@@ -51,50 +51,22 @@ function _matches(query) {
  * @param {number} [opts.perspective=1000] — perspective distance (px)
  * @param {boolean} [opts.enabled=true]  — gate the effect
  */
-export function useTilt(ref, opts) {
-  const intensity = (opts && typeof opts.intensity === "number") ? opts.intensity : 6;
-  const perspective = (opts && typeof opts.perspective === "number") ? opts.perspective : 1000;
-  const enabled = opts && opts.enabled === false ? false : true;
-
+export function useTilt(ref, _opts) {
+  // The cursor-driven 3D card tilt was the largest single source of
+  // bedside motion noise — every option/regimen card ran its own
+  // mousemove listener and rewrote `transform` on every frame, which
+  // popped against hover transitions on parent containers and read
+  // as jagged on slower devices. The hook is preserved as a no-op so
+  // every call site keeps compiling; we still clear any inline
+  // transform we may have written on a previous render in case the
+  // effect was hot-toggled. The other reduced-motion / coarse-pointer
+  // gates are now redundant and left out.
   useEffect(() => {
     const el = ref && ref.current;
-    if(!el) return undefined;
-    if(!enabled || _matches(REDUCED_MOTION_QUERY) || _matches(COARSE_POINTER_QUERY)) {
-      // Ensure host is reset if effect was just disabled.
-      el.style.transform = "";
-      el.style.transformStyle = "";
-      el.style.transition = "";
-      return undefined;
-    }
-
-    el.style.transformStyle = "preserve-3d";
-    el.style.transition = "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)";
-
-    const onMove = (e) => {
-      const r = el.getBoundingClientRect();
-      if(r.width === 0 || r.height === 0) return;
-      const px = (e.clientX - r.left) / r.width;
-      const py = (e.clientY - r.top) / r.height;
-      const rx = (0.5 - py) * intensity;
-      const ry = (px - 0.5) * intensity;
-      el.style.transform =
-        "perspective(" + perspective + "px) rotateX(" + rx.toFixed(3)
-        + "deg) rotateY(" + ry.toFixed(3) + "deg)";
-    };
-    const onLeave = () => {
-      el.style.transform =
-        "perspective(" + perspective + "px) rotateX(0deg) rotateY(0deg)";
-    };
-
-    el.addEventListener("mousemove", onMove, { passive: true });
-    el.addEventListener("mouseleave", onLeave, { passive: true });
-
-    return () => {
-      el.removeEventListener("mousemove", onMove);
-      el.removeEventListener("mouseleave", onLeave);
-      el.style.transform = "";
-      el.style.transformStyle = "";
-      el.style.transition = "";
-    };
-  }, [ref, intensity, perspective, enabled]);
+    if (!el) return undefined;
+    el.style.transform = "";
+    el.style.transformStyle = "";
+    el.style.transition = "";
+    return undefined;
+  }, [ref]);
 }

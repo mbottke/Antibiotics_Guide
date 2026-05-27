@@ -93,12 +93,14 @@ const GLASS = `
   display: block;
 }
 
-/* === G3 · Chrome CTA pill ==============================================
-   Vertical metallic gradient (steel-dark → steel-mid → steel-light band
-   at 35% → steel-mid → steel-dark) so a thin lighter "sheen" ridge sits
-   one-third of the way down. Asymmetric radius 14/3/14/3, backdrop
-   blur(8px). Hover sweeps a translucent diagonal band L→R; active
-   compresses with an inset pressed shadow. */
+/* === G3 · Primary CTA pill =============================================
+   Previously a vertical metallic-steel gradient with a sweeping shine
+   ridge on hover. The chrome treatment read as decorative artifice
+   rather than a polished product affordance. Replaced with a clean,
+   modern flat pill: dark ink surface, single-pixel border, soft drop
+   shadow, gentle background lift on hover. No metallic gradient, no
+   shimmer pseudo-element, no transform shift on press. The class
+   name rx-chrome-cta is preserved so existing JSX needs no rename. */
 .rx-chrome-cta{
   position: relative;
   display: inline-flex;
@@ -106,60 +108,28 @@ const GLASS = `
   justify-content: center;
   gap: 8px;
   padding: 10px 18px;
-  border-radius: 14px 3px 14px 3px;
-  border: 1px solid color-mix(in srgb, var(--steel-dark) 70%, transparent);
+  border-radius: 999px;
+  border: 1px solid var(--line);
   color: #fff;
   font-family: var(--sans);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: .01em;
   cursor: pointer;
-  overflow: hidden;
-  isolation: isolate;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  background:
-    linear-gradient(180deg,
-      var(--steel-dark) 0%,
-      var(--steel-mid) 30%,
-      var(--steel-light) 35%,
-      var(--steel-mid) 42%,
-      var(--steel-dark) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.35),
-    inset 0 -1px 0 rgba(0,0,0,0.30),
-    0 6px 14px -4px rgba(11,15,20,0.45);
+  background: var(--ink);
+  box-shadow: 0 1px 2px rgba(11,15,20,0.18);
   transition:
-    box-shadow var(--duration-base, 180ms) var(--ease-out, ease),
-    transform var(--duration-fast, 120ms) var(--ease-out, ease);
+    background var(--duration-base, 180ms) var(--ease-out, ease),
+    box-shadow var(--duration-base, 180ms) var(--ease-out, ease);
 }
-.rx-chrome-cta::after{
-  content: "";
-  position: absolute;
-  top: 0; left: -120%;
-  width: 60%; height: 100%;
-  background: linear-gradient(110deg,
-    transparent 0%,
-    rgba(255,255,255,0.45) 50%,
-    transparent 100%);
-  transform: skewX(-18deg);
-  pointer-events: none;
-  transition: left 600ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.rx-chrome-cta:hover::after{ left: 140%; }
+.rx-chrome-cta::after{ display: none; }
 .rx-chrome-cta:hover{
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.45),
-    inset 0 -1px 0 rgba(0,0,0,0.30),
-    0 10px 22px -6px rgba(11,15,20,0.55),
-    0 0 24px -6px color-mix(in srgb, var(--neon-cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--ink) 86%, var(--ox));
+  box-shadow: 0 2px 6px rgba(11,15,20,0.22);
 }
 .rx-chrome-cta:active{
-  transform: translateY(1px);
-  box-shadow:
-    inset 0 2px 4px rgba(0,0,0,0.35),
-    inset 0 -1px 0 rgba(255,255,255,0.10),
-    0 2px 6px -2px rgba(11,15,20,0.45);
+  background: var(--ink);
+  box-shadow: 0 1px 1px rgba(11,15,20,0.20);
 }
 .rx-chrome-cta:focus-visible{
   outline: 2px solid var(--neon-cyan);
@@ -352,26 +322,22 @@ const GLASS = `
   z-index: 1;
 }
 
-/* === G10 · Card lift with glow trail ===================================
-   Hover overshoots a stronger cyan glow then settles to a steady warm
-   glow, mimicking inertia. Spring-style cubic-bezier. Opt-in: add
-   .rx-glow-lift to any interactive card. */
-@keyframes rxGlowOvershoot{
-  0%   { box-shadow: var(--shadow-e2),
-                     0 0 0 0   color-mix(in srgb, var(--neon-cyan) 0%, transparent); }
-  60%  { box-shadow: var(--shadow-e5),
-                     0 0 36px 6px color-mix(in srgb, var(--neon-cyan) 55%, transparent); }
-  100% { box-shadow: var(--shadow-e4),
-                     0 0 20px 2px color-mix(in srgb, var(--neon-cyan) 30%, transparent); }
-}
+/* === G10 · Card lift ==================================================
+   Previously a spring-overshoot animation that bounced the box-shadow
+   through a stronger cyan glow before settling. The overshoot fought
+   with the card transition-transform on other classes and read as a
+   jagged pop on slower devices. Replaced with a single calm easing:
+   a 1 px translateY and a quiet shadow lift, both honoring a single
+   180 ms ease-out. */
 .rx-glow-lift{
   transition:
-    transform 600ms cubic-bezier(.2,1.4,.4,1),
-    box-shadow 600ms cubic-bezier(.2,1.4,.4,1);
+    transform var(--duration-base, 180ms) var(--ease-out, ease),
+    box-shadow var(--duration-base, 180ms) var(--ease-out, ease);
+  will-change: transform;
 }
 .rx-glow-lift:hover{
-  transform: translateY(-4px);
-  animation: rxGlowOvershoot 600ms cubic-bezier(.2,1.4,.4,1) forwards;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-e2);
 }
 
 /* === Reduced-motion guards ============================================
