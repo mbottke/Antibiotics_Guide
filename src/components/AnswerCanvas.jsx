@@ -308,6 +308,14 @@ const W8_STYLES = `
   .rx-cta-ehr, .rx-cta-ehr:hover{ transition: none !important; transform: none !important; }
   .rx-vertical-rail__item{ transition: none !important; transform: none !important; }
 }
+/* Inter-layer hairlines — between every authored answer-canvas layer
+   we drop a GradientHairline with margin 4px 0 20px. On mobile the
+   24px combined vertical breather adds up across 8-12 layers, which
+   pushes real clinical content off the fold. Tighten to 8px on
+   <=720px; the hairline still reads as a soft seam. */
+@media (max-width: 720px){
+  .rx-answer-layer-hairline{ margin: 2px 0 6px !important; }
+}
 `;
 
 /* ---------- the canvas itself ---------- */
@@ -1004,6 +1012,7 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                   </div>
                   {!isLast && !W12_SCENE_BREAKS[visibleLayers[i + 1]?.id] && (
                     <GradientHairline
+                      className="rx-answer-layer-hairline"
                       variant={i % 3 === 0 ? "cyan-blue" : i % 3 === 1 ? "blue-magenta" : "default"}
                       withDot={i % 4 === 0}
                       style={{ margin: "4px 0 20px" }}
