@@ -45,6 +45,8 @@ const DIRECTED = [
       first:"Cefepime (IDSA 2024 preferred)",
       alt:"Carbapenem if high inoculum or critically ill; TMP-SMX or FQ for step-down",
       cav:"Avoid ceftriaxone / 3rd-gen cephalosporins — risk of treatment-emergent derepression. The old caution against cefepime at MIC 4–8 has been withdrawn." },
+  ]},
+  { grp:"Non-fermenters & resistant Gram-negatives", items:[
     { org:"Pseudomonas aeruginosa", sub:"susceptible",
       first:"Cefepime, piperacillin-tazobactam, ceftazidime, or meropenem (one active agent)",
       alt:"Ciprofloxacin/levofloxacin for oral step-down; tobramycin/amikacin adjunct",
@@ -53,8 +55,6 @@ const DIRECTED = [
       first:"Ceftolozane-tazobactam, ceftazidime-avibactam, or imipenem-relebactam (by susceptibility)",
       alt:"Cefiderocol; consider combination only if no single susceptible agent",
       cav:"DTR = nonsusceptible to all of pip-tazo, ceftazidime, cefepime, aztreonam, carbapenems, and FQs. Reserve novel agents; obtain susceptibilities." },
-  ]},
-  { grp:"Carbapenem-resistant & non-fermenters", items:[
     { org:"CRE — KPC or OXA-48", sub:"serine carbapenemase",
       first:"Ceftazidime-avibactam, meropenem-vaborbactam, or imipenem-relebactam",
       alt:"Cefiderocol; meropenem-vaborbactam favored for KPC",
