@@ -204,6 +204,14 @@ const CSS = `
   .rx-allergy th, .rx-allergy td{padding: 8px 7px;}
   .rx-allergy td{overflow-wrap: anywhere; word-break: break-word;}
 }
+/* Wave 14 — hide the global SurfaceBar (Setting + View row) on mobile.
+   It consumed ~101 px of chrome above the SectionNav and the header on
+   a 393 px viewport (35 % of the visible area before clinical content
+   started). Its Setting + View controls are folded into SettingsModal
+   so the gear icon in the header is the single home for them. */
+@media (max-width: 720px){
+  .rx-surface-bar{display:none;}
+}
 /* Wave 7 W7-B · the brand block becomes a gradient compass.
    Diagonal cyan-deep → cyan-bright gradient + cyan halo + a tiny
    inner highlight to read as a backlit chip. */

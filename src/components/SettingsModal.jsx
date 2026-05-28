@@ -22,7 +22,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
-  Activity, Keyboard, Settings as SettingsIcon, ShieldAlert, Type, X,
+  Activity, BookOpen, Crosshair, Hospital, Keyboard,
+  Settings as SettingsIcon, ShieldAlert, Stethoscope, Type, X,
 } from "lucide-react";
 import { useFocusTrap } from "./util/useFocusTrap.js";
 import { useRipple } from "./util/useRipple.js";
@@ -314,7 +315,90 @@ function CloseButton({ onClose, label }) {
   );
 }
 
-function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
+/* Compact two-row Setting + View picker. Mirrors the labels and chips
+   of SurfaceBar so the affordance reads identically on mobile, where
+   SurfaceBar is hidden by an @media rule and this card is the only
+   way to switch surface / mode. Returns null when no setSurface +
+   setMode props are wired (graceful fallback in non-App contexts like
+   isolated RTL tests). */
+function SurfacePicker({ surface, mode, onSurface, onMode }) {
+  if (!onSurface || !onMode) return null;
+  const SURFACE_OPTS = [
+    { id: "inpatient",  label: "Inpatient",  icon: Hospital,    disabled: false, showSoon: false },
+    { id: "outpatient", label: "Outpatient", icon: Stethoscope, disabled: false, showSoon: true  },
+  ];
+  const MODE_OPTS = [
+    { id: "reference", label: "Reference", icon: BookOpen },
+    { id: "decide",    label: "Decide",    icon: Crosshair },
+  ];
+  const modeDisabled = surface === "outpatient";
+  const chipStyle = (active, disabled) => ({
+    display: "inline-flex", alignItems: "center", gap: 6,
+    fontFamily: "var(--sans)", fontSize: 12.5,
+    fontWeight: active ? 700 : 500,
+    color: active ? "#fff" : disabled ? "var(--faint)" : "var(--ink2)",
+    background: active
+      ? "linear-gradient(135deg, var(--ox-deep, #0B0F14) 0%, var(--ox, #1F2937) 50%, var(--neon-cyan, #00D4FF) 240%)"
+      : "var(--paper)",
+    border: "1px solid " + (active ? "var(--neon-cyan, var(--ox-deep))" : "var(--line)"),
+    padding: "7px 12px",
+    cursor: disabled ? "not-allowed" : "pointer",
+    whiteSpace: "nowrap",
+    boxShadow: active ? "0 6px 16px -6px rgba(0, 212, 255, 0.40)" : "none",
+    flex: "1 1 0", minWidth: 0,
+    justifyContent: "center",
+  });
+  const row = (label, items, activeId, onClick, disabled) => (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{
+        fontFamily: "var(--mono)", fontSize: 10, letterSpacing: ".14em",
+        textTransform: "uppercase", color: "var(--muted)", fontWeight: 600,
+        marginBottom: 5,
+      }}>{label}</div>
+      <div style={{ display: "flex", gap: 0 }} role="group" aria-label={label}>
+        {items.map((it, i) => {
+          const active = activeId === it.id;
+          const isDisabled = disabled || it.disabled;
+          return (
+            <button
+              key={it.id}
+              type="button"
+              onClick={isDisabled ? undefined : () => onClick(it.id)}
+              aria-pressed={active}
+              aria-disabled={isDisabled || undefined}
+              className="rx-focus-halo"
+              style={{
+                ...chipStyle(active, isDisabled),
+                borderRadius: i === 0 ? "10px 3px 3px 10px" : "3px 10px 10px 3px",
+                marginLeft: i === 0 ? 0 : -1,
+              }}
+            >
+              <it.icon size={13} aria-hidden /> {it.label}
+              {it.showSoon && (
+                <span style={{
+                  fontFamily: "var(--mono)", fontSize: 9, letterSpacing: ".06em",
+                  textTransform: "uppercase",
+                  color: active ? "#fff" : "var(--muted)",
+                  background: active ? "rgba(255,255,255,.15)" : "var(--line2)",
+                  border: "1px solid " + (active ? "rgba(255,255,255,.25)" : "var(--line)"),
+                  borderRadius: 4, padding: "1px 4px", marginLeft: 2,
+                }}>Soon</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+  return (
+    <>
+      {row("Setting", SURFACE_OPTS, surface, onSurface, false)}
+      {row("View",    MODE_OPTS,    mode,    onMode,    modeDisabled)}
+    </>
+  );
+}
+
+function SettingsModal({ open, onClose, onOpenAntibiogramManager, surface, mode, onSurface, onMode }) {
   const dialogRef = useRef(null);
   const reducedMotion = useReducedMotion();
   const [microbiomeSort, setMicrobiomeSort] = useState(() => _readBool(MICROBIOME_KEY));
@@ -442,6 +526,28 @@ function SettingsModal({ open, onClose, onOpenAntibiogramManager }) {
             margin: "0 0 16px",
           }}
         />
+
+        {/* Wave 14 — Setting + View pickers live inside Settings on mobile.
+            The standalone SurfaceBar at the top of the page is hidden by
+            an @media rule below 720 px (it consumed ~101 px of chrome
+            without being needed often). Switching surface/view still works
+            via this card; on desktop both surfaces coexist. */}
+        {(onSurface || onMode) && (
+          <>
+            <SettingsSection icon={Hospital} title="Setting & view">
+              <SurfacePicker
+                surface={surface}
+                mode={mode}
+                onSurface={(s) => { if (onSurface) onSurface(s); }}
+                onMode={(m) => { if (onMode) onMode(m); }}
+              />
+              <span style={{ display: "block", fontSize: 11.5, color: "var(--ink2)", marginTop: 2, lineHeight: 1.45 }}>
+                Switch between inpatient / outpatient surfaces and the reference / decide views. The dedicated bar at the top of the page is hidden on small screens.
+              </span>
+            </SettingsSection>
+            <GradientHairline variant="cyan-blue" style={{ margin: "12px 0 16px", opacity: 0.65 }} />
+          </>
+        )}
 
         <SettingsSection icon={Type} title="Typography">
           {/* Wave 13 header consolidation — FontSizeControl now lives inside

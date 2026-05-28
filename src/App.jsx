@@ -1260,6 +1260,10 @@ export default function InpatientAbxGuide() {
           onOpenPalette={_openCmd}
           antibiogram={activeAntibiogram}
           onOpenAntibiogramManager={() => setAntibiogramManagerOpen(true)}
+          surface={surface}
+          mode={mode}
+          onSurface={(s) => { setSurface(s); if (s === "outpatient") setMode("reference"); }}
+          onMode={(m) => setMode(m)}
         />
         <AntibiogramManager
           open={antibiogramManagerOpen}
@@ -1376,6 +1380,10 @@ export default function InpatientAbxGuide() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         onOpenAntibiogramManager={() => setAntibiogramManagerOpen(true)}
+        surface={surface}
+        mode={mode}
+        onSurface={(s) => { setSurface(s); if (s === "outpatient") setMode("reference"); }}
+        onMode={(m) => setMode(m)}
       />
 
       <AntibiogramManager
