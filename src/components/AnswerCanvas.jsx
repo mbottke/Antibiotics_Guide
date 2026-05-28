@@ -311,6 +311,14 @@ const W8_STYLES = `
   .rx-cta-ehr, .rx-cta-ehr:hover{ transition: none !important; transform: none !important; }
   .rx-vertical-rail__item{ transition: none !important; transform: none !important; }
 }
+/* Inter-layer hairlines — between every authored answer-canvas layer
+   we drop a GradientHairline with margin 4px 0 20px. On mobile the
+   24px combined vertical breather adds up across 8-12 layers, which
+   pushes real clinical content off the fold. Tighten to 8px on
+   <=720px; the hairline still reads as a soft seam. */
+@media (max-width: 720px){
+  .rx-answer-layer-hairline{ margin: 2px 0 6px !important; }
+}
 `;
 
 /* ---------- the canvas itself ---------- */
@@ -1002,10 +1010,25 @@ function AnswerCanvas({ caseState, setCaseState, onEditCase, onDrug, onOrg, onCi
                     style={{ ..._stagger(), borderRadius: 12 }}
                     data-w12-finding-glow={glowClass ? glowKey : 0}
                   >
-                    {L.render(layerShared)}
+                    {(() => {
+                      /* Wave 14 · thread `collapsible` + `persistKey` into
+                         every Section the layer renders. We cloneElement
+                         the layer's root JSX so individual layer modules
+                         don't each need to import sessionStorage logic.
+                         Layers whose root passes `flatPanel` opt out —
+                         MonitoringBlock + DurationBlock host their own
+                         chrome and have a specific Section contract that
+                         collapse would disrupt. */
+                      const el = L.render(layerShared);
+                      if (!el || !React.isValidElement(el)) return el;
+                      if (el.props && el.props.flatPanel) return el;
+                      const persistKey = `ab_collapsed_${s.id}_${L.id}`;
+                      return React.cloneElement(el, { collapsible: true, persistKey });
+                    })()}
                   </div>
                   {!isLast && !W12_SCENE_BREAKS[visibleLayers[i + 1]?.id] && (
                     <GradientHairline
+                      className="rx-answer-layer-hairline"
                       variant={i % 3 === 0 ? "cyan-blue" : i % 3 === 1 ? "blue-magenta" : "default"}
                       withDot={i % 4 === 0}
                       style={{ margin: "4px 0 20px" }}

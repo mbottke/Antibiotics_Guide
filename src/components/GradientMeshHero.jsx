@@ -105,6 +105,21 @@ const MESH_KEYFRAMES = `
   @media (prefers-reduced-motion: reduce) {
     [data-mesh-blob] { animation: none !important; }
   }
+  /* Mobile trim — at <=720px the 56/44/48 padding and 240px decorative
+     numeral consume vertical headroom out of proportion to their
+     editorial value. Tighten the padding to a magazine-mobile rhythm
+     and drop the numeral to ~120px so it still reads as ornament
+     without dwarfing the typography. */
+  @media (max-width: 720px) {
+    [data-gradient-mesh-hero] {
+      padding: 24px 18px 22px !important;
+    }
+    [data-gradient-mesh-hero] [data-mesh-decorative-numeral] {
+      font-size: 120px !important;
+      top: -12px !important;
+      right: 8px !important;
+    }
+  }
 `;
 
 export function GradientMeshHero({

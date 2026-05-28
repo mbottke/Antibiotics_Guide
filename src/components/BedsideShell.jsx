@@ -15,7 +15,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Search, Settings as SettingsIcon } from "lucide-react";
 import { CaseBar } from "./CaseBar.jsx";
 import { AnswerCanvas } from "./AnswerCanvas.jsx";
-import { FontSizeControl } from "./FontSizeControl.jsx";
 import { SettingsModal } from "./SettingsModal.jsx";
 import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay.jsx";
 import { OnboardingModal } from "./OnboardingModal.jsx";
@@ -437,7 +436,10 @@ function BedsideShell({ caseState, setCaseState, onExit, onDrug, onOrg, onCite, 
                 }}>⌘K</span>
               </button>
             )}
-            <FontSizeControl />
+            {/* Wave 13 header consolidation — FontSizeControl has moved
+                into SettingsModal (Typography section). The gear button
+                below opens the same modal, so the control is one click
+                away rather than competing with chrome density. */}
             <DensityToggle />
             <button
               type="button"
