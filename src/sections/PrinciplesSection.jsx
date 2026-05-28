@@ -136,25 +136,14 @@ function W8MagazineHero({ kicker, title, standfirst, watermark = "P", counter })
       <DottedGrid size={28} opacity={0.35} />
 
       <div style={{ position: "relative" }}>
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: 10,
-          fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.22em",
-          textTransform: "uppercase", color: W7_KICKER, marginBottom: 18,
-        }}>
-          <span aria-hidden="true" style={{
-            display: "inline-block", width: 8, height: 8, borderRadius: 999,
-            background: CYAN_BRIGHT,
-            boxShadow: `0 0 0 3px ${CYAN_SOFT}, ${CYAN_GLOW}`,
-          }}/>
-          <span>{kicker}</span>
-          <Sparkle size={11} color={CYAN_BRIGHT} />
-          {counter && (
-            <>
-              <span aria-hidden="true" style={{ opacity: 0.45 }}>·</span>
-              <span className="rx-counter" style={{ fontSize: 11, color: W7_KICKER }}>{counter}</span>
-            </>
-          )}
-        </div>
+        {/* Wave 14 — kicker row ("PRINCIPLES · APPROACH" + "01 / 03"
+            counter) removed. SectionNav already conveys the section,
+            the sub-tab strip names the active tab, and the H1 below
+            carries the editorial identity — three labels for the same
+            orientation cue read as redundant and consumed significant
+            vertical real estate on mobile. The `counter` + `kicker`
+            props are retained on the component signature so existing
+            callsites keep compiling without churn. */}
 
         <h1 style={{
           fontFamily: "var(--serif)", fontStyle: "italic",

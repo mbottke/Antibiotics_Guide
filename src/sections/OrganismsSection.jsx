@@ -150,25 +150,8 @@ function W8FieldGuideHero({ kicker, title, standfirst, watermark = "O", counter 
       <MeshWash variant="full" intensity="soft" palette="lime-amber" />
       <DottedGrid size={28} opacity={0.35} />
       <div style={{ position: "relative" }}>
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: 10,
-          fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.22em",
-          textTransform: "uppercase", color: W7_KICKER, marginBottom: 18,
-        }}>
-          <span aria-hidden="true" style={{
-            display: "inline-block", width: 8, height: 8, borderRadius: 999,
-            background: CYAN_BRIGHT,
-            boxShadow: `0 0 0 3px ${CYAN_SOFT}, ${CYAN_GLOW}`,
-          }}/>
-          <span>{kicker}</span>
-          <Sparkle size={11} color={CYAN_BRIGHT} />
-          {counter && (
-            <>
-              <span aria-hidden="true" style={{ opacity: 0.45 }}>·</span>
-              <span className="rx-counter" style={{ fontSize: 11, color: W7_KICKER }}>{counter}</span>
-            </>
-          )}
-        </div>
+        {/* Wave 14 — kicker row + counter removed (redundant with
+            SectionNav + sub-tab strip; the H1 carries the identity). */}
         <h1 style={{
           fontFamily: "var(--serif)", fontStyle: "italic",
           fontSize: "clamp(56px, 9vw, 96px)", lineHeight: 0.94,

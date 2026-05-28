@@ -87,22 +87,7 @@ function SpecSheetHero({ kicker, headline, standfirst, watermark }) {
           the quieter "business-friendly" chord — the formulary spread is
           a working surface, not a launch surface, so the wash is softer. */}
       <MeshWash variant="full" intensity="soft" palette="cyan-blue" />
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          marginBottom: 14,
-        }}
-      >
-        <span
-          className="rx-counter-strong"
-          style={{ fontSize: 11, letterSpacing: ".24em" }}
-        >
-          {kicker}
-        </span>
-        <Sparkle size={12} />
-      </div>
+      {/* Wave 14 — kicker row removed (redundant with SectionNav). */}
       <h1
         style={{
           fontFamily: "var(--serif)",

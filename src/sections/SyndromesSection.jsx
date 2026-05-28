@@ -174,31 +174,7 @@ function SyndromesSection({
         {/* Wave 9 W9 · molten chrome behind the Syndromes hero. cyan-magenta-lime
             palette anchors this surface in the brand's most saturated chord. */}
         <MeshWash variant="full" intensity="soft" palette="cyan-magenta-lime" />
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 18,
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          <span
-            aria-hidden
-            style={{
-              fontFamily: "var(--mono)",
-              fontSize: 11,
-              letterSpacing: ".28em",
-              textTransform: "uppercase",
-              color: "var(--ox)",
-              fontWeight: 700,
-            }}
-          >
-            Reference · Editorial Gallery
-          </span>
-          <Sparkle size={12} color="var(--hot-magenta, var(--ox))" />
-        </div>
+        {/* Wave 14 — kicker row removed (redundant with SectionNav). */}
 
         {/* Wordmark — 96px italic serif with sparkle replacing the trailing 's' */}
         <h2
