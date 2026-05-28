@@ -1307,6 +1307,7 @@ export default function InpatientAbxGuide() {
         trail={w12Trail}
         isReturning={w12Returning}
         visited={w12Visited}
+        onOpenSettings={() => setSettingsOpen(true)}
         onSection={(s) => {
           /* W12 — every section click flows through navigate() so the
              chrome (ink trail, chip pulse, View Transitions API cross-
@@ -1318,35 +1319,18 @@ export default function InpatientAbxGuide() {
 
       <header className="rx-header">
         <div className="rx-wrap">
-          {/* Header consolidation · Wave 13.
-              Desktop ≥720px: one row → [mark · compact wordmark · section chip] [search] [gear].
-              Mobile <720px: two rows → row1 [mark · wordmark · gear], row2 [search full-width].
-              The long italic-serif title + subtitle are gone; the section name now lives
-              in a small mono uppercase chip beside the wordmark, and the gear opens
-              SettingsModal which houses the font-size control. */}
+          {/* Header consolidation · Wave 14.
+              The microscope mark + "Antibacterial Reference" wordmark were
+              removed (per user feedback: redundant with the section nav
+              below, consume real estate). The Settings gear also moved to
+              the SectionNav row so this strip is now just the search input
+              on every viewport. The current-section identity lives in the
+              SectionNav's active chip. */}
           <div className="rx-headrow">
-            <div className="rx-mark"><Microscope size={16} /></div>
-            <div className="rx-brand">
-              <h1 className="rx-title">Antibacterial Reference</h1>
-              {SECTION_BY_ID[section] && (
-                <span className="rx-section-chip" aria-label={`Current section: ${SECTION_BY_ID[section].label}`}>
-                  {SECTION_BY_ID[section].label}
-                </span>
-              )}
-            </div>
             <div className="rx-searchwrap">
               <span className="rx-search-i"><Search size={15} /></span>
               <input className="rx-search rx-focus-halo" placeholder="Search  ⌘K" onFocus={_openCmd} readOnly />
             </div>
-            <button
-              type="button"
-              className="rx-headerbtn"
-              aria-label="Settings"
-              title="Settings"
-              onClick={() => setSettingsOpen(true)}
-            >
-              <SettingsIcon size={16} aria-hidden />
-            </button>
           </div>
           {/* Section-scoped tab sub-nav. Phase B1: filters the 11-tab bar
               to only the tabs that belong to the active section. Click a

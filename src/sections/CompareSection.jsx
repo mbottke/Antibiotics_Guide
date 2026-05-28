@@ -73,18 +73,7 @@ function CinematicHead({ kicker, headline, standfirst, watermark, icon = null })
       {/* Wave 9 W9 · pearlescent mesh wash for parity with the other
           reference hero blocks. Per-panel palette varies via the parent. */}
       <MeshWash variant="full" intensity="soft" palette="cyan-magenta-lime" />
-      <div
-        style={{
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          marginBottom: 14,
-        }}
-      >
-        <span className="rx-counter-strong" style={{ fontSize: 11 }}>{kicker}</span>
-        <Sparkle size={12} />
-      </div>
+      {/* Wave 14 — kicker row removed (redundant with SectionNav). */}
       <h1
         style={{
           position: "relative",

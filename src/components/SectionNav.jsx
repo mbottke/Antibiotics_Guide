@@ -15,6 +15,7 @@
 
    Inpatient Antibiotic Guide — module graph documented in README.md. */
 import React, { useEffect, useRef, useState, forwardRef } from "react";
+import { Settings as SettingsIcon } from "lucide-react";
 import { SECTIONS } from "../data/sections.js";
 import { SectionInkTrail } from "./SectionTransitions.jsx";
 
@@ -95,7 +96,7 @@ function NavChip({ s, active, onClick, registerRef, pulse, returning }) {
   );
 }
 
-const SectionNav = forwardRef(function SectionNav({ section, onSection, pulseId, isReturning, visited, trail }, navRef) {
+const SectionNav = forwardRef(function SectionNav({ section, onSection, pulseId, isReturning, visited, trail, onOpenSettings }, navRef) {
   /* The bar is a navigation, not a strict tablist — section "panels" in
      App.jsx don't carry 1:1 ids because each section contains multiple
      tab panels. aria-pressed communicates active state cleanly; matches
@@ -187,6 +188,50 @@ const SectionNav = forwardRef(function SectionNav({ section, onSection, pulseId,
             returning={!!(visited && visited.has(s.id) && section === s.id && isReturning)}
           />
         ))}
+        {/* Wave 14 — gear/Settings affordance lives at the right edge
+            of the section row (per user feedback to move it out of the
+            global header strip). The flex spacer pushes it to the far
+            right at all viewports; it sits inside the same horizontally
+            scrollable container so it doesn't crowd the chips on narrow
+            screens. Renders only when an onOpenSettings handler is
+            wired, so isolated test mounts of SectionNav don't break. */}
+        {onOpenSettings && (
+          <>
+            <span style={{ flex: "1 1 auto", minWidth: 0 }} />
+            <button
+              type="button"
+              onClick={onOpenSettings}
+              aria-label="Settings"
+              title="Settings"
+              className="rx-focus-halo"
+              style={{
+                flex: "0 0 auto",
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: 30, height: 30,
+                background: "rgba(255,255,255,.55)",
+                border: "1px solid var(--line)",
+                borderRadius: "6px 2px 6px 2px",
+                color: "var(--ink2)",
+                cursor: "pointer",
+                padding: 0,
+                transition:
+                  "color var(--duration-base, .18s) var(--ease-out, ease)," +
+                  " border-color var(--duration-base, .18s) var(--ease-out, ease)," +
+                  " background var(--duration-base, .18s) var(--ease-out, ease)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--ox)";
+                e.currentTarget.style.borderColor = "var(--ox-line)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--ink2)";
+                e.currentTarget.style.borderColor = "var(--line)";
+              }}
+            >
+              <SettingsIcon size={15} aria-hidden />
+            </button>
+          </>
+        )}
         {/* W12 · ink-trail overlay — paints a brief cyan brushstroke
             across the bar from the previous chip to the entering one
             on every section change. The component mounts inside the
