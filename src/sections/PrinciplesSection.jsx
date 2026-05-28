@@ -114,7 +114,7 @@ const W8_SUBTABS = [
 function W8MagazineHero({ kicker, title, standfirst, watermark = "P", counter }) {
   return (
     <header
-      className="rx-fade-in-up"
+      className="rx-fade-in-up rx-magazine-hero"
       style={{
         position: "relative",
         margin: "0 0 36px",

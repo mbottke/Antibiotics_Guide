@@ -212,6 +212,33 @@ const CSS = `
 @media (max-width: 720px){
   .rx-surface-bar{display:none;}
 }
+/* Wave 14 follow-up — compress the magazine hero block at the top of
+   each section / sub-tab on mobile. The 96 px italic-serif title was
+   eating ~50 % of the visible area before clinical content began on
+   a 393 × 852 viewport. Mobile rules tighten the padding, drop the
+   title floor to a reasonable size, shrink the italic standfirst, and
+   collapse the surrounding margins. Desktop layout is unchanged. */
+@media (max-width: 720px){
+  .rx-magazine-hero{
+    margin: 0 0 14px !important;
+    padding: 14px 14px 12px !important;
+  }
+  .rx-magazine-hero h1{
+    font-size: clamp(28px, 9vw, 40px) !important;
+    margin: 0 0 8px !important;
+    line-height: 1.05 !important;
+    max-width: none !important;
+  }
+  .rx-magazine-hero > div > div:first-child,
+  .rx-magazine-hero > div > div[style*="letter-spacing"]{
+    margin-bottom: 8px !important;
+  }
+  .rx-magazine-hero p{
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+    margin: 0 0 10px !important;
+  }
+}
 /* Wave 7 W7-B · the brand block becomes a gradient compass.
    Diagonal cyan-deep → cyan-bright gradient + cyan halo + a tiny
    inner highlight to read as a backlit chip. */

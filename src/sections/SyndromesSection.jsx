@@ -162,6 +162,7 @@ function SyndromesSection({
           together below.
           ============================================================ */}
       <header
+        className="rx-magazine-hero"
         style={{
           position: "relative",
           marginBottom: 28,
