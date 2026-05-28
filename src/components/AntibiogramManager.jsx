@@ -505,18 +505,25 @@ function AntibiogramManager({ open, onClose, antibiograms, activeId, onSelect, o
               </h2>
             </div>
           </div>
+          {/* Shared close-affordance — 28×28 icon button + 6/2/6/2
+              asymmetric corners. Identical pattern across every
+              drawer + modal so the dismiss gesture reads as one
+              shared affordance, not a per-surface variation. */}
           <button
             type="button"
             onClick={onClose}
             aria-label="Close antibiogram manager"
-            className="rx-magnetic rx-shine-sweep rx-focus-halo"
+            className="rx-magnetic rx-focus-halo"
             style={{
+              flex: "0 0 auto",
               display: "inline-flex", alignItems: "center", justifyContent: "center",
-              width: 32, height: 32,
+              width: 28, height: 28,
               color: "var(--ink2)",
               background: "rgba(0, 212, 255, 0.06)",
               border: "1px solid var(--neon-cyan-line, var(--ox-line))",
-              borderRadius: 999, cursor: "pointer",
+              borderRadius: "6px 2px 6px 2px",
+              cursor: "pointer",
+              transition: "background var(--duration-base, .18s) var(--ease-out, ease), color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease)",
             }}>
             <X size={14} aria-hidden />
           </button>

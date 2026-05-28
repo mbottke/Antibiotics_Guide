@@ -21,7 +21,11 @@ export const depthLayer = {
     return (
       <details id="ans-depth" style={{
         marginTop: 8, padding: 0,
-        border: "1px solid var(--line)", borderRadius: 8,
+        border: "1px solid var(--line)",
+        /* Asymmetric 10/3 — joins the medium-surface rung of the canvas
+           radius motif. The "more depth" expander is the same surface
+           class as a syndrome headline panel. */
+        borderRadius: "10px 3px 10px 3px",
         background: "var(--paper2)",
         scrollMarginTop: 96,
       }}>
@@ -34,7 +38,7 @@ export const depthLayer = {
             cursor: "pointer", padding: "10px 14px",
             fontFamily: "var(--mono)", fontSize: 11, fontWeight: 700,
             color: "var(--ox)", letterSpacing: ".08em", textTransform: "uppercase",
-            listStyle: "none", borderRadius: 8,
+            listStyle: "none", borderRadius: "10px 3px 10px 3px",
             display: "flex", alignItems: "center", gap: 8,
           }}
         >

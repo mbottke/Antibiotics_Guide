@@ -187,8 +187,10 @@ function DeltaChip({ delta }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        padding: "2px 9px",
-        borderRadius: "8px 3px 8px 3px",
+        /* Polish · chip-scale padding (3px 9px) + 6px radius, matching the
+           guide-wide chip vocabulary. */
+        padding: "3px 9px",
+        borderRadius: 6,
         border: `1px solid ${t.border}`,
         background: t.bg,
         color: t.fg,
@@ -197,6 +199,7 @@ function DeltaChip({ delta }) {
         fontWeight: 700,
         letterSpacing: ".05em",
         textTransform: "uppercase",
+        boxShadow: "var(--shadow-e0)",
       }}
     >
       {t.label}
@@ -223,8 +226,9 @@ function SeverityChip({ kind, value }) {
         display: "inline-flex",
         alignItems: "center",
         gap: 4,
-        padding: "1px 8px",
-        borderRadius: "8px 3px 8px 3px",
+        /* Polish · chip-scale padding (3px 9px) + 6px radius. */
+        padding: "3px 9px",
+        borderRadius: 6,
         border: `1px solid ${tone.border}`,
         background: tone.bg,
         color: tone.fg,
@@ -233,6 +237,7 @@ function SeverityChip({ kind, value }) {
         fontWeight: 700,
         letterSpacing: ".04em",
         textTransform: "uppercase",
+        boxShadow: "var(--shadow-e0)",
       }}
     >
       {kind === "cdiff" ? `C.diff ${value || "—"}` : `MDR ${value || "—"}`}
@@ -450,7 +455,9 @@ function CompareSection({
         the appropriate dosing strategy.
       </p>
 
-      {/* W8-C5 · matrix wrapped in an asymmetric grid with cyan accent rail */}
+      {/* W8-C5 · matrix wrapped in an asymmetric grid with cyan accent rail.
+          Polish · 14/4/14/4 radius matches the content-card scale used by
+          the rest of the panel; e1 shadow at rest. */}
       <div
         className="rx-fade-in-up"
         style={{
@@ -459,12 +466,12 @@ function CompareSection({
           gridTemplateColumns: "4px minmax(0, 1fr)",
           gap: 10,
           padding: 12,
-          borderRadius: "16px 4px 16px 4px",
+          borderRadius: "14px 4px 14px 4px",
           border: "1px solid var(--line)",
           background: "var(--paper)",
           boxShadow: "var(--shadow-e1)",
           overflow: "hidden",
-          marginBottom: 14,
+          marginBottom: 18,
         }}
       >
         <div
@@ -915,7 +922,9 @@ function RegimensComparePanel() {
           }}
         />
 
-        {/* Regimen A glass card (tl-br asymmetry) */}
+        {/* Regimen A glass card (tl-br asymmetry).
+            Polish · 14/4/14/4 radius matches the content-card scale; e1 at
+            rest (e2 is reserved for hover / sticky / active states). */}
         <div
           style={{
             position: "relative",
@@ -924,9 +933,9 @@ function RegimensComparePanel() {
             backdropFilter: "saturate(170%) blur(12px)",
             WebkitBackdropFilter: "saturate(170%) blur(12px)",
             border: "1px solid var(--neon-cyan, var(--line))",
-            borderRadius: "16px 4px 16px 4px",
+            borderRadius: "14px 4px 14px 4px",
             padding: 16,
-            boxShadow: "var(--shadow-e2)",
+            boxShadow: "var(--shadow-e1)",
           }}
         >
           <div className="rx-counter-strong" style={{ fontSize: 11, color: "var(--ox)" }}>
@@ -998,7 +1007,8 @@ function RegimensComparePanel() {
           </span>
         </div>
 
-        {/* Regimen B glass card (tr-bl asymmetry) */}
+        {/* Regimen B glass card (tr-bl asymmetry).
+            Polish · 14/4/14/4 mirror radius + e1 at rest. */}
         <div
           style={{
             position: "relative",
@@ -1007,9 +1017,9 @@ function RegimensComparePanel() {
             backdropFilter: "saturate(170%) blur(12px)",
             WebkitBackdropFilter: "saturate(170%) blur(12px)",
             border: "1px solid var(--hot-magenta, var(--line))",
-            borderRadius: "4px 16px 4px 16px",
+            borderRadius: "4px 14px 4px 14px",
             padding: 16,
-            boxShadow: "var(--shadow-e2)",
+            boxShadow: "var(--shadow-e1)",
           }}
         >
           <div className="rx-counter-strong" style={{ fontSize: 11, color: "var(--ox)" }}>
@@ -1368,8 +1378,8 @@ function RegimensComparePanel() {
       <div
         className="rx-card rx-fade-in-up"
         style={{
-          marginBottom: 16,
-          borderRadius: "16px 4px 16px 4px",
+          marginBottom: 18,
+          borderRadius: "14px 4px 14px 4px",
           boxShadow: "var(--shadow-e1)",
         }}
       >
@@ -1466,7 +1476,7 @@ function RegimensComparePanel() {
           (Microbiome / Toxicity / Evidence) at their natural heights when
           their bullet counts differ. */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, alignItems: "start" }}>
-        <div className="rx-card rx-fade-in-up" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
+        <div className="rx-card rx-fade-in-up" style={{ borderRadius: "14px 4px 14px 4px", boxShadow: "var(--shadow-e1)" }}>
           <h4><span className="ic"><Activity size={15} /></span>Microbiome impact</h4>
           <ul style={{ paddingLeft: 20, margin: 0 }}>
             <li><b>A:</b> worst C.diff = {diff.microbiome.a.cdiffMax || "—"} · MDR high count = {diff.microbiome.a.mdrCount.high}</li>
@@ -1476,14 +1486,14 @@ function RegimensComparePanel() {
             </li>
           </ul>
         </div>
-        <div className="rx-card rx-fade-in-up" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
+        <div className="rx-card rx-fade-in-up" style={{ borderRadius: "14px 4px 14px 4px", boxShadow: "var(--shadow-e1)" }}>
           <h4><span className="ic"><ShieldAlert size={15} /></span>Toxicity tally</h4>
           <ul style={{ paddingLeft: 20, margin: 0 }}>
             <li><b>A:</b> {diff.toxicity.a.total} flags ({diff.toxicity.a.majorCount} major)</li>
             <li><b>B:</b> {diff.toxicity.b.total} flags ({diff.toxicity.b.majorCount} major)</li>
           </ul>
         </div>
-        <div className="rx-card rx-fade-in-up" style={{ borderRadius: "16px 4px 16px 4px", boxShadow: "var(--shadow-e1)" }}>
+        <div className="rx-card rx-fade-in-up" style={{ borderRadius: "14px 4px 14px 4px", boxShadow: "var(--shadow-e1)" }}>
           <h4><span className="ic"><FlaskConical size={15} /></span>Evidence grade</h4>
           <ul style={{ paddingLeft: 20, margin: 0 }}>
             <li><b>A:</b> {diff.evidence.a.preferred.length} preferred · {diff.evidence.a.alternative.length} alt · {diff.evidence.a.offProtocol.length} off-protocol</li>

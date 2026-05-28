@@ -123,7 +123,9 @@ function W8MagazineHero({ kicker, title, standfirst, watermark = "P", counter })
         borderRadius: "18px 4px 18px 4px",
         background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.18))",
         border: `1px solid ${W7_GLASS_BORDER}`,
-        boxShadow: W7_GLASS_SHADOW,
+        /* Polish · token-driven elevation; the W7 composite drove the same
+           feel via a hardcoded rgba pair. */
+        boxShadow: "var(--shadow-e1)",
       }}
     >
       {/* Wave 9 W9 · pearlescent / liquid-metal wash behind the Principles
@@ -202,7 +204,9 @@ function W8SubTabRail({ activeTab }) {
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         border: `1px solid ${W7_GLASS_BORDER}`,
-        boxShadow: W7_GLASS_SHADOW,
+        /* Polish · token-driven elevation; rail sits as a sticky-style
+           strip on top of the panel. */
+        boxShadow: "var(--shadow-e1)",
         display: "flex",
         gap: 6,
         flexWrap: "wrap",
@@ -222,12 +226,15 @@ function W8SubTabRail({ activeTab }) {
               alignItems: "center",
               justifyContent: "space-between",
               gap: 12,
-              padding: "12px 16px",
-              borderRadius: "10px 2px 10px 2px",
+              padding: "10px 14px",
+              borderRadius: "10px 3px 10px 3px",
               background: active
                 ? `linear-gradient(135deg, ${CYAN_DEEP} 0%, ${CYAN_BRIGHT} 100%)`
                 : "transparent",
-              boxShadow: active ? CYAN_GLOW : "none",
+              /* Polish · active tab adopts the shadow-e2 lift (cards-hover
+                 elevation) so the active treatment is consistent with every
+                 other "active / hovered" surface on the guide. */
+              boxShadow: active ? "var(--shadow-e2)" : "none",
               color: active ? "#fff" : "var(--ink2)",
               transition: "background var(--duration-base, 180ms) var(--ease-out, ease), color var(--duration-base, 180ms) var(--ease-out, ease), box-shadow var(--duration-base, 180ms) var(--ease-out, ease)",
             }}
@@ -350,16 +357,17 @@ function W8StepCard({ index, heading, body, delay = 0 }) {
         display: "grid",
         gridTemplateColumns: "minmax(0, 40fr) minmax(0, 60fr)",
         gap: 24,
-        padding: "22px 22px 22px 22px",
-        marginTop: 14,
+        padding: "18px 20px",
+        marginTop: 12,
         background: "rgba(255,255,255,0.78)",
         border: `1px solid ${W7_GLASS_BORDER}`,
         borderRadius: "14px 4px 14px 4px",
-        boxShadow: hover
-          ? `${W7_GLASS_SHADOW}, ${CYAN_GLOW}`
-          : W7_GLASS_SHADOW,
-        transform: hover ? "translateY(-3px)" : "translateY(0)",
-        transition: "transform 220ms var(--ease-out, ease), box-shadow 220ms var(--ease-out, ease)",
+        /* Polish · calm motion register from PR #151 — e1 at rest, e2 on
+           hover, no extra cyan glow stacked on the composite. */
+        boxShadow: hover ? "var(--shadow-e2)" : "var(--shadow-e1)",
+        transform: hover ? "translateY(-1px)" : "translateY(0)",
+        transition: "transform var(--duration-base, 180ms) var(--ease-out, ease), box-shadow var(--duration-base, 180ms) var(--ease-out, ease), border-color var(--duration-base, 180ms) var(--ease-out, ease)",
+        borderColor: hover ? CYAN_LINE : W7_GLASS_BORDER,
         animationDelay: `${delay}ms`,
         overflow: "hidden",
       }}
@@ -461,10 +469,11 @@ function W8SepsisFlowDeck() {
                 background: "rgba(255,255,255,0.82)",
                 border: `1px solid ${isStart ? CYAN_LINE : W7_GLASS_BORDER}`,
                 borderRadius: i % 2 === 0 ? "14px 4px 14px 4px" : "4px 14px 4px 14px",
-                boxShadow: isStart
-                  ? `${W7_GLASS_SHADOW}, ${CYAN_GLOW}`
-                  : W7_GLASS_SHADOW,
-                transform: isStart ? "translateY(-3px)" : "translateY(0)",
+                /* Polish · the "active" start step adopts shadow-e2 (active
+                   surface elevation) rather than stacking a cyan glow on top
+                   of the W7 composite. Calm-motion lift is -1px (see PR #151). */
+                boxShadow: isStart ? "var(--shadow-e2)" : "var(--shadow-e1)",
+                transform: isStart ? "translateY(-1px)" : "translateY(0)",
                 transition: "transform var(--duration-base, 180ms) var(--ease-out, ease)",
               }}
             >
@@ -548,7 +557,8 @@ function W8TreeContainer({ index, total, children }) {
         backdropFilter: "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
         border: `1px solid ${W7_GLASS_BORDER}`,
-        boxShadow: "var(--shadow-e2)",
+        /* Polish · e1 at rest (was e2 — overly lifted for a static container). */
+        boxShadow: "var(--shadow-e1)",
         borderRadius: "18px 4px 18px 4px",
         /* W12 viewport density · clamp 22 → 16 at the narrow end so the
            glass panel stays generous on a 1440 canvas but tightens up on a
@@ -581,13 +591,15 @@ function W8CitationCard({ id, year, body, title, journal, onOpen, delay = 0 }) {
         display: "grid",
         gridTemplateColumns: "minmax(78px, 96px) 1fr",
         gap: 18,
-        padding: "16px 18px",
+        padding: "14px 16px",
         background: "rgba(255,255,255,0.82)",
         border: `1px solid ${hover ? CYAN_LINE : W7_GLASS_BORDER}`,
         borderRadius: "14px 4px 14px 4px",
-        boxShadow: hover ? `${W7_GLASS_SHADOW}, ${CYAN_GLOW}` : W7_GLASS_SHADOW,
-        transform: hover ? "translateY(-2px)" : "translateY(0)",
-        transition: "transform 220ms var(--ease-out, ease), box-shadow 220ms var(--ease-out, ease), border-color 220ms var(--ease-out, ease)",
+        /* Polish · calm-motion register — e1 at rest, e2 on hover, no
+           stacked cyan-glow composite. */
+        boxShadow: hover ? "var(--shadow-e2)" : "var(--shadow-e1)",
+        transform: hover ? "translateY(-1px)" : "translateY(0)",
+        transition: "transform var(--duration-base, 180ms) var(--ease-out, ease), box-shadow var(--duration-base, 180ms) var(--ease-out, ease), border-color var(--duration-base, 180ms) var(--ease-out, ease)",
         cursor: "pointer",
         font: "inherit",
         color: "inherit",

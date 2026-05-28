@@ -64,7 +64,9 @@ function RiskRow({ risk }) {
       background: sty.bg,
       border: "1px solid " + sty.line,
       borderLeft: "3px solid " + sty.color,
-      borderRadius: 7,
+      /* Medium-surface 10/3 — shared rhythm with the other row primitives
+         (objections, reasoning trace, duration branches). */
+      borderRadius: "10px 3px 10px 3px",
     }}>
       {/* Severity badge column */}
       <div style={{

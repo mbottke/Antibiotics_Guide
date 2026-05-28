@@ -186,7 +186,8 @@ function SurgeProtocolsBlock({ protocols }) {
       <div style={{
         background: "rgba(185, 28, 28, 0.04)",
         border: "1px solid rgba(185, 28, 28, 0.2)",
-        borderRadius: 7,
+        /* Medium-surface 10/3 — shared headline-panel rhythm. */
+        borderRadius: "10px 3px 10px 3px",
         padding: "8px 11px",
         marginBottom: 10,
       }}>

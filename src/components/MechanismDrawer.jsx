@@ -192,6 +192,9 @@ function FamilyBadge({ family }) {
   );
 }
 
+/* Shared close-affordance — 28×28 icon button, 14 px X, asymmetric
+   6/2/6/2 corners. Same pattern lives in every drawer + modal so the
+   dismiss gesture is identical across the chrome system. */
 function CloseButton({ onClose, label }) {
   const ref = useRef(null);
   useRipple(ref);
@@ -201,21 +204,20 @@ function CloseButton({ onClose, label }) {
       type="button"
       onClick={onClose}
       aria-label={label}
-      className="rx-magnetic rx-shine-sweep rx-ripple rx-focus-halo"
+      className="rx-magnetic rx-ripple rx-focus-halo"
       style={{
-        display: "inline-flex", alignItems: "center", gap: 5,
+        flex: "0 0 auto",
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        width: 28, height: 28,
         background: "rgba(0, 212, 255, 0.06)",
         border: "1px solid var(--neon-cyan-line, var(--ox-line))",
-        /* Asymmetric corners on the close pill — matches the panel itself. */
-        borderRadius: "999px",
-        padding: "5px 12px 5px 10px", cursor: "pointer",
-        color: "var(--ink)",
-        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-        letterSpacing: ".08em", textTransform: "uppercase",
+        borderRadius: "6px 2px 6px 2px",
+        cursor: "pointer",
+        color: "var(--ink2)",
         transition: "background var(--duration-base, .18s) var(--ease-out, ease), color var(--duration-base, .18s) var(--ease-out, ease), border-color var(--duration-base, .18s) var(--ease-out, ease)",
       }}
     >
-      <X size={12} aria-hidden /> Close
+      <X size={14} aria-hidden />
     </button>
   );
 }

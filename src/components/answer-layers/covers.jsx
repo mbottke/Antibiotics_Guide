@@ -11,7 +11,6 @@ import { Check, Bug } from "lucide-react";
 import { Section } from "../Section.jsx";
 import { renderGloss } from "../rich-text.jsx";
 import { ORG_BY_ID } from "../../data/organisms.js";
-import { AsymmetricCard } from "../decor/AsymmetricCard.jsx";
 import { Sparkle } from "../decor/Sparkle.jsx";
 import { GradientHairline } from "../decor/GradientHairline.jsx";
 
@@ -130,13 +129,17 @@ export const coversLayer = {
             {renderGloss(s.cover.empiric, onDrug)}
           </div>
           <GradientHairline variant="cyan-blue" style={{ margin: "10px 0 12px" }} />
-          <AsymmetricCard
-            pattern="tl-br"
-            elevation="e0"
+          {/* Flat tinted "drop" callout — matches the start.jsx tier-card
+              register (no inner card shadow; the outer Section already
+              supplies panel chrome). Asymmetric 10/3 corners carry the
+              canvas-wide radius motif without restacking another e0
+              shadow on top of the section's e1. */}
+          <div
             style={{
               padding: "12px 14px",
               background: "var(--ox-softer)",
-              borderColor: "var(--ox-line)",
+              border: "1px solid var(--ox-line)",
+              borderRadius: "10px 3px 10px 3px",
             }}
           >
             <div style={{
@@ -149,7 +152,7 @@ export const coversLayer = {
             <div style={{ fontSize: 12.5, color: "var(--ink)", lineHeight: 1.55 }}>
               {renderGloss(s.cover.drop, onDrug)}
             </div>
-          </AsymmetricCard>
+          </div>
         </div>
       </Section>
     );

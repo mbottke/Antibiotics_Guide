@@ -379,9 +379,9 @@ function SpectrumChip({ k, label, active, onClick }) {
         textTransform: "uppercase",
         cursor: "pointer",
         boxShadow: active
-          ? "0 0 0 3px rgba(34,211,238,0.12), 0 1px 0 rgba(0,0,0,0.02)"
-          : "none",
-        transition: "all 160ms cubic-bezier(0.16,1,0.3,1)",
+          ? "var(--shadow-e2), 0 0 0 3px var(--neon-cyan-soft)"
+          : "var(--shadow-e0)",
+        transition: "transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out)",
       }}
     >
       <span style={{ display: "inline-flex" }}>{CHIP_ICON[k]}</span>
@@ -1057,11 +1057,11 @@ function AgentsSection({
       <style>{`
         .rx-drugrow{ box-shadow: inset 2px 0 0 transparent; }
         .rx-drugrow:hover{
-          box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)), 0 6px 20px -10px rgba(0,212,255,0.25);
+          box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)), var(--shadow-e2);
           background: linear-gradient(90deg, color-mix(in srgb, var(--neon-cyan, var(--ox)) 4%, transparent), transparent 60%);
         }
         .rx-drugrow[data-prototype="true"]{ box-shadow: inset 3px 0 0 color-mix(in srgb, var(--neon-cyan, var(--ox)) 55%, transparent); }
-        .rx-drugrow[data-prototype="true"]:hover{ box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)), 0 6px 20px -10px rgba(0,212,255,0.3); }
+        .rx-drugrow[data-prototype="true"]:hover{ box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)), var(--shadow-e2); }
         @media (prefers-reduced-motion: reduce){
           .rx-drugrow:hover{ background: transparent; box-shadow: inset 3px 0 0 var(--neon-cyan, var(--ox)); }
         }

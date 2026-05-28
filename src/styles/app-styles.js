@@ -497,7 +497,7 @@ const CSS2 = `
    different copy lengths don't both stretch to the taller one's height. */
 .rx-coverrow{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0 2px; align-items:start;}
 @media (max-width:560px){.rx-coverrow{grid-template-columns:1fr;}}
-.rx-coverbox{background:var(--line3); border:1px solid var(--line2); border-radius:9px; padding:10px 12px;}
+.rx-coverbox{background:var(--line3); border:1px solid var(--line2); border-radius:10px 3px 10px 3px; padding:10px 12px;}
 .rx-coverbox .h{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ox); font-weight:600; margin-bottom:3px;}
 .rx-coverbox .t{font-size:12.5px; color:var(--ink2); line-height:1.5;}
 .rx-metarow{display:flex; flex-wrap:wrap; gap:6px 16px; margin:14px 0 2px; font-size:12.5px; align-items:baseline;}
@@ -574,7 +574,7 @@ const CSS3 = `
 .rx-ladder{display:flex; flex-direction:column; gap:0; margin:14px 0;}
 .rx-rung{display:grid; grid-template-columns:46px 1fr; gap:0; position:relative;}
 .rx-rung-rail{position:relative; display:flex; flex-direction:column; align-items:center;}
-.rx-rung-dot{width:32px; height:32px; border-radius:10px 3px 10px 3px; background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 220%); color:#fff; font-family:var(--mono); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:1; margin-top:14px; flex:0 0 auto; box-shadow:0 4px 12px -3px var(--ox-bright);}
+.rx-rung-dot{width:32px; height:32px; border-radius:10px 3px 10px 3px; background:linear-gradient(135deg, var(--ox-deep) 0%, var(--ox) 60%, var(--ox-bright) 220%); color:#fff; font-family:var(--mono); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:1; margin-top:14px; flex:0 0 auto; box-shadow:var(--shadow-e2);}
 .rx-rung-line{position:absolute; top:14px; bottom:-14px; width:2px; background:var(--ox-line); left:50%; transform:translateX(-50%);}
 .rx-rung:last-child .rx-rung-line{display:none;}
 .rx-rung-body{padding:12px 0 12px 14px;}
@@ -628,7 +628,7 @@ const CSS3 = `
 .rx-seg{display:flex; gap:6px;}
 .rx-seg button{flex:1; padding:8px; border:1px solid var(--line); background:var(--panel); border-radius:8px; cursor:pointer; font-family:var(--sans); font-size:13px; font-weight:600; color:var(--ink2);}
 .rx-seg button[aria-pressed="true"]{background:var(--ox); color:#fff; border-color:var(--ox);}
-.rx-result{background:var(--ox-soft); border:1px solid var(--ox-line); border-top:3px solid var(--ox); color:var(--ink); border-radius:12px; padding:22px 20px; text-align:center;}
+.rx-result{background:var(--ox-soft); border:1px solid var(--ox-line); border-top:3px solid var(--ox); color:var(--ink); border-radius:14px 4px 14px 4px; padding:22px 20px; text-align:center; box-shadow:var(--shadow-e1);}
 .rx-result .num{font-family:var(--mono); font-size:46px; font-weight:600; line-height:1; letter-spacing:-.02em; color:var(--ox-deep);}
 .rx-result .unit{font-family:var(--mono); font-size:13px; color:var(--muted); margin-top:4px;}
 .rx-result .band{display:inline-flex; align-items:center; gap:6px; margin-top:13px; font-size:13px; font-weight:600; padding:5px 13px; border-radius:999px; background:var(--panel); border:1px solid var(--ox-line); color:var(--ink) !important;}
@@ -714,7 +714,9 @@ const CSS4 = `
    height with empty card-bottoms on the shorter ones. */
 .rx-axis{display:grid; grid-template-columns:1fr 1fr 1fr; gap:13px; margin:14px 0; align-items:start;}
 @media (max-width:820px){.rx-axis{grid-template-columns:1fr;}}
-.rx-axiscard{border:1px solid var(--line); border-radius:14px 4px 14px 4px; padding:14px 15px; background:var(--panel);}
+/* Polish · token shadow at rest; the surrounding .rx-glow-lift utility
+   (see glass.js) supplies the calm hover lift (translateY -1px + e2). */
+.rx-axiscard{border:1px solid var(--line); border-radius:14px 4px 14px 4px; padding:14px 15px; background:var(--panel); box-shadow:var(--shadow-e1);}
 .rx-axiscard .ax-k{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ox); font-weight:600;}
 .rx-axiscard .ax-t{font-weight:700; font-size:14px; margin:4px 0 2px;}
 .rx-axiscard .ax-pd{font-family:var(--mono); font-size:11px; color:var(--ink2); margin:2px 0 8px;}
@@ -864,7 +866,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-wt-cell .k{font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600;}
 .rx-wt-cell .v{font-size:15px; font-weight:600;}
 .rx-wt-rule{font-size:12px; color:var(--ink2); line-height:1.5; margin:10px 0 0;}
-.rx-wt-vanco{font-size:12px; color:var(--ox); background:var(--ox-softer); border:1px solid var(--ox-line); border-radius:8px; padding:8px 10px; margin-top:10px; line-height:1.45;}
+.rx-wt-vanco{font-size:12px; color:var(--ox); background:var(--ox-softer); border:1px solid var(--ox-line); border-radius:10px 3px 10px 3px; padding:8px 10px; margin-top:10px; line-height:1.45;}
 .rx-wt-vanco-note{font-size:10.5px; color:var(--muted); margin-top:6px; padding-top:6px; border-top:1px solid var(--ox-line); line-height:1.4;}
 
 /* ============================ v3 · PHASE B1 ============================ */
@@ -916,7 +918,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 
 /* ============================ v3 · PHASE B2 ============================ */
 /* regimen builder panel */
-.rx-builder{border:1px solid var(--ox-line); background:linear-gradient(180deg,var(--ox-softer),var(--paper)); border-radius:13px; padding:16px 18px; margin-bottom:20px;}
+.rx-builder{border:1px solid var(--ox-line); background:linear-gradient(180deg,var(--ox-softer),var(--paper)); border-radius:14px 4px 14px 4px; padding:16px 18px; margin-bottom:20px; box-shadow:var(--shadow-e1);}
 .rx-builder-h{display:flex; align-items:center; gap:8px; font-family:var(--serif); font-size:16px; font-weight:600; color:var(--ink); margin-bottom:4px;}
 .rx-builder-h svg{color:var(--ox);}
 .rx-builder-sub{font-size:12px; color:var(--ink2); line-height:1.5; margin:0 0 13px;}
@@ -1093,7 +1095,9 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
    (peak / time>MIC / AUC) stay at their natural heights when their
    per-card copy differs in length. */
 .rx-pkpd-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; align-items:start;}
-.rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:14px 15px;}
+/* Polish · token shadow at rest; .rx-glow-lift on the host supplies the
+   calm hover register from PR #151. */
+.rx-pkpd-card{background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--ox); border-radius:14px 4px 14px 4px; padding:14px 15px; box-shadow:var(--shadow-e1);}
 .rx-pkpd-h{display:flex; align-items:center; gap:7px; font-family:var(--sans); font-size:13px; font-weight:700; color:var(--ink); margin-bottom:7px;}
 .rx-pkpd-h svg{color:var(--ox); flex:0 0 auto;}
 .rx-pkpd-tgt{font-family:var(--mono); font-size:12px; color:var(--ox); margin-bottom:7px;}
@@ -1101,16 +1105,21 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 .rx-pkpd-do{font-size:12px; color:var(--ink2); line-height:1.5;}
 
 /* ============================ v3 · PHASE D1 ============================ */
-.rx-cmp{border:1px solid var(--line); border-radius:13px; background:var(--panel); padding:15px 16px; margin:0 0 18px;}
+/* Polish · Compare-surface SpectrumCompare card. Aligns to the guide-wide
+   scale used by every other Compare card: 14/4/14/4 asymmetric radius,
+   18px section padding, --shadow-e1 at rest. Inner selects / buttons land
+   on 10/3/10/3 (medium card scale). */
+.rx-cmp{border:1px solid var(--line); border-radius:14px 4px 14px 4px; background:var(--panel); padding:18px; margin:0 0 18px; box-shadow:var(--shadow-e1);}
 .rx-cmp-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px;}
 .rx-cmp-h{display:flex; align-items:center; gap:8px; font-family:var(--serif); font-size:16px; font-weight:600; color:var(--ink);}
 .rx-cmp-h svg{color:var(--ox);}
 .rx-cmp-diff{font-family:var(--mono); font-size:11px; color:var(--ox); font-weight:600;}
 .rx-cmp-pickers{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
 .rx-cmp-pick{flex:1; min-width:0; display:flex; gap:6px;}
-.rx-cmp-sel{flex:1; min-width:0; font-family:var(--sans); font-size:12.5px; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:8px 10px; cursor:pointer;}
+.rx-cmp-sel{flex:1; min-width:0; font-family:var(--sans); font-size:12.5px; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:10px 3px 10px 3px; padding:8px 10px; cursor:pointer; transition:border-color var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out);}
+.rx-cmp-sel:hover{border-color:var(--ox-line); background:var(--ox-softer);}
 .rx-cmp-sel:focus-visible{outline:2px solid var(--ox); outline-offset:1px;}
-.rx-cmp-open{flex:0 0 auto; width:34px; border:1px solid var(--line); background:var(--paper); color:var(--ink2); border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .14s,color .14s;}
+.rx-cmp-open{flex:0 0 auto; width:34px; border:1px solid var(--line); background:var(--paper); color:var(--ink2); border-radius:10px 3px 10px 3px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);}
 .rx-cmp-open:hover{background:var(--ox-soft); color:var(--ox); border-color:var(--ox-line);}
 .rx-cmp-vs{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; flex:0 0 auto;}
 .rx-cmptable{width:100%; border-collapse:collapse; font-size:12.5px;}
@@ -1197,7 +1206,7 @@ button.rx-ctxchip:hover{background:rgba(255,255,255,.22);}
 
 /* ===================== v3 · SOURCE-CONTROL BANNER ===================== */
 .rx-srcctrl{ display:flex; align-items:flex-start; gap:10px; margin:0 0 14px; padding:11px 13px;
-  background:var(--ox-soft); border:1px solid var(--ox-line); border-left:3px solid var(--ox); border-radius:9px;
+  background:var(--ox-soft); border:1px solid var(--ox-line); border-left:3px solid var(--ox); border-radius:10px 3px 10px 3px;
   font-size:12.5px; line-height:1.5; color:var(--ink); }
 .rx-srcctrl svg{ flex:0 0 auto; color:var(--ox); margin-top:1px; }
 .rx-srcctrl b{ color:var(--ox-deep); }

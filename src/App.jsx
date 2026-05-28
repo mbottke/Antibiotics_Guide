@@ -1320,7 +1320,7 @@ export default function InpatientAbxGuide() {
             </div>
             <div className="rx-searchwrap">
               <span className="rx-search-i"><Search size={15} /></span>
-              <input className="rx-search" placeholder="Search  ⌘K" onFocus={_openCmd} readOnly />
+              <input className="rx-search rx-focus-halo" placeholder="Search  ⌘K" onFocus={_openCmd} readOnly />
             </div>
           </div>
           {/* Section-scoped tab sub-nav. Phase B1: filters the 11-tab bar

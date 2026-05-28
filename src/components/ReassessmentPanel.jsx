@@ -102,7 +102,8 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
       aria-pressed={!!clinical[key]}
       style={{
         display:"inline-flex", alignItems:"center", gap:6,
-        fontSize:12, fontWeight:600, padding:"6px 11px", borderRadius:8,
+        /* Chip radius 6 — joins the chip family on the canvas radius motif. */
+        fontSize:12, fontWeight:600, padding:"6px 11px", borderRadius:6,
         background: clinical[key] ? "var(--decision-start-bg)" : "var(--paper2)",
         color: clinical[key] ? "var(--decision-start)" : "var(--ink2)",
         border: `1px solid ${clinical[key] ? "var(--decision-start-line)" : "var(--line)"}`,
@@ -153,7 +154,8 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
               <button key={k} type="button" onClick={() => setCultureStatus(k)}
                 aria-pressed={cultures.status === k}
                 style={{
-                  fontSize:12, fontWeight:600, padding:"5px 12px", borderRadius:8,
+                  /* Chip radius 6 — pill-button family alignment. */
+                  fontSize:12, fontWeight:600, padding:"5px 12px", borderRadius:6,
                   background: cultures.status === k ? "var(--ox)" : "var(--paper2)",
                   color: cultures.status === k ? "#fff" : "var(--ink2)",
                   border: `1px solid ${cultures.status === k ? "var(--ox)" : "var(--line)"}`,
@@ -263,7 +265,8 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
             {r.directed && (
               <div className="rx-glass-bleed" style={{
                 padding:"10px 12px", background:"var(--ox-softer)", border:"1px solid var(--ox-line)",
-                borderRadius:8, marginBottom:8, position: "relative",
+                /* Medium-surface 10/3 — shared headline-panel rhythm. */
+                borderRadius:"10px 3px 10px 3px", marginBottom:8, position: "relative",
               }}>
                 <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5, position: "relative", zIndex: 2 }}>
                   <Crosshair size={12} color="var(--ox)"/>
@@ -271,7 +274,7 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
                   <button type="button" onClick={() => onOrg && onOrg(r.cultures.organism)}
                     style={{
                       fontSize:11.5, fontWeight:600, color:"var(--ox)", background:"var(--panel)",
-                      border:"1px solid var(--ox-line)", borderRadius:5, padding:"2px 7px", cursor:"pointer",
+                      border:"1px solid var(--ox-line)", borderRadius:6, padding:"2px 7px", cursor:"pointer",
                     }}>
                     <Bug size={10} style={{ verticalAlign:"-1px", marginRight:3 }}/> {r.cultures.label}
                   </button>
@@ -297,7 +300,8 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
             {r.drop.length > 0 && (
               <div style={{
                 padding:"10px 12px", background:"var(--decision-avoid-bg)", border:"1px solid var(--decision-avoid-line)",
-                borderRadius:8, marginBottom:8,
+                /* Medium-surface 10/3 — shared rhythm with the NARROW TO panel. */
+                borderRadius:"10px 3px 10px 3px", marginBottom:8,
               }}>
                 <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
                   <Scissors size={12} color="var(--decision-avoid)"/>
@@ -327,7 +331,8 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
             {r.ivpo && (
               <div style={{
                 padding:"10px 12px", background:"var(--decision-start-bg)", border:"1px solid var(--decision-start-line)",
-                borderRadius:8, marginBottom:8,
+                /* Medium-surface 10/3 — shared rhythm. */
+                borderRadius:"10px 3px 10px 3px", marginBottom:8,
               }}>
                 <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
                   <ArrowRight size={12} color="var(--decision-start)"/>
@@ -364,7 +369,8 @@ function ReassessmentPanel({ caseState, setCaseState, empiric, onDrug, onOrg, ha
             {r.duration && !hasStructuredDuration && (
               <div style={{
                 padding:"10px 12px", background:"var(--paper2)", border:"1px solid var(--line)",
-                borderRadius:8,
+                /* Medium-surface 10/3 — shared rhythm. */
+                borderRadius:"10px 3px 10px 3px",
               }}>
                 <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
                   <Clock size={12} color="var(--ink2)"/>
